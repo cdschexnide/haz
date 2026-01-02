@@ -1,0 +1,473 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SDDGVerificationScreen renders correctly 1`] = `
+<View
+  style={
+    {
+      "backgroundColor": "#F8F9FA",
+      "flex": 1,
+    }
+  }
+>
+  <View
+    onLayout={[Function]}
+    style={
+      [
+        {
+          "backgroundColor": "#F8F9FA",
+          "flex": 1,
+        },
+        {
+          "paddingBottom": 0,
+        },
+      ]
+    }
+  >
+    <View
+      style={
+        {
+          "alignItems": "center",
+          "backgroundColor": "#FFFFFF",
+          "borderBottomColor": "#E5E5EA",
+          "borderBottomWidth": 1,
+          "flexDirection": "row",
+          "paddingHorizontal": 16,
+          "paddingVertical": 12,
+        }
+      }
+    >
+      <View
+        accessibilityState={
+          {
+            "busy": undefined,
+            "checked": undefined,
+            "disabled": undefined,
+            "expanded": undefined,
+            "selected": undefined,
+          }
+        }
+        accessibilityValue={
+          {
+            "max": undefined,
+            "min": undefined,
+            "now": undefined,
+            "text": undefined,
+          }
+        }
+        accessible={true}
+        collapsable={false}
+        focusable={true}
+        onClick={[Function]}
+        onResponderGrant={[Function]}
+        onResponderMove={[Function]}
+        onResponderRelease={[Function]}
+        onResponderTerminate={[Function]}
+        onResponderTerminationRequest={[Function]}
+        onStartShouldSetResponder={[Function]}
+        style={
+          {
+            "opacity": 1,
+          }
+        }
+      >
+        <View
+          color="#007AFF"
+          name="close"
+          size={24}
+          testID="icon-close"
+        />
+      </View>
+      <Text
+        style={
+          {
+            "color": "#1D1D1F",
+            "flex": 1,
+            "fontSize": 18,
+            "fontWeight": "600",
+            "marginHorizontal": 8,
+            "textAlign": "center",
+          }
+        }
+      >
+        Verify SDDG Data
+      </Text>
+      <Text
+        style={
+          {
+            "color": "#007AFF",
+            "fontSize": 16,
+            "fontWeight": "500",
+          }
+        }
+      >
+        1
+        /
+        22
+      </Text>
+    </View>
+    <View
+      style={
+        {
+          "backgroundColor": "#FFFFFF",
+          "paddingHorizontal": 16,
+          "paddingVertical": 12,
+        }
+      }
+    >
+      <View
+        style={
+          {
+            "backgroundColor": "#E5E5EA",
+            "borderRadius": 2,
+            "height": 4,
+            "overflow": "hidden",
+          }
+        }
+      >
+        <View
+          style={
+            [
+              {
+                "backgroundColor": "#007AFF",
+                "borderRadius": 2,
+                "height": "100%",
+              },
+              {
+                "width": "4.545454545454546%",
+              },
+            ]
+          }
+        />
+      </View>
+    </View>
+    <RCTScrollView
+      contentContainerStyle={
+        {
+          "flexGrow": 1,
+          "padding": 16,
+          "paddingBottom": 20,
+        }
+      }
+      keyboardShouldPersistTaps="handled"
+      showsVerticalScrollIndicator={false}
+      style={
+        {
+          "flex": 1,
+        }
+      }
+    >
+      <View>
+        <View
+          style={
+            {
+              "backgroundColor": "#FFFFFF",
+              "borderRadius": 12,
+              "elevation": 3,
+              "flex": 1,
+              "justifyContent": "space-between",
+              "minHeight": "70%",
+              "padding": 20,
+              "shadowColor": "#000",
+              "shadowOffset": {
+                "height": 2,
+                "width": 0,
+              },
+              "shadowOpacity": 0.1,
+              "shadowRadius": 8,
+            }
+          }
+        >
+          <View
+            style={
+              {
+                "flex": 1,
+              }
+            }
+          >
+            <View
+              style={
+                {
+                  "alignItems": "center",
+                  "flexDirection": "row",
+                  "marginBottom": 16,
+                }
+              }
+            >
+              <Text
+                style={
+                  {
+                    "color": "#1D1D1F",
+                    "flex": 1,
+                    "fontSize": 20,
+                    "fontWeight": "600",
+                  }
+                }
+              >
+                SHIPPER (Key 1)
+              </Text>
+            </View>
+            <Text
+              style={
+                {
+                  "color": "#8E8E93",
+                  "fontSize": 14,
+                  "fontWeight": "500",
+                  "marginBottom": 8,
+                }
+              }
+            >
+              Extracted Value:
+            </Text>
+            <View
+              style={
+                {
+                  "backgroundColor": "#F8F9FA",
+                  "borderColor": "#E5E5EA",
+                  "borderRadius": 8,
+                  "borderWidth": 1,
+                  "marginBottom": 20,
+                  "minHeight": 60,
+                  "padding": 16,
+                }
+              }
+            >
+              <Text
+                style={
+                  {
+                    "color": "#1D1D1F",
+                    "fontSize": 16,
+                    "lineHeight": 22,
+                  }
+                }
+              >
+                Test Shipper
+              </Text>
+            </View>
+          </View>
+          <View
+            style={
+              {
+                "flexDirection": "row",
+                "gap": 12,
+              }
+            }
+          >
+            <View
+              accessibilityState={
+                {
+                  "busy": undefined,
+                  "checked": undefined,
+                  "disabled": undefined,
+                  "expanded": undefined,
+                  "selected": undefined,
+                }
+              }
+              accessibilityValue={
+                {
+                  "max": undefined,
+                  "min": undefined,
+                  "now": undefined,
+                  "text": undefined,
+                }
+              }
+              accessible={true}
+              collapsable={false}
+              focusable={true}
+              onClick={[Function]}
+              onResponderGrant={[Function]}
+              onResponderMove={[Function]}
+              onResponderRelease={[Function]}
+              onResponderTerminate={[Function]}
+              onResponderTerminationRequest={[Function]}
+              onStartShouldSetResponder={[Function]}
+              style={
+                {
+                  "alignItems": "center",
+                  "backgroundColor": "#34C759",
+                  "borderRadius": 12,
+                  "elevation": 3,
+                  "flex": 1,
+                  "flexDirection": "row",
+                  "justifyContent": "center",
+                  "opacity": 1,
+                  "paddingHorizontal": 20,
+                  "paddingVertical": 16,
+                  "shadowColor": "#34C759",
+                  "shadowOffset": {
+                    "height": 2,
+                    "width": 0,
+                  },
+                  "shadowOpacity": 0.2,
+                  "shadowRadius": 4,
+                }
+              }
+            >
+              <View
+                color="#FFFFFF"
+                name="check-circle"
+                size={24}
+                testID="icon-check-circle"
+              />
+              <Text
+                style={
+                  {
+                    "color": "#FFFFFF",
+                    "fontSize": 16,
+                    "fontWeight": "600",
+                    "marginLeft": 8,
+                  }
+                }
+              >
+                Data Accurate
+              </Text>
+            </View>
+            <View
+              accessibilityState={
+                {
+                  "busy": undefined,
+                  "checked": undefined,
+                  "disabled": undefined,
+                  "expanded": undefined,
+                  "selected": undefined,
+                }
+              }
+              accessibilityValue={
+                {
+                  "max": undefined,
+                  "min": undefined,
+                  "now": undefined,
+                  "text": undefined,
+                }
+              }
+              accessible={true}
+              collapsable={false}
+              focusable={true}
+              onClick={[Function]}
+              onResponderGrant={[Function]}
+              onResponderMove={[Function]}
+              onResponderRelease={[Function]}
+              onResponderTerminate={[Function]}
+              onResponderTerminationRequest={[Function]}
+              onStartShouldSetResponder={[Function]}
+              style={
+                {
+                  "alignItems": "center",
+                  "backgroundColor": "#FF3B30",
+                  "borderRadius": 12,
+                  "elevation": 3,
+                  "flex": 1,
+                  "flexDirection": "row",
+                  "justifyContent": "center",
+                  "opacity": 1,
+                  "paddingHorizontal": 20,
+                  "paddingVertical": 16,
+                  "shadowColor": "#FF3B30",
+                  "shadowOffset": {
+                    "height": 2,
+                    "width": 0,
+                  },
+                  "shadowOpacity": 0.2,
+                  "shadowRadius": 4,
+                }
+              }
+            >
+              <View
+                color="#FFFFFF"
+                name="error"
+                size={24}
+                testID="icon-error"
+              />
+              <Text
+                style={
+                  {
+                    "color": "#FFFFFF",
+                    "fontSize": 16,
+                    "fontWeight": "600",
+                    "marginLeft": 8,
+                  }
+                }
+              >
+                Data Incorrect or Missing
+              </Text>
+            </View>
+          </View>
+        </View>
+      </View>
+    </RCTScrollView>
+    <View
+      style={
+        {
+          "backgroundColor": "#FFFFFF",
+          "borderTopColor": "#E5E5EA",
+          "borderTopWidth": 1,
+          "paddingBottom": 16,
+          "paddingHorizontal": 16,
+          "paddingTop": 12,
+        }
+      }
+    >
+      <View
+        accessibilityState={
+          {
+            "busy": undefined,
+            "checked": undefined,
+            "disabled": true,
+            "expanded": undefined,
+            "selected": undefined,
+          }
+        }
+        accessibilityValue={
+          {
+            "max": undefined,
+            "min": undefined,
+            "now": undefined,
+            "text": undefined,
+          }
+        }
+        accessible={true}
+        collapsable={false}
+        focusable={false}
+        onClick={[Function]}
+        onResponderGrant={[Function]}
+        onResponderMove={[Function]}
+        onResponderRelease={[Function]}
+        onResponderTerminate={[Function]}
+        onResponderTerminationRequest={[Function]}
+        onStartShouldSetResponder={[Function]}
+        style={
+          {
+            "alignItems": "center",
+            "flexDirection": "row",
+            "opacity": 0.5,
+            "paddingHorizontal": 12,
+            "paddingVertical": 8,
+          }
+        }
+      >
+        <View
+          color="#C7C7CC"
+          name="chevron-left"
+          size={24}
+          testID="icon-chevron-left"
+        />
+        <Text
+          style={
+            [
+              {
+                "color": "#007AFF",
+                "fontSize": 16,
+                "marginLeft": 4,
+              },
+              {
+                "color": "#C7C7CC",
+              },
+            ]
+          }
+        >
+          Back
+        </Text>
+      </View>
+    </View>
+  </View>
+</View>
+`;

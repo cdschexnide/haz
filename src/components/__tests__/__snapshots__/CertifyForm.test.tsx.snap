@@ -1,0 +1,478 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CertifyForm renders correctly 1`] = `
+<RCTScrollView>
+  <View>
+    <View
+      style={
+        {
+          "backgroundColor": "#fff",
+          "flex": 1,
+          "padding": 16,
+          "paddingBottom": 0,
+        }
+      }
+    >
+      <Text
+        style={
+          {
+            "color": "#333",
+            "fontSize": 24,
+            "fontWeight": "700",
+            "marginBottom": 20,
+            "textAlign": "center",
+          }
+        }
+      >
+        Certify Shipment
+      </Text>
+      <View
+        style={
+          {
+            "marginBottom": 24,
+            "paddingHorizontal": 8,
+          }
+        }
+      >
+        <Text
+          style={
+            {
+              "color": "#000",
+              "fontSize": 18,
+              "fontWeight": "600",
+              "marginBottom": 12,
+            }
+          }
+        >
+          Signatory Information
+        </Text>
+        <View
+          style={
+            {
+              "flexDirection": "row",
+              "justifyContent": "space-between",
+              "marginBottom": 12,
+            }
+          }
+        >
+          <View
+            style={
+              {
+                "flex": 1,
+                "marginHorizontal": 4,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#555",
+                  "fontSize": 14,
+                  "fontWeight": "500",
+                }
+              }
+            >
+              Name
+            </Text>
+            <Text
+              style={
+                {
+                  "borderBottomWidth": 1,
+                  "borderColor": "#ccc",
+                  "color": "#222",
+                  "fontSize": 16,
+                  "marginBottom": 8,
+                  "paddingVertical": 6,
+                }
+              }
+            >
+              --
+            </Text>
+          </View>
+          <View
+            style={
+              {
+                "flex": 1,
+                "marginHorizontal": 4,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#555",
+                  "fontSize": 14,
+                  "fontWeight": "500",
+                }
+              }
+            >
+              Rank
+            </Text>
+            <Text
+              style={
+                {
+                  "borderBottomWidth": 1,
+                  "borderColor": "#ccc",
+                  "color": "#222",
+                  "fontSize": 16,
+                  "marginBottom": 8,
+                  "paddingVertical": 6,
+                }
+              }
+            >
+              --
+            </Text>
+          </View>
+          <View
+            style={
+              {
+                "flex": 1,
+                "marginHorizontal": 4,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#555",
+                  "fontSize": 14,
+                  "fontWeight": "500",
+                }
+              }
+            >
+              Title
+            </Text>
+            <Text
+              style={
+                {
+                  "borderBottomWidth": 1,
+                  "borderColor": "#ccc",
+                  "color": "#222",
+                  "fontSize": 16,
+                  "marginBottom": 8,
+                  "paddingVertical": 6,
+                }
+              }
+            >
+              --
+            </Text>
+          </View>
+          <View
+            style={
+              {
+                "flex": 1,
+                "marginHorizontal": 4,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#555",
+                  "fontSize": 14,
+                  "fontWeight": "500",
+                }
+              }
+            >
+              Location
+            </Text>
+            <Text
+              style={
+                {
+                  "borderBottomWidth": 1,
+                  "borderColor": "#ccc",
+                  "color": "#222",
+                  "fontSize": 16,
+                  "marginBottom": 8,
+                  "paddingVertical": 6,
+                }
+              }
+            >
+              --
+            </Text>
+          </View>
+        </View>
+      </View>
+      <View
+        style={
+          {
+            "marginBottom": 24,
+            "paddingHorizontal": 8,
+          }
+        }
+      >
+        <Text
+          style={
+            {
+              "color": "#000",
+              "fontSize": 18,
+              "fontWeight": "600",
+              "marginBottom": 12,
+            }
+          }
+        >
+          Signature
+        </Text>
+        <View
+          style={
+            {
+              "alignItems": "center",
+              "alignSelf": "center",
+              "backgroundColor": "#f9f9f9",
+              "borderColor": "#ccc",
+              "borderRadius": 8,
+              "borderWidth": 2,
+              "height": 140,
+              "justifyContent": "center",
+              "marginVertical": 12,
+              "width": 675,
+            }
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#aaa",
+                "fontSize": 16,
+                "fontStyle": "italic",
+              }
+            }
+          >
+            No Signature Captured
+          </Text>
+        </View>
+        <View
+          accessibilityState={
+            {
+              "busy": undefined,
+              "checked": undefined,
+              "disabled": undefined,
+              "expanded": undefined,
+              "selected": undefined,
+            }
+          }
+          accessibilityValue={
+            {
+              "max": undefined,
+              "min": undefined,
+              "now": undefined,
+              "text": undefined,
+            }
+          }
+          accessible={true}
+          collapsable={false}
+          focusable={true}
+          onClick={[Function]}
+          onResponderGrant={[Function]}
+          onResponderMove={[Function]}
+          onResponderRelease={[Function]}
+          onResponderTerminate={[Function]}
+          onResponderTerminationRequest={[Function]}
+          onStartShouldSetResponder={[Function]}
+          style={
+            {
+              "alignItems": "center",
+              "backgroundColor": "#5386E4",
+              "borderRadius": 4,
+              "flex": 1,
+              "height": 48,
+              "justifyContent": "center",
+              "marginLeft": 8,
+              "opacity": 1,
+            }
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#ffffff",
+                "fontSize": 16,
+                "fontWeight": "600",
+              }
+            }
+          >
+            Sign
+          </Text>
+        </View>
+      </View>
+    </View>
+    <View
+      style={
+        {
+          "backgroundColor": "#ffffff",
+          "flexDirection": "row",
+          "justifyContent": "space-between",
+          "padding": 16,
+        }
+      }
+    >
+      <View
+        accessibilityLabel="Cancel button"
+        accessibilityRole="button"
+        accessibilityState={
+          {
+            "busy": undefined,
+            "checked": undefined,
+            "disabled": undefined,
+            "expanded": undefined,
+            "selected": undefined,
+          }
+        }
+        accessibilityValue={
+          {
+            "max": undefined,
+            "min": undefined,
+            "now": undefined,
+            "text": undefined,
+          }
+        }
+        accessible={true}
+        collapsable={false}
+        focusable={true}
+        onClick={[Function]}
+        onResponderGrant={[Function]}
+        onResponderMove={[Function]}
+        onResponderRelease={[Function]}
+        onResponderTerminate={[Function]}
+        onResponderTerminationRequest={[Function]}
+        onStartShouldSetResponder={[Function]}
+        style={
+          {
+            "alignItems": "center",
+            "borderColor": "#5386E4",
+            "borderRadius": 4,
+            "borderWidth": 1,
+            "flex": 1,
+            "height": 48,
+            "justifyContent": "center",
+            "marginRight": 8,
+            "opacity": 1,
+          }
+        }
+      >
+        <Text
+          style={
+            {
+              "color": "#5386E4",
+              "fontSize": 16,
+              "fontWeight": "600",
+            }
+          }
+        >
+          Cancel
+        </Text>
+      </View>
+      <View
+        accessibilityLabel="Save and exit button"
+        accessibilityRole="button"
+        accessibilityState={
+          {
+            "busy": undefined,
+            "checked": undefined,
+            "disabled": false,
+            "expanded": undefined,
+            "selected": undefined,
+          }
+        }
+        accessibilityValue={
+          {
+            "max": undefined,
+            "min": undefined,
+            "now": undefined,
+            "text": undefined,
+          }
+        }
+        accessible={true}
+        collapsable={false}
+        focusable={true}
+        onClick={[Function]}
+        onResponderGrant={[Function]}
+        onResponderMove={[Function]}
+        onResponderRelease={[Function]}
+        onResponderTerminate={[Function]}
+        onResponderTerminationRequest={[Function]}
+        onStartShouldSetResponder={[Function]}
+        style={
+          {
+            "alignItems": "center",
+            "backgroundColor": "#6C757D",
+            "borderRadius": 4,
+            "flex": 1,
+            "height": 48,
+            "justifyContent": "center",
+            "marginHorizontal": 8,
+            "opacity": 1,
+          }
+        }
+      >
+        <Text
+          style={
+            {
+              "color": "#ffffff",
+              "fontSize": 16,
+              "fontWeight": "600",
+            }
+          }
+        >
+          Save & Exit
+        </Text>
+      </View>
+      <View
+        accessibilityLabel="Certify button"
+        accessibilityRole="button"
+        accessibilityState={
+          {
+            "busy": undefined,
+            "checked": undefined,
+            "disabled": true,
+            "expanded": undefined,
+            "selected": undefined,
+          }
+        }
+        accessibilityValue={
+          {
+            "max": undefined,
+            "min": undefined,
+            "now": undefined,
+            "text": undefined,
+          }
+        }
+        accessible={true}
+        collapsable={false}
+        focusable={false}
+        onClick={[Function]}
+        onResponderGrant={[Function]}
+        onResponderMove={[Function]}
+        onResponderRelease={[Function]}
+        onResponderTerminate={[Function]}
+        onResponderTerminationRequest={[Function]}
+        onStartShouldSetResponder={[Function]}
+        style={
+          {
+            "alignItems": "center",
+            "backgroundColor": "#a0a0a0",
+            "borderRadius": 4,
+            "flex": 1,
+            "height": 48,
+            "justifyContent": "center",
+            "marginLeft": 8,
+            "opacity": 0.7,
+          }
+        }
+      >
+        <Text
+          style={
+            {
+              "color": "#ffffff",
+              "fontSize": 16,
+              "fontWeight": "600",
+            }
+          }
+        >
+          Certify
+        </Text>
+      </View>
+    </View>
+  </View>
+</RCTScrollView>
+`;

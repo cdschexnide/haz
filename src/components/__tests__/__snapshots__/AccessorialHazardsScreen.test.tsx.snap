@@ -1,0 +1,511 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AccessorialHazardsScreen renders correctly 1`] = `
+<RCTSafeAreaView
+  style={
+    {
+      "backgroundColor": "#f8f9fa",
+      "flex": 1,
+    }
+  }
+>
+  <View
+    onLayout={[Function]}
+    style={
+      [
+        {
+          "flex": 1,
+        },
+        {
+          "paddingBottom": 0,
+        },
+      ]
+    }
+  >
+    <RCTScrollView
+      contentContainerStyle={
+        {
+          "paddingBottom": 160,
+        }
+      }
+      keyboardShouldPersistTaps="handled"
+    >
+      <View>
+        <View
+          style={
+            {
+              "backgroundColor": "#ffffff",
+              "borderRadius": 8,
+              "elevation": 2,
+              "margin": 16,
+              "paddingHorizontal": 20,
+              "paddingVertical": 24,
+              "shadowColor": "#000",
+              "shadowOffset": {
+                "height": 2,
+                "width": 0,
+              },
+              "shadowOpacity": 0.1,
+              "shadowRadius": 4,
+            }
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#212529",
+                "fontSize": 24,
+                "fontWeight": "500",
+                "lineHeight": 32,
+                "marginBottom": 24,
+                "textAlign": "center",
+              }
+            }
+          >
+            Identify the Accessorial Hazards for this Vehicle
+          </Text>
+          <View
+            style={
+              {
+                "alignItems": "flex-start",
+                "backgroundColor": "#fff4d6",
+                "borderLeftColor": "#fdd14f",
+                "borderLeftWidth": 4,
+                "flexDirection": "row",
+                "marginBottom": 16,
+                "padding": 12,
+              }
+            }
+          >
+            <Text
+              testID="icon-warning"
+            >
+              [Ionicons:warning]
+            </Text>
+            <Text
+              style={
+                {
+                  "color": "#6c757d",
+                  "flex": 1,
+                  "fontSize": 13,
+                  "lineHeight": 18,
+                }
+              }
+            >
+              Accessorial Hazard - a distinct and separate hazardous item that is a component or integral part of the primary hazard. This does NOT include additional loads or items added to the vehicle storage or space within the vehicle.
+            </Text>
+          </View>
+          <View
+            style={
+              {
+                "flexDirection": "row",
+                "flexWrap": "wrap",
+                "gap": 8,
+                "marginBottom": 16,
+              }
+            }
+          >
+            <View
+              accessibilityLabel="Batteries hazard selection"
+              accessibilityRole="checkbox"
+              accessibilityState={
+                {
+                  "busy": undefined,
+                  "checked": false,
+                  "disabled": undefined,
+                  "expanded": undefined,
+                  "selected": undefined,
+                }
+              }
+              accessibilityValue={
+                {
+                  "max": undefined,
+                  "min": undefined,
+                  "now": undefined,
+                  "text": undefined,
+                }
+              }
+              accessible={true}
+              collapsable={false}
+              focusable={true}
+              onClick={[Function]}
+              onResponderGrant={[Function]}
+              onResponderMove={[Function]}
+              onResponderRelease={[Function]}
+              onResponderTerminate={[Function]}
+              onResponderTerminationRequest={[Function]}
+              onStartShouldSetResponder={[Function]}
+              style={
+                {
+                  "backgroundColor": "#ffffff",
+                  "borderColor": "#5386E4",
+                  "borderRadius": 20,
+                  "borderWidth": 1,
+                  "opacity": 1,
+                  "paddingHorizontal": 16,
+                  "paddingVertical": 8,
+                }
+              }
+            >
+              <Text
+                style={
+                  [
+                    {
+                      "color": "#5386E4",
+                      "fontSize": 14,
+                    },
+                    false,
+                  ]
+                }
+              >
+                Batteries
+              </Text>
+            </View>
+            <View
+              accessibilityLabel="Fire Extinguisher(s) hazard selection"
+              accessibilityRole="checkbox"
+              accessibilityState={
+                {
+                  "busy": undefined,
+                  "checked": false,
+                  "disabled": undefined,
+                  "expanded": undefined,
+                  "selected": undefined,
+                }
+              }
+              accessibilityValue={
+                {
+                  "max": undefined,
+                  "min": undefined,
+                  "now": undefined,
+                  "text": undefined,
+                }
+              }
+              accessible={true}
+              collapsable={false}
+              focusable={true}
+              onClick={[Function]}
+              onResponderGrant={[Function]}
+              onResponderMove={[Function]}
+              onResponderRelease={[Function]}
+              onResponderTerminate={[Function]}
+              onResponderTerminationRequest={[Function]}
+              onStartShouldSetResponder={[Function]}
+              style={
+                {
+                  "backgroundColor": "#ffffff",
+                  "borderColor": "#5386E4",
+                  "borderRadius": 20,
+                  "borderWidth": 1,
+                  "opacity": 1,
+                  "paddingHorizontal": 16,
+                  "paddingVertical": 8,
+                }
+              }
+            >
+              <Text
+                style={
+                  [
+                    {
+                      "color": "#5386E4",
+                      "fontSize": 14,
+                    },
+                    false,
+                  ]
+                }
+              >
+                Fire Extinguisher(s)
+              </Text>
+            </View>
+            <View
+              accessibilityLabel="Start Fluid hazard selection"
+              accessibilityRole="checkbox"
+              accessibilityState={
+                {
+                  "busy": undefined,
+                  "checked": false,
+                  "disabled": undefined,
+                  "expanded": undefined,
+                  "selected": undefined,
+                }
+              }
+              accessibilityValue={
+                {
+                  "max": undefined,
+                  "min": undefined,
+                  "now": undefined,
+                  "text": undefined,
+                }
+              }
+              accessible={true}
+              collapsable={false}
+              focusable={true}
+              onClick={[Function]}
+              onResponderGrant={[Function]}
+              onResponderMove={[Function]}
+              onResponderRelease={[Function]}
+              onResponderTerminate={[Function]}
+              onResponderTerminationRequest={[Function]}
+              onStartShouldSetResponder={[Function]}
+              style={
+                {
+                  "backgroundColor": "#ffffff",
+                  "borderColor": "#5386E4",
+                  "borderRadius": 20,
+                  "borderWidth": 1,
+                  "opacity": 1,
+                  "paddingHorizontal": 16,
+                  "paddingVertical": 8,
+                }
+              }
+            >
+              <Text
+                style={
+                  [
+                    {
+                      "color": "#5386E4",
+                      "fontSize": 14,
+                    },
+                    false,
+                  ]
+                }
+              >
+                Start Fluid
+              </Text>
+            </View>
+            <View
+              accessibilityLabel="Other hazard selection"
+              accessibilityRole="checkbox"
+              accessibilityState={
+                {
+                  "busy": undefined,
+                  "checked": false,
+                  "disabled": undefined,
+                  "expanded": undefined,
+                  "selected": undefined,
+                }
+              }
+              accessibilityValue={
+                {
+                  "max": undefined,
+                  "min": undefined,
+                  "now": undefined,
+                  "text": undefined,
+                }
+              }
+              accessible={true}
+              collapsable={false}
+              focusable={true}
+              onClick={[Function]}
+              onResponderGrant={[Function]}
+              onResponderMove={[Function]}
+              onResponderRelease={[Function]}
+              onResponderTerminate={[Function]}
+              onResponderTerminationRequest={[Function]}
+              onStartShouldSetResponder={[Function]}
+              style={
+                {
+                  "backgroundColor": "#ffffff",
+                  "borderColor": "#5386E4",
+                  "borderRadius": 20,
+                  "borderWidth": 1,
+                  "opacity": 1,
+                  "paddingHorizontal": 16,
+                  "paddingVertical": 8,
+                }
+              }
+            >
+              <Text
+                style={
+                  [
+                    {
+                      "color": "#5386E4",
+                      "fontSize": 14,
+                    },
+                    false,
+                  ]
+                }
+              >
+                Other
+              </Text>
+            </View>
+          </View>
+        </View>
+      </View>
+    </RCTScrollView>
+    <View
+      style={
+        {
+          "backgroundColor": "#ffffff",
+          "borderTopColor": "#e9ecef",
+          "borderTopWidth": 1,
+          "flexDirection": "row",
+          "justifyContent": "space-between",
+          "padding": 16,
+        }
+      }
+    >
+      <View
+        accessibilityState={
+          {
+            "busy": undefined,
+            "checked": undefined,
+            "disabled": undefined,
+            "expanded": undefined,
+            "selected": undefined,
+          }
+        }
+        accessibilityValue={
+          {
+            "max": undefined,
+            "min": undefined,
+            "now": undefined,
+            "text": undefined,
+          }
+        }
+        accessible={true}
+        collapsable={false}
+        focusable={true}
+        onClick={[Function]}
+        onResponderGrant={[Function]}
+        onResponderMove={[Function]}
+        onResponderRelease={[Function]}
+        onResponderTerminate={[Function]}
+        onResponderTerminationRequest={[Function]}
+        onStartShouldSetResponder={[Function]}
+        style={
+          {
+            "alignItems": "center",
+            "borderColor": "#5386E4",
+            "borderRadius": 4,
+            "borderWidth": 1,
+            "flex": 1,
+            "height": 48,
+            "justifyContent": "center",
+            "marginHorizontal": 4,
+            "opacity": 1,
+          }
+        }
+      >
+        <Text
+          style={
+            {
+              "color": "#5386E4",
+              "fontSize": 16,
+              "fontWeight": "600",
+            }
+          }
+        >
+          Cancel
+        </Text>
+      </View>
+      <View
+        accessibilityState={
+          {
+            "busy": undefined,
+            "checked": undefined,
+            "disabled": undefined,
+            "expanded": undefined,
+            "selected": undefined,
+          }
+        }
+        accessibilityValue={
+          {
+            "max": undefined,
+            "min": undefined,
+            "now": undefined,
+            "text": undefined,
+          }
+        }
+        accessible={true}
+        collapsable={false}
+        focusable={true}
+        onClick={[Function]}
+        onResponderGrant={[Function]}
+        onResponderMove={[Function]}
+        onResponderRelease={[Function]}
+        onResponderTerminate={[Function]}
+        onResponderTerminationRequest={[Function]}
+        onStartShouldSetResponder={[Function]}
+        style={
+          {
+            "alignItems": "center",
+            "backgroundColor": "#6C757D",
+            "borderRadius": 4,
+            "flex": 1,
+            "height": 48,
+            "justifyContent": "center",
+            "marginHorizontal": 4,
+            "opacity": 1,
+          }
+        }
+      >
+        <Text
+          style={
+            {
+              "color": "#ffffff",
+              "fontSize": 16,
+              "fontWeight": "600",
+            }
+          }
+        >
+          Save & Exit
+        </Text>
+      </View>
+      <View
+        accessibilityState={
+          {
+            "busy": undefined,
+            "checked": undefined,
+            "disabled": undefined,
+            "expanded": undefined,
+            "selected": undefined,
+          }
+        }
+        accessibilityValue={
+          {
+            "max": undefined,
+            "min": undefined,
+            "now": undefined,
+            "text": undefined,
+          }
+        }
+        accessible={true}
+        collapsable={false}
+        focusable={true}
+        onClick={[Function]}
+        onResponderGrant={[Function]}
+        onResponderMove={[Function]}
+        onResponderRelease={[Function]}
+        onResponderTerminate={[Function]}
+        onResponderTerminationRequest={[Function]}
+        onStartShouldSetResponder={[Function]}
+        style={
+          {
+            "alignItems": "center",
+            "backgroundColor": "#5386E4",
+            "borderRadius": 4,
+            "flex": 1,
+            "height": 48,
+            "justifyContent": "center",
+            "marginHorizontal": 4,
+            "opacity": 1,
+          }
+        }
+      >
+        <Text
+          style={
+            {
+              "color": "#ffffff",
+              "fontSize": 16,
+              "fontWeight": "600",
+            }
+          }
+        >
+          Save & Continue
+        </Text>
+      </View>
+    </View>
+  </View>
+</RCTSafeAreaView>
+`;

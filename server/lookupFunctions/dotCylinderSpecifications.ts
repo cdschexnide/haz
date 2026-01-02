@@ -1,0 +1,196 @@
+export const dotCylinderSpecifications: string[] = [
+  "DOT3",
+  "DOT3A",
+  "DOT3AA",
+  "DOT3AAX",
+  "DOT3AL",
+  "DOT3AX",
+  "DOT3B",
+  "DOT3BN",
+  "DOT3C",
+  "DOT3D",
+  "DOT3E",
+  "DOT3HT",
+  "DOT3T",
+  "DOT4",
+  "DOT4A",
+  "DOT4B",
+  "DOT4BA",
+  "DOT4B240ET",
+  "DOT4BW",
+  "DOT4C",
+  "DOT4D",
+  "DOT4DA",
+  "DOT4DS",
+  "DOT4E",
+  "DOT8",
+  "DOT8AL",
+  "DOT39",
+  "DOT2P",
+  "DOT2Q",
+  "DOT3A1000",
+  "DOT3A1200",
+  "DOT3A1800",
+  "DOT3A2000",
+  "DOT3A2200",
+  "DOT3A225",
+  "DOT3A240",
+  "DOT3A2400",
+  "DOT3A300",
+  "DOT3A400",
+  "DOT3A480",
+  "DOT3AA1800",
+  "DOT3AX1800",
+  "DOT3AL1800",
+  "DOT3AX2000",
+  "DOT3AX2200",
+  "DOT3AX2400",
+  "DOT3B150",
+  "DOT3B1800",
+  "DOT3B225",
+  "DOT3B240",
+  "DOT3B300",
+  "DOT3B400",
+  "DOT3BN400",
+  "DOT3E1800",
+  "DOT3T1800",
+  "DOT3T2000",
+  "DOT3T2200",
+  "DOT3T2400",
+  "DOT4AA480",
+  "DOT4B150",
+  "DOT4B225",
+  "DOT4B240",
+  "DOT4B240ET",
+  "DOT4B300",
+  "DOT4B400",
+  "DOT4BA150",
+  "DOT4BA225",
+  "DOT4BA240",
+  "DOT4BA300",
+  "DOT4BA400",
+  "DOT4BW150",
+  "DOT4BW225",
+  "DOT4BW240",
+  "DOT4BW300",
+  "DOT4BW400",
+  "DOT4E225",
+  "DOT4E240",
+  "DOT4E400",
+  "DOT4L",
+  "ICC3E1800",
+  "ISO 7866",
+  "ISO 9809-1",
+  "ISO 9809-2",
+  "ISO 9809-3",
+  "MA-1",
+  "TMU-24E",
+  "TMU-27M",
+  "TMU-70/M",
+  "TTU-131/E",
+  "UN",
+  "UN3468",
+  "ISO 9809-1",
+  "ISO 9809-2",
+  "ISO 9809-3",
+  "ISO 7866",
+];
+
+export const cylinderTypeOptions = dotCylinderSpecifications.map(
+  (type, index) => ({
+    id: index.toString(),
+    title: type,
+  })
+);
+
+export const getAvailableCylinderTypesByPackagingParagraphReference = (
+  packagingParagraph: string | undefined,
+  technicalName?: string
+): string[] => {
+  if (packagingParagraph === "A6.6.") {
+    return [
+      "DOT3",
+      "DOT3A",
+      "DOT3AA",
+      "DOT3AAX",
+      "DOT3AL",
+      "DOT3AX",
+      "DOT3A1000",
+      "DOT3A1200",
+      "DOT3A1800",
+      "DOT3A2000",
+      "DOT3A2200",
+      "DOT3A225",
+      "DOT3A240",
+      "DOT3A2400",
+      "DOT3A300",
+      "DOT3A400",
+      "DOT3A480",
+      "DOT3AA1800",
+      "DOT3AX1800",
+      "DOT3AL1800",
+      "DOT3AX2000",
+      "DOT3AX2200",
+      "DOT3AX2400",
+      "DOT3B",
+      "DOT3B150",
+      "DOT3B1800",
+      "DOT3B225",
+      "DOT3B240",
+      "DOT3B300",
+      "DOT3B400",
+      "DOT3BN",
+      "DOT3BN400",
+      "DOT3E",
+      "DOT3E1800",
+      "DOT4B",
+      "DOT4B150",
+      "DOT4B225",
+      "DOT4B240",
+      "DOT4B240ET",
+      "DOT4B300",
+      "DOT4B400",
+      "DOT4BA",
+      "DOT4BA150",
+      "DOT4BA225",
+      "DOT4BA240",
+      "DOT4BA300",
+      "DOT4BA400",
+      "DOT4BW",
+      "DOT4BW150",
+      "DOT4BW225",
+      "DOT4BW240",
+      "DOT4BW300",
+      "DOT4BW400",
+      "DOT4E",
+      "DOT4E225",
+      "DOT4E240",
+      "DOT4E400",
+      "DOT39",
+      "DOT2P",
+      "DOT2Q",
+    ];
+  }
+  if (packagingParagraph === "A6.9.") {
+    return ["DOT8", "DOT8AL"];
+  }
+  if (packagingParagraph === "A6.15.") {
+    switch (technicalName) {
+      case "Arsine":
+        return ["DOT3A1800", "DOT3AA1800", "DOT3D", "DOT3E1800"];
+      case "Cyanogen Chloride, Stabilized":
+        return ["DOT3A1800", "DOT3AA1800", "DOT3AL1800", "DOT3D", "DOT3E1800"];
+      case "Cyanogen, Liquefied":
+        return ["DOT3A1800", "DOT3AA1800", "DOT3AL1800", "DOT3D", "DOT3E1800"];
+      case "Germane":
+        return ["DOT3A1800", "DOT3AA1800", "DOT3AL1800", "DOT3D", "DOT3E1800"];
+      case "Liquefied Gas, Toxic":
+        return ["DOT3A1800", "DOT3AA1800", "DOT3AL1800", "DOT3D", "DOT3E1800"];
+      case "Phosgene":
+        return ["DOT3A1800", "DOT3AA1800", "DOT3AL1800", "DOT3D", "DOT3E1800"];
+      case "Phosphine":
+        return ["DOT3A1800", "DOT3AA1800", "DOT3D", "DOT3E1800"];
+    }
+  }
+  return dotCylinderSpecifications;
+};

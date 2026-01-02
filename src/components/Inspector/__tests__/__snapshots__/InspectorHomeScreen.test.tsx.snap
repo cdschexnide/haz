@@ -1,0 +1,722 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`InspectorHomeScreen renders correctly with empty inspections 1`] = `
+{
+  "children": [
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "children": null,
+              "props": {},
+              "type": "RCTRefreshControl",
+            },
+            {
+              "children": [
+                {
+                  "children": [
+                    {
+                      "children": [
+                        {
+                          "children": null,
+                          "props": {},
+                          "type": "TopNavBar",
+                        },
+                      ],
+                      "props": {},
+                      "type": "View",
+                    },
+                    {
+                      "children": [
+                        {
+                          "children": [
+                            {
+                              "children": [
+                                {
+                                  "children": [
+                                    {
+                                      "children": null,
+                                      "props": {
+                                        "name": "calculator",
+                                        "size": 20,
+                                      },
+                                      "type": "MaterialCommunityIcons",
+                                    },
+                                    {
+                                      "children": [
+                                        "Gas Calculator",
+                                      ],
+                                      "props": {
+                                        "style": {
+                                          "color": "#006DCC",
+                                          "fontSize": 20,
+                                          "fontWeight": "600",
+                                        },
+                                      },
+                                      "type": "Text",
+                                    },
+                                  ],
+                                  "props": {
+                                    "accessibilityState": {},
+                                    "accessibilityValue": {},
+                                    "accessible": true,
+                                    "collapsable": false,
+                                    "focusable": true,
+                                    "style": {
+                                      "alignItems": "center",
+                                      "backgroundColor": "#E6F4FF",
+                                      "borderRadius": 5,
+                                      "flexDirection": "row",
+                                      "gap": 6,
+                                      "justifyContent": "center",
+                                      "minWidth": 220,
+                                      "opacity": 1,
+                                      "paddingHorizontal": 14,
+                                      "paddingVertical": 12,
+                                    },
+                                  },
+                                  "type": "View",
+                                },
+                                {
+                                  "children": [
+                                    {
+                                      "children": null,
+                                      "props": {
+                                        "name": "calculator",
+                                        "size": 20,
+                                      },
+                                      "type": "MaterialCommunityIcons",
+                                    },
+                                    {
+                                      "children": [
+                                        "Dry Ice Calculator",
+                                      ],
+                                      "props": {
+                                        "style": "[Circular]",
+                                      },
+                                      "type": "Text",
+                                    },
+                                  ],
+                                  "props": {
+                                    "accessibilityState": {},
+                                    "accessibilityValue": {},
+                                    "accessible": true,
+                                    "collapsable": false,
+                                    "focusable": true,
+                                    "style": {
+                                      "alignItems": "center",
+                                      "backgroundColor": "#E6F4FF",
+                                      "borderRadius": 5,
+                                      "flexDirection": "row",
+                                      "gap": 6,
+                                      "justifyContent": "center",
+                                      "minWidth": 220,
+                                      "opacity": 1,
+                                      "paddingHorizontal": 14,
+                                      "paddingVertical": 12,
+                                    },
+                                  },
+                                  "type": "View",
+                                },
+                                {
+                                  "children": [
+                                    {
+                                      "children": null,
+                                      "props": {
+                                        "name": "swap-horizontal",
+                                        "size": 20,
+                                      },
+                                      "type": "MaterialCommunityIcons",
+                                    },
+                                    {
+                                      "children": [
+                                        "Unit Converter",
+                                      ],
+                                      "props": {
+                                        "style": "[Circular]",
+                                      },
+                                      "type": "Text",
+                                    },
+                                  ],
+                                  "props": {
+                                    "accessibilityState": {},
+                                    "accessibilityValue": {},
+                                    "accessible": true,
+                                    "collapsable": false,
+                                    "focusable": true,
+                                    "style": {
+                                      "alignItems": "center",
+                                      "backgroundColor": "#E6F4FF",
+                                      "borderRadius": 5,
+                                      "flexDirection": "row",
+                                      "gap": 6,
+                                      "justifyContent": "center",
+                                      "minWidth": 220,
+                                      "opacity": 1,
+                                      "paddingHorizontal": 14,
+                                      "paddingVertical": 12,
+                                    },
+                                  },
+                                  "type": "View",
+                                },
+                                {
+                                  "children": [
+                                    {
+                                      "children": null,
+                                      "props": {
+                                        "name": "sign-direction",
+                                        "size": 20,
+                                      },
+                                      "type": "MaterialCommunityIcons",
+                                    },
+                                    {
+                                      "children": [
+                                        "Placarding Tool",
+                                      ],
+                                      "props": {
+                                        "style": "[Circular]",
+                                      },
+                                      "type": "Text",
+                                    },
+                                  ],
+                                  "props": {
+                                    "accessibilityState": {},
+                                    "accessibilityValue": {},
+                                    "accessible": true,
+                                    "collapsable": false,
+                                    "focusable": true,
+                                    "style": {
+                                      "alignItems": "center",
+                                      "backgroundColor": "#E6F4FF",
+                                      "borderRadius": 5,
+                                      "flexDirection": "row",
+                                      "gap": 6,
+                                      "justifyContent": "center",
+                                      "minWidth": 220,
+                                      "opacity": 1,
+                                      "paddingHorizontal": 14,
+                                      "paddingVertical": 12,
+                                    },
+                                  },
+                                  "type": "View",
+                                },
+                                {
+                                  "children": [
+                                    {
+                                      "children": null,
+                                      "props": {
+                                        "name": "shield-check",
+                                        "size": 20,
+                                      },
+                                      "type": "MaterialCommunityIcons",
+                                    },
+                                    {
+                                      "children": [
+                                        "Compatibility/Segregation Tool",
+                                      ],
+                                      "props": {
+                                        "style": "[Circular]",
+                                      },
+                                      "type": "Text",
+                                    },
+                                  ],
+                                  "props": {
+                                    "accessibilityState": {},
+                                    "accessibilityValue": {},
+                                    "accessible": true,
+                                    "collapsable": false,
+                                    "focusable": true,
+                                    "style": {
+                                      "alignItems": "center",
+                                      "backgroundColor": "#E6F4FF",
+                                      "borderRadius": 5,
+                                      "flexDirection": "row",
+                                      "gap": 6,
+                                      "justifyContent": "center",
+                                      "minWidth": 220,
+                                      "opacity": 1,
+                                      "paddingHorizontal": 14,
+                                      "paddingVertical": 12,
+                                    },
+                                  },
+                                  "type": "View",
+                                },
+                                {
+                                  "children": [
+                                    {
+                                      "children": null,
+                                      "props": {
+                                        "color": "#E65100",
+                                        "name": "robot",
+                                        "size": 20,
+                                      },
+                                      "type": "MaterialCommunityIcons",
+                                    },
+                                    {
+                                      "children": [
+                                        "ML Label Test",
+                                      ],
+                                      "props": {
+                                        "style": [
+                                          "[Circular]",
+                                          {
+                                            "color": "#E65100",
+                                          },
+                                        ],
+                                      },
+                                      "type": "Text",
+                                    },
+                                  ],
+                                  "props": {
+                                    "accessibilityState": {},
+                                    "accessibilityValue": {},
+                                    "accessible": true,
+                                    "collapsable": false,
+                                    "focusable": true,
+                                    "style": {
+                                      "alignItems": "center",
+                                      "backgroundColor": "#FFF3E0",
+                                      "borderRadius": 5,
+                                      "flexDirection": "row",
+                                      "gap": 6,
+                                      "justifyContent": "center",
+                                      "minWidth": 220,
+                                      "opacity": 1,
+                                      "paddingHorizontal": 14,
+                                      "paddingVertical": 12,
+                                    },
+                                  },
+                                  "type": "View",
+                                },
+                              ],
+                              "props": {
+                                "style": {
+                                  "alignItems": "center",
+                                  "flexDirection": "row",
+                                  "gap": 8,
+                                  "justifyContent": "center",
+                                  "marginBottom": 8,
+                                  "marginTop": 4,
+                                },
+                              },
+                              "type": "View",
+                            },
+                            {
+                              "children": [
+                                {
+                                  "children": [
+                                    "Inspections",
+                                  ],
+                                  "props": {
+                                    "style": {
+                                      "color": "black",
+                                      "flex": 1,
+                                      "fontSize": 28,
+                                      "fontWeight": "bold",
+                                      "marginLeft": 10,
+                                    },
+                                  },
+                                  "type": "Text",
+                                },
+                                {
+                                  "children": null,
+                                  "props": {
+                                    "placeholder": "Search",
+                                    "style": {
+                                      "borderColor": "#ccc",
+                                      "borderRadius": 5,
+                                      "borderWidth": 1,
+                                      "flex": 1,
+                                      "fontSize": 16,
+                                      "height": 50,
+                                      "marginHorizontal": 10,
+                                      "padding": 8,
+                                    },
+                                    "value": "",
+                                  },
+                                  "type": "TextInput",
+                                },
+                                {
+                                  "children": [
+                                    {
+                                      "children": [
+                                        "Start New Inspection",
+                                      ],
+                                      "props": {
+                                        "style": {
+                                          "color": "#fff",
+                                          "fontSize": 20,
+                                          "fontWeight": "bold",
+                                        },
+                                      },
+                                      "type": "Text",
+                                    },
+                                  ],
+                                  "props": {
+                                    "accessibilityState": {},
+                                    "accessibilityValue": {},
+                                    "accessible": true,
+                                    "collapsable": false,
+                                    "focusable": true,
+                                    "style": {
+                                      "backgroundColor": "#007bff",
+                                      "borderRadius": 5,
+                                      "marginHorizontal": 5,
+                                      "opacity": 1,
+                                      "paddingHorizontal": 18,
+                                      "paddingVertical": 10,
+                                    },
+                                  },
+                                  "type": "View",
+                                },
+                              ],
+                              "props": {
+                                "style": {
+                                  "alignItems": "center",
+                                  "flexDirection": "row",
+                                  "marginBottom": 10,
+                                },
+                              },
+                              "type": "View",
+                            },
+                            {
+                              "children": [
+                                {
+                                  "children": [
+                                    "TCN",
+                                  ],
+                                  "props": {
+                                    "style": [
+                                      {
+                                        "color": "black",
+                                        "fontSize": 17,
+                                        "fontWeight": "bold",
+                                        "textAlign": "center",
+                                      },
+                                      {
+                                        "flex": 1,
+                                      },
+                                    ],
+                                  },
+                                  "type": "Text",
+                                },
+                                {
+                                  "children": [
+                                    "UN, NA, ID No.",
+                                  ],
+                                  "props": {
+                                    "style": [
+                                      "[Circular]",
+                                      "[Circular]",
+                                    ],
+                                  },
+                                  "type": "Text",
+                                },
+                                {
+                                  "children": [
+                                    "Proper Shipping Name",
+                                  ],
+                                  "props": {
+                                    "style": [
+                                      "[Circular]",
+                                      "[Circular]",
+                                    ],
+                                  },
+                                  "type": "Text",
+                                },
+                                {
+                                  "children": [
+                                    "SDDG",
+                                  ],
+                                  "props": {
+                                    "style": [
+                                      "[Circular]",
+                                      "[Circular]",
+                                    ],
+                                  },
+                                  "type": "Text",
+                                },
+                                {
+                                  "children": [
+                                    "Package",
+                                  ],
+                                  "props": {
+                                    "style": [
+                                      "[Circular]",
+                                      "[Circular]",
+                                    ],
+                                  },
+                                  "type": "Text",
+                                },
+                                {
+                                  "children": [
+                                    "Inspector",
+                                  ],
+                                  "props": {
+                                    "style": [
+                                      "[Circular]",
+                                      "[Circular]",
+                                    ],
+                                  },
+                                  "type": "Text",
+                                },
+                                {
+                                  "children": [
+                                    "View",
+                                  ],
+                                  "props": {
+                                    "style": [
+                                      "[Circular]",
+                                      "[Circular]",
+                                    ],
+                                  },
+                                  "type": "Text",
+                                },
+                              ],
+                              "props": {
+                                "style": {
+                                  "alignItems": "center",
+                                  "backgroundColor": "#f4f4f4",
+                                  "borderBottomColor": "#ccc",
+                                  "borderBottomWidth": 1,
+                                  "color": "black",
+                                  "flexDirection": "row",
+                                  "padding": 10,
+                                  "zIndex": 2,
+                                },
+                              },
+                              "type": "View",
+                            },
+                          ],
+                          "props": {
+                            "style": {
+                              "backgroundColor": "#fff",
+                              "padding": 10,
+                              "shadowColor": "#000",
+                              "shadowOpacity": 0.1,
+                              "shadowRadius": 5,
+                              "width": "100%",
+                            },
+                          },
+                          "type": "View",
+                        },
+                      ],
+                      "props": {
+                        "style": {
+                          "alignItems": "center",
+                          "backgroundColor": "#fff",
+                          "flex": 1,
+                        },
+                      },
+                      "type": "View",
+                    },
+                  ],
+                  "props": {
+                    "collapsable": false,
+                  },
+                  "type": "View",
+                },
+              ],
+              "props": {},
+              "type": "View",
+            },
+          ],
+          "props": {
+            "data": [],
+            "keyboardShouldPersistTaps": "handled",
+            "refreshControl": {
+              "key": null,
+              "props": {
+                "refreshing": false,
+              },
+            },
+            "removeClippedSubviews": false,
+            "scrollEventThrottle": 0.0001,
+            "stickyHeaderIndices": [],
+            "viewabilityConfigCallbackPairs": [],
+          },
+          "type": "RCTScrollView",
+        },
+        {
+          "children": null,
+          "props": {
+            "style": "auto",
+          },
+          "type": "StatusBar",
+        },
+        {
+          "children": [
+            {
+              "children": [
+                "Select an Option",
+              ],
+              "props": {
+                "style": {
+                  "fontSize": 18,
+                  "fontWeight": "bold",
+                  "marginBottom": 10,
+                },
+              },
+              "type": "Text",
+            },
+            {
+              "children": [
+                {
+                  "children": [
+                    "📂 SDDG",
+                  ],
+                  "props": {
+                    "style": {
+                      "fontSize": 16,
+                    },
+                  },
+                  "type": "Text",
+                },
+              ],
+              "props": {
+                "accessibilityState": {},
+                "accessibilityValue": {},
+                "accessible": true,
+                "collapsable": false,
+                "focusable": true,
+                "style": {
+                  "alignItems": "center",
+                  "opacity": 1,
+                  "padding": 10,
+                  "width": "100%",
+                },
+              },
+              "type": "View",
+            },
+            {
+              "children": [
+                {
+                  "children": [
+                    "Package",
+                  ],
+                  "props": {
+                    "style": "[Circular]",
+                  },
+                  "type": "Text",
+                },
+              ],
+              "props": {
+                "accessibilityState": {},
+                "accessibilityValue": {},
+                "accessible": true,
+                "collapsable": false,
+                "focusable": true,
+                "style": {
+                  "alignItems": "center",
+                  "opacity": 1,
+                  "padding": 10,
+                  "width": "100%",
+                },
+              },
+              "type": "View",
+            },
+            {
+              "children": [
+                {
+                  "children": [
+                    "Cancel",
+                  ],
+                  "props": {
+                    "style": {
+                      "fontSize": 16,
+                      "fontWeight": "bold",
+                    },
+                  },
+                  "type": "Text",
+                },
+              ],
+              "props": {
+                "accessibilityState": {},
+                "accessibilityValue": {},
+                "accessible": true,
+                "collapsable": false,
+                "focusable": true,
+                "style": {
+                  "alignItems": "center",
+                  "backgroundColor": "#ddd",
+                  "borderRadius": 5,
+                  "marginTop": 10,
+                  "opacity": 1,
+                  "padding": 10,
+                  "width": "100%",
+                },
+              },
+              "type": "View",
+            },
+          ],
+          "props": {
+            "style": {
+              "alignItems": "center",
+              "backgroundColor": "white",
+              "borderTopLeftRadius": 20,
+              "borderTopRightRadius": 20,
+              "height": "100%",
+              "padding": 20,
+            },
+          },
+          "type": "View",
+        },
+        {
+          "children": null,
+          "props": {
+            "visible": false,
+          },
+          "type": "GasCalculatorTool",
+        },
+        {
+          "children": null,
+          "props": {
+            "visible": false,
+          },
+          "type": "DryIceCalculator",
+        },
+        {
+          "children": null,
+          "props": {
+            "visible": false,
+          },
+          "type": "UnitConversionTool",
+        },
+        {
+          "children": null,
+          "props": {
+            "visible": false,
+          },
+          "type": "PlacardingTool",
+        },
+        {
+          "children": null,
+          "props": {
+            "visible": false,
+          },
+          "type": "CompatibilitySegregationModal",
+        },
+      ],
+      "props": {
+        "style": [
+          {
+            "flex": 1,
+          },
+          {
+            "paddingBottom": 0,
+          },
+        ],
+      },
+      "type": "View",
+    },
+  ],
+  "props": {
+    "style": {
+      "flex": 1,
+    },
+    "testID": "gesture-handler-root",
+  },
+  "type": "View",
+}
+`;

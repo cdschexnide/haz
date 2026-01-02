@@ -1,0 +1,94 @@
+key 1 - shipper (address & telephone number)
+- is either a DSN or Commercial
+- DSN
+  - direct service number (area code + 3 digits + 4 digits)
+- Commercial
+  - if stateside, use same format as DSN
+  - if overseas, use an international code format
+  - comment: international or domestic
+    - if international, use lookup to get country code, then have user provide the rest
+- address (street, city, state, etc)
+
+key 2 - consignee
+- 2 different options
+- 1st option
+  - Channel/Standard movement
+  - require the user to input 6 digit DODAAC
+- 2nd option
+  - Mobility movement
+  - if the selection is Mobility, give the user the option to apply "Worldwide Mobility" in place of the DODAAC or set the DODAAC
+
+key 3 - don't worry about that
+
+key 4 - pages
+- always 1 of 1, don't do pages
+
+key 5 - tcn
+
+key 6 - optional block
+- if in inspector mode, fill out key 6
+- never fill out in preparer mode
+- in inspector mode, put RECEIVED AND INSPECTED BY <whoever the looged in user is>
+- add org. name and inspector name
+
+key 7
+- related to P codes
+- put X's on blocks that do not apply
+
+key 8 - Airport of Departure
+- lookup for POE
+
+key 9 - Airport of Destination
+- POD lookup (if channel/standard) or Worldwide Mobility
+
+
+key 10 - shipment type
+- radioactive or non-radioactive whether class 7 or not, X over the non-applicable one
+
+key 11 through key 18
+- do certain things in the app as they're completing it, they'll be filling that out
+- take the values of these keys from the user's input throughout the preparer process
+
+key 19 - additional handling information
+- 19.1.1. => somewhere in the workflow, "accessorial hazards"
+- when the user has accessorial hazards, we need (for each accessorial hazard)
+  - UN#
+  - PSN
+  - quantity of that hazard
+- 19.1.2. => add the Packaging Paragraph Reference
+- 19.1.3. => if using a CAA, add the proper annotation
+- 19.1.4. => 24 hour emergency response numbers required
+  - #'s for class 1 materials
+  - #'s for class 7 materials
+  - #'s for everything else (domestic and international #)
+- 19.1.5. => ignore for now
+- 19.2.1 => identify if material is kit, add "KIT" in key 19
+- 19.2.2. => if shipping a kit consisting of more than 1 container, enter "contained in kit piece...."
+
+For Key 19, class 1 through 9, we'll get into them in more detail when we define the workflows at a later date
+
+Key 19 Class 1
+- 19.3.1. => class 1 materials require NEW in kilograms
+- 19.3.2. => OTTO Fuel II
+- 19.3.3. => look at this when we get into the workflow
+- 19.3.4. => (look at this when we get into the workflow) for items containing liquid or hypergolic fuel that is corrosive and/or toxic, in Key 19 include the statement "Exercise extreme caution...."
+- 19.3.4.3. => add this as an option
+- 19.3.5. => grandfathered munitions are not subject to the requirements of the 24-604
+
+Key 19 Class 2
+- 19.4.1. 
+
+
+
+key 20 - name of signatory
+- whoever the logged in user is, preparing the shipment, that's who this person is
+- military rank included
+- title as well (Hazardous Material Preparer, Technical Specialist, etc.)
+- Ex: Staff Seargant Cody Schexnider, Hazardous Material Preparer
+
+key 21 - Date 
+- date that the shipment is prepared
+
+key 22 - signature
+- signature of the person that certifies the shipment complies with the requirements
+  of the 24-604

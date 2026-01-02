@@ -1,0 +1,10 @@
+import { Reference } from "./../../yjs";
+
+export interface ValtioLifeCycleExtractedSDDGContentEvent {
+    uuid: string;
+    extractedSDDGContent__REF: Reference<string>;
+    type: string;
+    value__REF?: Reference<string>;
+    createdAt__REF: Reference<string>;
+    __typename: string;
+}

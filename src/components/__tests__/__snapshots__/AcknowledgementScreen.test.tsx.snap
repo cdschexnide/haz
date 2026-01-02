@@ -1,0 +1,775 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AcknowledgementScreen renders correctly for inspector role 1`] = `
+<RCTSafeAreaView
+  style={
+    {
+      "backgroundColor": "#F0F0F0",
+      "flex": 1,
+    }
+  }
+>
+  <View
+    style={
+      {
+        "flex": 1,
+      }
+    }
+  >
+    <View
+      style={
+        {
+          "alignItems": "center",
+          "backgroundColor": "#ffffff",
+          "borderBottomColor": "#E0E0E0",
+          "borderBottomWidth": 1,
+          "paddingHorizontal": 20,
+          "paddingVertical": 16,
+        }
+      }
+    >
+      <Image
+        resizeMode="contain"
+        source="mocked-logo-image"
+        style={
+          {
+            "height": 60,
+            "marginBottom": 8,
+            "width": 180,
+          }
+        }
+      />
+      <Text
+        style={
+          {
+            "color": "#333333",
+            "fontSize": 22,
+            "fontWeight": "bold",
+            "marginBottom": 4,
+          }
+        }
+      >
+        Important Information
+      </Text>
+      <Text
+        style={
+          {
+            "color": "#6E6E6E",
+            "fontSize": 14,
+          }
+        }
+      >
+        Please read carefully before proceeding
+      </Text>
+    </View>
+    <RCTScrollView
+      contentContainerStyle={
+        {
+          "paddingHorizontal": 16,
+          "paddingTop": 16,
+        }
+      }
+      onScroll={[Function]}
+      scrollEventThrottle={16}
+      showsVerticalScrollIndicator={true}
+      style={
+        {
+          "flex": 1,
+        }
+      }
+    >
+      <View>
+        <View
+          style={
+            {
+              "backgroundColor": "#ffffff",
+              "borderRadius": 8,
+              "elevation": 2,
+              "marginBottom": 16,
+              "padding": 16,
+              "shadowColor": "#000",
+              "shadowOffset": {
+                "height": 1,
+                "width": 0,
+              },
+              "shadowOpacity": 0.1,
+              "shadowRadius": 2,
+            }
+          }
+        >
+          <View
+            style={
+              {
+                "alignItems": "center",
+                "flexDirection": "row",
+                "marginBottom": 12,
+              }
+            }
+          >
+            <Text
+              color="#5386E4"
+              size={24}
+            >
+              MaterialIcon-info
+            </Text>
+            <Text
+              style={
+                {
+                  "color": "#333333",
+                  "flex": 1,
+                  "fontSize": 18,
+                  "fontWeight": "bold",
+                  "marginLeft": 10,
+                }
+              }
+            >
+              Purpose
+            </Text>
+          </View>
+          <Text
+            style={
+              {
+                "color": "#333333",
+                "fontSize": 15,
+                "lineHeight": 22,
+                "marginBottom": 8,
+              }
+            }
+          >
+            Test content
+          </Text>
+          <View
+            style={
+              {
+                "marginTop": 8,
+              }
+            }
+          >
+            <View
+              style={
+                {
+                  "flexDirection": "row",
+                  "marginBottom": 8,
+                  "paddingLeft": 8,
+                }
+              }
+            >
+              <Text
+                style={
+                  {
+                    "color": "#333333",
+                    "fontSize": 15,
+                    "fontWeight": "bold",
+                    "marginRight": 8,
+                  }
+                }
+              >
+                •
+              </Text>
+              <Text
+                style={
+                  {
+                    "color": "#333333",
+                    "flex": 1,
+                    "fontSize": 15,
+                    "lineHeight": 22,
+                  }
+                }
+              >
+                Item 1
+              </Text>
+            </View>
+          </View>
+        </View>
+        <View
+          style={
+            {
+              "height": 40,
+            }
+          }
+        />
+      </View>
+    </RCTScrollView>
+    <View
+      style={
+        {
+          "backgroundColor": "#ffffff",
+          "borderTopColor": "#E0E0E0",
+          "borderTopWidth": 1,
+          "paddingBottom": 20,
+          "paddingHorizontal": 20,
+          "paddingTop": 16,
+        }
+      }
+    >
+      <View
+        style={
+          {
+            "alignItems": "center",
+            "backgroundColor": "#E3F2FD",
+            "borderRadius": 4,
+            "flexDirection": "row",
+            "justifyContent": "center",
+            "marginBottom": 12,
+            "paddingVertical": 8,
+          }
+        }
+      >
+        <Text
+          color="#5386E4"
+          size={20}
+        >
+          MaterialIcon-arrow-downward
+        </Text>
+        <Text
+          style={
+            {
+              "color": "#5386E4",
+              "fontSize": 14,
+              "fontWeight": "600",
+              "marginLeft": 8,
+            }
+          }
+        >
+          Scroll to bottom to continue
+        </Text>
+      </View>
+      <View
+        accessibilityState={
+          {
+            "busy": undefined,
+            "checked": undefined,
+            "disabled": true,
+            "expanded": undefined,
+            "selected": undefined,
+          }
+        }
+        accessibilityValue={
+          {
+            "max": undefined,
+            "min": undefined,
+            "now": undefined,
+            "text": undefined,
+          }
+        }
+        accessible={true}
+        collapsable={false}
+        focusable={false}
+        onClick={[Function]}
+        onResponderGrant={[Function]}
+        onResponderMove={[Function]}
+        onResponderRelease={[Function]}
+        onResponderTerminate={[Function]}
+        onResponderTerminationRequest={[Function]}
+        onStartShouldSetResponder={[Function]}
+        style={
+          {
+            "alignItems": "center",
+            "flexDirection": "row",
+            "marginBottom": 16,
+            "opacity": 1,
+          }
+        }
+      >
+        <View
+          style={
+            [
+              {
+                "alignItems": "center",
+                "borderColor": "#BDBDBD",
+                "borderRadius": 4,
+                "borderWidth": 2,
+                "height": 24,
+                "justifyContent": "center",
+                "marginRight": 12,
+                "width": 24,
+              },
+              false,
+              {
+                "backgroundColor": "#F5F5F5",
+                "borderColor": "#E0E0E0",
+              },
+            ]
+          }
+        />
+        <Text
+          style={
+            [
+              {
+                "color": "#333333",
+                "flex": 1,
+                "fontSize": 14,
+                "lineHeight": 20,
+              },
+              {
+                "color": "#9E9E9E",
+              },
+            ]
+          }
+        >
+          I have read and understand the above information and acknowledge my responsibilities as outlined
+        </Text>
+      </View>
+      <View
+        accessibilityState={
+          {
+            "busy": undefined,
+            "checked": undefined,
+            "disabled": true,
+            "expanded": undefined,
+            "selected": undefined,
+          }
+        }
+        accessibilityValue={
+          {
+            "max": undefined,
+            "min": undefined,
+            "now": undefined,
+            "text": undefined,
+          }
+        }
+        accessible={true}
+        collapsable={false}
+        focusable={false}
+        onClick={[Function]}
+        onResponderGrant={[Function]}
+        onResponderMove={[Function]}
+        onResponderRelease={[Function]}
+        onResponderTerminate={[Function]}
+        onResponderTerminationRequest={[Function]}
+        onStartShouldSetResponder={[Function]}
+        style={
+          {
+            "alignItems": "center",
+            "backgroundColor": "#BDBDBD",
+            "borderRadius": 8,
+            "elevation": 0,
+            "marginBottom": 12,
+            "opacity": 1,
+            "paddingVertical": 16,
+            "shadowColor": "#000",
+            "shadowOffset": {
+              "height": 2,
+              "width": 0,
+            },
+            "shadowOpacity": 0,
+            "shadowRadius": 4,
+          }
+        }
+      >
+        <Text
+          style={
+            {
+              "color": "#ffffff",
+              "fontSize": 16,
+              "fontWeight": "bold",
+              "letterSpacing": 1,
+            }
+          }
+        >
+          ACCEPT & CONTINUE
+        </Text>
+      </View>
+      <Text
+        style={
+          {
+            "color": "#9E9E9E",
+            "fontSize": 12,
+            "textAlign": "center",
+          }
+        }
+      >
+        Version 
+        1.0.0-test
+      </Text>
+    </View>
+  </View>
+</RCTSafeAreaView>
+`;
+
+exports[`AcknowledgementScreen renders correctly for preparer role 1`] = `
+<RCTSafeAreaView
+  style={
+    {
+      "backgroundColor": "#F0F0F0",
+      "flex": 1,
+    }
+  }
+>
+  <View
+    style={
+      {
+        "flex": 1,
+      }
+    }
+  >
+    <View
+      style={
+        {
+          "alignItems": "center",
+          "backgroundColor": "#ffffff",
+          "borderBottomColor": "#E0E0E0",
+          "borderBottomWidth": 1,
+          "paddingHorizontal": 20,
+          "paddingVertical": 16,
+        }
+      }
+    >
+      <Image
+        resizeMode="contain"
+        source="mocked-logo-image"
+        style={
+          {
+            "height": 60,
+            "marginBottom": 8,
+            "width": 180,
+          }
+        }
+      />
+      <Text
+        style={
+          {
+            "color": "#333333",
+            "fontSize": 22,
+            "fontWeight": "bold",
+            "marginBottom": 4,
+          }
+        }
+      >
+        Important Information
+      </Text>
+      <Text
+        style={
+          {
+            "color": "#6E6E6E",
+            "fontSize": 14,
+          }
+        }
+      >
+        Please read carefully before proceeding
+      </Text>
+    </View>
+    <RCTScrollView
+      contentContainerStyle={
+        {
+          "paddingHorizontal": 16,
+          "paddingTop": 16,
+        }
+      }
+      onScroll={[Function]}
+      scrollEventThrottle={16}
+      showsVerticalScrollIndicator={true}
+      style={
+        {
+          "flex": 1,
+        }
+      }
+    >
+      <View>
+        <View
+          style={
+            {
+              "backgroundColor": "#ffffff",
+              "borderRadius": 8,
+              "elevation": 2,
+              "marginBottom": 16,
+              "padding": 16,
+              "shadowColor": "#000",
+              "shadowOffset": {
+                "height": 1,
+                "width": 0,
+              },
+              "shadowOpacity": 0.1,
+              "shadowRadius": 2,
+            }
+          }
+        >
+          <View
+            style={
+              {
+                "alignItems": "center",
+                "flexDirection": "row",
+                "marginBottom": 12,
+              }
+            }
+          >
+            <Text
+              color="#5386E4"
+              size={24}
+            >
+              MaterialIcon-info
+            </Text>
+            <Text
+              style={
+                {
+                  "color": "#333333",
+                  "flex": 1,
+                  "fontSize": 18,
+                  "fontWeight": "bold",
+                  "marginLeft": 10,
+                }
+              }
+            >
+              Purpose
+            </Text>
+          </View>
+          <Text
+            style={
+              {
+                "color": "#333333",
+                "fontSize": 15,
+                "lineHeight": 22,
+                "marginBottom": 8,
+              }
+            }
+          >
+            Test content
+          </Text>
+          <View
+            style={
+              {
+                "marginTop": 8,
+              }
+            }
+          >
+            <View
+              style={
+                {
+                  "flexDirection": "row",
+                  "marginBottom": 8,
+                  "paddingLeft": 8,
+                }
+              }
+            >
+              <Text
+                style={
+                  {
+                    "color": "#333333",
+                    "fontSize": 15,
+                    "fontWeight": "bold",
+                    "marginRight": 8,
+                  }
+                }
+              >
+                •
+              </Text>
+              <Text
+                style={
+                  {
+                    "color": "#333333",
+                    "flex": 1,
+                    "fontSize": 15,
+                    "lineHeight": 22,
+                  }
+                }
+              >
+                Item 1
+              </Text>
+            </View>
+          </View>
+        </View>
+        <View
+          style={
+            {
+              "height": 40,
+            }
+          }
+        />
+      </View>
+    </RCTScrollView>
+    <View
+      style={
+        {
+          "backgroundColor": "#ffffff",
+          "borderTopColor": "#E0E0E0",
+          "borderTopWidth": 1,
+          "paddingBottom": 20,
+          "paddingHorizontal": 20,
+          "paddingTop": 16,
+        }
+      }
+    >
+      <View
+        style={
+          {
+            "alignItems": "center",
+            "backgroundColor": "#E3F2FD",
+            "borderRadius": 4,
+            "flexDirection": "row",
+            "justifyContent": "center",
+            "marginBottom": 12,
+            "paddingVertical": 8,
+          }
+        }
+      >
+        <Text
+          color="#5386E4"
+          size={20}
+        >
+          MaterialIcon-arrow-downward
+        </Text>
+        <Text
+          style={
+            {
+              "color": "#5386E4",
+              "fontSize": 14,
+              "fontWeight": "600",
+              "marginLeft": 8,
+            }
+          }
+        >
+          Scroll to bottom to continue
+        </Text>
+      </View>
+      <View
+        accessibilityState={
+          {
+            "busy": undefined,
+            "checked": undefined,
+            "disabled": true,
+            "expanded": undefined,
+            "selected": undefined,
+          }
+        }
+        accessibilityValue={
+          {
+            "max": undefined,
+            "min": undefined,
+            "now": undefined,
+            "text": undefined,
+          }
+        }
+        accessible={true}
+        collapsable={false}
+        focusable={false}
+        onClick={[Function]}
+        onResponderGrant={[Function]}
+        onResponderMove={[Function]}
+        onResponderRelease={[Function]}
+        onResponderTerminate={[Function]}
+        onResponderTerminationRequest={[Function]}
+        onStartShouldSetResponder={[Function]}
+        style={
+          {
+            "alignItems": "center",
+            "flexDirection": "row",
+            "marginBottom": 16,
+            "opacity": 1,
+          }
+        }
+      >
+        <View
+          style={
+            [
+              {
+                "alignItems": "center",
+                "borderColor": "#BDBDBD",
+                "borderRadius": 4,
+                "borderWidth": 2,
+                "height": 24,
+                "justifyContent": "center",
+                "marginRight": 12,
+                "width": 24,
+              },
+              false,
+              {
+                "backgroundColor": "#F5F5F5",
+                "borderColor": "#E0E0E0",
+              },
+            ]
+          }
+        />
+        <Text
+          style={
+            [
+              {
+                "color": "#333333",
+                "flex": 1,
+                "fontSize": 14,
+                "lineHeight": 20,
+              },
+              {
+                "color": "#9E9E9E",
+              },
+            ]
+          }
+        >
+          I have read and understand the above information and acknowledge my responsibilities as outlined
+        </Text>
+      </View>
+      <View
+        accessibilityState={
+          {
+            "busy": undefined,
+            "checked": undefined,
+            "disabled": true,
+            "expanded": undefined,
+            "selected": undefined,
+          }
+        }
+        accessibilityValue={
+          {
+            "max": undefined,
+            "min": undefined,
+            "now": undefined,
+            "text": undefined,
+          }
+        }
+        accessible={true}
+        collapsable={false}
+        focusable={false}
+        onClick={[Function]}
+        onResponderGrant={[Function]}
+        onResponderMove={[Function]}
+        onResponderRelease={[Function]}
+        onResponderTerminate={[Function]}
+        onResponderTerminationRequest={[Function]}
+        onStartShouldSetResponder={[Function]}
+        style={
+          {
+            "alignItems": "center",
+            "backgroundColor": "#BDBDBD",
+            "borderRadius": 8,
+            "elevation": 0,
+            "marginBottom": 12,
+            "opacity": 1,
+            "paddingVertical": 16,
+            "shadowColor": "#000",
+            "shadowOffset": {
+              "height": 2,
+              "width": 0,
+            },
+            "shadowOpacity": 0,
+            "shadowRadius": 4,
+          }
+        }
+      >
+        <Text
+          style={
+            {
+              "color": "#ffffff",
+              "fontSize": 16,
+              "fontWeight": "bold",
+              "letterSpacing": 1,
+            }
+          }
+        >
+          ACCEPT & CONTINUE
+        </Text>
+      </View>
+      <Text
+        style={
+          {
+            "color": "#9E9E9E",
+            "fontSize": 12,
+            "textAlign": "center",
+          }
+        }
+      >
+        Version 
+        1.0.0-test
+      </Text>
+    </View>
+  </View>
+</RCTSafeAreaView>
+`;

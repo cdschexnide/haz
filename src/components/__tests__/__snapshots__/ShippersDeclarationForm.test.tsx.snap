@@ -1,0 +1,3955 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ShippersDeclarationForm renders correctly with cargo only aircraft 1`] = `
+<RCTScrollView
+  contentContainerStyle={
+    {
+      "backgroundColor": "#fff",
+      "padding": 16,
+      "position": "relative",
+    }
+  }
+>
+  <View>
+    <View
+      style={
+        {
+          "borderLeftColor": "red",
+          "borderLeftWidth": 5,
+          "borderStyle": "dashed",
+          "bottom": 0,
+          "left": 0,
+          "position": "absolute",
+          "top": 0,
+          "width": 10,
+          "zIndex": 0,
+        }
+      }
+    />
+    <View
+      style={
+        {
+          "borderRightColor": "red",
+          "borderRightWidth": 5,
+          "borderStyle": "dashed",
+          "bottom": 0,
+          "position": "absolute",
+          "right": 0,
+          "top": 0,
+          "width": 10,
+          "zIndex": 0,
+        }
+      }
+    />
+    <View
+      style={
+        {
+          "borderColor": "#000",
+          "borderWidth": 1,
+          "padding": 12,
+          "zIndex": 1,
+        }
+      }
+    >
+      <Text
+        style={
+          {
+            "color": "#000",
+            "fontSize": 16,
+            "fontWeight": "bold",
+            "marginBottom": 16,
+            "textAlign": "center",
+          }
+        }
+      >
+        SHIPPER'S DECLARATION FOR DANGEROUS GOODS
+      </Text>
+      <View
+        style={
+          {
+            "flexDirection": "row",
+            "gap": 8,
+            "justifyContent": "space-between",
+            "marginBottom": 12,
+          }
+        }
+      >
+        <View
+          style={
+            {
+              "borderColor": "#000",
+              "borderWidth": 1,
+              "flex": 1,
+              "padding": 8,
+            }
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#000",
+                "fontSize": 16,
+                "fontWeight": "bold",
+                "marginBottom": 4,
+                "padding": 10,
+              }
+            }
+          >
+            Shipper
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#000",
+                "paddingLeft": 10,
+              }
+            }
+          >
+            Test Shipper Inc.
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#000",
+                "paddingLeft": 10,
+              }
+            }
+          >
+            123 Test Street
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#000",
+                "paddingLeft": 10,
+              }
+            }
+          >
+            Test City, TS 12345
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#000",
+                "paddingLeft": 10,
+              }
+            }
+          >
+            <Text
+              style={
+                [
+                  {
+                    "color": "#000",
+                    "paddingLeft": 10,
+                  },
+                  {
+                    "fontWeight": 600,
+                  },
+                ]
+              }
+            >
+              Phone:
+            </Text>
+             
+            555-123-4567
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#000",
+                "paddingBottom": 10,
+                "paddingLeft": 10,
+              }
+            }
+          >
+            <Text
+              style={
+                [
+                  {
+                    "color": "#000",
+                    "paddingLeft": 10,
+                  },
+                  {
+                    "fontWeight": 600,
+                  },
+                ]
+              }
+            >
+              DSN:
+            </Text>
+             
+            312-555-1234
+          </Text>
+        </View>
+        <View
+          style={
+            {
+              "borderColor": "#000",
+              "borderWidth": 1,
+              "flex": 1,
+              "padding": 8,
+            }
+          }
+        >
+          <View
+            style={
+              {
+                "alignItems": "flex-start",
+                "flexDirection": "row",
+                "justifyContent": "space-between",
+              }
+            }
+          >
+            <View
+              style={
+                {
+                  "flex": 1,
+                }
+              }
+            >
+              <Text
+                style={
+                  {
+                    "color": "#000",
+                    "fontSize": 16,
+                    "fontWeight": "bold",
+                    "marginBottom": 4,
+                    "padding": 10,
+                  }
+                }
+              >
+                Air Waybill No.
+              </Text>
+              <Text
+                style={
+                  {
+                    "color": "#000",
+                    "paddingBottom": 10,
+                    "paddingLeft": 10,
+                    "paddingTop": 10,
+                  }
+                }
+              >
+                Page 1 of 1
+              </Text>
+              <Text
+                style={
+                  {
+                    "color": "#000",
+                    "paddingLeft": 10,
+                  }
+                }
+              >
+                SHIPPER'S REFERENCE NUMBER
+              </Text>
+              <Text
+                style={
+                  {
+                    "color": "#000",
+                    "fontSize": 16,
+                    "paddingLeft": 10,
+                  }
+                }
+              >
+                TCN: 
+                TCN123456789
+              </Text>
+            </View>
+            <View
+              style={
+                {
+                  "alignItems": "center",
+                  "justifyContent": "center",
+                  "marginLeft": 8,
+                }
+              }
+            >
+              <View
+                backgroundColor="#ffffff"
+                color="#000000"
+                size={85}
+                testID="mock-qrcode"
+                value="TCN123456789"
+              />
+            </View>
+          </View>
+        </View>
+      </View>
+      <View
+        style={
+          {
+            "flexDirection": "row",
+            "gap": 8,
+            "justifyContent": "space-between",
+            "marginBottom": 12,
+          }
+        }
+      >
+        <View
+          style={
+            {
+              "borderColor": "#000",
+              "borderWidth": 1,
+              "flex": 1,
+              "padding": 8,
+            }
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#000",
+                "fontSize": 16,
+                "fontWeight": "bold",
+                "marginBottom": 4,
+                "padding": 10,
+              }
+            }
+          >
+            Consignee
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#000",
+                "paddingLeft": 10,
+              }
+            }
+          >
+            ABC123
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#000",
+                "paddingLeft": 10,
+              }
+            }
+          >
+            456 Destination Ave
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#000",
+                "paddingLeft": 10,
+              }
+            }
+          >
+            Dest City, United States
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#000",
+                "paddingLeft": 10,
+              }
+            }
+          >
+            <Text
+              style={
+                [
+                  {
+                    "color": "#000",
+                    "paddingLeft": 10,
+                  },
+                  {
+                    "fontWeight": 600,
+                  },
+                ]
+              }
+            >
+              Phone:
+            </Text>
+             
+            555-123-4567
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#000",
+                "paddingBottom": 10,
+                "paddingLeft": 10,
+              }
+            }
+          >
+            <Text
+              style={
+                [
+                  {
+                    "color": "#000",
+                    "paddingLeft": 10,
+                  },
+                  {
+                    "fontWeight": 600,
+                  },
+                ]
+              }
+            >
+              DSN:
+            </Text>
+             
+            312-555-1234
+          </Text>
+        </View>
+        <View
+          style={
+            {
+              "borderColor": "#000",
+              "borderWidth": 1,
+              "flex": 1,
+              "padding": 8,
+            }
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#000",
+                "fontSize": 16,
+                "fontWeight": "bold",
+                "marginBottom": 4,
+                "padding": 10,
+              }
+            }
+          >
+            Warning
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#000",
+                "fontSize": 12,
+                "lineHeight": 16,
+                "paddingLeft": 10,
+              }
+            }
+          >
+            Failure to comply in all respects with the applicable Dangerous Goods Regulations may be in breach of the applicable law, subject to legal penalties.
+          </Text>
+        </View>
+      </View>
+      <View
+        style={
+          {
+            "flexDirection": "row",
+            "gap": 8,
+            "justifyContent": "space-between",
+            "marginBottom": 12,
+          }
+        }
+      >
+        <View
+          style={
+            [
+              {
+                "borderColor": "#000",
+                "borderWidth": 1,
+                "flex": 1,
+                "padding": 8,
+              },
+              {
+                "flex": 2,
+              },
+            ]
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#000",
+                "fontSize": 16,
+                "fontWeight": "bold",
+                "marginBottom": 4,
+                "padding": 10,
+              }
+            }
+          >
+            TRANSPORT DETAILS
+          </Text>
+          <Text>
+            This shipment is within the limitations prescribed for:
+          </Text>
+          <View
+            style={
+              {
+                "borderColor": "#000",
+                "borderWidth": 1,
+                "color": "#000",
+                "flexDirection": "row",
+                "marginTop": 4,
+              }
+            }
+          >
+            <View
+              style={
+                {
+                  "alignItems": "center",
+                  "borderRightColor": "#000",
+                  "borderRightWidth": 1,
+                  "flex": 1,
+                  "height": 50,
+                  "justifyContent": "center",
+                  "position": "relative",
+                }
+              }
+            >
+              <Text
+                style={
+                  {
+                    "color": "#000",
+                    "fontSize": 10,
+                    "lineHeight": 14,
+                    "textAlign": "center",
+                  }
+                }
+              >
+                PASSENGER AND
+                
+
+                CARGO AIRCRAFT
+              </Text>
+              <Text
+                style={
+                  {
+                    "color": "#000",
+                    "fontSize": 28,
+                    "fontWeight": "bold",
+                    "position": "absolute",
+                    "textAlign": "center",
+                  }
+                }
+              >
+                XXXXXXXX
+              </Text>
+            </View>
+            <View
+              style={
+                {
+                  "alignItems": "center",
+                  "borderRightColor": "#000",
+                  "borderRightWidth": 1,
+                  "flex": 1,
+                  "height": 50,
+                  "justifyContent": "center",
+                  "position": "relative",
+                }
+              }
+            >
+              <Text
+                style={
+                  {
+                    "color": "#000",
+                    "fontSize": 10,
+                    "lineHeight": 14,
+                    "textAlign": "center",
+                  }
+                }
+              >
+                CARGO AIRCRAFT
+                
+
+                ONLY
+              </Text>
+            </View>
+          </View>
+        </View>
+        <View
+          style={
+            [
+              {
+                "borderColor": "#000",
+                "borderWidth": 1,
+                "flex": 1,
+                "padding": 8,
+              },
+              {
+                "flex": 1,
+              },
+            ]
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#000",
+                "fontSize": 16,
+                "fontWeight": "bold",
+                "marginBottom": 4,
+                "padding": 10,
+              }
+            }
+          >
+            Airport of Departure:
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#000",
+                "paddingLeft": 10,
+              }
+            }
+          >
+            KDOV
+          </Text>
+        </View>
+        <View
+          style={
+            [
+              {
+                "borderColor": "#000",
+                "borderWidth": 1,
+                "flex": 1,
+                "padding": 8,
+              },
+              {
+                "flex": 1,
+              },
+            ]
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#000",
+                "fontSize": 16,
+                "fontWeight": "bold",
+                "marginBottom": 4,
+                "padding": 10,
+              }
+            }
+          >
+            Airport of Destination:
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#000",
+                "paddingLeft": 10,
+              }
+            }
+          >
+            ETAR
+          </Text>
+        </View>
+      </View>
+      <View
+        style={
+          {
+            "flexDirection": "row",
+            "gap": 8,
+            "justifyContent": "space-between",
+            "marginBottom": 12,
+          }
+        }
+      >
+        <View
+          style={
+            {
+              "borderColor": "#000",
+              "borderWidth": 1,
+              "flex": 1,
+              "padding": 8,
+            }
+          }
+        >
+          <View
+            style={
+              {
+                "color": "#000",
+                "marginTop": 12,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 16,
+                  "fontWeight": "bold",
+                  "marginBottom": 4,
+                  "padding": 10,
+                }
+              }
+            >
+              Shipment type:
+               
+              <Text
+                style={
+                  {
+                    "fontStyle": "italic",
+                  }
+                }
+              >
+                (delete non-applicable)
+              </Text>
+            </Text>
+            <View
+              style={
+                {
+                  "borderColor": "#000",
+                  "borderWidth": 1,
+                  "color": "#000",
+                  "flexDirection": "row",
+                  "marginTop": 4,
+                }
+              }
+            >
+              <View
+                style={
+                  {
+                    "alignItems": "center",
+                    "borderRightColor": "#000",
+                    "borderRightWidth": 1,
+                    "color": "#000",
+                    "flex": 1,
+                    "height": 40,
+                    "justifyContent": "center",
+                    "position": "relative",
+                  }
+                }
+              >
+                <Text
+                  style={
+                    {
+                      "color": "#000",
+                      "fontSize": 10,
+                      "lineHeight": 14,
+                      "textAlign": "center",
+                    }
+                  }
+                >
+                  NON-RADIOACTIVE
+                </Text>
+              </View>
+              <View
+                style={
+                  {
+                    "alignItems": "center",
+                    "borderRightColor": "#000",
+                    "borderRightWidth": 1,
+                    "color": "#000",
+                    "flex": 1,
+                    "height": 40,
+                    "justifyContent": "center",
+                    "position": "relative",
+                  }
+                }
+              >
+                <Text
+                  style={
+                    {
+                      "color": "#000",
+                      "fontSize": 10,
+                      "lineHeight": 14,
+                      "textAlign": "center",
+                    }
+                  }
+                >
+                  RADIOACTIVE
+                </Text>
+                <Text
+                  style={
+                    {
+                      "color": "#000",
+                      "fontSize": 28,
+                      "fontWeight": "bold",
+                      "position": "absolute",
+                      "textAlign": "center",
+                    }
+                  }
+                >
+                  XXXXXXXXXXXX
+                </Text>
+              </View>
+            </View>
+          </View>
+        </View>
+      </View>
+      <View
+        style={
+          {
+            "borderColor": "#000",
+            "borderWidth": 1,
+            "marginTop": 16,
+          }
+        }
+      >
+        <Text
+          style={
+            {
+              "color": "#000",
+              "fontSize": 16,
+              "fontWeight": "bold",
+              "marginBottom": 4,
+              "padding": 10,
+            }
+          }
+        >
+          NATURE AND QUANTITY OF DANGEROUS GOODS
+        </Text>
+        <View
+          style={
+            {
+              "backgroundColor": "#e9ecef",
+              "borderBottomWidth": 1,
+              "borderColor": "#000",
+              "flexDirection": "row",
+            }
+          }
+        >
+          <View
+            style={
+              {
+                "borderColor": "#000",
+                "borderRightWidth": 1,
+                "flex": 1,
+                "padding": 6,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 12,
+                  "fontWeight": "bold",
+                }
+              }
+            >
+              UN or ID No.
+            </Text>
+          </View>
+          <View
+            style={
+              {
+                "borderColor": "#000",
+                "borderRightWidth": 1,
+                "flex": 1,
+                "padding": 6,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 12,
+                  "fontWeight": "bold",
+                }
+              }
+            >
+              Proper Shipping Name
+            </Text>
+          </View>
+          <View
+            style={
+              {
+                "borderColor": "#000",
+                "borderRightWidth": 1,
+                "flex": 1,
+                "padding": 6,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 12,
+                  "fontWeight": "bold",
+                }
+              }
+            >
+              Class or Division
+(subsidiary hazard)
+            </Text>
+          </View>
+          <View
+            style={
+              {
+                "borderColor": "#000",
+                "borderRightWidth": 1,
+                "flex": 1,
+                "padding": 6,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 12,
+                  "fontWeight": "bold",
+                }
+              }
+            >
+              Packing Group
+            </Text>
+          </View>
+          <View
+            style={
+              {
+                "borderColor": "#000",
+                "borderRightWidth": 1,
+                "flex": 1,
+                "padding": 6,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 12,
+                  "fontWeight": "bold",
+                }
+              }
+            >
+              Quantity and Type of Packing
+            </Text>
+          </View>
+          <View
+            style={
+              {
+                "borderColor": "#000",
+                "borderRightWidth": 1,
+                "flex": 1,
+                "padding": 6,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 12,
+                  "fontWeight": "bold",
+                }
+              }
+            >
+              Packing Inst.
+            </Text>
+          </View>
+          <View
+            style={
+              {
+                "borderColor": "#000",
+                "borderRightWidth": 1,
+                "flex": 1,
+                "padding": 6,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 12,
+                  "fontWeight": "bold",
+                }
+              }
+            >
+              Authorization
+            </Text>
+          </View>
+        </View>
+        <View
+          style={
+            {
+              "flexDirection": "row",
+              "height": 300,
+            }
+          }
+        >
+          <View
+            style={
+              {
+                "borderColor": "#000",
+                "borderRightWidth": 1,
+                "flex": 1,
+                "padding": 6,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 12,
+                }
+              }
+            >
+              UN1090
+            </Text>
+          </View>
+          <View
+            style={
+              {
+                "borderColor": "#000",
+                "borderRightWidth": 1,
+                "flex": 1,
+                "padding": 6,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 12,
+                }
+              }
+            >
+              ACETONE
+            </Text>
+          </View>
+          <View
+            style={
+              {
+                "borderColor": "#000",
+                "borderRightWidth": 1,
+                "flex": 1,
+                "padding": 6,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 12,
+                }
+              }
+            >
+              3
+            </Text>
+          </View>
+          <View
+            style={
+              {
+                "borderColor": "#000",
+                "borderRightWidth": 1,
+                "flex": 1,
+                "padding": 6,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 12,
+                }
+              }
+            >
+              II
+            </Text>
+          </View>
+          <View
+            style={
+              {
+                "borderColor": "#000",
+                "borderRightWidth": 1,
+                "flex": 1,
+                "padding": 6,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 12,
+                }
+              }
+            >
+              10 x 1L Steel Drums
+            </Text>
+          </View>
+          <View
+            style={
+              {
+                "borderColor": "#000",
+                "borderRightWidth": 1,
+                "flex": 1,
+                "padding": 6,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 12,
+                }
+              }
+            >
+              Y344
+            </Text>
+          </View>
+          <View
+            style={
+              {
+                "borderColor": "#000",
+                "borderRightWidth": 1,
+                "flex": 1,
+                "padding": 6,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 12,
+                }
+              }
+            >
+              N/A
+            </Text>
+          </View>
+        </View>
+      </View>
+      <View
+        style={
+          {
+            "borderColor": "#000",
+            "borderTopWidth": 1,
+            "color": "#000",
+            "marginBottom": 16,
+            "marginTop": 16,
+            "paddingTop": 10,
+          }
+        }
+      >
+        <Text
+          style={
+            {
+              "color": "#000",
+              "fontSize": 16,
+              "fontWeight": "bold",
+              "marginBottom": 4,
+              "padding": 10,
+            }
+          }
+        >
+          Additional Handling Information
+        </Text>
+        <View>
+          <View
+            style={
+              {
+                "alignItems": "center",
+                "flexDirection": "row",
+                "flexWrap": "wrap",
+                "justifyContent": "flex-end",
+                "marginTop": 8,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 13,
+                  "fontWeight": "bold",
+                  "marginRight": 4,
+                }
+              }
+            >
+              EMERGENCY TELEPHONE NUMBER:
+               
+            </Text>
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 13,
+                }
+              }
+            >
+              1-800-851-8061
+                 
+              +1-804-279- 3131
+            </Text>
+          </View>
+        </View>
+      </View>
+      <View
+        style={
+          {
+            "borderColor": "#000",
+            "borderTopWidth": 1,
+            "color": "#000",
+            "flexDirection": "row",
+            "gap": 8,
+            "paddingTop": 12,
+          }
+        }
+      >
+        <View
+          style={
+            {
+              "color": "#000",
+              "flex": 2,
+              "paddingRight": 10,
+            }
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#000",
+                "fontSize": 14,
+                "lineHeight": 18,
+                "padding": 5,
+              }
+            }
+          >
+            I hereby declare that the contents of this consignment are fully and accurately described above by the proper shipping name, and are classified, packaged, marked and labelled/placarded, and are in all respects in proper condition for transport according to applicable international and national governmental regulations. I declare that all of the applicable air transport requirements have been met.
+          </Text>
+        </View>
+        <View
+          style={
+            {
+              "borderColor": "#000",
+              "borderLeftWidth": 1,
+              "color": "#000",
+              "flex": 1,
+              "paddingLeft": 10,
+            }
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#000",
+                "fontSize": 13,
+                "fontWeight": "bold",
+                "marginBottom": 4,
+                "textTransform": "uppercase",
+              }
+            }
+          >
+            NAME/TITLE OF SIGNATORY
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#000",
+              }
+            }
+          >
+            John Doe
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#000",
+              }
+            }
+          >
+            Hazmat Specialist
+          </Text>
+          <Text
+            style={
+              [
+                {
+                  "color": "#000",
+                  "fontSize": 13,
+                  "fontWeight": "bold",
+                  "marginBottom": 4,
+                  "textTransform": "uppercase",
+                },
+                {
+                  "marginTop": 12,
+                },
+              ]
+            }
+          >
+            PLACE AND DATE
+          </Text>
+          <View
+            style={
+              {
+                "color": "#000",
+                "flexDirection": "row",
+                "justifyContent": "space-between",
+                "marginBottom": 8,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                }
+              }
+            >
+              Fort Test
+            </Text>
+            <Text
+              style={
+                {
+                  "color": "#000",
+                }
+              }
+            >
+              2024-01-15
+            </Text>
+          </View>
+          <Text
+            style={
+              {
+                "color": "#000",
+                "fontSize": 10,
+                "fontStyle": "italic",
+                "marginTop": 12,
+              }
+            }
+          >
+            SIGNATURE (see warning above)
+          </Text>
+        </View>
+      </View>
+    </View>
+  </View>
+</RCTScrollView>
+`;
+
+exports[`ShippersDeclarationForm renders correctly with complete props 1`] = `
+<RCTScrollView
+  contentContainerStyle={
+    {
+      "backgroundColor": "#fff",
+      "padding": 16,
+      "position": "relative",
+    }
+  }
+>
+  <View>
+    <View
+      style={
+        {
+          "borderLeftColor": "red",
+          "borderLeftWidth": 5,
+          "borderStyle": "dashed",
+          "bottom": 0,
+          "left": 0,
+          "position": "absolute",
+          "top": 0,
+          "width": 10,
+          "zIndex": 0,
+        }
+      }
+    />
+    <View
+      style={
+        {
+          "borderRightColor": "red",
+          "borderRightWidth": 5,
+          "borderStyle": "dashed",
+          "bottom": 0,
+          "position": "absolute",
+          "right": 0,
+          "top": 0,
+          "width": 10,
+          "zIndex": 0,
+        }
+      }
+    />
+    <View
+      style={
+        {
+          "borderColor": "#000",
+          "borderWidth": 1,
+          "padding": 12,
+          "zIndex": 1,
+        }
+      }
+    >
+      <Text
+        style={
+          {
+            "color": "#000",
+            "fontSize": 16,
+            "fontWeight": "bold",
+            "marginBottom": 16,
+            "textAlign": "center",
+          }
+        }
+      >
+        SHIPPER'S DECLARATION FOR DANGEROUS GOODS
+      </Text>
+      <View
+        style={
+          {
+            "flexDirection": "row",
+            "gap": 8,
+            "justifyContent": "space-between",
+            "marginBottom": 12,
+          }
+        }
+      >
+        <View
+          style={
+            {
+              "borderColor": "#000",
+              "borderWidth": 1,
+              "flex": 1,
+              "padding": 8,
+            }
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#000",
+                "fontSize": 16,
+                "fontWeight": "bold",
+                "marginBottom": 4,
+                "padding": 10,
+              }
+            }
+          >
+            Shipper
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#000",
+                "paddingLeft": 10,
+              }
+            }
+          >
+            Test Shipper Inc.
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#000",
+                "paddingLeft": 10,
+              }
+            }
+          >
+            123 Test Street
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#000",
+                "paddingLeft": 10,
+              }
+            }
+          >
+            Test City, TS 12345
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#000",
+                "paddingLeft": 10,
+              }
+            }
+          >
+            <Text
+              style={
+                [
+                  {
+                    "color": "#000",
+                    "paddingLeft": 10,
+                  },
+                  {
+                    "fontWeight": 600,
+                  },
+                ]
+              }
+            >
+              Phone:
+            </Text>
+             
+            555-123-4567
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#000",
+                "paddingBottom": 10,
+                "paddingLeft": 10,
+              }
+            }
+          >
+            <Text
+              style={
+                [
+                  {
+                    "color": "#000",
+                    "paddingLeft": 10,
+                  },
+                  {
+                    "fontWeight": 600,
+                  },
+                ]
+              }
+            >
+              DSN:
+            </Text>
+             
+            312-555-1234
+          </Text>
+        </View>
+        <View
+          style={
+            {
+              "borderColor": "#000",
+              "borderWidth": 1,
+              "flex": 1,
+              "padding": 8,
+            }
+          }
+        >
+          <View
+            style={
+              {
+                "alignItems": "flex-start",
+                "flexDirection": "row",
+                "justifyContent": "space-between",
+              }
+            }
+          >
+            <View
+              style={
+                {
+                  "flex": 1,
+                }
+              }
+            >
+              <Text
+                style={
+                  {
+                    "color": "#000",
+                    "fontSize": 16,
+                    "fontWeight": "bold",
+                    "marginBottom": 4,
+                    "padding": 10,
+                  }
+                }
+              >
+                Air Waybill No.
+              </Text>
+              <Text
+                style={
+                  {
+                    "color": "#000",
+                    "paddingBottom": 10,
+                    "paddingLeft": 10,
+                    "paddingTop": 10,
+                  }
+                }
+              >
+                Page 1 of 1
+              </Text>
+              <Text
+                style={
+                  {
+                    "color": "#000",
+                    "paddingLeft": 10,
+                  }
+                }
+              >
+                SHIPPER'S REFERENCE NUMBER
+              </Text>
+              <Text
+                style={
+                  {
+                    "color": "#000",
+                    "fontSize": 16,
+                    "paddingLeft": 10,
+                  }
+                }
+              >
+                TCN: 
+                TCN123456789
+              </Text>
+            </View>
+            <View
+              style={
+                {
+                  "alignItems": "center",
+                  "justifyContent": "center",
+                  "marginLeft": 8,
+                }
+              }
+            >
+              <View
+                backgroundColor="#ffffff"
+                color="#000000"
+                size={85}
+                testID="mock-qrcode"
+                value="TCN123456789"
+              />
+            </View>
+          </View>
+        </View>
+      </View>
+      <View
+        style={
+          {
+            "flexDirection": "row",
+            "gap": 8,
+            "justifyContent": "space-between",
+            "marginBottom": 12,
+          }
+        }
+      >
+        <View
+          style={
+            {
+              "borderColor": "#000",
+              "borderWidth": 1,
+              "flex": 1,
+              "padding": 8,
+            }
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#000",
+                "fontSize": 16,
+                "fontWeight": "bold",
+                "marginBottom": 4,
+                "padding": 10,
+              }
+            }
+          >
+            Consignee
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#000",
+                "paddingLeft": 10,
+              }
+            }
+          >
+            ABC123
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#000",
+                "paddingLeft": 10,
+              }
+            }
+          >
+            456 Destination Ave
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#000",
+                "paddingLeft": 10,
+              }
+            }
+          >
+            Dest City, United States
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#000",
+                "paddingLeft": 10,
+              }
+            }
+          >
+            <Text
+              style={
+                [
+                  {
+                    "color": "#000",
+                    "paddingLeft": 10,
+                  },
+                  {
+                    "fontWeight": 600,
+                  },
+                ]
+              }
+            >
+              Phone:
+            </Text>
+             
+            555-123-4567
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#000",
+                "paddingBottom": 10,
+                "paddingLeft": 10,
+              }
+            }
+          >
+            <Text
+              style={
+                [
+                  {
+                    "color": "#000",
+                    "paddingLeft": 10,
+                  },
+                  {
+                    "fontWeight": 600,
+                  },
+                ]
+              }
+            >
+              DSN:
+            </Text>
+             
+            312-555-1234
+          </Text>
+        </View>
+        <View
+          style={
+            {
+              "borderColor": "#000",
+              "borderWidth": 1,
+              "flex": 1,
+              "padding": 8,
+            }
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#000",
+                "fontSize": 16,
+                "fontWeight": "bold",
+                "marginBottom": 4,
+                "padding": 10,
+              }
+            }
+          >
+            Warning
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#000",
+                "fontSize": 12,
+                "lineHeight": 16,
+                "paddingLeft": 10,
+              }
+            }
+          >
+            Failure to comply in all respects with the applicable Dangerous Goods Regulations may be in breach of the applicable law, subject to legal penalties.
+          </Text>
+        </View>
+      </View>
+      <View
+        style={
+          {
+            "flexDirection": "row",
+            "gap": 8,
+            "justifyContent": "space-between",
+            "marginBottom": 12,
+          }
+        }
+      >
+        <View
+          style={
+            [
+              {
+                "borderColor": "#000",
+                "borderWidth": 1,
+                "flex": 1,
+                "padding": 8,
+              },
+              {
+                "flex": 2,
+              },
+            ]
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#000",
+                "fontSize": 16,
+                "fontWeight": "bold",
+                "marginBottom": 4,
+                "padding": 10,
+              }
+            }
+          >
+            TRANSPORT DETAILS
+          </Text>
+          <Text>
+            This shipment is within the limitations prescribed for:
+          </Text>
+          <View
+            style={
+              {
+                "borderColor": "#000",
+                "borderWidth": 1,
+                "color": "#000",
+                "flexDirection": "row",
+                "marginTop": 4,
+              }
+            }
+          >
+            <View
+              style={
+                {
+                  "alignItems": "center",
+                  "borderRightColor": "#000",
+                  "borderRightWidth": 1,
+                  "flex": 1,
+                  "height": 50,
+                  "justifyContent": "center",
+                  "position": "relative",
+                }
+              }
+            >
+              <Text
+                style={
+                  {
+                    "color": "#000",
+                    "fontSize": 10,
+                    "lineHeight": 14,
+                    "textAlign": "center",
+                  }
+                }
+              >
+                PASSENGER AND
+                
+
+                CARGO AIRCRAFT
+              </Text>
+            </View>
+            <View
+              style={
+                {
+                  "alignItems": "center",
+                  "borderRightColor": "#000",
+                  "borderRightWidth": 1,
+                  "flex": 1,
+                  "height": 50,
+                  "justifyContent": "center",
+                  "position": "relative",
+                }
+              }
+            >
+              <Text
+                style={
+                  {
+                    "color": "#000",
+                    "fontSize": 10,
+                    "lineHeight": 14,
+                    "textAlign": "center",
+                  }
+                }
+              >
+                CARGO AIRCRAFT
+                
+
+                ONLY
+              </Text>
+              <Text
+                style={
+                  {
+                    "color": "#000",
+                    "fontSize": 28,
+                    "fontWeight": "bold",
+                    "position": "absolute",
+                    "textAlign": "center",
+                  }
+                }
+              >
+                XXXXXXX
+              </Text>
+            </View>
+          </View>
+        </View>
+        <View
+          style={
+            [
+              {
+                "borderColor": "#000",
+                "borderWidth": 1,
+                "flex": 1,
+                "padding": 8,
+              },
+              {
+                "flex": 1,
+              },
+            ]
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#000",
+                "fontSize": 16,
+                "fontWeight": "bold",
+                "marginBottom": 4,
+                "padding": 10,
+              }
+            }
+          >
+            Airport of Departure:
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#000",
+                "paddingLeft": 10,
+              }
+            }
+          >
+            KDOV
+          </Text>
+        </View>
+        <View
+          style={
+            [
+              {
+                "borderColor": "#000",
+                "borderWidth": 1,
+                "flex": 1,
+                "padding": 8,
+              },
+              {
+                "flex": 1,
+              },
+            ]
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#000",
+                "fontSize": 16,
+                "fontWeight": "bold",
+                "marginBottom": 4,
+                "padding": 10,
+              }
+            }
+          >
+            Airport of Destination:
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#000",
+                "paddingLeft": 10,
+              }
+            }
+          >
+            ETAR
+          </Text>
+        </View>
+      </View>
+      <View
+        style={
+          {
+            "flexDirection": "row",
+            "gap": 8,
+            "justifyContent": "space-between",
+            "marginBottom": 12,
+          }
+        }
+      >
+        <View
+          style={
+            {
+              "borderColor": "#000",
+              "borderWidth": 1,
+              "flex": 1,
+              "padding": 8,
+            }
+          }
+        >
+          <View
+            style={
+              {
+                "color": "#000",
+                "marginTop": 12,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 16,
+                  "fontWeight": "bold",
+                  "marginBottom": 4,
+                  "padding": 10,
+                }
+              }
+            >
+              Shipment type:
+               
+              <Text
+                style={
+                  {
+                    "fontStyle": "italic",
+                  }
+                }
+              >
+                (delete non-applicable)
+              </Text>
+            </Text>
+            <View
+              style={
+                {
+                  "borderColor": "#000",
+                  "borderWidth": 1,
+                  "color": "#000",
+                  "flexDirection": "row",
+                  "marginTop": 4,
+                }
+              }
+            >
+              <View
+                style={
+                  {
+                    "alignItems": "center",
+                    "borderRightColor": "#000",
+                    "borderRightWidth": 1,
+                    "color": "#000",
+                    "flex": 1,
+                    "height": 40,
+                    "justifyContent": "center",
+                    "position": "relative",
+                  }
+                }
+              >
+                <Text
+                  style={
+                    {
+                      "color": "#000",
+                      "fontSize": 10,
+                      "lineHeight": 14,
+                      "textAlign": "center",
+                    }
+                  }
+                >
+                  NON-RADIOACTIVE
+                </Text>
+              </View>
+              <View
+                style={
+                  {
+                    "alignItems": "center",
+                    "borderRightColor": "#000",
+                    "borderRightWidth": 1,
+                    "color": "#000",
+                    "flex": 1,
+                    "height": 40,
+                    "justifyContent": "center",
+                    "position": "relative",
+                  }
+                }
+              >
+                <Text
+                  style={
+                    {
+                      "color": "#000",
+                      "fontSize": 10,
+                      "lineHeight": 14,
+                      "textAlign": "center",
+                    }
+                  }
+                >
+                  RADIOACTIVE
+                </Text>
+                <Text
+                  style={
+                    {
+                      "color": "#000",
+                      "fontSize": 28,
+                      "fontWeight": "bold",
+                      "position": "absolute",
+                      "textAlign": "center",
+                    }
+                  }
+                >
+                  XXXXXXXXXXXX
+                </Text>
+              </View>
+            </View>
+          </View>
+        </View>
+      </View>
+      <View
+        style={
+          {
+            "borderColor": "#000",
+            "borderWidth": 1,
+            "marginTop": 16,
+          }
+        }
+      >
+        <Text
+          style={
+            {
+              "color": "#000",
+              "fontSize": 16,
+              "fontWeight": "bold",
+              "marginBottom": 4,
+              "padding": 10,
+            }
+          }
+        >
+          NATURE AND QUANTITY OF DANGEROUS GOODS
+        </Text>
+        <View
+          style={
+            {
+              "backgroundColor": "#e9ecef",
+              "borderBottomWidth": 1,
+              "borderColor": "#000",
+              "flexDirection": "row",
+            }
+          }
+        >
+          <View
+            style={
+              {
+                "borderColor": "#000",
+                "borderRightWidth": 1,
+                "flex": 1,
+                "padding": 6,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 12,
+                  "fontWeight": "bold",
+                }
+              }
+            >
+              UN or ID No.
+            </Text>
+          </View>
+          <View
+            style={
+              {
+                "borderColor": "#000",
+                "borderRightWidth": 1,
+                "flex": 1,
+                "padding": 6,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 12,
+                  "fontWeight": "bold",
+                }
+              }
+            >
+              Proper Shipping Name
+            </Text>
+          </View>
+          <View
+            style={
+              {
+                "borderColor": "#000",
+                "borderRightWidth": 1,
+                "flex": 1,
+                "padding": 6,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 12,
+                  "fontWeight": "bold",
+                }
+              }
+            >
+              Class or Division
+(subsidiary hazard)
+            </Text>
+          </View>
+          <View
+            style={
+              {
+                "borderColor": "#000",
+                "borderRightWidth": 1,
+                "flex": 1,
+                "padding": 6,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 12,
+                  "fontWeight": "bold",
+                }
+              }
+            >
+              Packing Group
+            </Text>
+          </View>
+          <View
+            style={
+              {
+                "borderColor": "#000",
+                "borderRightWidth": 1,
+                "flex": 1,
+                "padding": 6,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 12,
+                  "fontWeight": "bold",
+                }
+              }
+            >
+              Quantity and Type of Packing
+            </Text>
+          </View>
+          <View
+            style={
+              {
+                "borderColor": "#000",
+                "borderRightWidth": 1,
+                "flex": 1,
+                "padding": 6,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 12,
+                  "fontWeight": "bold",
+                }
+              }
+            >
+              Packing Inst.
+            </Text>
+          </View>
+          <View
+            style={
+              {
+                "borderColor": "#000",
+                "borderRightWidth": 1,
+                "flex": 1,
+                "padding": 6,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 12,
+                  "fontWeight": "bold",
+                }
+              }
+            >
+              Authorization
+            </Text>
+          </View>
+        </View>
+        <View
+          style={
+            {
+              "flexDirection": "row",
+              "height": 300,
+            }
+          }
+        >
+          <View
+            style={
+              {
+                "borderColor": "#000",
+                "borderRightWidth": 1,
+                "flex": 1,
+                "padding": 6,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 12,
+                }
+              }
+            >
+              UN1090
+            </Text>
+          </View>
+          <View
+            style={
+              {
+                "borderColor": "#000",
+                "borderRightWidth": 1,
+                "flex": 1,
+                "padding": 6,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 12,
+                }
+              }
+            >
+              ACETONE
+            </Text>
+          </View>
+          <View
+            style={
+              {
+                "borderColor": "#000",
+                "borderRightWidth": 1,
+                "flex": 1,
+                "padding": 6,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 12,
+                }
+              }
+            >
+              3
+            </Text>
+          </View>
+          <View
+            style={
+              {
+                "borderColor": "#000",
+                "borderRightWidth": 1,
+                "flex": 1,
+                "padding": 6,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 12,
+                }
+              }
+            >
+              II
+            </Text>
+          </View>
+          <View
+            style={
+              {
+                "borderColor": "#000",
+                "borderRightWidth": 1,
+                "flex": 1,
+                "padding": 6,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 12,
+                }
+              }
+            >
+              10 x 1L Steel Drums
+            </Text>
+          </View>
+          <View
+            style={
+              {
+                "borderColor": "#000",
+                "borderRightWidth": 1,
+                "flex": 1,
+                "padding": 6,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 12,
+                }
+              }
+            >
+              Y344
+            </Text>
+          </View>
+          <View
+            style={
+              {
+                "borderColor": "#000",
+                "borderRightWidth": 1,
+                "flex": 1,
+                "padding": 6,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 12,
+                }
+              }
+            >
+              N/A
+            </Text>
+          </View>
+        </View>
+      </View>
+      <View
+        style={
+          {
+            "borderColor": "#000",
+            "borderTopWidth": 1,
+            "color": "#000",
+            "marginBottom": 16,
+            "marginTop": 16,
+            "paddingTop": 10,
+          }
+        }
+      >
+        <Text
+          style={
+            {
+              "color": "#000",
+              "fontSize": 16,
+              "fontWeight": "bold",
+              "marginBottom": 4,
+              "padding": 10,
+            }
+          }
+        >
+          Additional Handling Information
+        </Text>
+        <View>
+          <View
+            style={
+              {
+                "alignItems": "center",
+                "flexDirection": "row",
+                "flexWrap": "wrap",
+                "justifyContent": "flex-end",
+                "marginTop": 8,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 13,
+                  "fontWeight": "bold",
+                  "marginRight": 4,
+                }
+              }
+            >
+              EMERGENCY TELEPHONE NUMBER:
+               
+            </Text>
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 13,
+                }
+              }
+            >
+              1-800-851-8061
+                 
+              +1-804-279- 3131
+            </Text>
+          </View>
+        </View>
+      </View>
+      <View
+        style={
+          {
+            "borderColor": "#000",
+            "borderTopWidth": 1,
+            "color": "#000",
+            "flexDirection": "row",
+            "gap": 8,
+            "paddingTop": 12,
+          }
+        }
+      >
+        <View
+          style={
+            {
+              "color": "#000",
+              "flex": 2,
+              "paddingRight": 10,
+            }
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#000",
+                "fontSize": 14,
+                "lineHeight": 18,
+                "padding": 5,
+              }
+            }
+          >
+            I hereby declare that the contents of this consignment are fully and accurately described above by the proper shipping name, and are classified, packaged, marked and labelled/placarded, and are in all respects in proper condition for transport according to applicable international and national governmental regulations. I declare that all of the applicable air transport requirements have been met.
+          </Text>
+        </View>
+        <View
+          style={
+            {
+              "borderColor": "#000",
+              "borderLeftWidth": 1,
+              "color": "#000",
+              "flex": 1,
+              "paddingLeft": 10,
+            }
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#000",
+                "fontSize": 13,
+                "fontWeight": "bold",
+                "marginBottom": 4,
+                "textTransform": "uppercase",
+              }
+            }
+          >
+            NAME/TITLE OF SIGNATORY
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#000",
+              }
+            }
+          >
+            John Doe
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#000",
+              }
+            }
+          >
+            Hazmat Specialist
+          </Text>
+          <Text
+            style={
+              [
+                {
+                  "color": "#000",
+                  "fontSize": 13,
+                  "fontWeight": "bold",
+                  "marginBottom": 4,
+                  "textTransform": "uppercase",
+                },
+                {
+                  "marginTop": 12,
+                },
+              ]
+            }
+          >
+            PLACE AND DATE
+          </Text>
+          <View
+            style={
+              {
+                "color": "#000",
+                "flexDirection": "row",
+                "justifyContent": "space-between",
+                "marginBottom": 8,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                }
+              }
+            >
+              Fort Test
+            </Text>
+            <Text
+              style={
+                {
+                  "color": "#000",
+                }
+              }
+            >
+              2024-01-15
+            </Text>
+          </View>
+          <Text
+            style={
+              {
+                "color": "#000",
+                "fontSize": 10,
+                "fontStyle": "italic",
+                "marginTop": 12,
+              }
+            }
+          >
+            SIGNATURE (see warning above)
+          </Text>
+        </View>
+      </View>
+    </View>
+  </View>
+</RCTScrollView>
+`;
+
+exports[`ShippersDeclarationForm renders correctly with radioactive shipment type 1`] = `
+<RCTScrollView
+  contentContainerStyle={
+    {
+      "backgroundColor": "#fff",
+      "padding": 16,
+      "position": "relative",
+    }
+  }
+>
+  <View>
+    <View
+      style={
+        {
+          "borderLeftColor": "red",
+          "borderLeftWidth": 5,
+          "borderStyle": "dashed",
+          "bottom": 0,
+          "left": 0,
+          "position": "absolute",
+          "top": 0,
+          "width": 10,
+          "zIndex": 0,
+        }
+      }
+    />
+    <View
+      style={
+        {
+          "borderRightColor": "red",
+          "borderRightWidth": 5,
+          "borderStyle": "dashed",
+          "bottom": 0,
+          "position": "absolute",
+          "right": 0,
+          "top": 0,
+          "width": 10,
+          "zIndex": 0,
+        }
+      }
+    />
+    <View
+      style={
+        {
+          "borderColor": "#000",
+          "borderWidth": 1,
+          "padding": 12,
+          "zIndex": 1,
+        }
+      }
+    >
+      <Text
+        style={
+          {
+            "color": "#000",
+            "fontSize": 16,
+            "fontWeight": "bold",
+            "marginBottom": 16,
+            "textAlign": "center",
+          }
+        }
+      >
+        SHIPPER'S DECLARATION FOR DANGEROUS GOODS
+      </Text>
+      <View
+        style={
+          {
+            "flexDirection": "row",
+            "gap": 8,
+            "justifyContent": "space-between",
+            "marginBottom": 12,
+          }
+        }
+      >
+        <View
+          style={
+            {
+              "borderColor": "#000",
+              "borderWidth": 1,
+              "flex": 1,
+              "padding": 8,
+            }
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#000",
+                "fontSize": 16,
+                "fontWeight": "bold",
+                "marginBottom": 4,
+                "padding": 10,
+              }
+            }
+          >
+            Shipper
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#000",
+                "paddingLeft": 10,
+              }
+            }
+          >
+            Test Shipper Inc.
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#000",
+                "paddingLeft": 10,
+              }
+            }
+          >
+            123 Test Street
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#000",
+                "paddingLeft": 10,
+              }
+            }
+          >
+            Test City, TS 12345
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#000",
+                "paddingLeft": 10,
+              }
+            }
+          >
+            <Text
+              style={
+                [
+                  {
+                    "color": "#000",
+                    "paddingLeft": 10,
+                  },
+                  {
+                    "fontWeight": 600,
+                  },
+                ]
+              }
+            >
+              Phone:
+            </Text>
+             
+            555-123-4567
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#000",
+                "paddingBottom": 10,
+                "paddingLeft": 10,
+              }
+            }
+          >
+            <Text
+              style={
+                [
+                  {
+                    "color": "#000",
+                    "paddingLeft": 10,
+                  },
+                  {
+                    "fontWeight": 600,
+                  },
+                ]
+              }
+            >
+              DSN:
+            </Text>
+             
+            312-555-1234
+          </Text>
+        </View>
+        <View
+          style={
+            {
+              "borderColor": "#000",
+              "borderWidth": 1,
+              "flex": 1,
+              "padding": 8,
+            }
+          }
+        >
+          <View
+            style={
+              {
+                "alignItems": "flex-start",
+                "flexDirection": "row",
+                "justifyContent": "space-between",
+              }
+            }
+          >
+            <View
+              style={
+                {
+                  "flex": 1,
+                }
+              }
+            >
+              <Text
+                style={
+                  {
+                    "color": "#000",
+                    "fontSize": 16,
+                    "fontWeight": "bold",
+                    "marginBottom": 4,
+                    "padding": 10,
+                  }
+                }
+              >
+                Air Waybill No.
+              </Text>
+              <Text
+                style={
+                  {
+                    "color": "#000",
+                    "paddingBottom": 10,
+                    "paddingLeft": 10,
+                    "paddingTop": 10,
+                  }
+                }
+              >
+                Page 1 of 1
+              </Text>
+              <Text
+                style={
+                  {
+                    "color": "#000",
+                    "paddingLeft": 10,
+                  }
+                }
+              >
+                SHIPPER'S REFERENCE NUMBER
+              </Text>
+              <Text
+                style={
+                  {
+                    "color": "#000",
+                    "fontSize": 16,
+                    "paddingLeft": 10,
+                  }
+                }
+              >
+                TCN: 
+                TCN123456789
+              </Text>
+            </View>
+            <View
+              style={
+                {
+                  "alignItems": "center",
+                  "justifyContent": "center",
+                  "marginLeft": 8,
+                }
+              }
+            >
+              <View
+                backgroundColor="#ffffff"
+                color="#000000"
+                size={85}
+                testID="mock-qrcode"
+                value="TCN123456789"
+              />
+            </View>
+          </View>
+        </View>
+      </View>
+      <View
+        style={
+          {
+            "flexDirection": "row",
+            "gap": 8,
+            "justifyContent": "space-between",
+            "marginBottom": 12,
+          }
+        }
+      >
+        <View
+          style={
+            {
+              "borderColor": "#000",
+              "borderWidth": 1,
+              "flex": 1,
+              "padding": 8,
+            }
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#000",
+                "fontSize": 16,
+                "fontWeight": "bold",
+                "marginBottom": 4,
+                "padding": 10,
+              }
+            }
+          >
+            Consignee
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#000",
+                "paddingLeft": 10,
+              }
+            }
+          >
+            ABC123
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#000",
+                "paddingLeft": 10,
+              }
+            }
+          >
+            456 Destination Ave
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#000",
+                "paddingLeft": 10,
+              }
+            }
+          >
+            Dest City, United States
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#000",
+                "paddingLeft": 10,
+              }
+            }
+          >
+            <Text
+              style={
+                [
+                  {
+                    "color": "#000",
+                    "paddingLeft": 10,
+                  },
+                  {
+                    "fontWeight": 600,
+                  },
+                ]
+              }
+            >
+              Phone:
+            </Text>
+             
+            555-123-4567
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#000",
+                "paddingBottom": 10,
+                "paddingLeft": 10,
+              }
+            }
+          >
+            <Text
+              style={
+                [
+                  {
+                    "color": "#000",
+                    "paddingLeft": 10,
+                  },
+                  {
+                    "fontWeight": 600,
+                  },
+                ]
+              }
+            >
+              DSN:
+            </Text>
+             
+            312-555-1234
+          </Text>
+        </View>
+        <View
+          style={
+            {
+              "borderColor": "#000",
+              "borderWidth": 1,
+              "flex": 1,
+              "padding": 8,
+            }
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#000",
+                "fontSize": 16,
+                "fontWeight": "bold",
+                "marginBottom": 4,
+                "padding": 10,
+              }
+            }
+          >
+            Warning
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#000",
+                "fontSize": 12,
+                "lineHeight": 16,
+                "paddingLeft": 10,
+              }
+            }
+          >
+            Failure to comply in all respects with the applicable Dangerous Goods Regulations may be in breach of the applicable law, subject to legal penalties.
+          </Text>
+        </View>
+      </View>
+      <View
+        style={
+          {
+            "flexDirection": "row",
+            "gap": 8,
+            "justifyContent": "space-between",
+            "marginBottom": 12,
+          }
+        }
+      >
+        <View
+          style={
+            [
+              {
+                "borderColor": "#000",
+                "borderWidth": 1,
+                "flex": 1,
+                "padding": 8,
+              },
+              {
+                "flex": 2,
+              },
+            ]
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#000",
+                "fontSize": 16,
+                "fontWeight": "bold",
+                "marginBottom": 4,
+                "padding": 10,
+              }
+            }
+          >
+            TRANSPORT DETAILS
+          </Text>
+          <Text>
+            This shipment is within the limitations prescribed for:
+          </Text>
+          <View
+            style={
+              {
+                "borderColor": "#000",
+                "borderWidth": 1,
+                "color": "#000",
+                "flexDirection": "row",
+                "marginTop": 4,
+              }
+            }
+          >
+            <View
+              style={
+                {
+                  "alignItems": "center",
+                  "borderRightColor": "#000",
+                  "borderRightWidth": 1,
+                  "flex": 1,
+                  "height": 50,
+                  "justifyContent": "center",
+                  "position": "relative",
+                }
+              }
+            >
+              <Text
+                style={
+                  {
+                    "color": "#000",
+                    "fontSize": 10,
+                    "lineHeight": 14,
+                    "textAlign": "center",
+                  }
+                }
+              >
+                PASSENGER AND
+                
+
+                CARGO AIRCRAFT
+              </Text>
+            </View>
+            <View
+              style={
+                {
+                  "alignItems": "center",
+                  "borderRightColor": "#000",
+                  "borderRightWidth": 1,
+                  "flex": 1,
+                  "height": 50,
+                  "justifyContent": "center",
+                  "position": "relative",
+                }
+              }
+            >
+              <Text
+                style={
+                  {
+                    "color": "#000",
+                    "fontSize": 10,
+                    "lineHeight": 14,
+                    "textAlign": "center",
+                  }
+                }
+              >
+                CARGO AIRCRAFT
+                
+
+                ONLY
+              </Text>
+              <Text
+                style={
+                  {
+                    "color": "#000",
+                    "fontSize": 28,
+                    "fontWeight": "bold",
+                    "position": "absolute",
+                    "textAlign": "center",
+                  }
+                }
+              >
+                XXXXXXX
+              </Text>
+            </View>
+          </View>
+        </View>
+        <View
+          style={
+            [
+              {
+                "borderColor": "#000",
+                "borderWidth": 1,
+                "flex": 1,
+                "padding": 8,
+              },
+              {
+                "flex": 1,
+              },
+            ]
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#000",
+                "fontSize": 16,
+                "fontWeight": "bold",
+                "marginBottom": 4,
+                "padding": 10,
+              }
+            }
+          >
+            Airport of Departure:
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#000",
+                "paddingLeft": 10,
+              }
+            }
+          >
+            KDOV
+          </Text>
+        </View>
+        <View
+          style={
+            [
+              {
+                "borderColor": "#000",
+                "borderWidth": 1,
+                "flex": 1,
+                "padding": 8,
+              },
+              {
+                "flex": 1,
+              },
+            ]
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#000",
+                "fontSize": 16,
+                "fontWeight": "bold",
+                "marginBottom": 4,
+                "padding": 10,
+              }
+            }
+          >
+            Airport of Destination:
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#000",
+                "paddingLeft": 10,
+              }
+            }
+          >
+            ETAR
+          </Text>
+        </View>
+      </View>
+      <View
+        style={
+          {
+            "flexDirection": "row",
+            "gap": 8,
+            "justifyContent": "space-between",
+            "marginBottom": 12,
+          }
+        }
+      >
+        <View
+          style={
+            {
+              "borderColor": "#000",
+              "borderWidth": 1,
+              "flex": 1,
+              "padding": 8,
+            }
+          }
+        >
+          <View
+            style={
+              {
+                "color": "#000",
+                "marginTop": 12,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 16,
+                  "fontWeight": "bold",
+                  "marginBottom": 4,
+                  "padding": 10,
+                }
+              }
+            >
+              Shipment type:
+               
+              <Text
+                style={
+                  {
+                    "fontStyle": "italic",
+                  }
+                }
+              >
+                (delete non-applicable)
+              </Text>
+            </Text>
+            <View
+              style={
+                {
+                  "borderColor": "#000",
+                  "borderWidth": 1,
+                  "color": "#000",
+                  "flexDirection": "row",
+                  "marginTop": 4,
+                }
+              }
+            >
+              <View
+                style={
+                  {
+                    "alignItems": "center",
+                    "borderRightColor": "#000",
+                    "borderRightWidth": 1,
+                    "color": "#000",
+                    "flex": 1,
+                    "height": 40,
+                    "justifyContent": "center",
+                    "position": "relative",
+                  }
+                }
+              >
+                <Text
+                  style={
+                    {
+                      "color": "#000",
+                      "fontSize": 10,
+                      "lineHeight": 14,
+                      "textAlign": "center",
+                    }
+                  }
+                >
+                  NON-RADIOACTIVE
+                </Text>
+                <Text
+                  style={
+                    {
+                      "color": "#000",
+                      "fontSize": 28,
+                      "fontWeight": "bold",
+                      "position": "absolute",
+                      "textAlign": "center",
+                    }
+                  }
+                >
+                  XXXXXXXXXXXX
+                </Text>
+              </View>
+              <View
+                style={
+                  {
+                    "alignItems": "center",
+                    "borderRightColor": "#000",
+                    "borderRightWidth": 1,
+                    "color": "#000",
+                    "flex": 1,
+                    "height": 40,
+                    "justifyContent": "center",
+                    "position": "relative",
+                  }
+                }
+              >
+                <Text
+                  style={
+                    {
+                      "color": "#000",
+                      "fontSize": 10,
+                      "lineHeight": 14,
+                      "textAlign": "center",
+                    }
+                  }
+                >
+                  RADIOACTIVE
+                </Text>
+              </View>
+            </View>
+          </View>
+        </View>
+      </View>
+      <View
+        style={
+          {
+            "borderColor": "#000",
+            "borderWidth": 1,
+            "marginTop": 16,
+          }
+        }
+      >
+        <Text
+          style={
+            {
+              "color": "#000",
+              "fontSize": 16,
+              "fontWeight": "bold",
+              "marginBottom": 4,
+              "padding": 10,
+            }
+          }
+        >
+          NATURE AND QUANTITY OF DANGEROUS GOODS
+        </Text>
+        <View
+          style={
+            {
+              "backgroundColor": "#e9ecef",
+              "borderBottomWidth": 1,
+              "borderColor": "#000",
+              "flexDirection": "row",
+            }
+          }
+        >
+          <View
+            style={
+              {
+                "borderColor": "#000",
+                "borderRightWidth": 1,
+                "flex": 1,
+                "padding": 6,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 12,
+                  "fontWeight": "bold",
+                }
+              }
+            >
+              UN or ID No.
+            </Text>
+          </View>
+          <View
+            style={
+              {
+                "borderColor": "#000",
+                "borderRightWidth": 1,
+                "flex": 1,
+                "padding": 6,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 12,
+                  "fontWeight": "bold",
+                }
+              }
+            >
+              Proper Shipping Name
+            </Text>
+          </View>
+          <View
+            style={
+              {
+                "borderColor": "#000",
+                "borderRightWidth": 1,
+                "flex": 1,
+                "padding": 6,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 12,
+                  "fontWeight": "bold",
+                }
+              }
+            >
+              Class or Division
+(subsidiary hazard)
+            </Text>
+          </View>
+          <View
+            style={
+              {
+                "borderColor": "#000",
+                "borderRightWidth": 1,
+                "flex": 1,
+                "padding": 6,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 12,
+                  "fontWeight": "bold",
+                }
+              }
+            >
+              Packing Group
+            </Text>
+          </View>
+          <View
+            style={
+              {
+                "borderColor": "#000",
+                "borderRightWidth": 1,
+                "flex": 1,
+                "padding": 6,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 12,
+                  "fontWeight": "bold",
+                }
+              }
+            >
+              Quantity and Type of Packing
+            </Text>
+          </View>
+          <View
+            style={
+              {
+                "borderColor": "#000",
+                "borderRightWidth": 1,
+                "flex": 1,
+                "padding": 6,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 12,
+                  "fontWeight": "bold",
+                }
+              }
+            >
+              Packing Inst.
+            </Text>
+          </View>
+          <View
+            style={
+              {
+                "borderColor": "#000",
+                "borderRightWidth": 1,
+                "flex": 1,
+                "padding": 6,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 12,
+                  "fontWeight": "bold",
+                }
+              }
+            >
+              Authorization
+            </Text>
+          </View>
+        </View>
+        <View
+          style={
+            {
+              "flexDirection": "row",
+              "height": 300,
+            }
+          }
+        >
+          <View
+            style={
+              {
+                "borderColor": "#000",
+                "borderRightWidth": 1,
+                "flex": 1,
+                "padding": 6,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 12,
+                }
+              }
+            >
+              UN1090
+            </Text>
+          </View>
+          <View
+            style={
+              {
+                "borderColor": "#000",
+                "borderRightWidth": 1,
+                "flex": 1,
+                "padding": 6,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 12,
+                }
+              }
+            >
+              ACETONE
+            </Text>
+          </View>
+          <View
+            style={
+              {
+                "borderColor": "#000",
+                "borderRightWidth": 1,
+                "flex": 1,
+                "padding": 6,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 12,
+                }
+              }
+            >
+              3
+            </Text>
+          </View>
+          <View
+            style={
+              {
+                "borderColor": "#000",
+                "borderRightWidth": 1,
+                "flex": 1,
+                "padding": 6,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 12,
+                }
+              }
+            >
+              II
+            </Text>
+          </View>
+          <View
+            style={
+              {
+                "borderColor": "#000",
+                "borderRightWidth": 1,
+                "flex": 1,
+                "padding": 6,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 12,
+                }
+              }
+            >
+              10 x 1L Steel Drums
+            </Text>
+          </View>
+          <View
+            style={
+              {
+                "borderColor": "#000",
+                "borderRightWidth": 1,
+                "flex": 1,
+                "padding": 6,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 12,
+                }
+              }
+            >
+              Y344
+            </Text>
+          </View>
+          <View
+            style={
+              {
+                "borderColor": "#000",
+                "borderRightWidth": 1,
+                "flex": 1,
+                "padding": 6,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 12,
+                }
+              }
+            >
+              N/A
+            </Text>
+          </View>
+        </View>
+      </View>
+      <View
+        style={
+          {
+            "borderColor": "#000",
+            "borderTopWidth": 1,
+            "color": "#000",
+            "marginBottom": 16,
+            "marginTop": 16,
+            "paddingTop": 10,
+          }
+        }
+      >
+        <Text
+          style={
+            {
+              "color": "#000",
+              "fontSize": 16,
+              "fontWeight": "bold",
+              "marginBottom": 4,
+              "padding": 10,
+            }
+          }
+        >
+          Additional Handling Information
+        </Text>
+        <View>
+          <View
+            style={
+              {
+                "alignItems": "center",
+                "flexDirection": "row",
+                "flexWrap": "wrap",
+                "justifyContent": "flex-end",
+                "marginTop": 8,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 13,
+                  "fontWeight": "bold",
+                  "marginRight": 4,
+                }
+              }
+            >
+              EMERGENCY TELEPHONE NUMBER:
+               
+            </Text>
+            <Text
+              style={
+                {
+                  "color": "#000",
+                  "fontSize": 13,
+                }
+              }
+            >
+              1-800-851-8061
+                 
+              +1-804-279- 3131
+            </Text>
+          </View>
+        </View>
+      </View>
+      <View
+        style={
+          {
+            "borderColor": "#000",
+            "borderTopWidth": 1,
+            "color": "#000",
+            "flexDirection": "row",
+            "gap": 8,
+            "paddingTop": 12,
+          }
+        }
+      >
+        <View
+          style={
+            {
+              "color": "#000",
+              "flex": 2,
+              "paddingRight": 10,
+            }
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#000",
+                "fontSize": 14,
+                "lineHeight": 18,
+                "padding": 5,
+              }
+            }
+          >
+            I hereby declare that the contents of this consignment are fully and accurately described above by the proper shipping name, and are classified, packaged, marked and labelled/placarded, and are in all respects in proper condition for transport according to applicable international and national governmental regulations. I declare that all of the applicable air transport requirements have been met.
+          </Text>
+        </View>
+        <View
+          style={
+            {
+              "borderColor": "#000",
+              "borderLeftWidth": 1,
+              "color": "#000",
+              "flex": 1,
+              "paddingLeft": 10,
+            }
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#000",
+                "fontSize": 13,
+                "fontWeight": "bold",
+                "marginBottom": 4,
+                "textTransform": "uppercase",
+              }
+            }
+          >
+            NAME/TITLE OF SIGNATORY
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#000",
+              }
+            }
+          >
+            John Doe
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#000",
+              }
+            }
+          >
+            Hazmat Specialist
+          </Text>
+          <Text
+            style={
+              [
+                {
+                  "color": "#000",
+                  "fontSize": 13,
+                  "fontWeight": "bold",
+                  "marginBottom": 4,
+                  "textTransform": "uppercase",
+                },
+                {
+                  "marginTop": 12,
+                },
+              ]
+            }
+          >
+            PLACE AND DATE
+          </Text>
+          <View
+            style={
+              {
+                "color": "#000",
+                "flexDirection": "row",
+                "justifyContent": "space-between",
+                "marginBottom": 8,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                }
+              }
+            >
+              Fort Test
+            </Text>
+            <Text
+              style={
+                {
+                  "color": "#000",
+                }
+              }
+            >
+              2024-01-15
+            </Text>
+          </View>
+          <Text
+            style={
+              {
+                "color": "#000",
+                "fontSize": 10,
+                "fontStyle": "italic",
+                "marginTop": 12,
+              }
+            }
+          >
+            SIGNATURE (see warning above)
+          </Text>
+        </View>
+      </View>
+    </View>
+  </View>
+</RCTScrollView>
+`;

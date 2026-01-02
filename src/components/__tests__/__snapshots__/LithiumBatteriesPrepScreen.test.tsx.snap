@@ -1,0 +1,571 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`LithiumBatteriesPrepScreen renders correctly 1`] = `
+<View
+  onLayout={[Function]}
+  style={
+    [
+      {
+        "backgroundColor": "#ffffff",
+        "flex": 1,
+      },
+      {
+        "paddingBottom": 0,
+      },
+    ]
+  }
+>
+  <View
+    style={
+      {
+        "backgroundColor": "#ffffff",
+        "borderBottomColor": "#e9ecef",
+        "borderBottomWidth": 1,
+        "paddingVertical": 12,
+      }
+    }
+  >
+    <Text
+      style={
+        {
+          "color": "#6c757d",
+          "fontSize": 14,
+          "marginBottom": 8,
+          "textAlign": "center",
+        }
+      }
+    >
+      Step 
+      1
+       of 4
+    </Text>
+    <View
+      style={
+        {
+          "flexDirection": "row",
+          "justifyContent": "center",
+        }
+      }
+    >
+      <View
+        style={
+          [
+            {
+              "backgroundColor": "#dee2e6",
+              "borderRadius": 4,
+              "height": 8,
+              "marginHorizontal": 4,
+              "width": 8,
+            },
+            {
+              "backgroundColor": "#0066cc",
+            },
+          ]
+        }
+      />
+      <View
+        style={
+          [
+            {
+              "backgroundColor": "#dee2e6",
+              "borderRadius": 4,
+              "height": 8,
+              "marginHorizontal": 4,
+              "width": 8,
+            },
+            null,
+          ]
+        }
+      />
+      <View
+        style={
+          [
+            {
+              "backgroundColor": "#dee2e6",
+              "borderRadius": 4,
+              "height": 8,
+              "marginHorizontal": 4,
+              "width": 8,
+            },
+            null,
+          ]
+        }
+      />
+      <View
+        style={
+          [
+            {
+              "backgroundColor": "#dee2e6",
+              "borderRadius": 4,
+              "height": 8,
+              "marginHorizontal": 4,
+              "width": 8,
+            },
+            null,
+          ]
+        }
+      />
+    </View>
+  </View>
+  <RCTScrollView
+    style={
+      {
+        "flex": 1,
+      }
+    }
+  >
+    <View>
+      <View
+        style={
+          {
+            "backgroundColor": "#f8f9fa",
+            "borderLeftColor": "#0066cc",
+            "borderLeftWidth": 4,
+            "borderRadius": 8,
+            "margin": 5,
+            "padding": 16,
+          }
+        }
+      >
+        <Text
+          style={
+            {
+              "color": "#212529",
+              "fontSize": 16,
+              "fontWeight": "bold",
+              "marginBottom": 8,
+            }
+          }
+        >
+          Lithium Battery Transport Requirements
+        </Text>
+        <Text
+          style={
+            {
+              "color": "#495057",
+              "fontSize": 14,
+              "lineHeight": 20,
+            }
+          }
+        >
+          Lithium cells and batteries must meet UN Manual of Tests and Criteria requirements. Batteries must have protection against short circuits and violent rupture.
+        </Text>
+      </View>
+      <View
+        style={
+          {
+            "padding": 16,
+          }
+        }
+      >
+        <Text
+          style={
+            {
+              "color": "#212529",
+              "fontSize": 18,
+              "fontWeight": "bold",
+              "marginBottom": 16,
+            }
+          }
+        >
+          Select Packaging Method for 
+          Lithium Ion
+           
+          Batteries
+        </Text>
+        <View
+          accessibilityState={
+            {
+              "busy": undefined,
+              "checked": undefined,
+              "disabled": undefined,
+              "expanded": undefined,
+              "selected": undefined,
+            }
+          }
+          accessibilityValue={
+            {
+              "max": undefined,
+              "min": undefined,
+              "now": undefined,
+              "text": undefined,
+            }
+          }
+          accessible={true}
+          collapsable={false}
+          focusable={true}
+          onClick={[Function]}
+          onResponderGrant={[Function]}
+          onResponderMove={[Function]}
+          onResponderRelease={[Function]}
+          onResponderTerminate={[Function]}
+          onResponderTerminationRequest={[Function]}
+          onStartShouldSetResponder={[Function]}
+          style={
+            {
+              "backgroundColor": "#ffffff",
+              "borderColor": "#dee2e6",
+              "borderRadius": 8,
+              "borderWidth": 1,
+              "marginBottom": 12,
+              "opacity": 1,
+              "padding": 16,
+            }
+          }
+        >
+          <View
+            style={
+              {
+                "alignItems": "center",
+                "flexDirection": "row",
+                "justifyContent": "space-between",
+              }
+            }
+          >
+            <View
+              style={
+                {
+                  "flex": 1,
+                }
+              }
+            >
+              <Text
+                style={
+                  [
+                    {
+                      "color": "#212529",
+                      "fontSize": 16,
+                      "fontWeight": "500",
+                    },
+                    false,
+                  ]
+                }
+              >
+                Combination Packaging
+              </Text>
+            </View>
+          </View>
+        </View>
+        <View
+          accessibilityState={
+            {
+              "busy": undefined,
+              "checked": undefined,
+              "disabled": undefined,
+              "expanded": undefined,
+              "selected": undefined,
+            }
+          }
+          accessibilityValue={
+            {
+              "max": undefined,
+              "min": undefined,
+              "now": undefined,
+              "text": undefined,
+            }
+          }
+          accessible={true}
+          collapsable={false}
+          focusable={true}
+          onClick={[Function]}
+          onResponderGrant={[Function]}
+          onResponderMove={[Function]}
+          onResponderRelease={[Function]}
+          onResponderTerminate={[Function]}
+          onResponderTerminationRequest={[Function]}
+          onStartShouldSetResponder={[Function]}
+          style={
+            {
+              "backgroundColor": "#ffffff",
+              "borderColor": "#dee2e6",
+              "borderRadius": 8,
+              "borderWidth": 1,
+              "marginBottom": 12,
+              "opacity": 1,
+              "padding": 16,
+            }
+          }
+        >
+          <View
+            style={
+              {
+                "alignItems": "center",
+                "flexDirection": "row",
+                "justifyContent": "space-between",
+              }
+            }
+          >
+            <View
+              style={
+                {
+                  "flex": 1,
+                }
+              }
+            >
+              <Text
+                style={
+                  [
+                    {
+                      "color": "#212529",
+                      "fontSize": 16,
+                      "fontWeight": "500",
+                    },
+                    false,
+                  ]
+                }
+              >
+                Large Packaging (Single Battery)
+              </Text>
+            </View>
+          </View>
+        </View>
+        <View
+          accessibilityState={
+            {
+              "busy": undefined,
+              "checked": undefined,
+              "disabled": undefined,
+              "expanded": undefined,
+              "selected": undefined,
+            }
+          }
+          accessibilityValue={
+            {
+              "max": undefined,
+              "min": undefined,
+              "now": undefined,
+              "text": undefined,
+            }
+          }
+          accessible={true}
+          collapsable={false}
+          focusable={true}
+          onClick={[Function]}
+          onResponderGrant={[Function]}
+          onResponderMove={[Function]}
+          onResponderRelease={[Function]}
+          onResponderTerminate={[Function]}
+          onResponderTerminationRequest={[Function]}
+          onStartShouldSetResponder={[Function]}
+          style={
+            {
+              "backgroundColor": "#ffffff",
+              "borderColor": "#dee2e6",
+              "borderRadius": 8,
+              "borderWidth": 1,
+              "marginBottom": 12,
+              "opacity": 1,
+              "padding": 16,
+            }
+          }
+        >
+          <View
+            style={
+              {
+                "alignItems": "center",
+                "flexDirection": "row",
+                "justifyContent": "space-between",
+              }
+            }
+          >
+            <View
+              style={
+                {
+                  "flex": 1,
+                }
+              }
+            >
+              <Text
+                style={
+                  [
+                    {
+                      "color": "#212529",
+                      "fontSize": 16,
+                      "fontWeight": "500",
+                    },
+                    false,
+                  ]
+                }
+              >
+                Batteries Exceeding 12kg
+              </Text>
+            </View>
+          </View>
+        </View>
+      </View>
+    </View>
+  </RCTScrollView>
+  <View
+    style={
+      {
+        "backgroundColor": "#ffffff",
+        "borderTopColor": "#e9ecef",
+        "borderTopWidth": 1,
+        "flexDirection": "row",
+        "padding": 16,
+      }
+    }
+  >
+    <View
+      accessibilityState={
+        {
+          "busy": undefined,
+          "checked": undefined,
+          "disabled": undefined,
+          "expanded": undefined,
+          "selected": undefined,
+        }
+      }
+      accessibilityValue={
+        {
+          "max": undefined,
+          "min": undefined,
+          "now": undefined,
+          "text": undefined,
+        }
+      }
+      accessible={true}
+      collapsable={false}
+      focusable={true}
+      onClick={[Function]}
+      onResponderGrant={[Function]}
+      onResponderMove={[Function]}
+      onResponderRelease={[Function]}
+      onResponderTerminate={[Function]}
+      onResponderTerminationRequest={[Function]}
+      onStartShouldSetResponder={[Function]}
+      style={
+        {
+          "alignItems": "center",
+          "borderColor": "#0066cc",
+          "borderRadius": 4,
+          "borderWidth": 1,
+          "flex": 1,
+          "height": 48,
+          "justifyContent": "center",
+          "marginRight": 8,
+          "opacity": 1,
+        }
+      }
+    >
+      <Text
+        style={
+          {
+            "color": "#0066cc",
+            "fontSize": 16,
+            "fontWeight": "600",
+          }
+        }
+      >
+        Cancel
+      </Text>
+    </View>
+    <View
+      accessibilityState={
+        {
+          "busy": undefined,
+          "checked": undefined,
+          "disabled": undefined,
+          "expanded": undefined,
+          "selected": undefined,
+        }
+      }
+      accessibilityValue={
+        {
+          "max": undefined,
+          "min": undefined,
+          "now": undefined,
+          "text": undefined,
+        }
+      }
+      accessible={true}
+      collapsable={false}
+      focusable={true}
+      onClick={[Function]}
+      onResponderGrant={[Function]}
+      onResponderMove={[Function]}
+      onResponderRelease={[Function]}
+      onResponderTerminate={[Function]}
+      onResponderTerminationRequest={[Function]}
+      onStartShouldSetResponder={[Function]}
+      style={
+        {
+          "alignItems": "center",
+          "backgroundColor": "#6c757d",
+          "borderRadius": 4,
+          "flex": 1,
+          "height": 48,
+          "justifyContent": "center",
+          "marginHorizontal": 8,
+          "opacity": 1,
+        }
+      }
+    >
+      <Text
+        style={
+          {
+            "color": "#ffffff",
+            "fontSize": 16,
+            "fontWeight": "600",
+          }
+        }
+      >
+        Save & Exit
+      </Text>
+    </View>
+    <View
+      accessibilityState={
+        {
+          "busy": undefined,
+          "checked": undefined,
+          "disabled": true,
+          "expanded": undefined,
+          "selected": undefined,
+        }
+      }
+      accessibilityValue={
+        {
+          "max": undefined,
+          "min": undefined,
+          "now": undefined,
+          "text": undefined,
+        }
+      }
+      accessible={true}
+      collapsable={false}
+      focusable={false}
+      onClick={[Function]}
+      onResponderGrant={[Function]}
+      onResponderMove={[Function]}
+      onResponderRelease={[Function]}
+      onResponderTerminate={[Function]}
+      onResponderTerminationRequest={[Function]}
+      onStartShouldSetResponder={[Function]}
+      style={
+        {
+          "alignItems": "center",
+          "backgroundColor": "#a0a0a0",
+          "borderRadius": 4,
+          "flex": 1,
+          "height": 48,
+          "justifyContent": "center",
+          "marginLeft": 8,
+          "opacity": 0.7,
+        }
+      }
+    >
+      <Text
+        style={
+          {
+            "color": "#ffffff",
+            "fontSize": 16,
+            "fontWeight": "600",
+          }
+        }
+      >
+        Next
+      </Text>
+    </View>
+  </View>
+</View>
+`;

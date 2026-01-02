@@ -1,0 +1,12 @@
+{
+  "rules": [
+    "arguments-have-descriptions",
+    "deprecations-have-a-reason",
+    "fields-have-descriptions",
+    "input-object-values-have-descriptions",
+    "types-have-descriptions",
+    "invalid-graphql-schema"
+  ],
+  "schemaPaths": ["graphql/schema/**/*.graphql"],
+  "customRulePaths": []
+}

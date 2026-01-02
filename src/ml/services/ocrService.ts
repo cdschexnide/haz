@@ -1,0 +1,587 @@
+/**
+ * OCR Service for ML Detection Pipeline
+ *
+ * Provides text recognition using @react-native-ml-kit/text-recognition
+ * and extraction of meaningful data from package markings.
+ */
+
+import TextRecognition from '@react-native-ml-kit/text-recognition';
+import {
+  extractPOPMarkingFromText,
+  POPMarkingType,
+} from '@/utils/popMarkingParser';
+import type {
+  ImageOCRResult,
+  OCRTextBlock,
+  ExtractedMarkings,
+  ParsedPOPMarking,
+  ExtractedWeight,
+} from '../types/ocr';
+
+/**
+ * Perform OCR on an image using ML Kit Text Recognition
+ *
+ * @param imageUri - URI of the image to process
+ * @returns OCR result with full text and text blocks, or null if failed
+ */
+export async function performOCR(imageUri: string): Promise<ImageOCRResult | null> {
+  try {
+    console.log('[OCR] Starting text recognition for:', imageUri);
+    const startTime = Date.now();
+
+    const result = await TextRecognition.recognize(imageUri);
+    const processingTime = Date.now() - startTime;
+
+    console.log('[OCR] Recognition complete in', processingTime, 'ms');
+    console.log('[OCR] Full text length:', result.text?.length || 0);
+
+    // Map ML Kit blocks to our format
+    const textBlocks: OCRTextBlock[] = result.blocks.map(block => ({
+      text: block.text,
+      boundingBox: block.boundingBox
+        ? {
+            x: block.boundingBox.left,
+            y: block.boundingBox.top,
+            width: block.boundingBox.width,
+            height: block.boundingBox.height,
+          }
+        : null,
+    }));
+
+    console.log('[OCR] Extracted', textBlocks.length, 'text blocks');
+
+    return {
+      fullText: result.text || '',
+      textBlocks,
+      processingTime,
+    };
+  } catch (error) {
+    console.error('[OCR] Recognition failed:', error);
+    return null;
+  }
+}
+
+/**
+ * Extract UN identification numbers from text
+ * Matches patterns like "UN1203", "UN 1203", "UN-1203"
+ *
+ * @param text - Text to search
+ * @returns Array of unique UN numbers found
+ */
+export function extractUNNumbers(text: string): string[] {
+  if (!text) return [];
+
+  const upperText = text.toUpperCase();
+
+  // Pattern: UN followed by optional separator and 4 digits
+  const unPattern = /UN[\s\-]*(\d{4})/gi;
+  const matches = [...upperText.matchAll(unPattern)];
+
+  // Deduplicate and format consistently
+  const unNumbers = [...new Set(matches.map(m => `UN${m[1]}`))];
+
+  if (unNumbers.length > 0) {
+    console.log('[OCR] Found UN numbers:', unNumbers);
+  }
+
+  return unNumbers;
+}
+
+/**
+ * Extract weight/mass values from text
+ * Matches patterns like "25 KG", "25KG", "25 KILOGRAMS"
+ *
+ * @param text - Text to search
+ * @returns Array of extracted weight values with units
+ */
+export function extractWeights(text: string): ExtractedWeight[] {
+  if (!text) return [];
+
+  const upperText = text.toUpperCase();
+
+  // Pattern: number (with optional decimal) followed by weight unit
+  const weightPattern =
+    /(\d+(?:\.\d+)?)\s*(KG|G|LB|OZ|KILOGRAMS?|GRAMS?|POUNDS?|OUNCES?)\b/gi;
+  const matches = [...upperText.matchAll(weightPattern)];
+
+  const weights: ExtractedWeight[] = matches.map(m => ({
+    value: m[1],
+    unit: normalizeWeightUnit(m[2]),
+  }));
+
+  if (weights.length > 0) {
+    console.log('[OCR] Found weights:', weights);
+  }
+
+  return weights;
+}
+
+/**
+ * Normalize weight unit to standard form
+ */
+function normalizeWeightUnit(unit: string): ExtractedWeight['unit'] {
+  const upper = unit.toUpperCase();
+  if (upper.startsWith('KG') || upper.startsWith('KILOGRAM')) return 'KG';
+  if (upper === 'G' || upper.startsWith('GRAM')) return 'G';
+  if (upper.startsWith('LB') || upper.startsWith('POUND')) return 'LB';
+  if (upper.startsWith('OZ') || upper.startsWith('OUNCE')) return 'OZ';
+  return 'KG'; // Default
+}
+
+/**
+ * Extract hazard class indicators from text
+ * Matches patterns like "CLASS 3", "CLASS 6.1", "2.1", "DIVISION 4.2"
+ *
+ * @param text - Text to search
+ * @returns Array of unique hazard class indicators
+ */
+export function extractHazardClasses(text: string): string[] {
+  if (!text) return [];
+
+  const upperText = text.toUpperCase();
+  const hazardClasses: string[] = [];
+
+  // Pattern 1: "CLASS X" or "CLASS X.X"
+  const classPattern = /CLASS\s*(\d(?:\.\d)?)/gi;
+  const classMatches = [...upperText.matchAll(classPattern)];
+  hazardClasses.push(...classMatches.map(m => m[1]));
+
+  // Pattern 2: "DIVISION X.X"
+  const divisionPattern = /DIVISION\s*(\d\.\d)/gi;
+  const divisionMatches = [...upperText.matchAll(divisionPattern)];
+  hazardClasses.push(...divisionMatches.map(m => m[1]));
+
+  // Pattern 3: Standalone hazard class numbers (more restrictive)
+  // Only match if preceded by specific keywords or at word boundary
+  const standalonePattern = /(?:HAZARD|HAZ|CLASS|DIV)\s*:?\s*(\d(?:\.\d)?)/gi;
+  const standaloneMatches = [...upperText.matchAll(standalonePattern)];
+  hazardClasses.push(...standaloneMatches.map(m => m[1]));
+
+  // Filter to valid hazard classes (1-9, with optional .1-.9 subdivision)
+  const validClasses = hazardClasses.filter(c => {
+    const num = parseFloat(c);
+    return num >= 1 && num < 10;
+  });
+
+  // Deduplicate
+  const unique = [...new Set(validClasses)];
+
+  if (unique.length > 0) {
+    console.log('[OCR] Found hazard classes:', unique);
+  }
+
+  return unique;
+}
+
+/**
+ * Extract date patterns from text
+ * Matches patterns like "05/23", "05-23", "2023", "05/2023"
+ *
+ * @param text - Text to search
+ * @returns Array of unique date strings
+ */
+export function extractDates(text: string): string[] {
+  if (!text) return [];
+
+  // Pattern: MM/YY, MM-YY, MM/YYYY, YYYY
+  const datePattern = /\b(\d{1,2}[\/\-]\d{2,4})\b|\b(20\d{2})\b/g;
+  const matches = [...text.matchAll(datePattern)];
+
+  const dates = matches.map(m => m[1] || m[2]).filter(Boolean);
+
+  // Deduplicate
+  const unique = [...new Set(dates)];
+
+  if (unique.length > 0) {
+    console.log('[OCR] Found dates:', unique);
+  }
+
+  return unique;
+}
+
+/**
+ * Extract country of origin from text
+ * Looks for common country codes and names
+ *
+ * @param text - Text to search
+ * @returns Country code if found, null otherwise
+ */
+export function extractCountryOfOrigin(text: string): string | null {
+  if (!text) return null;
+
+  const upperText = text.toUpperCase();
+
+  // Common shipping country codes (prioritized list)
+  const countryCodes = [
+    'USA',
+    'US',
+    'UK',
+    'GB',
+    'GREAT BRITAIN',
+    'CN',
+    'CHINA',
+    'DE',
+    'GERMANY',
+    'JP',
+    'JAPAN',
+    'KR',
+    'KOREA',
+    'CA',
+    'CANADA',
+    'MX',
+    'MEXICO',
+    'AU',
+    'AUSTRALIA',
+    'FR',
+    'FRANCE',
+    'IT',
+    'ITALY',
+    'ES',
+    'SPAIN',
+    'NL',
+    'NETHERLANDS',
+    'BE',
+    'BELGIUM',
+    'CH',
+    'SWITZERLAND',
+    'SE',
+    'SWEDEN',
+    'NO',
+    'NORWAY',
+    'DK',
+    'DENMARK',
+    'FI',
+    'FINLAND',
+    'PL',
+    'POLAND',
+    'CZ',
+    'CZECH',
+    'AT',
+    'AUSTRIA',
+    'IE',
+    'IRELAND',
+    'PT',
+    'PORTUGAL',
+    'BR',
+    'BRAZIL',
+    'IN',
+    'INDIA',
+    'TW',
+    'TAIWAN',
+    'SG',
+    'SINGAPORE',
+    'HK',
+    'HONG KONG',
+    'TH',
+    'THAILAND',
+    'VN',
+    'VIETNAM',
+    'MY',
+    'MALAYSIA',
+    'ID',
+    'INDONESIA',
+    'PH',
+    'PHILIPPINES',
+  ];
+
+  // Look for "MADE IN X" or "ORIGIN: X" patterns first
+  const madeInPattern = /MADE\s+IN\s+([A-Z]+)/i;
+  const originPattern = /ORIGIN[:\s]+([A-Z]+)/i;
+
+  const madeInMatch = upperText.match(madeInPattern);
+  if (madeInMatch) {
+    const country = normalizeCountryCode(madeInMatch[1]);
+    if (country) {
+      console.log('[OCR] Found country (MADE IN):', country);
+      return country;
+    }
+  }
+
+  const originMatch = upperText.match(originPattern);
+  if (originMatch) {
+    const country = normalizeCountryCode(originMatch[1]);
+    if (country) {
+      console.log('[OCR] Found country (ORIGIN):', country);
+      return country;
+    }
+  }
+
+  // Fall back to searching for country codes as standalone words
+  for (const code of countryCodes) {
+    const regex = new RegExp(`\\b${code}\\b`, 'i');
+    if (regex.test(upperText)) {
+      const normalized = normalizeCountryCode(code);
+      if (normalized) {
+        console.log('[OCR] Found country code:', normalized);
+        return normalized;
+      }
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Normalize country name to ISO code
+ */
+function normalizeCountryCode(input: string): string | null {
+  const upper = input.toUpperCase().trim();
+
+  const mapping: Record<string, string> = {
+    USA: 'USA',
+    US: 'USA',
+    'UNITED STATES': 'USA',
+    UK: 'GB',
+    GB: 'GB',
+    'GREAT BRITAIN': 'GB',
+    'UNITED KINGDOM': 'GB',
+    CN: 'CN',
+    CHINA: 'CN',
+    DE: 'DE',
+    GERMANY: 'DE',
+    JP: 'JP',
+    JAPAN: 'JP',
+    KR: 'KR',
+    KOREA: 'KR',
+    'SOUTH KOREA': 'KR',
+    CA: 'CA',
+    CANADA: 'CA',
+    MX: 'MX',
+    MEXICO: 'MX',
+    AU: 'AU',
+    AUSTRALIA: 'AU',
+    FR: 'FR',
+    FRANCE: 'FR',
+    IT: 'IT',
+    ITALY: 'IT',
+    ES: 'ES',
+    SPAIN: 'ES',
+    NL: 'NL',
+    NETHERLANDS: 'NL',
+    BE: 'BE',
+    BELGIUM: 'BE',
+    CH: 'CH',
+    SWITZERLAND: 'CH',
+    SE: 'SE',
+    SWEDEN: 'SE',
+    NO: 'NO',
+    NORWAY: 'NO',
+    DK: 'DK',
+    DENMARK: 'DK',
+    FI: 'FI',
+    FINLAND: 'FI',
+    PL: 'PL',
+    POLAND: 'PL',
+    CZ: 'CZ',
+    CZECH: 'CZ',
+    AT: 'AT',
+    AUSTRIA: 'AT',
+    IE: 'IE',
+    IRELAND: 'IE',
+    PT: 'PT',
+    PORTUGAL: 'PT',
+    BR: 'BR',
+    BRAZIL: 'BR',
+    IN: 'IN',
+    INDIA: 'IN',
+    TW: 'TW',
+    TAIWAN: 'TW',
+    SG: 'SG',
+    SINGAPORE: 'SG',
+    HK: 'HK',
+    'HONG KONG': 'HK',
+    TH: 'TH',
+    THAILAND: 'TH',
+    VN: 'VN',
+    VIETNAM: 'VN',
+    MY: 'MY',
+    MALAYSIA: 'MY',
+    ID: 'ID',
+    INDONESIA: 'ID',
+    PH: 'PH',
+    PHILIPPINES: 'PH',
+  };
+
+  return mapping[upper] || null;
+}
+
+/**
+ * Extract other significant markings from text
+ * Catches important shipping/hazmat terms that don't fit other categories
+ *
+ * @param text - Text to search
+ * @returns Array of significant marking strings
+ */
+export function extractOtherMarkings(text: string): string[] {
+  if (!text) return [];
+
+  const upperText = text.toUpperCase();
+  const markings: string[] = [];
+
+  // Important shipping/hazmat keywords to look for
+  const keywords = [
+    'FLAMMABLE',
+    'CORROSIVE',
+    'OXIDIZER',
+    'POISON',
+    'TOXIC',
+    'EXPLOSIVE',
+    'RADIOACTIVE',
+    'INFECTIOUS',
+    'DANGEROUS',
+    'HAZARDOUS',
+    'LIMITED QUANTITY',
+    'LTD QTY',
+    'EXCEPTED QUANTITY',
+    'OVERPACK',
+    'INNER PACKAGES',
+    'ORIENTATION',
+    'THIS WAY UP',
+    'DO NOT DROP',
+    'FRAGILE',
+    'HANDLE WITH CARE',
+    'KEEP DRY',
+    'KEEP FROZEN',
+    'REFRIGERATE',
+    'LITHIUM BATTERIES',
+    'LITHIUM ION',
+    'LITHIUM METAL',
+    'MAGNETIZED MATERIAL',
+    'CRYOGENIC',
+    'COMPRESSED GAS',
+    'NON-FLAMMABLE GAS',
+    'INHALATION HAZARD',
+    'MARINE POLLUTANT',
+    'ENVIRONMENTALLY HAZARDOUS',
+    'CARGO AIRCRAFT ONLY',
+    'CAO',
+    'PASSENGER AND CARGO AIRCRAFT',
+    'PAX',
+  ];
+
+  for (const keyword of keywords) {
+    if (upperText.includes(keyword)) {
+      markings.push(keyword);
+    }
+  }
+
+  if (markings.length > 0) {
+    console.log('[OCR] Found other markings:', markings);
+  }
+
+  return [...new Set(markings)]; // Deduplicate
+}
+
+/**
+ * Extract all meaningful markings from OCR text
+ * This is the main extraction function that combines all extractors
+ *
+ * @param ocrText - Raw OCR text from image
+ * @returns Structured extraction results
+ */
+export function extractMarkingsFromText(ocrText: string): ExtractedMarkings {
+  console.log('[OCR] Extracting markings from text, length:', ocrText?.length || 0);
+
+  if (!ocrText || ocrText.trim().length === 0) {
+    console.log('[OCR] Empty text, returning empty extraction');
+    return {
+      popMarking: null,
+      unNumbers: [],
+      weights: [],
+      hazardClasses: [],
+      dates: [],
+      countryOfOrigin: null,
+      otherMarkings: [],
+    };
+  }
+
+  // 1. Try to extract POP marking (reuse existing parser)
+  let popMarking: ParsedPOPMarking | null = null;
+  try {
+    const popResult = extractPOPMarkingFromText(ocrText);
+
+    if (popResult.fields) {
+      popMarking = {
+        found: true,
+        fields: popResult.fields,
+        confidence: popResult.confidence,
+        issues: popResult.issues,
+        detectedType: popResult.detectedType,
+        sourceText: ocrText,
+      };
+      console.log('[OCR] POP marking found with confidence:', popResult.confidence);
+    } else {
+      console.log('[OCR] No POP marking found in text');
+    }
+  } catch (error) {
+    console.error('[OCR] POP marking extraction error:', error);
+  }
+
+  // 2. Extract UN numbers
+  const unNumbers = extractUNNumbers(ocrText);
+
+  // 3. Extract weights
+  const weights = extractWeights(ocrText);
+
+  // 4. Extract hazard classes
+  const hazardClasses = extractHazardClasses(ocrText);
+
+  // 5. Extract dates
+  const dates = extractDates(ocrText);
+
+  // 6. Extract country of origin
+  const countryOfOrigin = extractCountryOfOrigin(ocrText);
+
+  // 7. Extract other significant markings
+  const otherMarkings = extractOtherMarkings(ocrText);
+
+  const result: ExtractedMarkings = {
+    popMarking,
+    unNumbers,
+    weights,
+    hazardClasses,
+    dates,
+    countryOfOrigin,
+    otherMarkings,
+  };
+
+  console.log('[OCR] Extraction complete:', {
+    hasPOP: !!popMarking,
+    unCount: unNumbers.length,
+    weightCount: weights.length,
+    hazClassCount: hazardClasses.length,
+    dateCount: dates.length,
+    hasCountry: !!countryOfOrigin,
+    otherCount: otherMarkings.length,
+  });
+
+  return result;
+}
+
+/**
+ * Process an image with OCR and extract all markings
+ * Convenience function that combines performOCR and extractMarkingsFromText
+ *
+ * @param imageUri - URI of the image to process
+ * @returns Object containing OCR result and extracted markings
+ */
+export async function processImageOCR(imageUri: string): Promise<{
+  ocrResult: ImageOCRResult | null;
+  extractedMarkings: ExtractedMarkings | null;
+}> {
+  const ocrResult = await performOCR(imageUri);
+
+  if (!ocrResult || !ocrResult.fullText) {
+    return {
+      ocrResult,
+      extractedMarkings: null,
+    };
+  }
+
+  const extractedMarkings = extractMarkingsFromText(ocrResult.fullText);
+
+  return {
+    ocrResult,
+    extractedMarkings,
+  };
+}

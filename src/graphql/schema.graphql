@@ -1,0 +1,9367 @@
+directive @tag(
+  name: String!
+) repeatable on FIELD_DEFINITION | OBJECT | INTERFACE | UNION | ARGUMENT_DEFINITION | SCALAR | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION | SCHEMA
+
+"""
+Date scalar for ISO 8601 date-time strings
+"""
+scalar Date
+
+"""
+Time scalar for ISO 8601 timestamp strings with timezone
+"""
+scalar Time
+
+"""
+LifeCycle event types for all syncable entities
+"""
+type LifeCycleUserEvent {
+  uuid: ID!
+  user: User!
+  type: LifeCycleUserEventType!
+  value: Date
+  createdAt: Date!
+}
+
+enum LifeCycleUserEventType {
+  CREATION
+  ARCHIVAL
+}
+
+type LifeCycleInspectorShipmentEvent {
+  uuid: ID!
+  inspectorShipment: InspectorShipment!
+  type: LifeCycleInspectorShipmentEventType!
+  value: Date
+  createdAt: Date!
+}
+
+enum LifeCycleInspectorShipmentEventType {
+  CREATION
+  ARCHIVAL
+}
+
+type LifeCyclePreparerShipmentEvent {
+  uuid: ID!
+  preparerShipment: PreparerShipment!
+  type: LifeCyclePreparerShipmentEventType!
+  value: Date
+  createdAt: Date!
+}
+
+enum LifeCyclePreparerShipmentEventType {
+  CREATION
+  ARCHIVAL
+}
+
+type LifeCycleFrustrationEvent {
+  uuid: ID!
+  frustration: Frustration!
+  type: LifeCycleFrustrationEventType!
+  value: Date
+  createdAt: Date!
+}
+
+enum LifeCycleFrustrationEventType {
+  CREATION
+  ARCHIVAL
+}
+
+type LifeCyclePackageFrustrationEvent {
+  uuid: ID!
+  packageFrustration: PackageFrustration!
+  type: LifeCyclePackageFrustrationEventType!
+  value: Date
+  createdAt: Date!
+}
+
+enum LifeCyclePackageFrustrationEventType {
+  CREATION
+  ARCHIVAL
+}
+
+type LifeCycleSDDGInspectionContextEvent {
+  uuid: ID!
+  sddgInspectionContext: SDDGInspectionContext!
+  type: LifeCycleSDDGInspectionContextEventType!
+  value: Date
+  createdAt: Date!
+}
+
+enum LifeCycleSDDGInspectionContextEventType {
+  CREATION
+  ARCHIVAL
+}
+
+type LifeCycleExtractedSDDGContentEvent {
+  uuid: ID!
+  extractedSDDGContent: ExtractedSDDGContent!
+  type: LifeCycleExtractedSDDGContentEventType!
+  value: Date
+  createdAt: Date!
+}
+
+enum LifeCycleExtractedSDDGContentEventType {
+  CREATION
+  ARCHIVAL
+}
+
+type LifeCycleReinspectionAttemptEvent {
+  uuid: ID!
+  reinspectionAttempt: ReinspectionAttempt!
+  type: LifeCycleReinspectionAttemptEventType!
+  value: Date
+  createdAt: Date!
+}
+
+enum LifeCycleReinspectionAttemptEventType {
+  CREATION
+  ARCHIVAL
+}
+
+type LifeCycleInspectorMagnetizedMaterialDataEvent {
+  uuid: ID!
+  inspectorMagnetizedMaterialData: InspectorMagnetizedMaterialData!
+  type: LifeCycleInspectorMagnetizedMaterialDataEventType!
+  value: Date
+  createdAt: Date!
+}
+
+enum LifeCycleInspectorMagnetizedMaterialDataEventType {
+  CREATION
+  ARCHIVAL
+}
+
+type LifeCycleInnerPackagingInspectionDataEvent {
+  uuid: ID!
+  innerPackagingInspectionData: InnerPackagingInspectionData!
+  type: LifeCycleInnerPackagingInspectionDataEventType!
+  value: Date
+  createdAt: Date!
+}
+
+enum LifeCycleInnerPackagingInspectionDataEventType {
+  CREATION
+  ARCHIVAL
+}
+
+type LifeCycleInnerPackagingInspectionItemEvent {
+  uuid: ID!
+  innerPackagingInspectionItem: InnerPackagingInspectionItem!
+  type: LifeCycleInnerPackagingInspectionItemEventType!
+  value: Date
+  createdAt: Date!
+}
+
+enum LifeCycleInnerPackagingInspectionItemEventType {
+  CREATION
+  ARCHIVAL
+}
+
+type LifeCyclePackagePopMarkingEvent {
+  uuid: ID!
+  packagePopMarking: PackagePopMarking!
+  type: LifeCyclePackagePopMarkingEventType!
+  value: Date
+  createdAt: Date!
+}
+
+enum LifeCyclePackagePopMarkingEventType {
+  CREATION
+  ARCHIVAL
+}
+
+type LifeCycleInspectorEvent {
+  uuid: ID!
+  inspector: Inspector!
+  type: LifeCycleInspectorEventType!
+  value: Date
+  createdAt: Date!
+}
+
+enum LifeCycleInspectorEventType {
+  CREATION
+  ARCHIVAL
+}
+
+type LifeCycleShipmentEvent {
+  uuid: ID!
+  shipment: Shipment!
+  type: LifeCycleShipmentEventType!
+  value: Date
+  createdAt: Date!
+}
+
+enum LifeCycleShipmentEventType {
+  CREATION
+  ARCHIVAL
+}
+
+type LifeCycleShipperAddressEvent {
+  uuid: ID!
+  shipperAddress: ShipperAddress!
+  type: LifeCycleShipperAddressEventType!
+  value: Date
+  createdAt: Date!
+}
+
+enum LifeCycleShipperAddressEventType {
+  CREATION
+  ARCHIVAL
+}
+
+type LifeCycleConsigneeAddressEvent {
+  uuid: ID!
+  consigneeAddress: ConsigneeAddress!
+  type: LifeCycleConsigneeAddressEventType!
+  value: Date
+  createdAt: Date!
+}
+
+enum LifeCycleConsigneeAddressEventType {
+  CREATION
+  ARCHIVAL
+}
+
+type LifeCyclePreparerEvent {
+  uuid: ID!
+  preparer: Preparer!
+  type: LifeCyclePreparerEventType!
+  value: Date
+  createdAt: Date!
+}
+
+enum LifeCyclePreparerEventType {
+  CREATION
+  ARCHIVAL
+}
+
+type LifeCycleHazProPreparerContextEvent {
+  uuid: ID!
+  hazProPreparerContext: HazProPreparerContext!
+  type: LifeCycleHazProPreparerContextEventType!
+  value: Date
+  createdAt: Date!
+}
+
+enum LifeCycleHazProPreparerContextEventType {
+  CREATION
+  ARCHIVAL
+}
+
+type LifeCycleHazardousMaterialItemEvent {
+  uuid: ID!
+  hazardousMaterialItem: HazardousMaterialItem!
+  type: LifeCycleHazardousMaterialItemEventType!
+  value: Date
+  createdAt: Date!
+}
+
+enum LifeCycleHazardousMaterialItemEventType {
+  CREATION
+  ARCHIVAL
+}
+
+type LifeCyclePOPMarkingEvent {
+  uuid: ID!
+  popMarking: POPMarking!
+  type: LifeCyclePOPMarkingEventType!
+  value: Date
+  createdAt: Date!
+}
+
+enum LifeCyclePOPMarkingEventType {
+  CREATION
+  ARCHIVAL
+}
+
+type LifeCyclePackagingEvent {
+  uuid: ID!
+  packaging: Packaging!
+  type: LifeCyclePackagingEventType!
+  value: Date
+  createdAt: Date!
+}
+
+enum LifeCyclePackagingEventType {
+  CREATION
+  ARCHIVAL
+}
+
+type LifeCyclePackagingTypeInfoEvent {
+  uuid: ID!
+  packagingTypeInfo: PackagingTypeInfo!
+  type: LifeCyclePackagingTypeInfoEventType!
+  value: Date
+  createdAt: Date!
+}
+
+enum LifeCyclePackagingTypeInfoEventType {
+  CREATION
+  ARCHIVAL
+}
+
+type LifeCycleCombinationPackagingEvent {
+  uuid: ID!
+  combinationPackaging: CombinationPackaging!
+  type: LifeCycleCombinationPackagingEventType!
+  value: Date
+  createdAt: Date!
+}
+
+enum LifeCycleCombinationPackagingEventType {
+  CREATION
+  ARCHIVAL
+}
+
+type LifeCycleCylinderDetailsEvent {
+  uuid: ID!
+  cylinderDetails: CylinderDetails!
+  type: LifeCycleCylinderDetailsEventType!
+  value: Date
+  createdAt: Date!
+}
+
+enum LifeCycleCylinderDetailsEventType {
+  CREATION
+  ARCHIVAL
+}
+
+type LifeCycleCryogenicLiquidDetailsEvent {
+  uuid: ID!
+  cryogenicLiquidDetails: CryogenicLiquidDetails!
+  type: LifeCycleCryogenicLiquidDetailsEventType!
+  value: Date
+  createdAt: Date!
+}
+
+enum LifeCycleCryogenicLiquidDetailsEventType {
+  CREATION
+  ARCHIVAL
+}
+
+type LifeCycleMassValueEvent {
+  uuid: ID!
+  massValue: MassValue!
+  type: LifeCycleMassValueEventType!
+  value: Date
+  createdAt: Date!
+}
+
+enum LifeCycleMassValueEventType {
+  CREATION
+  ARCHIVAL
+}
+
+type LifeCycleVolumeValueEvent {
+  uuid: ID!
+  volumeValue: VolumeValue!
+  type: LifeCycleVolumeValueEventType!
+  value: Date
+  createdAt: Date!
+}
+
+enum LifeCycleVolumeValueEventType {
+  CREATION
+  ARCHIVAL
+}
+
+type LifeCycleQuantityValueEvent {
+  uuid: ID!
+  quantityValue: QuantityValue!
+  type: LifeCycleQuantityValueEventType!
+  value: Date
+  createdAt: Date!
+}
+
+enum LifeCycleQuantityValueEventType {
+  CREATION
+  ARCHIVAL
+}
+
+type LifeCycleLithiumBatteryDataEvent {
+  uuid: ID!
+  lithiumBatteryData: LithiumBatteryData!
+  type: LifeCycleLithiumBatteryDataEventType!
+  value: Date
+  createdAt: Date!
+}
+
+enum LifeCycleLithiumBatteryDataEventType {
+  CREATION
+  ARCHIVAL
+}
+
+type LifeCycleMagnetizedMaterialDataEvent {
+  uuid: ID!
+  magnetizedMaterialData: MagnetizedMaterialData!
+  type: LifeCycleMagnetizedMaterialDataEventType!
+  value: Date
+  createdAt: Date!
+}
+
+enum LifeCycleMagnetizedMaterialDataEventType {
+  CREATION
+  ARCHIVAL
+}
+
+type LifeCycleDryIceDataEvent {
+  uuid: ID!
+  dryIceData: DryIceData!
+  type: LifeCycleDryIceDataEventType!
+  value: Date
+  createdAt: Date!
+}
+
+enum LifeCycleDryIceDataEventType {
+  CREATION
+  ARCHIVAL
+}
+
+type LifeCycleBatteryVehicleDataEvent {
+  uuid: ID!
+  batteryVehicleData: BatteryVehicleData!
+  type: LifeCycleBatteryVehicleDataEventType!
+  value: Date
+  createdAt: Date!
+}
+
+enum LifeCycleBatteryVehicleDataEventType {
+  CREATION
+  ARCHIVAL
+}
+
+type LifeCycleCapacitorDataEvent {
+  uuid: ID!
+  capacitorData: CapacitorData!
+  type: LifeCycleCapacitorDataEventType!
+  value: Date
+  createdAt: Date!
+}
+
+enum LifeCycleCapacitorDataEventType {
+  CREATION
+  ARCHIVAL
+}
+
+type LifeCycleLifeSavingApplianceDataEvent {
+  uuid: ID!
+  lifeSavingApplianceData: LifeSavingApplianceData!
+  type: LifeCycleLifeSavingApplianceDataEventType!
+  value: Date
+  createdAt: Date!
+}
+
+enum LifeCycleLifeSavingApplianceDataEventType {
+  CREATION
+  ARCHIVAL
+}
+
+type LifeCycleGMOShipmentDataEvent {
+  uuid: ID!
+  gmoShipmentData: GMOShipmentData!
+  type: LifeCycleGMOShipmentDataEventType!
+  value: Date
+  createdAt: Date!
+}
+
+enum LifeCycleGMOShipmentDataEventType {
+  CREATION
+  ARCHIVAL
+}
+
+type LifeCycleSafetyDeviceDataEvent {
+  uuid: ID!
+  safetyDeviceData: SafetyDeviceData!
+  type: LifeCycleSafetyDeviceDataEventType!
+  value: Date
+  createdAt: Date!
+}
+
+enum LifeCycleSafetyDeviceDataEventType {
+  CREATION
+  ARCHIVAL
+}
+
+type LifeCycleKitPreparationDataEvent {
+  uuid: ID!
+  kitPreparationData: KitPreparationData!
+  type: LifeCycleKitPreparationDataEventType!
+  value: Date
+  createdAt: Date!
+}
+
+enum LifeCycleKitPreparationDataEventType {
+  CREATION
+  ARCHIVAL
+}
+
+type LifeCycleEnginePreparationDataEvent {
+  uuid: ID!
+  enginePreparationData: EnginePreparationData!
+  type: LifeCycleEnginePreparationDataEventType!
+  value: Date
+  createdAt: Date!
+}
+
+enum LifeCycleEnginePreparationDataEventType {
+  CREATION
+  ARCHIVAL
+}
+
+type LifeCycleExplosiveContainerEvent {
+  uuid: ID!
+  explosiveContainer: ExplosiveContainer!
+  type: LifeCycleExplosiveContainerEventType!
+  value: Date
+  createdAt: Date!
+}
+
+enum LifeCycleExplosiveContainerEventType {
+  CREATION
+  ARCHIVAL
+}
+
+type LifeCycleCOEDocumentEvent {
+  uuid: ID!
+  coeDocument: COEDocument!
+  type: LifeCycleCOEDocumentEventType!
+  value: Date
+  createdAt: Date!
+}
+
+enum LifeCycleCOEDocumentEventType {
+  CREATION
+  ARCHIVAL
+}
+
+type LifeCycleCAADocumentEvent {
+  uuid: ID!
+  caaDocument: CAADocument!
+  type: LifeCycleCAADocumentEventType!
+  value: Date
+  createdAt: Date!
+}
+
+enum LifeCycleCAADocumentEventType {
+  CREATION
+  ARCHIVAL
+}
+
+type LifeCycleDOTSPWaiverEvent {
+  uuid: ID!
+  dotspWaiver: DOTSPWaiver!
+  type: LifeCycleDOTSPWaiverEventType!
+  value: Date
+  createdAt: Date!
+}
+
+enum LifeCycleDOTSPWaiverEventType {
+  CREATION
+  ARCHIVAL
+}
+
+type LifeCycleEmergencyPhoneNumberEvent {
+  uuid: ID!
+  emergencyPhoneNumber: EmergencyPhoneNumber!
+  type: LifeCycleEmergencyPhoneNumberEventType!
+  value: Date
+  createdAt: Date!
+}
+
+enum LifeCycleEmergencyPhoneNumberEventType {
+  CREATION
+  ARCHIVAL
+}
+
+type LifeCycleModifiersAndAcknowledgementsEvent {
+  uuid: ID!
+  modifiersAndAcknowledgements: ModifiersAndAcknowledgements!
+  type: LifeCycleModifiersAndAcknowledgementsEventType!
+  value: Date
+  createdAt: Date!
+}
+
+enum LifeCycleModifiersAndAcknowledgementsEventType {
+  CREATION
+  ARCHIVAL
+}
+
+"""
+User who performed an action
+"""
+type User @tag(name: "sync") {
+  """
+  User unique identifier
+  """
+  uuid: ID!
+
+  """
+  User display name
+  """
+  name: String!
+
+  """
+  User email address
+  """
+  email: String!
+
+  """
+  Lifecycle events tracking creation and archival
+  """
+  lifeCycleEvents: [LifeCycleUserEvent!]!
+}
+
+"""
+Base interface for all HazPro Record types.
+Records provide audit trails for field values, tracking all changes over time.
+"""
+interface HazProRecord {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Event history tracking all modifications made to this record (create/update/delete)
+  """
+  eventHistory: [HazProRecordEvent!]!
+}
+
+"""
+Base interface for all HazPro RecordEvent types.
+RecordEvents capture a specific change to a Record, including who made the change and when.
+"""
+interface HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+}
+
+"""
+Status of an inspection
+"""
+enum InspectionStatus {
+  IN_PROGRESS
+  COMPLETED
+  FRUSTRATED
+}
+
+"""
+Status of a specific inspection item (SDDG or Package)
+"""
+enum InspectionItemStatus {
+  VERIFIED
+  FRUSTRATED
+}
+
+"""
+Categories of package frustrations
+"""
+enum PackageFrustrationCategory {
+  MARKING
+  LABEL
+  DRYICE
+  MAGNETIZED
+  GMO
+  LIFE_SAVING
+  SAFETY_DEVICE
+  BATTERY_VEHICLE
+  CAPACITOR
+  ENGINES_INTERNAL_COMBUSTION
+  FIRST_AID_CHEMICAL_KIT
+  LITHIUM_BATTERY
+  DANGEROUS_GOODS_APPARATUS
+  INNER_PACKAGING
+}
+
+"""
+Result of a reinspection attempt
+"""
+enum ReinspectionAction {
+  VERIFIED
+  FRUSTRATED
+}
+
+"""
+Type of packaging
+""" # HazmatPackagingType
+enum PackagingType {
+  SINGLE
+  COMBINATION
+  COMPOSITE
+  COMPOSITE_WITH_PLASTIC_INNER
+  COMPOSITE_WITH_GLASS_INNER
+}
+
+"""
+Units for quantity measurements
+"""
+enum QuantityUnit {
+  LBS
+  KG
+  LITERS
+  GALLONS
+}
+
+"""
+Physical state of material
+"""
+enum PhysicalState {
+  SOLID
+  LIQUID
+  GAS
+}
+
+"""
+Vehicle fuel types
+"""
+enum VehicleFuelType {
+  GASOLINE
+  DIESEL
+  ELECTRIC
+  HYBRID
+}
+
+"""
+Compliance status for special materials
+"""
+enum ComplianceStatus {
+  COMPLIANT
+  NON_COMPLIANT
+  PASS
+  FAIL
+  NOT_APPLICABLE
+}
+
+"""
+Container types for outer packaging (AFMAN 24-604 A28.2.2)
+"""
+enum ContainerType {
+  FIBERBOARD_BOX
+  WOOD_BOX
+  DRUM
+  OVERPACK
+  JERRICAN
+  NON_SPECIFICATION
+}
+
+"""
+Status of an inner packaging inspection item
+"""
+enum InnerPackagingInspectionItemStatus {
+  PASS
+  FAIL
+  NOT_APPLICABLE
+  PENDING
+}
+
+"""
+Magnetized material inspection item result (UN2807)
+"""
+enum MagnetizedMaterialInspectionItemResult {
+  PASS
+  FAIL
+  NOT_APPLICABLE
+}
+
+"""
+Magnetized material overall compliance result (UN2807)
+"""
+enum MagnetizedMaterialInspectionComplianceResult {
+  COMPLIANT
+  NON_COMPLIANT
+}
+
+type Query {
+  # Preparer
+  """
+  Query preparer shipments with optional filters
+  """
+  preparerShipments(
+    """
+    Filter criteria
+    """
+    filters: PreparerShipmentFilters
+  ): [PreparerShipment!]!
+
+  # Inspector
+  """
+  Query inspector shipments with optional filters
+  """
+  inspectorShipments(
+    """
+    Filter criteria
+    """
+    filters: InspectorShipmentFilters
+  ): [InspectorShipment!]!
+}
+
+type Mutation {
+  # Preparer
+  """
+  Create a new preparer shipment
+  """
+  createPreparerShipment(
+    """
+    Shipment creation data
+    """
+    input: CreatePreparerShipmentInput!
+  ): PreparerShipment!
+
+  """
+  Update an existing preparer shipment
+  """
+  updatePreparerShipment(
+    """
+    Shipment ID
+    """
+    uuid: ID!
+    """
+    Shipment update data
+    """
+    input: UpdatePreparerShipmentInput!
+  ): PreparerShipment!
+
+  """
+  Mark preparer shipment as complete
+  """
+  completePreparerShipment(
+    """
+    Shipment ID
+    """
+    uuid: ID!
+  ): PreparerShipment!
+
+  """
+  Delete a preparer shipment
+  """
+  deletePreparerShipment(
+    """
+    Shipment ID
+    """
+    uuid: ID!
+  ): Boolean!
+
+  # Inspector
+  """
+  Create a new inspection
+  """
+  createInspection(
+    """
+    Inspection data
+    """
+    input: CreateInspectionInput!
+  ): InspectorShipment!
+
+  """
+  Update an existing inspection
+  """
+  updateInspection(
+    """
+    Inspection ID
+    """
+    uuid: ID!
+    """
+    Updated inspection data
+    """
+    input: UpdateInspectionInput!
+  ): InspectorShipment!
+
+  """
+  Mark inspection as complete
+  """
+  completeInspection(
+    """
+    Inspection ID
+    """
+    uuid: ID!
+  ): InspectorShipment!
+
+  """
+  Delete an inspection
+  """
+  deleteInspection(
+    """
+    Inspection ID
+    """
+    uuid: ID!
+  ): Boolean!
+
+  """
+  Add a SDDG frustration to an inspection
+  """
+  addSDDGFrustration(
+    """
+    Inspection ID
+    """
+    inspectionUuid: ID!
+    """
+    Frustration data
+    """
+    frustration: SDDGFrustrationInput!
+  ): InspectorShipment!
+
+  """
+  Remove a SDDG frustration from an inspection
+  """
+  removeSDDGFrustration(
+    """
+    Inspection ID
+    """
+    inspectionUuid: ID!
+    """
+    Frustration key to remove
+    """
+    frustrationKey: String!
+  ): InspectorShipment!
+
+  """
+  Add a package frustration to an inspection
+  """
+  addPackageFrustration(
+    """
+    Inspection ID
+    """
+    inspectionUuid: ID!
+    """
+    Package frustration data
+    """
+    frustration: PackageFrustrationInput!
+  ): InspectorShipment!
+
+  """
+  Remove a package frustration from an inspection
+  """
+  removePackageFrustration(
+    """
+    Inspection ID
+    """
+    inspectionUuid: ID!
+    """
+    Item ID to remove
+    """
+    itemId: String!
+  ): InspectorShipment!
+}
+
+"""
+SDDG Form Data - 22 Keys from Shipper's Declaration for Dangerous Goods
+"""
+type ExtractedSDDGContent @tag(name: "sync") {
+  uuid: ID!
+  """
+  Shipper name and address (Key 1)
+  """
+  shipperRecord: StringHazProExtractedSDDGContentRecord!
+
+  """
+  Consignee name and address (Key 2)
+  """
+  consigneeRecord: StringHazProExtractedSDDGContentRecord!
+
+  """
+  Air waybill number (Key 3)
+  """
+  airWaybillNumberRecord: StringHazProExtractedSDDGContentRecord!
+
+  """
+  Page number / total pages (Key 4)
+  """
+  paginationRecord: StringHazProExtractedSDDGContentRecord!
+
+  """
+  Transportation Control Number (TCN) (Key 5)
+  """
+  shippersReferenceNumberRecord: StringHazProExtractedSDDGContentRecord!
+
+  """
+  Inspection activity location (Key 6)
+  """
+  inspectionActivityRecord: StringHazProExtractedSDDGContentRecord!
+
+  """
+  Aircraft type restrictions (Key 7)
+  """
+  aircraftTypeRecord: StringHazProExtractedSDDGContentRecord!
+
+  """
+  Airport of departure code (Key 8)
+  """
+  airportOfDepartureRecord: StringHazProExtractedSDDGContentRecord!
+
+  """
+  Airport of destination code (Key 9)
+  """
+  airportOfDestinationRecord: StringHazProExtractedSDDGContentRecord!
+
+  """
+  Type of shipment (Key 10)
+  """
+  shipmentTypeRecord: StringHazProExtractedSDDGContentRecord!
+
+  """
+  UN/NA/ID identification number (Key 11)
+  """
+  unIdNoRecord: StringHazProExtractedSDDGContentRecord!
+
+  """
+  Proper shipping name (Key 12)
+  """
+  properShippingNameRecord: StringHazProExtractedSDDGContentRecord!
+
+  """
+  Hazard class or division (Key 13)
+  """
+  hazardClassRecord: StringHazProExtractedSDDGContentRecord!
+
+  """
+  Subsidiary risk class (Key 14)
+  """
+  subsidiaryRiskRecord: StringHazProExtractedSDDGContentRecord!
+
+  """
+  Packing group (Key 15)
+  """
+  packingGroupRecord: StringHazProExtractedSDDGContentRecord!
+
+  """
+  Quantity and type of packing (Key 16)
+  """
+  quantityAndPackingRecord: StringHazProExtractedSDDGContentRecord!
+
+  """
+  Packing instruction number (Key 17)
+  """
+  packingInstructionRecord: StringHazProExtractedSDDGContentRecord!
+
+  """
+  Authorization reference (Key 18)
+  """
+  authorizationRecord: StringHazProExtractedSDDGContentRecord!
+
+  """
+  Additional handling information (Key 19)
+  """
+  additionalHandlingInfoRecord: StringHazProExtractedSDDGContentRecord!
+
+  """
+  Name and title of signatory (Key 20)
+  """
+  nameOfSignatoryRecord: StringHazProExtractedSDDGContentRecord!
+
+  """
+  Place and date of signature (Key 21)
+  """
+  placeAndDateRecord: StringHazProExtractedSDDGContentRecord!
+
+  """
+  Signature (Key 22)
+  """
+  signatureRecord: StringHazProExtractedSDDGContentRecord!
+
+  """
+  Lifecycle events tracking creation and archival
+  """
+  lifeCycleEvents: [LifeCycleExtractedSDDGContentEvent!]!
+}
+
+"""
+RecordEvent for String fields in ExtractedSDDGContent entity
+"""
+type StringHazProExtractedSDDGContentRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The String value that was recorded
+  """
+  value: String!
+}
+
+"""
+Record for String fields in ExtractedSDDGContent entity
+Tracks: shipper, consignee, airWaybillNumber, pagination, shippersReferenceNumber, inspectionActivity, aircraftType, airportOfDeparture, airportOfDestination, shipmentType, unIdNo, properShippingName, hazardClass, subsidiaryRisk, packingGroup, quantityAndPacking, packingInstruction, authorization, additionalHandlingInfo, nameOfSignatory, placeAndDate, signature
+"""
+type StringHazProExtractedSDDGContentRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the ExtractedSDDGContent entity
+  """
+  extractedSDDGContent: ExtractedSDDGContent!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [StringHazProExtractedSDDGContentRecordEvent!]!
+
+  """
+  Current String value
+  """
+  currentValue: String
+}
+
+"""
+Input type for creating/updating SDDG content
+"""
+input ExtractedSDDGContentInput {
+  """
+  Shipper name and address (Key 1)
+  """
+  shipper: String!
+
+  """
+  Consignee name and address (Key 2)
+  """
+  consignee: String!
+
+  """
+  Air waybill number (Key 3)
+  """
+  airWaybillNumber: String!
+
+  """
+  Page number / total pages (Key 4)
+  """
+  pagination: String!
+
+  """
+  Transportation Control Number (TCN) (Key 5)
+  """
+  shippersReferenceNumber: String!
+
+  """
+  Inspection activity location (Key 6)
+  """
+  inspectionActivity: String!
+
+  """
+  Aircraft type restrictions (Key 7)
+  """
+  aircraftType: String!
+
+  """
+  Airport of departure code (Key 8)
+  """
+  airportOfDeparture: String!
+
+  """
+  Airport of destination code (Key 9)
+  """
+  airportOfDestination: String!
+
+  """
+  Type of shipment (Key 10)
+  """
+  shipmentType: String!
+
+  """
+  UN/NA/ID identification number (Key 11)
+  """
+  unIdNo: String!
+
+  """
+  Proper shipping name (Key 12)
+  """
+  properShippingName: String!
+
+  """
+  Hazard class or division (Key 13)
+  """
+  hazardClass: String!
+
+  """
+  Subsidiary risk class (Key 14)
+  """
+  subsidiaryRisk: String!
+
+  """
+  Packing group (Key 15)
+  """
+  packingGroup: String!
+
+  """
+  Quantity and type of packing (Key 16)
+  """
+  quantityAndPacking: String!
+
+  """
+  Packing instruction number (Key 17)
+  """
+  packingInstruction: String!
+
+  """
+  Authorization reference (Key 18)
+  """
+  authorization: String!
+
+  """
+  Additional handling information (Key 19)
+  """
+  additionalHandlingInfo: String!
+
+  """
+  Name and title of signatory (Key 20)
+  """
+  nameOfSignatory: String!
+
+  """
+  Place and date of signature (Key 21)
+  """
+  placeAndDate: String!
+
+  """
+  Signature (Key 22)
+  """
+  signature: String!
+}
+
+"""
+Record of a reinspection attempt
+"""
+type ReinspectionAttempt @tag(name: "sync") {
+  uuid: ID!
+  """
+  When the reinspection occurred
+  """
+  dateRecord: HazProReinspectionAttemptDateRecord!
+
+  """
+  Inspector who performed reinspection
+  """
+  inspector: Inspector!
+
+  """
+  Result of reinspection
+  """
+  actionRecord: HazProReinspectionAttemptActionRecord!
+
+  """
+  Optional comments about the reinspection
+  """
+  additionalCommentsRecord: StringHazProReinspectionAttemptRecord
+
+  """
+  Lifecycle events tracking creation and archival
+  """
+  lifeCycleEvents: [LifeCycleReinspectionAttemptEvent!]!
+}
+
+"""
+RecordEvent for Date fields in ReinspectionAttempt entity
+"""
+type HazProReinspectionAttemptDateRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The Date value that was recorded
+  """
+  value: Date!
+}
+
+"""
+Record for Date fields in ReinspectionAttempt entity
+Tracks: date
+"""
+type HazProReinspectionAttemptDateRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the ReinspectionAttempt entity
+  """
+  reinspectionAttempt: ReinspectionAttempt!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [HazProReinspectionAttemptDateRecordEvent!]!
+
+  """
+  Current Date value
+  """
+  currentValue: Date
+}
+
+"""
+RecordEvent for String fields in ReinspectionAttempt entity
+"""
+type StringHazProReinspectionAttemptRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The String value that was recorded
+  """
+  value: String!
+}
+
+"""
+Record for String fields in ReinspectionAttempt entity
+Tracks: inspector, additionalComments
+"""
+type StringHazProReinspectionAttemptRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the ReinspectionAttempt entity
+  """
+  reinspectionAttempt: ReinspectionAttempt!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [StringHazProReinspectionAttemptRecordEvent!]!
+
+  """
+  Current String value
+  """
+  currentValue: String
+}
+
+"""
+RecordEvent for ReinspectionAction fields in ReinspectionAttempt entity
+"""
+type HazProReinspectionAttemptActionRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The ReinspectionAction value that was recorded
+  """
+  value: ReinspectionAction!
+}
+
+"""
+Record for ReinspectionAction fields in ReinspectionAttempt entity
+Tracks: action
+"""
+type HazProReinspectionAttemptActionRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the ReinspectionAttempt entity
+  """
+  reinspectionAttempt: ReinspectionAttempt!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [HazProReinspectionAttemptActionRecordEvent!]!
+
+  """
+  Current ReinspectionAction value
+  """
+  currentValue: ReinspectionAction
+}
+
+"""
+SDDG field frustration record
+"""
+type Frustration @tag(name: "sync") {
+  uuid: ID!
+  """
+  Field key (e.g., 'shipper', 'hazardClass')
+  """
+  keyRecord: StringHazProFrustrationRecord!
+
+  """
+  Human-readable field name
+  """
+  fieldLabelRecord: StringHazProFrustrationRecord!
+
+  """
+  The actual value that was frustrated
+  """
+  fieldValueRecord: StringHazProFrustrationRecord!
+
+  """
+  The correct value that should be present (optional)
+  """
+  correctValueRecord: StringHazProFrustrationRecord
+
+  """
+  When the frustration was recorded
+  """
+  frustrationDateRecord: DateHazProFrustrationRecord!
+
+  """
+  Standard frustration message
+  """
+  defaultMessageRecord: StringHazProFrustrationRecord!
+
+  """
+  Optional inspector comments
+  """
+  additionalCommentsRecord: StringHazProFrustrationRecord
+
+  """
+  Inspector who frustrated the item
+  """
+  inspector: Inspector!
+
+  """
+  History of all reinspection attempts
+  """
+  reinspectionHistory: [ReinspectionAttempt!]!
+
+  """
+  Lifecycle events tracking creation and archival
+  """
+  lifeCycleEvents: [LifeCycleFrustrationEvent!]!
+}
+
+"""
+RecordEvent for Date fields in FrustrationRecord entity
+"""
+type DateHazProFrustrationRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The Date value that was recorded
+  """
+  value: Date!
+}
+
+"""
+Record for Date fields in FrustrationRecord entity
+Tracks: frustrationDate
+"""
+type DateHazProFrustrationRecord implements HazProRecord @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the FrustrationRecord entity
+  """
+  frustration: Frustration!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [DateHazProFrustrationRecordEvent!]!
+
+  """
+  Current Date value
+  """
+  currentValue: Date
+}
+
+"""
+RecordEvent for String fields in FrustrationRecord entity
+"""
+type StringHazProFrustrationRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The String value that was recorded
+  """
+  value: String!
+}
+
+"""
+Record for String fields in FrustrationRecord entity
+Tracks: key, fieldLabel, fieldValue, correctValue, defaultMessage, additionalComments, inspector
+"""
+type StringHazProFrustrationRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the Frustration entity
+  """
+  frustration: Frustration!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [StringHazProFrustrationRecordEvent!]!
+
+  """
+  Current String value
+  """
+  currentValue: String
+}
+
+"""
+Package/marking frustration record
+"""
+type PackageFrustration @tag(name: "sync") {
+  """
+  Unique identifier
+  """
+  uuid: ID!
+
+  """
+  Category of frustration
+  """
+  categoryRecord: HazProPackageFrustrationCategoryRecord!
+
+  """
+  ID of the marking or label being frustrated
+  """
+  itemIdRecord: StringHazProPackageFrustrationRecord!
+
+  """
+  Human-readable name of the item
+  """
+  itemLabelRecord: StringHazProPackageFrustrationRecord!
+
+  """
+  What should be present
+  """
+  expectedValues: [String!]!
+
+  """
+  Status that triggered frustration
+  """
+  verificationStatusRecord: StringHazProPackageFrustrationRecord!
+
+  """
+  When the frustration was recorded
+  """
+  frustrationDateRecord: DateHazProPackageFrustrationRecord!
+
+  """
+  Standard frustration message
+  """
+  defaultMessageRecord: StringHazProPackageFrustrationRecord!
+
+  """
+  Optional inspector comments
+  """
+  additionalCommentsRecord: StringHazProPackageFrustrationRecord
+
+  """
+  Inspector who frustrated the item
+  """
+  inspector: Inspector!
+
+  """
+  AFMAN reference if applicable
+  """
+  afmanReferenceRecord: StringHazProPackageFrustrationRecord
+
+  """
+  History of all reinspection attempts
+  """
+  reinspectionHistory: [ReinspectionAttempt!]!
+
+  """
+  Lifecycle events tracking creation and archival
+  """
+  lifeCycleEvents: [LifeCyclePackageFrustrationEvent!]!
+}
+
+"""
+RecordEvent for PackageFrustrationCategory fields in PackageFrustrationRecord entity
+"""
+type HazProPackageFrustrationCategoryRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The PackageFrustrationCategory value that was recorded
+  """
+  value: PackageFrustrationCategory!
+}
+
+"""
+Record for PackageFrustrationCategory fields in PackageFrustrationRecord entity
+Tracks: category
+"""
+type HazProPackageFrustrationCategoryRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the PackageFrustration entity
+  """
+  packageFrustration: PackageFrustration!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [HazProPackageFrustrationCategoryRecordEvent!]!
+
+  """
+  Current PackageFrustrationCategory value
+  """
+  currentValue: PackageFrustrationCategory
+}
+
+"""
+RecordEvent for Date fields in PackageFrustrationRecord entity
+"""
+type DateHazProPackageFrustrationRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The Date value that was recorded
+  """
+  value: Date!
+}
+
+"""
+Record for Date fields in PackageFrustrationRecord entity
+Tracks: frustrationDate
+"""
+type DateHazProPackageFrustrationRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the PackageFrustration entity
+  """
+  packageFrustration: PackageFrustration!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [DateHazProPackageFrustrationRecordEvent!]!
+
+  """
+  Current Date value
+  """
+  currentValue: Date
+}
+
+"""
+RecordEvent for String fields in PackageFrustrationRecord entity
+"""
+type StringHazProPackageFrustrationRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The String value that was recorded
+  """
+  value: String!
+}
+
+"""
+Record for String fields in PackageFrustrationRecord entity
+Tracks: itemId, itemLabel, verificationStatus, defaultMessage, additionalComments, inspector, afmanReference
+"""
+type StringHazProPackageFrustrationRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the PackageFrustration entity
+  """
+  packageFrustration: PackageFrustration!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [StringHazProPackageFrustrationRecordEvent!]!
+
+  """
+  Current String value
+  """
+  currentValue: String
+}
+
+"""
+Input for creating a SDDG frustration
+"""
+input SDDGFrustrationInput {
+  """
+  Field key
+  """
+  key: String!
+
+  """
+  Human-readable field name
+  """
+  fieldLabel: String!
+
+  """
+  The actual value that was frustrated
+  """
+  fieldValue: String!
+
+  """
+  The correct value that should be present (optional)
+  """
+  correctValue: String
+
+  """
+  Standard frustration message
+  """
+  defaultMessage: String!
+
+  """
+  Optional inspector comments
+  """
+  additionalComments: String
+}
+
+"""
+Input for creating a package frustration
+"""
+input PackageFrustrationInput {
+  """
+  Category of frustration
+  """
+  category: PackageFrustrationCategory!
+
+  """
+  ID of the marking or label being frustrated
+  """
+  itemId: String!
+
+  """
+  Human-readable name of the item
+  """
+  itemLabel: String!
+
+  """
+  What should be present
+  """
+  expectedValues: [String!]!
+
+  """
+  Status that triggered frustration
+  """
+  verificationStatus: String!
+
+  """
+  Standard frustration message
+  """
+  defaultMessage: String!
+
+  """
+  Optional inspector comments
+  """
+  additionalComments: String
+
+  """
+  AFMAN reference if applicable
+  """
+  afmanReference: String
+}
+
+"""
+Inspector magnetized material inspection data (UN2807)
+"""
+type InspectorMagnetizedMaterialData @tag(name: "sync") {
+  uuid: ID!
+  """
+  First magnetic field reading
+  """
+  magneticFieldReading1Record: FloatHazProInspectorMagnetizedMaterialDataRecord
+
+  """
+  Second magnetic field reading
+  """
+  magneticFieldReading2Record: FloatHazProInspectorMagnetizedMaterialDataRecord
+
+  """
+  First compass deviation reading
+  """
+  compassDeviationReading1Record: FloatHazProInspectorMagnetizedMaterialDataRecord
+
+  """
+  Second compass deviation reading
+  """
+  compassDeviationReading2Record: FloatHazProInspectorMagnetizedMaterialDataRecord
+
+  """
+  Device used for first measurement
+  """
+  measuringDevice1Record: StringHazProInspectorMagnetizedMaterialDataRecord!
+
+  """
+  Device used for second measurement
+  """
+  measuringDevice2Record: StringHazProInspectorMagnetizedMaterialDataRecord!
+
+  """
+  Whether magnetic shielding is present
+  """
+  shieldingPresentRecord: MagnetizedMaterialInspectionItemResultHazProInspectorMagnetizedMaterialDataRecord
+
+  """
+  Whether blocking/bracing is adequate
+  """
+  blockingBracingAdequateRecord: MagnetizedMaterialInspectionItemResultHazProInspectorMagnetizedMaterialDataRecord
+
+  """
+  Whether protective distance is maintained
+  """
+  protectiveDistanceMaintainedRecord: MagnetizedMaterialInspectionItemResultHazProInspectorMagnetizedMaterialDataRecord
+
+  """
+  Description of outer packaging
+  """
+  outerPackagingDescriptionRecord: StringHazProInspectorMagnetizedMaterialDataRecord!
+
+  """
+  Package weight in pounds
+  """
+  packageWeightRecord: FloatHazProInspectorMagnetizedMaterialDataRecord
+
+  """
+  Package dimensions
+  """
+  packageDimensionsRecord: StringHazProInspectorMagnetizedMaterialDataRecord
+
+  """
+  Overall compliance assessment
+  """
+  overallComplianceRecord: MagnetizedMaterialInspectionComplianceResultHazProInspectorMagnetizedMaterialDataRecord
+
+  """
+  Reasons for frustration if non-compliant
+  """
+  frustrationReasons: [String!]!
+
+  """
+  Inspector notes
+  """
+  inspectorNotesRecord: StringHazProInspectorMagnetizedMaterialDataRecord!
+
+  """
+  Lifecycle events tracking creation and archival
+  """
+  lifeCycleEvents: [LifeCycleInspectorMagnetizedMaterialDataEvent!]!
+}
+
+"""
+RecordEvent for Float fields in InspectorMagnetizedMaterialData entity
+"""
+type FloatHazProInspectorMagnetizedMaterialDataRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The Float value that was recorded
+  """
+  value: Float!
+}
+
+"""
+Record for Float fields in InspectorMagnetizedMaterialData entity
+Tracks: magneticFieldReading1, magneticFieldReading2, compassDeviationReading1, compassDeviationReading2, packageWeight
+"""
+type FloatHazProInspectorMagnetizedMaterialDataRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the InspectorMagnetizedMaterialData entity
+  """
+  inspectorMagnetizedMaterialData: InspectorMagnetizedMaterialData!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [FloatHazProInspectorMagnetizedMaterialDataRecordEvent!]!
+
+  """
+  Current Float value
+  """
+  currentValue: Float
+}
+
+"""
+RecordEvent for String fields in InspectorMagnetizedMaterialData entity
+"""
+type StringHazProInspectorMagnetizedMaterialDataRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The String value that was recorded
+  """
+  value: String!
+}
+
+"""
+Record for String fields in InspectorMagnetizedMaterialData entity
+Tracks: measuringDevice1, measuringDevice2, outerPackagingDescription, inspectorNotes, packageDimensions
+"""
+type StringHazProInspectorMagnetizedMaterialDataRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the InspectorMagnetizedMaterialData entity
+  """
+  inspectorMagnetizedMaterialData: InspectorMagnetizedMaterialData!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [StringHazProInspectorMagnetizedMaterialDataRecordEvent!]!
+
+  """
+  Current String value
+  """
+  currentValue: String
+}
+
+"""
+RecordEvent for MagnetizedMaterialInspectionItemResult fields in InspectorMagnetizedMaterialData entity
+"""
+type MagnetizedMaterialInspectionItemResultHazProInspectorMagnetizedMaterialDataRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The MagnetizedMaterialInspectionItemResult value that was recorded
+  """
+  value: MagnetizedMaterialInspectionItemResult!
+}
+
+"""
+Record for MagnetizedMaterialInspectionItemResult fields in InspectorMagnetizedMaterialData entity
+Tracks: shieldingPresent, blockingBracingAdequate, protectiveDistanceMaintained
+"""
+type MagnetizedMaterialInspectionItemResultHazProInspectorMagnetizedMaterialDataRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the InspectorMagnetizedMaterialData entity
+  """
+  inspectorMagnetizedMaterialData: InspectorMagnetizedMaterialData!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [MagnetizedMaterialInspectionItemResultHazProInspectorMagnetizedMaterialDataRecordEvent!]!
+
+  """
+  Current MagnetizedMaterialInspectionItemResult value
+  """
+  currentValue: MagnetizedMaterialInspectionItemResult
+}
+
+"""
+RecordEvent for MagnetizedMaterialInspectionComplianceResult fields in InspectorMagnetizedMaterialData entity
+"""
+type MagnetizedMaterialInspectionComplianceResultHazProInspectorMagnetizedMaterialDataRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The MagnetizedMaterialInspectionComplianceResult value that was recorded
+  """
+  value: MagnetizedMaterialInspectionComplianceResult!
+}
+
+"""
+Record for MagnetizedMaterialInspectionComplianceResult fields in InspectorMagnetizedMaterialData entity
+Tracks: overallCompliance
+"""
+type MagnetizedMaterialInspectionComplianceResultHazProInspectorMagnetizedMaterialDataRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the InspectorMagnetizedMaterialData entity
+  """
+  inspectorMagnetizedMaterialData: InspectorMagnetizedMaterialData!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [MagnetizedMaterialInspectionComplianceResultHazProInspectorMagnetizedMaterialDataRecordEvent!]!
+
+  """
+  Current MagnetizedMaterialInspectionComplianceResult value
+  """
+  currentValue: MagnetizedMaterialInspectionComplianceResult
+}
+
+"""
+Input for magnetized material inspection
+"""
+input InspectorMagnetizedMaterialDataInput {
+  """
+  First magnetic field reading
+  """
+  magneticFieldReading1: Float
+
+  """
+  Second magnetic field reading
+  """
+  magneticFieldReading2: Float
+
+  """
+  First compass deviation reading
+  """
+  compassDeviationReading1: Float
+
+  """
+  Second compass deviation reading
+  """
+  compassDeviationReading2: Float
+
+  """
+  Device used for first measurement
+  """
+  measuringDevice1: String!
+
+  """
+  Device used for second measurement
+  """
+  measuringDevice2: String!
+
+  """
+  Whether magnetic shielding is present
+  """
+  shieldingPresent: MagnetizedMaterialInspectionItemResult
+
+  """
+  Whether blocking/bracing is adequate
+  """
+  blockingBracingAdequate: MagnetizedMaterialInspectionItemResult
+
+  """
+  Whether protective distance is maintained
+  """
+  protectiveDistanceMaintained: MagnetizedMaterialInspectionItemResult
+
+  """
+  Description of outer packaging
+  """
+  outerPackagingDescription: String!
+
+  """
+  Package weight in pounds
+  """
+  packageWeight: Float
+
+  """
+  Package dimensions
+  """
+  packageDimensions: String
+
+  """
+  Overall compliance assessment
+  """
+  overallCompliance: MagnetizedMaterialInspectionComplianceResult
+
+  """
+  Reasons for frustration if non-compliant
+  """
+  frustrationReasons: [String!]!
+
+  """
+  Inspector notes
+  """
+  inspectorNotes: String!
+}
+
+"""
+Inspector information
+"""
+type Inspector @tag(name: "sync") {
+  uuid: ID!
+  """
+  Inspector name
+  """
+  inspectorNameRecord: StringHazProInspectorRecord!
+
+  """
+  Inspector rank (optional)
+  """
+  inspectorRankRecord: StringHazProInspectorRecord
+
+  """
+  Inspector title
+  """
+  inspectorTitleRecord: StringHazProInspectorRecord!
+
+  """
+  Lifecycle events tracking creation and archival
+  """
+  lifeCycleEvents: [LifeCycleInspectorEvent!]!
+}
+
+"""
+RecordEvent for String fields in Inspector entity
+"""
+type StringHazProInspectorRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The String value that was recorded
+  """
+  value: String!
+}
+
+"""
+Record for String fields in Inspector entity
+Tracks: inspectorName, inspectorRank, inspectorTitle
+"""
+type StringHazProInspectorRecord implements HazProRecord @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the Inspector entity
+  """
+  inspector: Inspector!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [StringHazProInspectorRecordEvent!]!
+
+  """
+  Current String value
+  """
+  currentValue: String
+}
+
+"""
+Individual inspection item for inner packaging checklist (AFMAN 24-604 A28.2.1.2)
+"""
+type InnerPackagingInspectionItem @tag(name: "sync") {
+  uuid: ID!
+  """
+  Unique identifier for the inspection item
+  """
+  idRecord: StringHazProInnerPackagingInspectionItemRecord!
+
+  """
+  Human-readable label for display
+  """
+  labelRecord: StringHazProInnerPackagingInspectionItemRecord!
+
+  """
+  Inspection status
+  """
+  statusRecord: InnerPackagingInspectionItemStatusHazProInnerPackagingInspectionItemRecord!
+
+  """
+  Optional inspector notes for this specific item
+  """
+  notesRecord: StringHazProInnerPackagingInspectionItemRecord
+
+  """
+  AFMAN reference for this inspection requirement
+  """
+  afmanReferenceRecord: StringHazProInnerPackagingInspectionItemRecord!
+
+  """
+  Lifecycle events tracking creation and archival
+  """
+  lifeCycleEvents: [LifeCycleInnerPackagingInspectionItemEvent!]!
+}
+
+"""
+RecordEvent for String fields in InnerPackagingInspectionItem entity
+"""
+type StringHazProInnerPackagingInspectionItemRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The String value that was recorded
+  """
+  value: String!
+}
+
+"""
+Record for String fields in InnerPackagingInspectionItem entity
+Tracks: id, label, notes, afmanReference
+"""
+type StringHazProInnerPackagingInspectionItemRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the InnerPackagingInspectionItem entity
+  """
+  innerPackagingInspectionItem: InnerPackagingInspectionItem!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [StringHazProInnerPackagingInspectionItemRecordEvent!]!
+
+  """
+  Current String value
+  """
+  currentValue: String
+}
+
+"""
+RecordEvent for InnerPackagingInspectionItemStatus fields in InnerPackagingInspectionItem entity
+"""
+type InnerPackagingInspectionItemStatusHazProInnerPackagingInspectionItemRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The InnerPackagingInspectionItemStatus value that was recorded
+  """
+  value: InnerPackagingInspectionItemStatus!
+}
+
+"""
+Record for InnerPackagingInspectionItemStatus fields in InnerPackagingInspectionItem entity
+Tracks: status
+"""
+type InnerPackagingInspectionItemStatusHazProInnerPackagingInspectionItemRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the InnerPackagingInspectionItem entity
+  """
+  innerPackagingInspectionItem: InnerPackagingInspectionItem!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [InnerPackagingInspectionItemStatusHazProInnerPackagingInspectionItemRecordEvent!]!
+
+  """
+  Current InnerPackagingInspectionItemStatus value
+  """
+  currentValue: InnerPackagingInspectionItemStatus
+}
+
+"""
+Complete inner packaging inspection data (AFMAN 24-604 A28.2)
+"""
+type InnerPackagingInspectionData @tag(name: "sync") {
+  uuid: ID!
+  """
+  Whether the package has inner packagings requiring inspection
+  """
+  hasInnerPackagingRecord: BooleanHazProInnerPackagingInspectionDataRecord
+
+  """
+  Type of outer container being opened
+  """
+  containerTypeRecord: ContainerTypeHazProInnerPackagingInspectionDataRecord
+
+  """
+  Inspection items checklist (A28.2.1.2.1 - A28.2.1.2.6)
+  """
+  inspectionItems: [InnerPackagingInspectionItem!]!
+
+  """
+  Timestamp when container was opened
+  """
+  openedAtRecord: DateHazProInnerPackagingInspectionDataRecord
+
+  """
+  Timestamp when inspection was performed
+  """
+  inspectedAtRecord: DateHazProInnerPackagingInspectionDataRecord
+
+  """
+  Timestamp when container was closed
+  """
+  closedAtRecord: DateHazProInnerPackagingInspectionDataRecord
+
+  """
+  Whether a new shipper's certification is required after reclosure
+  """
+  newCertificationRequiredRecord: BooleanHazProInnerPackagingInspectionDataRecord!
+
+  """
+  Description of how the container was reclosed
+  """
+  reclosureMethodRecord: StringHazProInnerPackagingInspectionDataRecord!
+
+  """
+  General notes from inspector about inner packaging inspection
+  """
+  inspectorNotesRecord: StringHazProInnerPackagingInspectionDataRecord!
+
+  """
+  Overall compliance status of inner packaging inspection
+  """
+  overallStatusRecord: ComplianceStatusHazProInnerPackagingInspectionDataRecord
+
+  """
+  Lifecycle events tracking creation and archival
+  """
+  lifeCycleEvents: [LifeCycleInnerPackagingInspectionDataEvent!]!
+}
+
+"""
+RecordEvent for Boolean fields in InnerPackagingInspectionData entity
+"""
+type BooleanHazProInnerPackagingInspectionDataRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The Boolean value that was recorded
+  """
+  value: Boolean!
+}
+
+"""
+Record for Boolean fields in InnerPackagingInspectionData entity
+Tracks: hasInnerPackaging, newCertificationRequired
+"""
+type BooleanHazProInnerPackagingInspectionDataRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the InnerPackagingInspectionData entity
+  """
+  innerPackagingInspectionData: InnerPackagingInspectionData!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [BooleanHazProInnerPackagingInspectionDataRecordEvent!]!
+
+  """
+  Current Boolean value
+  """
+  currentValue: Boolean
+}
+
+"""
+RecordEvent for ContainerType fields in InnerPackagingInspectionData entity
+"""
+type ContainerTypeHazProInnerPackagingInspectionDataRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The ContainerType value that was recorded
+  """
+  value: ContainerType!
+}
+
+"""
+Record for ContainerType fields in InnerPackagingInspectionData entity
+Tracks: containerType
+"""
+type ContainerTypeHazProInnerPackagingInspectionDataRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the InnerPackagingInspectionData entity
+  """
+  innerPackagingInspectionData: InnerPackagingInspectionData!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [ContainerTypeHazProInnerPackagingInspectionDataRecordEvent!]!
+
+  """
+  Current ContainerType value
+  """
+  currentValue: ContainerType
+}
+
+"""
+RecordEvent for Date fields in InnerPackagingInspectionData entity
+"""
+type DateHazProInnerPackagingInspectionDataRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The Date value that was recorded
+  """
+  value: Date!
+}
+
+"""
+Record for Date fields in InnerPackagingInspectionData entity
+Tracks: openedAt, inspectedAt, closedAt
+"""
+type DateHazProInnerPackagingInspectionDataRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the InnerPackagingInspectionData entity
+  """
+  innerPackagingInspectionData: InnerPackagingInspectionData!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [DateHazProInnerPackagingInspectionDataRecordEvent!]!
+
+  """
+  Current Date value
+  """
+  currentValue: Date
+}
+
+"""
+RecordEvent for String fields in InnerPackagingInspectionData entity
+"""
+type StringHazProInnerPackagingInspectionDataRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The String value that was recorded
+  """
+  value: String!
+}
+
+"""
+Record for String fields in InnerPackagingInspectionData entity
+Tracks: reclosureMethod, inspectorNotes
+"""
+type StringHazProInnerPackagingInspectionDataRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the InnerPackagingInspectionData entity
+  """
+  innerPackagingInspectionData: InnerPackagingInspectionData!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [StringHazProInnerPackagingInspectionDataRecordEvent!]!
+
+  """
+  Current String value
+  """
+  currentValue: String
+}
+
+"""
+RecordEvent for ComplianceStatus fields in InnerPackagingInspectionData entity
+"""
+type ComplianceStatusHazProInnerPackagingInspectionDataRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The ComplianceStatus value that was recorded
+  """
+  value: ComplianceStatus!
+}
+
+"""
+Record for ComplianceStatus fields in InnerPackagingInspectionData entity
+Tracks: overallStatus
+"""
+type ComplianceStatusHazProInnerPackagingInspectionDataRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the InnerPackagingInspectionData entity
+  """
+  innerPackagingInspectionData: InnerPackagingInspectionData!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [ComplianceStatusHazProInnerPackagingInspectionDataRecordEvent!]!
+
+  """
+  Current ComplianceStatus value
+  """
+  currentValue: ComplianceStatus
+}
+
+"""
+Inspector Package POP (Performance Oriented Packaging) Marking Data Entry
+For package verification during inspection
+"""
+type PackagePopMarking @tag(name: "sync") {
+  uuid: ID!
+  """
+  Packaging code for outer packaging (Field B)
+  """
+  BRecord: StringHazProPackagePopMarkingRecord!
+
+  """
+  Packing Group X, Y, or Z (Field C)
+  """
+  CRecord: StringHazProPackagePopMarkingRecord!
+
+  """
+  Relative Density (liquid) or Maximum Gross Mass (solid) (Field D)
+  """
+  DRecord: StringHazProPackagePopMarkingRecord!
+
+  """
+  Test Pressure (liquids) or 'S' (solids/inner packagings) (Field E)
+  """
+  ERecord: StringHazProPackagePopMarkingRecord!
+
+  """
+  Year of manufacture - 2 digits (Field F)
+  """
+  FRecord: StringHazProPackagePopMarkingRecord!
+
+  """
+  State (Country) Authorizing Mark (Field G)
+  """
+  GRecord: StringHazProPackagePopMarkingRecord!
+
+  """
+  Symbol of Manufacturer/Certifier (Field H)
+  """
+  HRecord: StringHazProPackagePopMarkingRecord!
+
+  """
+  Lifecycle events tracking creation and archival
+  """
+  lifeCycleEvents: [LifeCyclePackagePopMarkingEvent!]!
+}
+
+"""
+RecordEvent for String fields in PackagePopMarking entity
+"""
+type StringHazProPackagePopMarkingRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The String value that was recorded
+  """
+  value: String!
+}
+
+"""
+Record for String fields in PackagePopMarking entity
+Tracks: B, C, D, E, F, G, H
+"""
+type StringHazProPackagePopMarkingRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the PackagePopMarking entity
+  """
+  packagePopMarking: PackagePopMarking!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [StringHazProPackagePopMarkingRecordEvent!]!
+
+  """
+  Current String value
+  """
+  currentValue: String
+}
+
+"""
+Complete SDDG inspection context
+"""
+type SDDGInspectionContext @tag(name: "sync") {
+  uuid: ID!
+  """
+  Original OCR/AI extracted content
+  """
+  extractedContent: ExtractedSDDGContent
+
+  """
+  User-verified/corrected copy
+  """
+  verificationCopy: ExtractedSDDGContent
+
+  """
+  URI of original SDDG image
+  """
+  originalImageUriRecord: StringHazProSDDGInspectionContextRecord
+
+  """
+  Active SDDG frustrations
+  """
+  frustrations: [Frustration!]!
+
+  """
+  Active package frustrations
+  """
+  packageFrustrations: [PackageFrustration!]!
+
+  """
+  Resolved SDDG frustrations (passed reinspection)
+  """
+  resolvedFrustrations: [Frustration!]!
+
+  """
+  Resolved package frustrations (passed reinspection)
+  """
+  resolvedPackageFrustrations: [PackageFrustration!]!
+
+  """
+  UN2807 magnetized material inspection data
+  """
+  magnetizedMaterialInspection: InspectorMagnetizedMaterialData
+
+  """
+  Inner packaging inspection data for combination packaging
+  """
+  innerPackagingInspection: InnerPackagingInspectionData
+
+  """
+  Package POP marking data entry
+  """
+  packagePopMarking: PackagePopMarking
+
+  """
+  Inspector information
+  """
+  inspector: Inspector!
+
+  """
+  When inspection started
+  """
+  inspectionStartTimeRecord: DateHazProSDDGInspectionContextRecord
+
+  """
+  When inspection completed
+  """
+  inspectionCompleteTimeRecord: DateHazProSDDGInspectionContextRecord
+
+  """
+  Lifecycle events tracking creation and archival
+  """
+  lifeCycleEvents: [LifeCycleSDDGInspectionContextEvent!]!
+}
+
+"""
+RecordEvent for Date fields in SDDGInspectionContext entity
+"""
+type DateHazProSDDGInspectionContextRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The Date value that was recorded
+  """
+  value: Date!
+}
+
+"""
+Record for Date fields in SDDGInspectionContext entity
+Tracks: inspectionStartTime, inspectionCompleteTime
+"""
+type DateHazProSDDGInspectionContextRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the SDDGInspectionContext entity
+  """
+  sddgInspectionContext: SDDGInspectionContext!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [DateHazProSDDGInspectionContextRecordEvent!]!
+
+  """
+  Current Date value
+  """
+  currentValue: Date
+}
+
+"""
+RecordEvent for String fields in SDDGInspectionContext entity
+"""
+type StringHazProSDDGInspectionContextRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The String value that was recorded
+  """
+  value: String!
+}
+
+"""
+Record for String fields in SDDGInspectionContext entity
+Tracks: originalImageUri
+"""
+type StringHazProSDDGInspectionContextRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the SDDGInspectionContext entity
+  """
+  sddgInspectionContext: SDDGInspectionContext!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [StringHazProSDDGInspectionContextRecordEvent!]!
+
+  """
+  Current String value
+  """
+  currentValue: String
+}
+
+"""
+Input for creating/updating inner packaging inspection item
+"""
+input InnerPackagingInspectionItemInput {
+  """
+  Human-readable label for display
+  """
+  label: String!
+
+  """
+  Inspection status
+  """
+  status: InnerPackagingInspectionItemStatus!
+
+  """
+  Optional inspector notes for this specific item
+  """
+  notes: String
+
+  """
+  AFMAN reference for this inspection requirement
+  """
+  afmanReference: String!
+}
+
+"""
+Input for creating/updating inner packaging inspection data
+"""
+input InnerPackagingInspectionDataInput {
+  """
+  Whether the package has inner packagings requiring inspection
+  """
+  hasInnerPackaging: Boolean
+
+  """
+  Type of outer container being opened
+  """
+  containerType: ContainerType
+
+  """
+  Inspection items checklist
+  """
+  inspectionItems: [InnerPackagingInspectionItemInput!]!
+
+  """
+  Timestamp when container was opened
+  """
+  openedAt: Date
+
+  """
+  Timestamp when inspection was performed
+  """
+  inspectedAt: Date
+
+  """
+  Timestamp when container was closed
+  """
+  closedAt: Date
+
+  """
+  Whether a new shipper's certification is required after reclosure
+  """
+  newCertificationRequired: Boolean!
+
+  """
+  Description of how the container was reclosed
+  """
+  reclosureMethod: String!
+
+  """
+  General notes from inspector about inner packaging inspection
+  """
+  inspectorNotes: String!
+
+  """
+  Overall compliance status of inner packaging inspection
+  """
+  overallStatus: ComplianceStatus
+}
+
+"""
+Input for creating/updating package POP marking
+"""
+input PackagePopMarkingInput {
+  """
+  Packaging code for outer packaging (Field B)
+  """
+  B: String!
+
+  """
+  Packing Group X, Y, or Z (Field C)
+  """
+  C: String!
+
+  """
+  Relative Density (liquid) or Maximum Gross Mass (solid) (Field D)
+  """
+  D: String!
+
+  """
+  Test Pressure (liquids) or 'S' (solids/inner packagings) (Field E)
+  """
+  E: String!
+
+  """
+  Year of manufacture - 2 digits (Field F)
+  """
+  F: String!
+
+  """
+  State (Country) Authorizing Mark (Field G)
+  """
+  G: String!
+
+  """
+  Symbol of Manufacturer/Certifier (Field H)
+  """
+  H: String!
+}
+
+"""
+Input for inspector information
+"""
+input InspectorInput {
+  """
+  Inspector name
+  """
+  inspectorName: String!
+
+  """
+  Inspector rank (optional)
+  """
+  inspectorRank: String
+
+  """
+  Inspector title
+  """
+  inspectorTitle: String!
+}
+
+"""
+Input for creating/updating inspection context
+"""
+input SDDGInspectionContextInput {
+  """
+  Original OCR/AI extracted content
+  """
+  extractedContent: ExtractedSDDGContentInput
+
+  """
+  User-verified/corrected copy
+  """
+  verificationCopy: ExtractedSDDGContentInput
+
+  """
+  URI of original SDDG image
+  """
+  originalImageUri: String
+
+  """
+  UN2807 magnetized material inspection data
+  """
+  magnetizedMaterialInspection: InspectorMagnetizedMaterialDataInput
+
+  """
+  Inner packaging inspection data for combination packaging
+  """
+  innerPackagingInspection: InnerPackagingInspectionDataInput
+
+  """
+  Package POP marking data entry
+  """
+  packagePopMarking: PackagePopMarkingInput
+
+  """
+  Inspector information
+  """
+  inspector: InspectorInput!
+}
+
+"""
+Complete inspection record
+"""
+type InspectorShipment @tag(name: "sync") {
+  """
+  Unique inspection ID
+  """
+  uuid: ID!
+
+  """
+  Current inspection status
+  """
+  statusRecord: InspectionStatusHazProInspectorShipmentRecord!
+
+  """
+  When inspection was performed
+  """
+  inspectedAtRecord: DateHazProInspectorShipmentRecord!
+
+  """
+  Complete inspection context data
+  """
+  inspectionContext: SDDGInspectionContext!
+
+  """
+  Transportation Control Number (denormalized from SDDG)
+  """
+  tcnRecord: StringHazProInspectorShipmentRecord!
+
+  """
+  UN/ID number (denormalized from SDDG)
+  """
+  unIdRecord: StringHazProInspectorShipmentRecord!
+
+  """
+  Proper shipping name (denormalized from SDDG)
+  """
+  properShippingNameRecord: StringHazProInspectorShipmentRecord!
+
+  """
+  Inspector name
+  """
+  inspector: Inspector!
+
+  """
+  SDDG verification status
+  """
+  sddgStatusRecord: InspectionItemStatusHazProInspectorShipmentRecord!
+
+  """
+  Package verification status
+  """
+  packageStatusRecord: InspectionItemStatusHazProInspectorShipmentRecord!
+
+  """
+  Total number of frustrations (SDDG + package)
+  """
+  totalFrustrationsRecord: IntHazProInspectorShipmentRecord!
+
+  """
+  Number of SDDG frustrations
+  """
+  sddgFrustrationsRecord: IntHazProInspectorShipmentRecord!
+
+  """
+  Number of package frustrations
+  """
+  packageFrustrationsRecord: IntHazProInspectorShipmentRecord!
+
+  """
+  Lifecycle events tracking creation and archival
+  """
+  lifeCycleEvents: [LifeCycleInspectorShipmentEvent!]!
+}
+
+"""
+RecordEvent for String fields in InspectorShipment entity
+"""
+type StringHazProInspectorShipmentRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The String value that was recorded
+  """
+  value: String!
+}
+
+"""
+Record for String fields in InspectorShipment entity
+Tracks: tcn, unId, properShippingName, inspector
+"""
+type StringHazProInspectorShipmentRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the InspectorShipment entity
+  """
+  inspectorShipment: InspectorShipment!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [StringHazProInspectorShipmentRecordEvent!]!
+
+  """
+  Current String value
+  """
+  currentValue: String
+}
+
+"""
+RecordEvent for Date fields in InspectorShipment entity
+"""
+type DateHazProInspectorShipmentRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The Date value that was recorded
+  """
+  value: Date!
+}
+
+"""
+Record for Date fields in InspectorShipment entity
+Tracks: inspectedAt
+"""
+type DateHazProInspectorShipmentRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the InspectorShipment entity
+  """
+  inspectorShipment: InspectorShipment!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [DateHazProInspectorShipmentRecordEvent!]!
+
+  """
+  Current Date value
+  """
+  currentValue: Date
+}
+
+"""
+RecordEvent for Int fields in InspectorShipment entity
+"""
+type IntHazProInspectorShipmentRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The Int value that was recorded
+  """
+  value: Int!
+}
+
+"""
+Record for Int fields in InspectorShipment entity
+Tracks: totalFrustrations, sddgFrustrations, packageFrustrations
+"""
+type IntHazProInspectorShipmentRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the InspectorShipment entity
+  """
+  inspectorShipment: InspectorShipment!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [IntHazProInspectorShipmentRecordEvent!]!
+
+  """
+  Current Int value
+  """
+  currentValue: Int
+}
+
+"""
+RecordEvent for InspectionStatus fields in InspectorShipment entity
+"""
+type InspectionStatusHazProInspectorShipmentRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The InspectionStatus value that was recorded
+  """
+  value: InspectionStatus!
+}
+
+"""
+Record for InspectionStatus fields in InspectorShipment entity
+Tracks: status
+"""
+type InspectionStatusHazProInspectorShipmentRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the InspectorShipment entity
+  """
+  inspectorShipment: InspectorShipment!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [InspectionStatusHazProInspectorShipmentRecordEvent!]!
+
+  """
+  Current InspectionStatus value
+  """
+  currentValue: InspectionStatus
+}
+
+"""
+RecordEvent for InspectionItemStatus fields in InspectorShipment entity
+"""
+type InspectionItemStatusHazProInspectorShipmentRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The InspectionItemStatus value that was recorded
+  """
+  value: InspectionItemStatus!
+}
+
+"""
+Record for InspectionItemStatus fields in InspectorShipment entity
+Tracks: sddgStatus, packageStatus
+"""
+type InspectionItemStatusHazProInspectorShipmentRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the InspectorShipment entity
+  """
+  inspectorShipment: InspectorShipment!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [InspectionItemStatusHazProInspectorShipmentRecordEvent!]!
+
+  """
+  Current InspectionItemStatus value
+  """
+  currentValue: InspectionItemStatus
+}
+
+"""
+Filter options for inspector shipments
+"""
+input InspectorShipmentFilters {
+  """
+  Filter by uuid
+  """
+  uuid: String!
+
+  """
+  Filter by inspection status
+  """
+  status: InspectionStatus
+
+  """
+  Filter by inspector name
+  """
+  inspector: String
+
+  """
+  Filter by inspection date range start
+  """
+  startDate: Date
+
+  """
+  Filter by inspection date range end
+  """
+  endDate: Date
+
+  """
+  Filter by whether inspection has frustrations
+  """
+  hasFrustrations: Boolean
+
+  """
+  Filter by Transportation Control Number
+  """
+  tcn: String
+
+  """
+  Filter by UN/ID number
+  """
+  unId: String
+}
+
+"""
+Inspector count by name
+"""
+type InspectorCount {
+  """
+  Inspector name
+  """
+  inspector: Inspector!
+
+  """
+  Number of inspections
+  """
+  countRecord: IntHazProInspectorCountRecord!
+}
+
+"""
+RecordEvent for Int fields in InspectorCount entity
+"""
+type IntHazProInspectorCountRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The Int value that was recorded
+  """
+  value: Int!
+}
+
+"""
+Record for Int fields in InspectorCount entity
+Tracks: count
+"""
+type IntHazProInspectorCountRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the InspectorCount entity
+  """
+  inspectorCount: InspectorCount!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [IntHazProInspectorCountRecordEvent!]!
+
+  """
+  Current Int value
+  """
+  currentValue: Int
+}
+
+"""
+Input for creating a new inspection
+"""
+input CreateInspectionInput {
+  """
+  Complete inspection context data
+  """
+  inspectionContext: SDDGInspectionContextInput!
+
+  """
+  Transportation Control Number
+  """
+  tcn: String!
+
+  """
+  UN/ID number
+  """
+  unId: String!
+
+  """
+  Proper shipping name
+  """
+  properShippingName: String!
+
+  """
+  Inspector name
+  """
+  inspector: String!
+}
+
+"""
+Input for updating an existing inspection
+"""
+input UpdateInspectionInput {
+  uuid: ID!
+  """
+  Updated inspection context data
+  """
+  inspectionContext: SDDGInspectionContextInput
+
+  """
+  Updated inspection status
+  """
+  status: InspectionStatus
+}
+
+"""
+Shipper address information
+"""
+type ShipperAddress @tag(name: "sync") {
+  uuid: ID!
+  """
+  Shipper name
+  """
+  nameRecord: StringHazProShipperAddressRecord!
+
+  """
+  Street address
+  """
+  streetRecord: StringHazProShipperAddressRecord!
+
+  """
+  City
+  """
+  cityRecord: StringHazProShipperAddressRecord!
+
+  """
+  State or province
+  """
+  stateRecord: StringHazProShipperAddressRecord!
+
+  """
+  Postal code
+  """
+  zipRecord: StringHazProShipperAddressRecord!
+
+  """
+  Country
+  """
+  countryRecord: StringHazProShipperAddressRecord!
+
+  """
+  Lifecycle events tracking creation and archival
+  """
+  lifeCycleEvents: [LifeCycleShipperAddressEvent!]!
+}
+
+"""
+RecordEvent for String fields in ShipperAddress entity
+"""
+type StringHazProShipperAddressRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The String value that was recorded
+  """
+  value: String!
+}
+
+"""
+Record for String fields in ShipperAddress entity
+Tracks: name, street, city, state, zip, country
+"""
+type StringHazProShipperAddressRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the ShipperAddress entity
+  """
+  shipperAddress: ShipperAddress!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [StringHazProShipperAddressRecordEvent!]!
+
+  """
+  Current String value
+  """
+  currentValue: String
+}
+
+"""
+Consignee address information
+"""
+type ConsigneeAddress @tag(name: "sync") {
+  uuid: ID!
+  """
+  Consignee name
+  """
+  nameRecord: StringHazProConsigneeAddressRecord!
+
+  """
+  Street address
+  """
+  streetRecord: StringHazProConsigneeAddressRecord!
+
+  """
+  City
+  """
+  cityRecord: StringHazProConsigneeAddressRecord!
+
+  """
+  State or province
+  """
+  stateRecord: StringHazProConsigneeAddressRecord!
+
+  """
+  Postal code
+  """
+  zipRecord: StringHazProConsigneeAddressRecord!
+
+  """
+  Country
+  """
+  countryRecord: StringHazProConsigneeAddressRecord!
+
+  """
+  Lifecycle events tracking creation and archival
+  """
+  lifeCycleEvents: [LifeCycleConsigneeAddressEvent!]!
+}
+
+"""
+RecordEvent for String fields in ConsigneeAddress entity
+"""
+type StringHazProConsigneeAddressRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The String value that was recorded
+  """
+  value: String!
+}
+
+"""
+Record for String fields in ConsigneeAddress entity
+Tracks: name, street, city, state, zip, country
+"""
+type StringHazProConsigneeAddressRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the ConsigneeAddress entity
+  """
+  consigneeAddress: ConsigneeAddress!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [StringHazProConsigneeAddressRecordEvent!]!
+
+  """
+  Current String value
+  """
+  currentValue: String
+}
+
+"""
+Preparer information
+"""
+type Preparer @tag(name: "sync") {
+  uuid: ID!
+  """
+  Preparer name
+  """
+  nameRecord: StringHazProPreparerRecord!
+
+  """
+  Preparer title
+  """
+  titleRecord: StringHazProPreparerRecord!
+
+  """
+  Contact phone number
+  """
+  phoneRecord: StringHazProPreparerRecord!
+
+  """
+  Contact email address
+  """
+  emailRecord: StringHazProPreparerRecord!
+
+  """
+  Lifecycle events tracking creation and archival
+  """
+  lifeCycleEvents: [LifeCyclePreparerEvent!]!
+}
+
+"""
+RecordEvent for String fields in Preparer entity
+"""
+type StringHazProPreparerRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The String value that was recorded
+  """
+  value: String!
+}
+
+"""
+Record for String fields in Preparer entity
+Tracks: name, title, phone, email
+"""
+type StringHazProPreparerRecord implements HazProRecord @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the Preparer entity
+  """
+  preparer: Preparer!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [StringHazProPreparerRecordEvent!]!
+
+  """
+  Current String value
+  """
+  currentValue: String
+}
+
+"""
+Shipment routing information
+"""
+type Shipment @tag(name: "sync") {
+  uuid: ID!
+  """
+  Port of embarkation option
+  """
+  poeOptionRecord: StringHazProShipmentRecord!
+
+  """
+  Port of debarkation option
+  """
+  podOptionRecord: StringHazProShipmentRecord!
+
+  """
+  Whether this is a Chapter 3 shipment
+  """
+  isChapter3Record: StringHazProShipmentRecord
+
+  """
+  Transportation Control Number
+  """
+  tcnRecord: StringHazProShipmentRecord!
+
+  """
+  Port of embarkation
+  """
+  poeRecord: StringHazProShipmentRecord!
+
+  """
+  Port of debarkation
+  """
+  podRecord: StringHazProShipmentRecord!
+
+  """
+  Type of shipment
+  """
+  shipmentTypeRecord: StringHazProShipmentRecord
+
+  """
+  Assigned inspector name
+  """
+  inspector: Inspector!
+
+  """
+  Selected outer packaging type
+  """
+  selectedOuterPackagingRecord: StringHazProShipmentRecord
+
+  """
+  Total net explosive weight for Class 1 materials
+  """
+  totalNetExplosiveWeightRecord: FloatHazProShipmentRecord
+
+  """
+  Lifecycle events tracking creation and archival
+  """
+  lifeCycleEvents: [LifeCycleShipmentEvent!]!
+}
+
+"""
+RecordEvent for String fields in Shipment entity
+"""
+type StringHazProShipmentRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The String value that was recorded
+  """
+  value: String!
+}
+
+"""
+Record for String fields in Shipment entity
+Tracks: poeOption, podOption, isChapter3, tcn, poe, pod, shipmentType, inspector, selectedOuterPackaging
+"""
+type StringHazProShipmentRecord implements HazProRecord @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the Shipment entity
+  """
+  shipment: Shipment!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [StringHazProShipmentRecordEvent!]!
+
+  """
+  Current String value
+  """
+  currentValue: String
+}
+
+"""
+RecordEvent for Float fields in Shipment entity
+"""
+type FloatHazProShipmentRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The Float value that was recorded
+  """
+  value: Float!
+}
+
+"""
+Record for Float fields in Shipment entity
+Tracks: totalNetExplosiveWeight
+"""
+type FloatHazProShipmentRecord implements HazProRecord @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the Shipment entity
+  """
+  shipment: Shipment!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [FloatHazProShipmentRecordEvent!]!
+
+  """
+  Current Float value
+  """
+  currentValue: Float
+}
+
+"""
+Mass value in multiple units
+"""
+type MassValue @tag(name: "sync") {
+  uuid: ID!
+  """
+  Mass in pounds
+  """
+  lbsRecord: FloatHazProMassValueRecord!
+
+  """
+  Mass in kilograms
+  """
+  kgRecord: FloatHazProMassValueRecord!
+
+  """
+  Lifecycle events tracking creation and archival
+  """
+  lifeCycleEvents: [LifeCycleMassValueEvent!]!
+}
+
+"""
+RecordEvent for Float fields in MassValue entity
+"""
+type FloatHazProMassValueRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The Float value that was recorded
+  """
+  value: Float!
+}
+
+"""
+Record for Float fields in MassValue entity
+Tracks: lbs, kg
+"""
+type FloatHazProMassValueRecord implements HazProRecord @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the MassValue entity
+  """
+  massValue: MassValue!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [FloatHazProMassValueRecordEvent!]!
+
+  """
+  Current Float value
+  """
+  currentValue: Float
+}
+
+"""
+Volume value in multiple units
+"""
+type VolumeValue @tag(name: "sync") {
+  uuid: ID!
+  """
+  Volume in liters
+  """
+  litersRecord: FloatHazProVolumeValueRecord!
+
+  """
+  Volume in gallons
+  """
+  gallonsRecord: FloatHazProVolumeValueRecord!
+
+  """
+  Lifecycle events tracking creation and archival
+  """
+  lifeCycleEvents: [LifeCycleVolumeValueEvent!]!
+}
+
+"""
+RecordEvent for Float fields in VolumeValue entity
+"""
+type FloatHazProVolumeValueRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The Float value that was recorded
+  """
+  value: Float!
+}
+
+"""
+Record for Float fields in VolumeValue entity
+Tracks: liters, gallons
+"""
+type FloatHazProVolumeValueRecord implements HazProRecord @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the VolumeValue entity
+  """
+  volumeValue: VolumeValue!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [FloatHazProVolumeValueRecordEvent!]!
+
+  """
+  Current Float value
+  """
+  currentValue: Float
+}
+
+"""
+Quantity value with unit specification
+"""
+type QuantityValue @tag(name: "sync") {
+  uuid: ID!
+  """
+  Quantity in pounds
+  """
+  lbsRecord: StringHazProQuantityValueRecord!
+
+  """
+  Quantity in kilograms
+  """
+  kgsRecord: StringHazProQuantityValueRecord!
+
+  """
+  Lifecycle events tracking creation and archival
+  """
+  lifeCycleEvents: [LifeCycleQuantityValueEvent!]!
+}
+
+"""
+RecordEvent for String fields in QuantityValue entity
+"""
+type StringHazProQuantityValueRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The String value that was recorded
+  """
+  value: String!
+}
+
+"""
+Record for String fields in QuantityValue entity
+Tracks: lbs, kgs
+"""
+type StringHazProQuantityValueRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the QuantityValue entity
+  """
+  quantityValue: QuantityValue!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [StringHazProQuantityValueRecordEvent!]!
+
+  """
+  Current String value
+  """
+  currentValue: String
+}
+
+"""
+Hazardous material item
+"""
+type HazardousMaterialItem @tag(name: "sync") {
+  uuid: ID!
+  isFixed: String
+  isDomesticShipment: Boolean!
+  isTechnicalNameRequired: Boolean!
+  """
+  UN/NA/ID identification number
+  """
+  unNumber: String!
+
+  """
+  Proper shipping name
+  """
+  properShippingName: String!
+
+  details: String
+
+  """
+  Primary Hazard class or division
+  """
+  hazardClass: String!
+
+  """
+  Subsidiary Risk Hazard class
+  """
+  subsidiaryRisk: String
+
+  """
+  Packing group (I, II, or III)
+  """
+  packingGroup: String
+
+  """
+  Special provisions that apply
+  """
+  specialProvisions: [String!]
+
+  """
+  Packaging paragraph reference
+  """
+  packagingParagraph: String!
+
+  """
+  Lifecycle events tracking creation and archival
+  """
+  lifeCycleEvents: [LifeCycleHazardousMaterialItemEvent!]!
+}
+
+"""
+RecordEvent for String fields in HazardousMaterialItem entity
+"""
+type StringHazProHazardousMaterialItemRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The String value that was recorded
+  """
+  value: String!
+}
+
+"""
+Record for String fields in HazardousMaterialItem entity
+Tracks: unNumber, properShippingName, hazardClass, packingGroup, technicalName, hazardLabel
+"""
+type StringHazProHazardousMaterialItemRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the HazardousMaterialItem entity
+  """
+  hazardousMaterialItem: HazardousMaterialItem!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [StringHazProHazardousMaterialItemRecordEvent!]!
+
+  """
+  Current String value
+  """
+  currentValue: String
+}
+
+"""
+Input for shipper address
+"""
+input ShipperAddressInput {
+  """
+  Shipper name
+  """
+  name: String!
+
+  """
+  Street address
+  """
+  street: String!
+
+  """
+  City
+  """
+  city: String!
+
+  """
+  State or province
+  """
+  state: String!
+
+  """
+  Postal code
+  """
+  zip: String!
+
+  """
+  Country
+  """
+  country: String!
+}
+
+"""
+Input for consignee address
+"""
+input ConsigneeAddressInput {
+  """
+  Consignee name
+  """
+  name: String!
+
+  """
+  Street address
+  """
+  street: String!
+
+  """
+  City
+  """
+  city: String!
+
+  """
+  State or province
+  """
+  state: String!
+
+  """
+  Postal code
+  """
+  zip: String!
+
+  """
+  Country
+  """
+  country: String!
+}
+
+"""
+Input for preparer information
+"""
+input PreparerInput {
+  """
+  Preparer name
+  """
+  name: String!
+
+  """
+  Preparer title
+  """
+  title: String!
+
+  """
+  Contact phone number
+  """
+  phone: String!
+
+  """
+  Contact email address
+  """
+  email: String!
+}
+
+"""
+Input for shipment routing information
+"""
+input ShipmentInput {
+  """
+  Port of embarkation option
+  """
+  poeOption: String!
+
+  """
+  Port of debarkation option
+  """
+  podOption: String!
+
+  """
+  Whether this is a Chapter 3 shipment
+  """
+  isChapter3: String
+
+  """
+  Transportation Control Number
+  """
+  tcn: String!
+
+  """
+  Port of embarkation
+  """
+  poe: String!
+
+  """
+  Port of debarkation
+  """
+  pod: String!
+
+  """
+  Type of shipment
+  """
+  shipmentType: String
+
+  """
+  Assigned inspector name
+  """
+  inspector: String
+
+  """
+  Selected outer packaging type
+  """
+  selectedOuterPackaging: String
+
+  """
+  Total net explosive weight for Class 1 materials
+  """
+  totalNetExplosiveWeight: Float
+}
+
+"""
+Input for mass value
+"""
+input MassValueInput {
+  """
+  Mass in pounds
+  """
+  lbs: Float!
+
+  """
+  Mass in kilograms
+  """
+  kg: Float!
+}
+
+"""
+Input for volume value
+"""
+input VolumeValueInput {
+  """
+  Volume in liters
+  """
+  liters: Float!
+
+  """
+  Volume in gallons
+  """
+  gallons: Float!
+}
+
+"""
+Input for quantity value
+"""
+input QuantityValueInput {
+  """
+  Quantity in pounds
+  """
+  lbs: String!
+
+  """
+  Quantity in kilograms
+  """
+  kgs: String!
+}
+
+"""
+Input for hazardous material item
+"""
+input HazardousMaterialItemInput {
+  isFixed: String
+  isDomesticShipment: Boolean!
+  isTechnicalNameRequired: Boolean!
+
+  """
+  UN/NA/ID identification number
+  """
+  unNumber: String!
+
+  """
+  Proper shipping name
+  """
+  properShippingName: String!
+
+  details: String
+
+  """
+  Hazard class or division
+  """
+  hazardClass: String!
+
+  """
+  Subsidiary Risk Hazard class
+  """
+  subsidiaryRisk: String
+
+  """
+  Packing group (I, II, or III)
+  """
+  packingGroup: String
+
+  """
+  Special provisions that apply
+  """
+  specialProvisions: [String!]
+
+  """
+  Packaging paragraph reference
+  """
+  packagingParagraph: String!
+}
+
+"""
+Performance Oriented Packaging marking data
+"""
+type POPMarking @tag(name: "sync") {
+  uuid: ID!
+  """
+  Packaging type code
+  """
+  typeRecord: StringHazProPOPMarkingRecord
+
+  """
+  UN packaging code - packaging material and type
+  """
+  ARecord: StringHazProPOPMarkingRecord
+
+  """
+  Category of packaging (single/combination/composite)
+  """
+  BRecord: StringHazProPOPMarkingRecord
+
+  """
+  Type of inner receptacle (for combination/composite)
+  """
+  CRecord: StringHazProPOPMarkingRecord
+
+  """
+  Material of inner receptacle (for combination/composite)
+  """
+  DRecord: StringHazProPOPMarkingRecord
+
+  """
+  Packing group for which design type has been successfully tested
+  """
+  ERecord: StringHazProPOPMarkingRecord
+
+  """
+  Test pressure or gross mass
+  """
+  FRecord: StringHazProPOPMarkingRecord
+
+  """
+  Year of manufacture (2 digits)
+  """
+  GRecord: StringHazProPOPMarkingRecord
+
+  """
+  Country of manufacture and manufacturer identification
+  """
+  HRecord: StringHazProPOPMarkingRecord
+
+  """
+  Lifecycle events tracking creation and archival
+  """
+  lifeCycleEvents: [LifeCyclePOPMarkingEvent!]!
+}
+
+"""
+RecordEvent for String fields in POPMarking entity
+"""
+type StringHazProPOPMarkingRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The String value that was recorded
+  """
+  value: String!
+}
+
+"""
+Record for String fields in POPMarking entity
+Tracks: type, A, B, C, D, E, F, G, H
+"""
+type StringHazProPOPMarkingRecord implements HazProRecord @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the POPMarking entity
+  """
+  popMarking: POPMarking!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [StringHazProPOPMarkingRecordEvent!]!
+
+  """
+  Current String value
+  """
+  currentValue: String
+}
+
+"""
+Cylinder details for compressed gas shipments
+"""
+type CylinderDetails @tag(name: "sync") {
+  uuid: ID!
+  """
+  Number of cylinders in shipment
+  """
+  numberOfCylindersRecord: StringHazProCylinderDetailsRecord!
+
+  """
+  Quantity per individual cylinder
+  """
+  quantityPerCylinder: QuantityValue!
+
+  """
+  Additional details for cryogenic liquids
+  """
+  cryogenicLiquidDetails: CryogenicLiquidDetails
+
+  """
+  Unit of measurement
+  """
+  unitRecord: QuantityUnitHazProCylinderDetailsRecord!
+
+  """
+  Lifecycle events tracking creation and archival
+  """
+  lifeCycleEvents: [LifeCycleCylinderDetailsEvent!]!
+}
+
+"""
+RecordEvent for String fields in CylinderDetails entity
+"""
+type StringHazProCylinderDetailsRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The String value that was recorded
+  """
+  value: String!
+}
+
+"""
+Record for String fields in CylinderDetails entity
+Tracks: numberOfCylinders
+"""
+type StringHazProCylinderDetailsRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the CylinderDetails entity
+  """
+  cylinderDetails: CylinderDetails!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [StringHazProCylinderDetailsRecordEvent!]!
+
+  """
+  Current String value
+  """
+  currentValue: String
+}
+
+"""
+RecordEvent for QuantityUnit fields in CylinderDetails entity
+"""
+type QuantityUnitHazProCylinderDetailsRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The QuantityUnit value that was recorded
+  """
+  value: QuantityUnit!
+}
+
+"""
+Record for QuantityUnit fields in CylinderDetails entity
+Tracks: unit
+"""
+type QuantityUnitHazProCylinderDetailsRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the CylinderDetails entity
+  """
+  cylinderDetails: CylinderDetails!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [QuantityUnitHazProCylinderDetailsRecordEvent!]!
+
+  """
+  Current QuantityUnit value
+  """
+  currentValue: QuantityUnit
+}
+
+"""
+Cryogenic liquid specific details
+"""
+type CryogenicLiquidDetails @tag(name: "sync") {
+  uuid: ID!
+  """
+  Vent rate in standard cubic feet per hour
+  """
+  ventRateInSCFHRecord: StringHazProCryogenicLiquidDetailsRecord!
+
+  """
+  Lifecycle events tracking creation and archival
+  """
+  lifeCycleEvents: [LifeCycleCryogenicLiquidDetailsEvent!]!
+}
+
+"""
+RecordEvent for String fields in CryogenicLiquidDetails entity
+"""
+type StringHazProCryogenicLiquidDetailsRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The String value that was recorded
+  """
+  value: String!
+}
+
+"""
+Record for String fields in CryogenicLiquidDetails entity
+Tracks: ventRateInSCFH
+"""
+type StringHazProCryogenicLiquidDetailsRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the CryogenicLiquidDetails entity
+  """
+  cryogenicLiquidDetails: CryogenicLiquidDetails!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [StringHazProCryogenicLiquidDetailsRecordEvent!]!
+
+  """
+  Current String value
+  """
+  currentValue: String
+}
+
+"""
+Packaging type information
+"""
+type PackagingTypeInfo @tag(name: "sync") {
+  uuid: ID!
+  """
+  Packaging code
+  """
+  codeRecord: StringHazProPackagingTypeInfoRecord!
+
+  """
+  Packaging type description
+  """
+  packagingTypeRecord: StringHazProPackagingTypeInfoRecord!
+
+  """
+  Lifecycle events tracking creation and archival
+  """
+  lifeCycleEvents: [LifeCyclePackagingTypeInfoEvent!]!
+}
+
+"""
+RecordEvent for String fields in PackagingTypeInfo entity
+"""
+type StringHazProPackagingTypeInfoRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The String value that was recorded
+  """
+  value: String!
+}
+
+"""
+Record for String fields in PackagingTypeInfo entity
+Tracks: code, packagingType
+"""
+type StringHazProPackagingTypeInfoRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the PackagingTypeInfo entity
+  """
+  packagingTypeInfo: PackagingTypeInfo!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [StringHazProPackagingTypeInfoRecordEvent!]!
+
+  """
+  Current String value
+  """
+  currentValue: String
+}
+
+"""
+Combination packaging configuration
+"""
+type CombinationPackaging @tag(name: "sync") {
+  uuid: ID!
+  """
+  Inner packaging type
+  """
+  innerPackaging: PackagingTypeInfo
+
+  """
+  Intermediate packaging type
+  """
+  intermediatePackaging: PackagingTypeInfo
+
+  """
+  Outer packaging type
+  """
+  outerPackaging: PackagingTypeInfo
+
+  """
+  Number of inner containers
+  """
+  numberOfInnerContainersRecord: IntHazProCombinationPackagingRecord
+
+  """
+  Quantity per individual container
+  """
+  quantityPerContainerRecord: StringHazProCombinationPackagingRecord
+
+  """
+  Mass per inner container
+  """
+  massPerInnerContainer: MassValue
+
+  """
+  Volume per inner container
+  """
+  volumePerInnerContainer: VolumeValue
+
+  """
+  Lifecycle events tracking creation and archival
+  """
+  lifeCycleEvents: [LifeCycleCombinationPackagingEvent!]!
+}
+
+"""
+RecordEvent for Int fields in CombinationPackaging entity
+"""
+type IntHazProCombinationPackagingRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The Int value that was recorded
+  """
+  value: Int!
+}
+
+"""
+Record for Int fields in CombinationPackaging entity
+Tracks: numberOfInnerContainers
+"""
+type IntHazProCombinationPackagingRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the CombinationPackaging entity
+  """
+  combinationPackaging: CombinationPackaging!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [IntHazProCombinationPackagingRecordEvent!]!
+
+  """
+  Current Int value
+  """
+  currentValue: Int
+}
+
+"""
+RecordEvent for String fields in CombinationPackaging entity
+"""
+type StringHazProCombinationPackagingRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The String value that was recorded
+  """
+  value: String!
+}
+
+"""
+Record for String fields in CombinationPackaging entity
+Tracks: quantityPerContainer
+"""
+type StringHazProCombinationPackagingRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the CombinationPackaging entity
+  """
+  combinationPackaging: CombinationPackaging!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [StringHazProCombinationPackagingRecordEvent!]!
+
+  """
+  Current String value
+  """
+  currentValue: String
+}
+
+"""
+Complete packaging information
+"""
+type Packaging @tag(name: "sync") {
+  uuid: ID!
+  """
+  Type of packaging being used
+  """
+  packagingTypeRecord: PackagingTypeHazProPackagingRecord!
+
+  """
+  Whether Performance Oriented Packaging marking is used
+  """
+  usesPopMarkingRecord: BooleanHazProPackagingRecord
+
+  """
+  Whether DOT cylinder marking is used
+  """
+  usesDotCylinderMarkingRecord: BooleanHazProPackagingRecord
+
+  """
+  POP marking data for non-cylinder packages
+  """
+  inputPOPMarking: POPMarking
+
+  """
+  POP marking string for cylinders
+  """
+  inputCylinderPOPMarkingRecord: StringHazProPackagingRecord
+
+  """
+  Cylinder-specific details
+  """
+  cylinderDetails: CylinderDetails
+
+  """
+  Single packaging type details
+  """
+  singlePackagingType: PackagingTypeInfo
+
+  """
+  Composite packaging type details
+  """
+  compositePackagingType: PackagingTypeInfo
+
+  """
+  Intermediate packaging type details
+  """
+  intermediatePackagingType: PackagingTypeInfo
+
+  """
+  Combination packaging configuration
+  """
+  combinationPackaging: CombinationPackaging
+
+  """
+  Total net mass of hazardous material
+  """
+  totalNetMass: MassValue
+
+  """
+  Total net volume of hazardous material
+  """
+  totalNetVolume: VolumeValue
+
+  """
+  Whether the POP marking is valid
+  """
+  popIsValidRecord: BooleanHazProPackagingRecord
+
+  """
+  Lifecycle events tracking creation and archival
+  """
+  lifeCycleEvents: [LifeCyclePackagingEvent!]!
+}
+
+"""
+RecordEvent for PackagingType fields in Packaging entity
+"""
+type PackagingTypeHazProPackagingRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The PackagingType value that was recorded
+  """
+  value: PackagingType!
+}
+
+"""
+Record for PackagingType fields in Packaging entity
+Tracks: packagingType
+"""
+type PackagingTypeHazProPackagingRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the Packaging entity
+  """
+  packaging: Packaging!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [PackagingTypeHazProPackagingRecordEvent!]!
+
+  """
+  Current PackagingType value
+  """
+  currentValue: PackagingType
+}
+
+"""
+RecordEvent for Boolean fields in Packaging entity
+"""
+type BooleanHazProPackagingRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The Boolean value that was recorded
+  """
+  value: Boolean!
+}
+
+"""
+Record for Boolean fields in Packaging entity
+Tracks: usesPopMarking, usesDotCylinderMarking, popIsValid
+"""
+type BooleanHazProPackagingRecord implements HazProRecord @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the Packaging entity
+  """
+  packaging: Packaging!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [BooleanHazProPackagingRecordEvent!]!
+
+  """
+  Current Boolean value
+  """
+  currentValue: Boolean
+}
+
+"""
+RecordEvent for String fields in Packaging entity
+"""
+type StringHazProPackagingRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The String value that was recorded
+  """
+  value: String!
+}
+
+"""
+Record for String fields in Packaging entity
+Tracks: inputCylinderPOPMarking
+"""
+type StringHazProPackagingRecord implements HazProRecord @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the Packaging entity
+  """
+  packaging: Packaging!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [StringHazProPackagingRecordEvent!]!
+
+  """
+  Current String value
+  """
+  currentValue: String
+}
+
+"""
+Input for POP marking data
+"""
+input POPMarkingInput {
+  """
+  Packaging type code
+  """
+  type: String
+
+  """
+  UN packaging code - packaging material and type
+  """
+  A: String
+
+  """
+  Category of packaging (single/combination/composite)
+  """
+  B: String
+
+  """
+  Type of inner receptacle (for combination/composite)
+  """
+  C: String
+
+  """
+  Material of inner receptacle (for combination/composite)
+  """
+  D: String
+
+  """
+  Packing group for which design type has been successfully tested
+  """
+  E: String
+
+  """
+  Test pressure or gross mass
+  """
+  F: String
+
+  """
+  Year of manufacture (2 digits)
+  """
+  G: String
+
+  """
+  Country of manufacture and manufacturer identification
+  """
+  H: String
+
+  """
+  Whether an overpack is being used
+  """
+  overpackBeingUsed: Boolean!
+}
+
+"""
+Input for cryogenic liquid details
+"""
+input CryogenicLiquidDetailsInput {
+  """
+  Vent rate in standard cubic feet per hour
+  """
+  ventRateInSCFH: String!
+}
+
+"""
+Input for cylinder details
+"""
+input CylinderDetailsInput {
+  """
+  Number of cylinders in shipment
+  """
+  numberOfCylinders: String!
+
+  """
+  Quantity per individual cylinder
+  """
+  quantityPerCylinder: QuantityValueInput!
+
+  """
+  Additional details for cryogenic liquids
+  """
+  cryogenicLiquidDetails: CryogenicLiquidDetailsInput
+
+  """
+  Unit of measurement
+  """
+  unit: QuantityUnit!
+}
+
+"""
+Input for packaging type information
+"""
+input PackagingTypeInfoInput {
+  """
+  Packaging code
+  """
+  code: String!
+
+  """
+  Packaging type description
+  """
+  packagingType: String!
+}
+
+"""
+Input for combination packaging
+"""
+input CombinationPackagingInput {
+  """
+  Inner packaging type
+  """
+  innerPackaging: PackagingTypeInfoInput
+
+  """
+  Intermediate packaging type
+  """
+  intermediatePackaging: PackagingTypeInfoInput
+
+  """
+  Outer packaging type
+  """
+  outerPackaging: PackagingTypeInfoInput
+
+  """
+  Number of inner containers
+  """
+  numberOfInnerContainers: Int
+
+  """
+  Quantity per individual container
+  """
+  quantityPerContainer: String
+
+  """
+  Mass per inner container
+  """
+  massPerInnerContainer: MassValueInput
+
+  """
+  Volume per inner container
+  """
+  volumePerInnerContainer: VolumeValueInput
+}
+
+"""
+Input for complete packaging information
+"""
+input PackagingInput {
+  """
+  Type of packaging being used
+  """
+  packagingType: PackagingType!
+
+  """
+  Whether Performance Oriented Packaging marking is used
+  """
+  usesPopMarking: Boolean
+
+  """
+  Whether DOT cylinder marking is used
+  """
+  usesDotCylinderMarking: Boolean
+
+  """
+  POP marking data for non-cylinder packages
+  """
+  inputPOPMarking: POPMarkingInput
+
+  """
+  POP marking string for cylinders
+  """
+  inputCylinderPOPMarking: String
+
+  """
+  Cylinder-specific details
+  """
+  cylinderDetails: CylinderDetailsInput
+
+  """
+  Single packaging type details
+  """
+  singlePackagingType: PackagingTypeInfoInput
+
+  """
+  Composite packaging type details
+  """
+  compositePackagingType: PackagingTypeInfoInput
+
+  """
+  Intermediate packaging type details
+  """
+  intermediatePackagingType: PackagingTypeInfoInput
+
+  """
+  Combination packaging configuration
+  """
+  combinationPackaging: CombinationPackagingInput
+
+  """
+  Total net mass of hazardous material
+  """
+  totalNetMass: MassValueInput
+
+  """
+  Total net volume of hazardous material
+  """
+  totalNetVolume: VolumeValueInput
+
+  """
+  Whether the POP marking is valid
+  """
+  popIsValid: Boolean
+}
+
+"""
+Lithium battery data
+"""
+type LithiumBatteryData @tag(name: "sync") {
+  uuid: ID!
+  """
+  Type of lithium battery
+  """
+  batteryTypeRecord: StringHazProLithiumBatteryDataRecord!
+
+  """
+  Battery capacity in watt-hours
+  """
+  wattHoursRecord: FloatHazProLithiumBatteryDataRecord
+
+  """
+  Lithium content in grams
+  """
+  lithiumContentRecord: FloatHazProLithiumBatteryDataRecord
+
+  """
+  Number of cells in the battery
+  """
+  numberOfCellsRecord: IntHazProLithiumBatteryDataRecord
+
+  """
+  Packing instruction number
+  """
+  packingInstructionRecord: StringHazProLithiumBatteryDataRecord!
+
+  """
+  Total number of batteries
+  """
+  numberOfBatteriesRecord: IntHazProLithiumBatteryDataRecord
+
+  """
+  Mass per individual battery
+  """
+  massPerBatteryRecord: FloatHazProLithiumBatteryDataRecord
+
+  """
+  Whether battery is contained in equipment
+  """
+  isInEquipmentRecord: BooleanHazProLithiumBatteryDataRecord
+
+  """
+  Whether battery is packed with equipment
+  """
+  isPackedWithEquipmentRecord: BooleanHazProLithiumBatteryDataRecord
+
+  """
+  Lifecycle events tracking creation and archival
+  """
+  lifeCycleEvents: [LifeCycleLithiumBatteryDataEvent!]!
+}
+
+"""
+RecordEvent for String fields in LithiumBatteryData entity
+"""
+type StringHazProLithiumBatteryDataRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The String value that was recorded
+  """
+  value: String!
+}
+
+"""
+Record for String fields in LithiumBatteryData entity
+Tracks: batteryType, packingInstruction
+"""
+type StringHazProLithiumBatteryDataRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the LithiumBatteryData entity
+  """
+  lithiumBatteryData: LithiumBatteryData!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [StringHazProLithiumBatteryDataRecordEvent!]!
+
+  """
+  Current String value
+  """
+  currentValue: String
+}
+
+"""
+RecordEvent for Float fields in LithiumBatteryData entity
+"""
+type FloatHazProLithiumBatteryDataRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The Float value that was recorded
+  """
+  value: Float!
+}
+
+"""
+Record for Float fields in LithiumBatteryData entity
+Tracks: wattHours, lithiumContent, massPerBattery
+"""
+type FloatHazProLithiumBatteryDataRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the LithiumBatteryData entity
+  """
+  lithiumBatteryData: LithiumBatteryData!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [FloatHazProLithiumBatteryDataRecordEvent!]!
+
+  """
+  Current Float value
+  """
+  currentValue: Float
+}
+
+"""
+RecordEvent for Int fields in LithiumBatteryData entity
+"""
+type IntHazProLithiumBatteryDataRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The Int value that was recorded
+  """
+  value: Int!
+}
+
+"""
+Record for Int fields in LithiumBatteryData entity
+Tracks: numberOfCells, numberOfBatteries
+"""
+type IntHazProLithiumBatteryDataRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the LithiumBatteryData entity
+  """
+  lithiumBatteryData: LithiumBatteryData!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [IntHazProLithiumBatteryDataRecordEvent!]!
+
+  """
+  Current Int value
+  """
+  currentValue: Int
+}
+
+"""
+RecordEvent for Boolean fields in LithiumBatteryData entity
+"""
+type BooleanHazProLithiumBatteryDataRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The Boolean value that was recorded
+  """
+  value: Boolean!
+}
+
+"""
+Record for Boolean fields in LithiumBatteryData entity
+Tracks: isInEquipment, isPackedWithEquipment
+"""
+type BooleanHazProLithiumBatteryDataRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the LithiumBatteryData entity
+  """
+  lithiumBatteryData: LithiumBatteryData!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [BooleanHazProLithiumBatteryDataRecordEvent!]!
+
+  """
+  Current Boolean value
+  """
+  currentValue: Boolean
+}
+
+"""
+Magnetized material data (Preparer version)
+"""
+type MagnetizedMaterialData @tag(name: "sync") {
+  uuid: ID!
+  """
+  Magnetic field strength measurement
+  """
+  magneticFieldStrength: FloatHazProMagnetizedMaterialDataRecord!
+
+  """
+  Compass deflection measurement
+  """
+  compassDeflection: FloatHazProMagnetizedMaterialDataRecord!
+
+  """
+  Method used for packaging
+  """
+  packagingMethod: StringHazProMagnetizedMaterialDataRecord!
+
+  """
+  Description of magnetic shielding used
+  """
+  shieldingDescription: StringHazProMagnetizedMaterialDataRecord
+
+  """
+  Special handling instructions
+  """
+  handlingInstructions: StringHazProMagnetizedMaterialDataRecord
+
+  """
+  Lifecycle events tracking creation and archival
+  """
+  lifeCycleEvents: [LifeCycleMagnetizedMaterialDataEvent!]!
+}
+
+"""
+RecordEvent for Float fields in MagnetizedMaterialData entity
+"""
+type FloatHazProMagnetizedMaterialDataRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The Float value that was recorded
+  """
+  value: Float
+}
+
+"""
+Record type for Float fields in MagnetizedMaterialData entity
+Tracks: magneticFieldStrength, compassDeflection
+"""
+type FloatHazProMagnetizedMaterialDataRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the MagnetizedMaterialData entity
+  """
+  magnetizedMaterialData: MagnetizedMaterialData!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [FloatHazProMagnetizedMaterialDataRecordEvent!]!
+
+  """
+  Current Float value
+  """
+  currentValue: Float
+}
+
+"""
+RecordEvent for String fields in MagnetizedMaterialData entity
+"""
+type StringHazProMagnetizedMaterialDataRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The String value that was recorded
+  """
+  value: String
+}
+
+"""
+Record type for String fields in MagnetizedMaterialData entity
+Tracks: packagingMethod, shieldingDescription, handlingInstructions
+"""
+type StringHazProMagnetizedMaterialDataRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the MagnetizedMaterialData entity
+  """
+  magnetizedMaterialData: MagnetizedMaterialData!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [StringHazProMagnetizedMaterialDataRecordEvent!]!
+
+  """
+  Current String value
+  """
+  currentValue: String
+}
+
+"""
+Dry ice data
+"""
+type DryIceData @tag(name: "sync") {
+  uuid: ID!
+  """
+  Type of packaging used
+  """
+  packagingType: StringHazProDryIceDataRecord!
+
+  """
+  Quantity of dry ice
+  """
+  quantity: StringHazProDryIceDataRecord!
+
+  """
+  Type of aircraft for transport
+  """
+  aircraftType: StringHazProDryIceDataRecord!
+
+  """
+  Whether the aircraft is pressurized
+  """
+  isAircraftPressurized: BooleanHazProDryIceDataRecord!
+
+  """
+  Whether venting is provided
+  """
+  isVentingProvided: BooleanHazProDryIceDataRecord!
+
+  """
+  Special instructions for handling
+  """
+  specialInstructions: StringHazProDryIceDataRecord!
+
+  """
+  Handling instructions
+  """
+  handlingInstructions: StringHazProDryIceDataRecord!
+
+  """
+  Lifecycle events tracking creation and archival
+  """
+  lifeCycleEvents: [LifeCycleDryIceDataEvent!]!
+}
+
+"""
+RecordEvent for String fields in DryIceData entity
+"""
+type StringHazProDryIceDataRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The String value that was recorded
+  """
+  value: String
+}
+
+"""
+Record type for String fields in DryIceData entity
+Tracks: packagingType, quantity, aircraftType, specialInstructions, handlingInstructions
+"""
+type StringHazProDryIceDataRecord implements HazProRecord @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the DryIceData entity
+  """
+  dryIceData: DryIceData!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [StringHazProDryIceDataRecordEvent!]!
+
+  """
+  Current String value
+  """
+  currentValue: String
+}
+
+"""
+RecordEvent for Boolean fields in DryIceData entity
+"""
+type BooleanHazProDryIceDataRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The Boolean value that was recorded
+  """
+  value: Boolean
+}
+
+"""
+Record type for Boolean fields in DryIceData entity
+Tracks: isAircraftPressurized, isVentingProvided
+"""
+type BooleanHazProDryIceDataRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the DryIceData entity
+  """
+  dryIceData: DryIceData!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [BooleanHazProDryIceDataRecordEvent!]!
+
+  """
+  Current Boolean value
+  """
+  currentValue: Boolean
+}
+
+"""
+Battery-powered vehicle details
+"""
+type BatteryVehicleData @tag(name: "sync") {
+  uuid: ID!
+  """
+  Type of vehicle
+  """
+  vehicleType: StringHazProBatteryVehicleDataRecord!
+
+  """
+  Type of battery
+  """
+  batteryType: StringHazProBatteryVehicleDataRecord!
+
+  """
+  Battery capacity in watt-hours
+  """
+  wattHours: FloatHazProBatteryVehicleDataRecord!
+
+  """
+  Number of batteries in vehicle
+  """
+  numberOfBatteries: IntHazProBatteryVehicleDataRecord!
+
+  """
+  Location of battery in vehicle
+  """
+  batteryLocation: StringHazProBatteryVehicleDataRecord!
+
+  """
+  Whether the battery has been drained
+  """
+  isDrained: BooleanHazProBatteryVehicleDataRecord!
+
+  """
+  Protection measures applied
+  """
+  protectionMeasures: StringHazProBatteryVehicleDataRecord
+
+  """
+  Lifecycle events tracking creation and archival
+  """
+  lifeCycleEvents: [LifeCycleBatteryVehicleDataEvent!]!
+}
+
+"""
+RecordEvent for String fields in BatteryVehicleData entity
+"""
+type StringHazProBatteryVehicleDataRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The String value that was recorded
+  """
+  value: String
+}
+
+"""
+Record type for String fields in BatteryVehicleData entity
+Tracks: vehicleType, batteryType, batteryLocation, protectionMeasures
+"""
+type StringHazProBatteryVehicleDataRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the BatteryVehicleData entity
+  """
+  batteryVehicleData: BatteryVehicleData!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [StringHazProBatteryVehicleDataRecordEvent!]!
+
+  """
+  Current String value
+  """
+  currentValue: String
+}
+
+"""
+RecordEvent for Float fields in BatteryVehicleData entity
+"""
+type FloatHazProBatteryVehicleDataRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The Float value that was recorded
+  """
+  value: Float
+}
+
+"""
+Record type for Float fields in BatteryVehicleData entity
+Tracks: wattHours
+"""
+type FloatHazProBatteryVehicleDataRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the BatteryVehicleData entity
+  """
+  batteryVehicleData: BatteryVehicleData!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [FloatHazProBatteryVehicleDataRecordEvent!]!
+
+  """
+  Current Float value
+  """
+  currentValue: Float
+}
+
+"""
+RecordEvent for Int fields in BatteryVehicleData entity
+"""
+type IntHazProBatteryVehicleDataRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The Int value that was recorded
+  """
+  value: Int
+}
+
+"""
+Record type for Int fields in BatteryVehicleData entity
+Tracks: numberOfBatteries
+"""
+type IntHazProBatteryVehicleDataRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the BatteryVehicleData entity
+  """
+  batteryVehicleData: BatteryVehicleData!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [IntHazProBatteryVehicleDataRecordEvent!]!
+
+  """
+  Current Int value
+  """
+  currentValue: Int
+}
+
+"""
+RecordEvent for Boolean fields in BatteryVehicleData entity
+"""
+type BooleanHazProBatteryVehicleDataRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The Boolean value that was recorded
+  """
+  value: Boolean
+}
+
+"""
+Record type for Boolean fields in BatteryVehicleData entity
+Tracks: isDrained
+"""
+type BooleanHazProBatteryVehicleDataRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the BatteryVehicleData entity
+  """
+  batteryVehicleData: BatteryVehicleData!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [BooleanHazProBatteryVehicleDataRecordEvent!]!
+
+  """
+  Current Boolean value
+  """
+  currentValue: Boolean
+}
+
+"""
+Capacitor data
+"""
+type CapacitorData @tag(name: "sync") {
+  uuid: ID!
+  """
+  Capacitance value
+  """
+  capacitance: FloatHazProCapacitorDataRecord!
+
+  """
+  Voltage rating
+  """
+  voltage: FloatHazProCapacitorDataRecord!
+
+  """
+  Energy storage capacity
+  """
+  energyStorage: FloatHazProCapacitorDataRecord!
+
+  """
+  Number of capacitors
+  """
+  numberOfCapacitors: IntHazProCapacitorDataRecord!
+
+  """
+  Whether capacitor has been discharged
+  """
+  discharged: BooleanHazProCapacitorDataRecord!
+
+  """
+  Protection measures applied
+  """
+  protectionMeasures: StringHazProCapacitorDataRecord
+
+  """
+  Lifecycle events tracking creation and archival
+  """
+  lifeCycleEvents: [LifeCycleCapacitorDataEvent!]!
+}
+
+"""
+RecordEvent for Float fields in CapacitorData entity
+"""
+type FloatHazProCapacitorDataRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The Float value that was recorded
+  """
+  value: Float
+}
+
+"""
+Record type for Float fields in CapacitorData entity
+Tracks: capacitance, voltage, energyStorage
+"""
+type FloatHazProCapacitorDataRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the CapacitorData entity
+  """
+  capacitorData: CapacitorData!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [FloatHazProCapacitorDataRecordEvent!]!
+
+  """
+  Current Float value
+  """
+  currentValue: Float
+}
+
+"""
+RecordEvent for Int fields in CapacitorData entity
+"""
+type IntHazProCapacitorDataRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The Int value that was recorded
+  """
+  value: Int
+}
+
+"""
+Record type for Int fields in CapacitorData entity
+Tracks: numberOfCapacitors
+"""
+type IntHazProCapacitorDataRecord implements HazProRecord @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the CapacitorData entity
+  """
+  capacitorData: CapacitorData!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [IntHazProCapacitorDataRecordEvent!]!
+
+  """
+  Current Int value
+  """
+  currentValue: Int
+}
+
+"""
+RecordEvent for Boolean fields in CapacitorData entity
+"""
+type BooleanHazProCapacitorDataRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The Boolean value that was recorded
+  """
+  value: Boolean
+}
+
+"""
+Record type for Boolean fields in CapacitorData entity
+Tracks: discharged
+"""
+type BooleanHazProCapacitorDataRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the CapacitorData entity
+  """
+  capacitorData: CapacitorData!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [BooleanHazProCapacitorDataRecordEvent!]!
+
+  """
+  Current Boolean value
+  """
+  currentValue: Boolean
+}
+
+"""
+RecordEvent for String fields in CapacitorData entity
+"""
+type StringHazProCapacitorDataRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The String value that was recorded
+  """
+  value: String
+}
+
+"""
+Record type for String fields in CapacitorData entity
+Tracks: protectionMeasures
+"""
+type StringHazProCapacitorDataRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the CapacitorData entity
+  """
+  capacitorData: CapacitorData!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [StringHazProCapacitorDataRecordEvent!]!
+
+  """
+  Current String value
+  """
+  currentValue: String
+}
+
+"""
+Input for creating/updating lithium battery data
+"""
+input LithiumBatteryDataInput {
+  """
+  Type of lithium battery
+  """
+  batteryType: String!
+
+  """
+  Battery capacity in watt-hours
+  """
+  wattHours: Float
+
+  """
+  Lithium content in grams
+  """
+  lithiumContent: Float
+
+  """
+  Number of cells in the battery
+  """
+  numberOfCells: Int
+
+  """
+  Packing instruction number
+  """
+  packingInstruction: String!
+
+  """
+  Total number of batteries
+  """
+  numberOfBatteries: Int
+
+  """
+  Mass per individual battery
+  """
+  massPerBattery: Float
+
+  """
+  Whether battery is contained in equipment
+  """
+  isInEquipment: Boolean
+
+  """
+  Whether battery is packed with equipment
+  """
+  isPackedWithEquipment: Boolean
+}
+
+"""
+Input for creating/updating magnetized material data
+"""
+input MagnetizedMaterialDataInput {
+  """
+  Magnetic field strength measurement
+  """
+  magneticFieldStrength: Float!
+
+  """
+  Compass deflection measurement
+  """
+  compassDeflection: Float!
+
+  """
+  Method used for packaging
+  """
+  packagingMethod: String!
+
+  """
+  Description of magnetic shielding used
+  """
+  shieldingDescription: String
+
+  """
+  Special handling instructions
+  """
+  handlingInstructions: String
+}
+
+"""
+Input for creating/updating dry ice data
+"""
+input DryIceDataInput {
+  """
+  Type of packaging used
+  """
+  packagingType: String!
+
+  """
+  Quantity of dry ice
+  """
+  quantity: String!
+
+  """
+  Type of aircraft for transport
+  """
+  aircraftType: String!
+
+  """
+  Whether the aircraft is pressurized
+  """
+  isAircraftPressurized: Boolean!
+
+  """
+  Whether venting is provided
+  """
+  isVentingProvided: Boolean!
+
+  """
+  Special instructions for handling
+  """
+  specialInstructions: String!
+
+  """
+  Handling instructions
+  """
+  handlingInstructions: String!
+}
+
+"""
+Input for creating/updating battery vehicle data
+"""
+input BatteryVehicleDataInput {
+  """
+  Type of vehicle
+  """
+  vehicleType: String!
+
+  """
+  Type of battery
+  """
+  batteryType: String!
+
+  """
+  Battery capacity in watt-hours
+  """
+  wattHours: Float!
+
+  """
+  Number of batteries in vehicle
+  """
+  numberOfBatteries: Int!
+
+  """
+  Location of battery in vehicle
+  """
+  batteryLocation: String!
+
+  """
+  Whether the battery has been drained
+  """
+  isDrained: Boolean!
+
+  """
+  Protection measures applied
+  """
+  protectionMeasures: String
+}
+
+"""
+Input for creating/updating capacitor data
+"""
+input CapacitorDataInput {
+  capacitance: Float!
+  voltage: Float!
+  energyStorage: Float!
+  numberOfCapacitors: Int!
+  discharged: Boolean!
+  protectionMeasures: String
+}
+
+"""
+Life-saving appliance data
+"""
+type LifeSavingApplianceData @tag(name: "sync") {
+  uuid: ID!
+  """
+  Type of life-saving device
+  """
+  deviceTypeRecord: StringHazProLifeSavingApplianceDataRecord!
+
+  """
+  Type of gas used in the device
+  """
+  gasTypeRecord: StringHazProLifeSavingApplianceDataRecord!
+
+  """
+  Size of the gas cylinder
+  """
+  cylinderSizeRecord: StringHazProLifeSavingApplianceDataRecord!
+
+  """
+  Number of devices being shipped
+  """
+  numberOfDevicesRecord: IntHazProLifeSavingApplianceDataRecord!
+
+  """
+  Gas charge amount
+  """
+  gasChargeRecord: StringHazProLifeSavingApplianceDataRecord
+
+  """
+  Method of activation
+  """
+  activationMethodRecord: StringHazProLifeSavingApplianceDataRecord
+
+  """
+  Lifecycle events tracking creation and archival
+  """
+  lifeCycleEvents: [LifeCycleLifeSavingApplianceDataEvent!]!
+}
+
+"""
+RecordEvent for String fields in LifeSavingApplianceData entity
+"""
+type StringHazProLifeSavingApplianceDataRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The String value that was recorded
+  """
+  value: String!
+}
+
+"""
+Record for String fields in LifeSavingApplianceData entity
+Tracks: deviceType, gasType, cylinderSize, gasCharge, activationMethod
+"""
+type StringHazProLifeSavingApplianceDataRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the LifeSavingApplianceData entity
+  """
+  lifeSavingApplianceData: LifeSavingApplianceData!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [StringHazProLifeSavingApplianceDataRecordEvent!]!
+
+  """
+  Current String value
+  """
+  currentValue: String
+}
+
+"""
+RecordEvent for Int fields in LifeSavingApplianceData entity
+"""
+type IntHazProLifeSavingApplianceDataRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The Int value that was recorded
+  """
+  value: Int!
+}
+
+"""
+Record for Int fields in LifeSavingApplianceData entity
+Tracks: numberOfDevices
+"""
+type IntHazProLifeSavingApplianceDataRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the LifeSavingApplianceData entity
+  """
+  lifeSavingApplianceData: LifeSavingApplianceData!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [IntHazProLifeSavingApplianceDataRecordEvent!]!
+
+  """
+  Current Int value
+  """
+  currentValue: Int
+}
+
+"""
+Genetically modified organism shipment data
+"""
+type GMOShipmentData @tag(name: "sync") {
+  uuid: ID!
+  """
+  Type of organism
+  """
+  organismTypeRecord: StringHazProGMOShipmentDataRecord!
+
+  """
+  Genotype information
+  """
+  genotypeRecord: StringHazProGMOShipmentDataRecord!
+
+  """
+  Containment level required
+  """
+  containmentLevelRecord: StringHazProGMOShipmentDataRecord!
+
+  """
+  Packaging specification
+  """
+  packagingSpecificationRecord: StringHazProGMOShipmentDataRecord!
+
+  """
+  Handling requirements
+  """
+  handlingRequirementsRecord: StringHazProGMOShipmentDataRecord
+
+  """
+  Emergency procedures
+  """
+  emergencyProceduresRecord: StringHazProGMOShipmentDataRecord
+
+  """
+  Lifecycle events tracking creation and archival
+  """
+  lifeCycleEvents: [LifeCycleGMOShipmentDataEvent!]!
+}
+
+"""
+RecordEvent for String fields in GMOShipmentData entity
+"""
+type StringHazProGMOShipmentDataRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The String value that was recorded
+  """
+  value: String!
+}
+
+"""
+Record for String fields in GMOShipmentData entity
+Tracks: organismType, genotype, containmentLevel, packagingSpecification, handlingRequirements, emergencyProcedures
+"""
+type StringHazProGMOShipmentDataRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the GMOShipmentData entity
+  """
+  gmoShipmentData: GMOShipmentData!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [StringHazProGMOShipmentDataRecordEvent!]!
+
+  """
+  Current String value
+  """
+  currentValue: String
+}
+
+"""
+Safety device data
+"""
+type SafetyDeviceData @tag(name: "sync") {
+  uuid: ID!
+  """
+  Type of safety device
+  """
+  deviceTypeRecord: StringHazProSafetyDeviceDataRecord!
+
+  """
+  Method of activation
+  """
+  activationMethodRecord: StringHazProSafetyDeviceDataRecord!
+
+  """
+  Number of devices
+  """
+  numberOfDevicesRecord: IntHazProSafetyDeviceDataRecord!
+
+  """
+  Type of gas if applicable
+  """
+  gasTypeRecord: StringHazProSafetyDeviceDataRecord
+
+  """
+  Whether device contains pyrotechnic components
+  """
+  pyrotechnicComponentsRecord: BooleanHazProSafetyDeviceDataRecord
+
+  """
+  Lifecycle events tracking creation and archival
+  """
+  lifeCycleEvents: [LifeCycleSafetyDeviceDataEvent!]!
+}
+
+"""
+RecordEvent for String fields in SafetyDeviceData entity
+"""
+type StringHazProSafetyDeviceDataRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The String value that was recorded
+  """
+  value: String!
+}
+
+"""
+Record for String fields in SafetyDeviceData entity
+Tracks: deviceType, activationMethod, gasType
+"""
+type StringHazProSafetyDeviceDataRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the SafetyDeviceData entity
+  """
+  safetyDeviceData: SafetyDeviceData!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [StringHazProSafetyDeviceDataRecordEvent!]!
+
+  """
+  Current String value
+  """
+  currentValue: String
+}
+
+"""
+RecordEvent for Int fields in SafetyDeviceData entity
+"""
+type IntHazProSafetyDeviceDataRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The Int value that was recorded
+  """
+  value: Int!
+}
+
+"""
+Record for Int fields in SafetyDeviceData entity
+Tracks: numberOfDevices
+"""
+type IntHazProSafetyDeviceDataRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the SafetyDeviceData entity
+  """
+  safetyDeviceData: SafetyDeviceData!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [IntHazProSafetyDeviceDataRecordEvent!]!
+
+  """
+  Current Int value
+  """
+  currentValue: Int
+}
+
+"""
+RecordEvent for Boolean fields in SafetyDeviceData entity
+"""
+type BooleanHazProSafetyDeviceDataRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The Boolean value that was recorded
+  """
+  value: Boolean!
+}
+
+"""
+Record for Boolean fields in SafetyDeviceData entity
+Tracks: pyrotechnicComponents
+"""
+type BooleanHazProSafetyDeviceDataRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the SafetyDeviceData entity
+  """
+  safetyDeviceData: SafetyDeviceData!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [BooleanHazProSafetyDeviceDataRecordEvent!]!
+
+  """
+  Current Boolean value
+  """
+  currentValue: Boolean
+}
+
+"""
+Kit preparation data
+"""
+type KitPreparationData @tag(name: "sync") {
+  uuid: ID!
+  """
+  Type of kit
+  """
+  kitTypeRecord: StringHazProKitPreparationDataRecord!
+
+  """
+  Contents of the kit
+  """
+  contents: [String!]!
+
+  """
+  Hazardous components in the kit
+  """
+  hazardousComponents: [String!]!
+
+  """
+  Method used for packaging
+  """
+  packagingMethodRecord: StringHazProKitPreparationDataRecord!
+
+  """
+  Special instructions for handling
+  """
+  specialInstructionsRecord: StringHazProKitPreparationDataRecord
+
+  """
+  Lifecycle events tracking creation and archival
+  """
+  lifeCycleEvents: [LifeCycleKitPreparationDataEvent!]!
+}
+
+"""
+RecordEvent for String fields in KitPreparationData entity
+"""
+type StringHazProKitPreparationDataRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The String value that was recorded
+  """
+  value: String!
+}
+
+"""
+Record for String fields in KitPreparationData entity
+Tracks: kitType, packagingMethod, specialInstructions
+"""
+type StringHazProKitPreparationDataRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the KitPreparationData entity
+  """
+  kitPreparationData: KitPreparationData!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [StringHazProKitPreparationDataRecordEvent!]!
+
+  """
+  Current String value
+  """
+  currentValue: String
+}
+
+"""
+Engine or machinery preparation data
+"""
+type EnginePreparationData @tag(name: "sync") {
+  uuid: ID!
+  """
+  Type of engine
+  """
+  engineType: StringHazProEnginePreparationDataRecord!
+
+  """
+  Fuel type used by the engine
+  """
+  fuelType: VehicleFuelTypeHazProEnginePreparationDataRecord!
+
+  """
+  Engine displacement
+  """
+  displacement: FloatHazProEnginePreparationDataRecord
+
+  """
+  Whether the engine has been drained
+  """
+  isDrained: BooleanHazProEnginePreparationDataRecord!
+
+  """
+  Method used for drainage
+  """
+  drainageMethod: StringHazProEnginePreparationDataRecord
+
+  """
+  Amount of residual fuel remaining
+  """
+  residualFuel: StringHazProEnginePreparationDataRecord
+
+  """
+  Special precautions for handling
+  """
+  specialPrecautions: StringHazProEnginePreparationDataRecord
+
+  """
+  Lifecycle events tracking creation and archival
+  """
+  lifeCycleEvents: [LifeCycleEnginePreparationDataEvent!]!
+}
+
+"""
+RecordEvent for String fields in EnginePreparationData entity
+"""
+type StringHazProEnginePreparationDataRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The String value that was recorded
+  """
+  value: String
+}
+
+"""
+Record type for String fields in EnginePreparationData entity
+Tracks: engineType, drainageMethod, residualFuel, specialPrecautions
+"""
+type StringHazProEnginePreparationDataRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the EnginePreparationData entity
+  """
+  enginePreparationData: EnginePreparationData!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [StringHazProEnginePreparationDataRecordEvent!]!
+
+  """
+  Current String value
+  """
+  currentValue: String
+}
+
+"""
+RecordEvent for VehicleFuelType fields in EnginePreparationData entity
+"""
+type VehicleFuelTypeHazProEnginePreparationDataRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The VehicleFuelType value that was recorded
+  """
+  value: VehicleFuelType
+}
+
+"""
+Record type for VehicleFuelType fields in EnginePreparationData entity
+Tracks: fuelType
+"""
+type VehicleFuelTypeHazProEnginePreparationDataRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the EnginePreparationData entity
+  """
+  enginePreparationData: EnginePreparationData!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [VehicleFuelTypeHazProEnginePreparationDataRecordEvent!]!
+
+  """
+  Current VehicleFuelType value
+  """
+  currentValue: VehicleFuelType
+}
+
+"""
+RecordEvent for Float fields in EnginePreparationData entity
+"""
+type FloatHazProEnginePreparationDataRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The Float value that was recorded
+  """
+  value: Float
+}
+
+"""
+Record type for Float fields in EnginePreparationData entity
+Tracks: displacement
+"""
+type FloatHazProEnginePreparationDataRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the EnginePreparationData entity
+  """
+  enginePreparationData: EnginePreparationData!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [FloatHazProEnginePreparationDataRecordEvent!]!
+
+  """
+  Current Float value
+  """
+  currentValue: Float
+}
+
+"""
+RecordEvent for Boolean fields in EnginePreparationData entity
+"""
+type BooleanHazProEnginePreparationDataRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The Boolean value that was recorded
+  """
+  value: Boolean
+}
+
+"""
+Record type for Boolean fields in EnginePreparationData entity
+Tracks: isDrained
+"""
+type BooleanHazProEnginePreparationDataRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the EnginePreparationData entity
+  """
+  enginePreparationData: EnginePreparationData!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [BooleanHazProEnginePreparationDataRecordEvent!]!
+
+  """
+  Current Boolean value
+  """
+  currentValue: Boolean
+}
+
+"""
+Explosive container data
+"""
+type ExplosiveContainer @tag(name: "sync") {
+  uuid: ID!
+  """
+  Type of container
+  """
+  containerTypeRecord: StringHazProExplosiveContainerRecord!
+
+  """
+  Net explosive weight
+  """
+  netExplosiveWeightRecord: FloatHazProExplosiveContainerRecord!
+
+  """
+  Compatibility group
+  """
+  compatibilityGroupRecord: StringHazProExplosiveContainerRecord!
+
+  """
+  Number of containers
+  """
+  numberOfContainersRecord: IntHazProExplosiveContainerRecord!
+
+  """
+  Method used for packing
+  """
+  packingMethodRecord: StringHazProExplosiveContainerRecord
+
+  """
+  Lifecycle events tracking creation and archival
+  """
+  lifeCycleEvents: [LifeCycleExplosiveContainerEvent!]!
+}
+
+"""
+RecordEvent for String fields in ExplosiveContainer entity
+"""
+type StringHazProExplosiveContainerRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The String value that was recorded
+  """
+  value: String!
+}
+
+"""
+Record for String fields in ExplosiveContainer entity
+Tracks: containerType, compatibilityGroup, packingMethod
+"""
+type StringHazProExplosiveContainerRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the ExplosiveContainer entity
+  """
+  explosiveContainer: ExplosiveContainer!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [StringHazProExplosiveContainerRecordEvent!]!
+
+  """
+  Current String value
+  """
+  currentValue: String
+}
+
+"""
+RecordEvent for Float fields in ExplosiveContainer entity
+"""
+type FloatHazProExplosiveContainerRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The Float value that was recorded
+  """
+  value: Float!
+}
+
+"""
+Record for Float fields in ExplosiveContainer entity
+Tracks: netExplosiveWeight
+"""
+type FloatHazProExplosiveContainerRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the ExplosiveContainer entity
+  """
+  explosiveContainer: ExplosiveContainer!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [FloatHazProExplosiveContainerRecordEvent!]!
+
+  """
+  Current Float value
+  """
+  currentValue: Float
+}
+
+"""
+RecordEvent for Int fields in ExplosiveContainer entity
+"""
+type IntHazProExplosiveContainerRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The Int value that was recorded
+  """
+  value: Int!
+}
+
+"""
+Record for Int fields in ExplosiveContainer entity
+Tracks: numberOfContainers
+"""
+type IntHazProExplosiveContainerRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the ExplosiveContainer entity
+  """
+  explosiveContainer: ExplosiveContainer!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [IntHazProExplosiveContainerRecordEvent!]!
+
+  """
+  Current Int value
+  """
+  currentValue: Int
+}
+
+"""
+Input for creating/updating life-saving appliance data
+"""
+input LifeSavingApplianceDataInput {
+  """
+  Type of life-saving device
+  """
+  deviceType: String!
+
+  """
+  Type of gas used in the device
+  """
+  gasType: String!
+
+  """
+  Size of the gas cylinder
+  """
+  cylinderSize: String!
+
+  """
+  Number of devices being shipped
+  """
+  numberOfDevices: Int!
+
+  """
+  Gas charge amount
+  """
+  gasCharge: String
+
+  """
+  Method of activation
+  """
+  activationMethod: String
+}
+
+"""
+Input for creating/updating GMO shipment data
+"""
+input GMOShipmentDataInput {
+  """
+  Type of organism
+  """
+  organismType: String!
+
+  """
+  Genotype information
+  """
+  genotype: String!
+
+  """
+  Containment level required
+  """
+  containmentLevel: String!
+
+  """
+  Packaging specification
+  """
+  packagingSpecification: String!
+
+  """
+  Handling requirements
+  """
+  handlingRequirements: String
+
+  """
+  Emergency procedures
+  """
+  emergencyProcedures: String
+}
+
+"""
+Input for creating/updating safety device data
+"""
+input SafetyDeviceDataInput {
+  """
+  Type of safety device
+  """
+  deviceType: String!
+
+  """
+  Method of activation
+  """
+  activationMethod: String!
+
+  """
+  Number of devices
+  """
+  numberOfDevices: Int!
+
+  """
+  Type of gas if applicable
+  """
+  gasType: String
+
+  """
+  Whether device contains pyrotechnic components
+  """
+  pyrotechnicComponents: Boolean
+}
+
+"""
+Input for creating/updating kit preparation data
+"""
+input KitPreparationDataInput {
+  """
+  Type of kit
+  """
+  kitType: String!
+
+  """
+  Contents of the kit
+  """
+  contents: [String!]!
+
+  """
+  Hazardous components in the kit
+  """
+  hazardousComponents: [String!]!
+
+  """
+  Method used for packaging
+  """
+  packagingMethod: String!
+
+  """
+  Special instructions for handling
+  """
+  specialInstructions: String
+}
+
+"""
+Input for creating/updating engine preparation data
+"""
+input EnginePreparationDataInput {
+  """
+  Type of engine
+  """
+  engineType: String!
+
+  """
+  Fuel type used by the engine
+  """
+  fuelType: VehicleFuelType!
+
+  """
+  Engine displacement
+  """
+  displacement: Float
+
+  """
+  Whether the engine has been drained
+  """
+  isDrained: Boolean!
+
+  """
+  Method used for drainage
+  """
+  drainageMethod: String
+
+  """
+  Amount of residual fuel remaining
+  """
+  residualFuel: String
+
+  """
+  Special precautions for handling
+  """
+  specialPrecautions: String
+}
+
+"""
+Input for creating/updating explosive container data
+"""
+input ExplosiveContainerInput {
+  """
+  Type of container
+  """
+  containerType: String!
+
+  """
+  Net explosive weight
+  """
+  netExplosiveWeight: Float!
+
+  """
+  Compatibility group
+  """
+  compatibilityGroup: String!
+
+  """
+  Number of containers
+  """
+  numberOfContainers: Int!
+
+  """
+  Method used for packing
+  """
+  packingMethod: String
+}
+
+"""
+Certificate of Equivalency document
+"""
+type COEDocument @tag(name: "sync") {
+  """
+  Unique identifier
+  """
+  uuid: ID!
+
+  """
+  Type of document
+  """
+  documentTypeRecord: StringHazProCOEDocumentRecord!
+
+  """
+  Base64 encoded document data
+  """
+  base64DataRecord: StringHazProCOEDocumentRecord!
+
+  """
+  Document name
+  """
+  nameRecord: StringHazProCOEDocumentRecord!
+
+  """
+  Date when document was added
+  """
+  dateAddedRecord: StringHazProCOEDocumentRecord!
+
+  """
+  Lifecycle events tracking creation and archival
+  """
+  lifeCycleEvents: [LifeCycleCOEDocumentEvent!]!
+}
+
+"""
+RecordEvent for String fields in COEDocument entity
+"""
+type StringHazProCOEDocumentRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The String value that was recorded
+  """
+  value: String!
+}
+
+"""
+Record for String fields in COEDocument entity
+Tracks: documentType, base64Data, name, dateAdded
+"""
+type StringHazProCOEDocumentRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the COEDocument entity
+  """
+  coeDocument: COEDocument!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [StringHazProCOEDocumentRecordEvent!]!
+
+  """
+  Current String value
+  """
+  currentValue: String
+}
+
+"""
+Competent Authority Approval document
+"""
+type CAADocument @tag(name: "sync") {
+  """
+  Unique identifier
+  """
+  uuid: ID!
+
+  """
+  Type of document
+  """
+  documentTypeRecord: StringHazProCAADocumentRecord!
+
+  """
+  Base64 encoded document data
+  """
+  base64DataRecord: StringHazProCAADocumentRecord!
+
+  """
+  Document name
+  """
+  nameRecord: StringHazProCAADocumentRecord!
+
+  """
+  Date when document was added
+  """
+  dateAddedRecord: StringHazProCAADocumentRecord!
+
+  """
+  Lifecycle events tracking creation and archival
+  """
+  lifeCycleEvents: [LifeCycleCAADocumentEvent!]!
+}
+
+"""
+RecordEvent for String fields in CAADocument entity
+"""
+type StringHazProCAADocumentRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The String value that was recorded
+  """
+  value: String!
+}
+
+"""
+Record for String fields in CAADocument entity
+Tracks: documentType, base64Data, name, dateAdded
+"""
+type StringHazProCAADocumentRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the CAADocument entity
+  """
+  caaDocument: CAADocument!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [StringHazProCAADocumentRecordEvent!]!
+
+  """
+  Current String value
+  """
+  currentValue: String
+}
+
+"""
+DOT Special Permit waiver
+"""
+type DOTSPWaiver @tag(name: "sync") {
+  """
+  Unique identifier
+  """
+  uuid: ID!
+
+  """
+  Document URI
+  """
+  uriRecord: StringHazProDOTSPWaiverRecord!
+
+  """
+  Base64 encoded document data
+  """
+  base64DataRecord: StringHazProDOTSPWaiverRecord!
+
+  """
+  Waiver number
+  """
+  waiverNumberRecord: StringHazProDOTSPWaiverRecord!
+
+  """
+  Description of the waiver
+  """
+  descriptionRecord: StringHazProDOTSPWaiverRecord
+
+  """
+  Date when waiver was added
+  """
+  dateAddedRecord: StringHazProDOTSPWaiverRecord!
+
+  """
+  Lifecycle events tracking creation and archival
+  """
+  lifeCycleEvents: [LifeCycleDOTSPWaiverEvent!]!
+}
+
+"""
+RecordEvent for String fields in DOTSPWaiver entity
+"""
+type StringHazProDOTSPWaiverRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The String value that was recorded
+  """
+  value: String!
+}
+
+"""
+Record for String fields in DOTSPWaiver entity
+Tracks: uri, base64Data, waiverNumber, description, dateAdded
+"""
+type StringHazProDOTSPWaiverRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the DOTSPWaiver entity
+  """
+  dotspWaiver: DOTSPWaiver!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [StringHazProDOTSPWaiverRecordEvent!]!
+
+  """
+  Current String value
+  """
+  currentValue: String
+}
+
+"""
+Emergency contact phone numbers
+"""
+type EmergencyPhoneNumber @tag(name: "sync") {
+  uuid: ID!
+  """
+  Service provider name
+  """
+  providerRecord: StringHazProEmergencyPhoneNumberRecord!
+
+  """
+  Phone number
+  """
+  numberRecord: StringHazProEmergencyPhoneNumberRecord!
+
+  """
+  Country code
+  """
+  countryRecord: StringHazProEmergencyPhoneNumberRecord!
+
+  """
+  Lifecycle events tracking creation and archival
+  """
+  lifeCycleEvents: [LifeCycleEmergencyPhoneNumberEvent!]!
+}
+
+"""
+RecordEvent for String fields in EmergencyPhoneNumber entity
+"""
+type StringHazProEmergencyPhoneNumberRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The String value that was recorded
+  """
+  value: String!
+}
+
+"""
+Record for String fields in EmergencyPhoneNumber entity
+Tracks: provider, number, country
+"""
+type StringHazProEmergencyPhoneNumberRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the EmergencyPhoneNumber entity
+  """
+  emergencyPhoneNumber: EmergencyPhoneNumber!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [StringHazProEmergencyPhoneNumberRecordEvent!]!
+
+  """
+  Current String value
+  """
+  currentValue: String
+}
+
+"""
+Modifiers and required acknowledgements
+"""
+type ModifiersAndAcknowledgements @tag(name: "sync") {
+  uuid: ID!
+  """
+  Whether general packaging requirements have been acknowledged
+  """
+  generalPackagingRequirementsAcknowledgedRecord: BooleanHazProModifiersAndAcknowledgementsRecord!
+
+  """
+  Whether informative statements have been acknowledged
+  """
+  informativeStatementsAcknowledgedRecord: BooleanHazProModifiersAndAcknowledgementsRecord!
+
+  """
+  Whether workflow modifiers have been acknowledged
+  """
+  workflowModifiersAcknowledgedRecord: BooleanHazProModifiersAndAcknowledgementsRecord!
+
+  """
+  Document node informative statements
+  """
+  documentNodeInformativeStatements: [String!]!
+
+  """
+  Document node workflow modifiers
+  """
+  documentNodeWorkflowModifiers: [String!]!
+
+  """
+  Lifecycle events tracking creation and archival
+  """
+  lifeCycleEvents: [LifeCycleModifiersAndAcknowledgementsEvent!]!
+}
+
+"""
+RecordEvent for Boolean fields in ModifiersAndAcknowledgements entity
+"""
+type BooleanHazProModifiersAndAcknowledgementsRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The Boolean value that was recorded
+  """
+  value: Boolean!
+}
+
+"""
+Record for Boolean fields in ModifiersAndAcknowledgements entity
+Tracks: generalPackagingRequirementsAcknowledged, informativeStatementsAcknowledged, workflowModifiersAcknowledged
+"""
+type BooleanHazProModifiersAndAcknowledgementsRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the ModifiersAndAcknowledgements entity
+  """
+  modifiersAndAcknowledgements: ModifiersAndAcknowledgements!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [BooleanHazProModifiersAndAcknowledgementsRecordEvent!]!
+
+  """
+  Current Boolean value
+  """
+  currentValue: Boolean
+}
+
+"""
+Input for creating/updating COE document
+"""
+input COEDocumentInput {
+  """
+  Type of document
+  """
+  documentType: String!
+
+  """
+  Base64 encoded document data
+  """
+  base64Data: String!
+
+  """
+  Document name
+  """
+  name: String!
+
+  """
+  Date when document was added
+  """
+  dateAdded: String!
+}
+
+"""
+Input for creating/updating CAA document
+"""
+input CAADocumentInput {
+  """
+  Type of document
+  """
+  documentType: String!
+
+  """
+  Base64 encoded document data
+  """
+  base64Data: String!
+
+  """
+  Document name
+  """
+  name: String!
+
+  """
+  Date when document was added
+  """
+  dateAdded: String!
+}
+
+"""
+Input for creating/updating DOT SP waiver
+"""
+input DOTSPWaiverInput {
+  """
+  Document URI
+  """
+  uri: String!
+
+  """
+  Base64 encoded document data
+  """
+  base64Data: String!
+
+  """
+  Waiver number
+  """
+  waiverNumber: String!
+
+  """
+  Description of the waiver
+  """
+  description: String
+
+  """
+  Date when waiver was added
+  """
+  dateAdded: String!
+}
+
+"""
+Input for creating/updating emergency phone number
+"""
+input EmergencyPhoneNumberInput {
+  """
+  Service provider name
+  """
+  provider: String!
+
+  """
+  Phone number
+  """
+  number: String!
+
+  """
+  Country code
+  """
+  country: String!
+}
+
+"""
+Input for creating/updating modifiers and acknowledgements
+"""
+input ModifiersAndAcknowledgementsInput {
+  """
+  Whether general packaging requirements have been acknowledged
+  """
+  generalPackagingRequirementsAcknowledged: Boolean!
+
+  """
+  Whether informative statements have been acknowledged
+  """
+  informativeStatementsAcknowledged: Boolean!
+
+  """
+  Whether workflow modifiers have been acknowledged
+  """
+  workflowModifiersAcknowledged: Boolean!
+
+  """
+  Document node informative statements
+  """
+  documentNodeInformativeStatements: [String!]!
+
+  """
+  Document node workflow modifiers
+  """
+  documentNodeWorkflowModifiers: [String!]!
+}
+
+"""
+Complete preparer context
+"""
+type HazProPreparerContext @tag(name: "sync") {
+  uuid: ID!
+  """
+  Hazardous material item details
+  """
+  hazardousMaterial: HazardousMaterialItem
+
+  """
+  Shipper address information
+  """
+  shipper: ShipperAddress
+
+  """
+  Consignee address information
+  """
+  consignee: ConsigneeAddress
+
+  """
+  Preparer information
+  """
+  preparer: Preparer # HazproProfile?
+  """
+  Shipment routing and details
+  """
+  shipment: Shipment
+
+  """
+  Packaging configuration
+  """
+  packaging: Packaging
+
+  """
+  Lithium battery specific data
+  """
+  lithiumBatteryData: LithiumBatteryData
+
+  """
+  Magnetized material specific data
+  """
+  magnetizedMaterialData: MagnetizedMaterialData
+
+  """
+  Dry ice specific data
+  """
+  dryIceData: DryIceData
+
+  """
+  Battery-powered vehicle specific data
+  """
+  batteryVehicle: BatteryVehicleData
+
+  """
+  Capacitor specific data
+  """
+  capacitorData: CapacitorData
+
+  """
+  Life-saving appliance specific data
+  """
+  lifeSavingApplianceData: LifeSavingApplianceData
+
+  """
+  Genetically modified organism specific data
+  """
+  geneticallyModifiedOrganism: GMOShipmentData
+
+  """
+  Safety device specific data
+  """
+  safetyDeviceData: SafetyDeviceData
+
+  """
+  Kit preparation specific data
+  """
+  kitPreparationData: KitPreparationData
+
+  """
+  Engine or machinery preparation specific data
+  """
+  engineOrMachineryPreparationData: EnginePreparationData
+
+  """
+  Explosives details
+  """
+  explosivesDetails: ExplosiveContainer
+
+  """
+  Whether Certificate of Equivalency is used
+  """
+  usesCoeCertificationRecord: BooleanHazProHazProPreparerContextRecord!
+
+  """
+  Whether Competent Authority Approval is used
+  """
+  usesCaaCertificationRecord: BooleanHazProHazProPreparerContextRecord!
+
+  """
+  Whether DOT Special Permit is used
+  """
+  usesDotSpPermitRecord: BooleanHazProHazProPreparerContextRecord!
+
+  """
+  COE documents attached
+  """
+  coeDocuments: [COEDocument!]
+
+  """
+  CAA documents attached
+  """
+  caaDocuments: [CAADocument!]
+
+  """
+  DOT SP waivers attached
+  """
+  dotSpWaivers: [DOTSPWaiver!]
+
+  """
+  COE approval entity name
+  """
+  coeApprovalEntityRecord: StringHazProHazProPreparerContextRecord
+
+  """
+  CAA approval entity name
+  """
+  caaApprovalEntityRecord: StringHazProHazProPreparerContextRecord
+
+  """
+  Emergency contact for excepted lithium batteries
+  """
+  exceptedLithiumBatteryEmergencyContactRecord: StringHazProHazProPreparerContextRecord
+
+  """
+  Modifiers and required acknowledgements
+  """
+  modifiersAndRequiredAcknowledgements: ModifiersAndAcknowledgements
+
+  """
+  Current shipment identifier
+  """
+  currentShipmentIdRecord: StringHazProHazProPreparerContextRecord
+
+  """
+  Active workflow step index
+  """
+  activeStepRecord: IntHazProHazProPreparerContextRecord
+
+  """
+  Active workflow substep index
+  """
+  activeSubstepRecord: IntHazProHazProPreparerContextRecord
+
+  """
+  List of completed substep identifiers
+  """
+  completedSubsteps: [String!]!
+
+  """
+  Selected packaging method
+  """
+  packagingMethodRecord: StringHazProHazProPreparerContextRecord
+
+  """
+  Allowable packing groups for this material
+  """
+  allowablePackingGroupsRecord: StringHazProHazProPreparerContextRecord
+
+  """
+  Redirect UN ID if applicable
+  """
+  redirectUnidRecord: StringHazProHazProPreparerContextRecord
+
+  """
+  Whether explosives are authorized to be shipped unpacked
+  """
+  explosivesAuthorizedToBeShippedUnpackedRecord: BooleanHazProHazProPreparerContextRecord
+
+  """
+  Technical name for the hazardous material (if required)
+  """
+  technicalName: String
+
+  """
+  Lifecycle events tracking creation and archival
+  """
+  lifeCycleEvents: [LifeCycleHazProPreparerContextEvent!]!
+}
+
+"""
+RecordEvent for String fields in HazProPreparerContext entity
+"""
+type StringHazProHazProPreparerContextRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The String value that was recorded
+  """
+  value: String!
+}
+
+"""
+Record for String fields in HazProPreparerContext entity
+Tracks: coeApprovalEntity, caaApprovalEntity, exceptedLithiumBatteryEmergencyContact, currentShipmentId, packagingMethod, allowablePackingGroups, redirectUnid
+"""
+type StringHazProHazProPreparerContextRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the HazProPreparerContext entity
+  """
+  hazProPreparerContext: HazProPreparerContext!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [StringHazProHazProPreparerContextRecordEvent!]!
+
+  """
+  Current String value
+  """
+  currentValue: String
+}
+
+"""
+RecordEvent for Int fields in HazProPreparerContext entity
+"""
+type IntHazProHazProPreparerContextRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The Int value that was recorded
+  """
+  value: Int!
+}
+
+"""
+Record for Int fields in HazProPreparerContext entity
+Tracks: activeStep, activeSubstep
+"""
+type IntHazProHazProPreparerContextRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the HazProPreparerContext entity
+  """
+  hazProPreparerContext: HazProPreparerContext!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [IntHazProHazProPreparerContextRecordEvent!]!
+
+  """
+  Current Int value
+  """
+  currentValue: Int
+}
+
+"""
+RecordEvent for Boolean fields in HazProPreparerContext entity
+"""
+type BooleanHazProHazProPreparerContextRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The Boolean value that was recorded
+  """
+  value: Boolean!
+}
+
+"""
+Record for Boolean fields in HazProPreparerContext entity
+Tracks: usesCoeCertification, usesCaaCertification, usesDotSpPermit, explosivesAuthorizedToBeShippedUnpacked
+"""
+type BooleanHazProHazProPreparerContextRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the HazProPreparerContext entity
+  """
+  hazProPreparerContext: HazProPreparerContext!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [BooleanHazProHazProPreparerContextRecordEvent!]!
+
+  """
+  Current Boolean value
+  """
+  currentValue: Boolean
+}
+
+"""
+Saved preparer shipment
+Maps to contexts/HazProPreparerProvider/reducer.tsx SavedShipment interface
+"""
+type PreparerShipment @tag(name: "sync") {
+  """
+  Unique shipment identifier
+  """
+  uuid: ID!
+
+  """
+  Current shipment status
+  """
+  statusRecord: StringHazProPreparerShipmentRecord!
+
+  """
+  When the shipment was saved
+  """
+  savedAtRecord: DateHazProPreparerShipmentRecord!
+
+  """
+  Complete preparer context data
+  """
+  hazProPreparerContext: HazProPreparerContext!
+
+  """
+  Lifecycle events tracking creation and archival
+  """
+  lifeCycleEvents: [LifeCyclePreparerShipmentEvent!]!
+}
+
+"""
+RecordEvent for String fields in PreparerShipment entity
+"""
+type StringHazProPreparerShipmentRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The String value that was recorded
+  """
+  value: String!
+}
+
+"""
+Record for String fields in PreparerShipment entity
+Tracks: status
+"""
+type StringHazProPreparerShipmentRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the PreparerShipment entity
+  """
+  preparerShipment: PreparerShipment!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [StringHazProPreparerShipmentRecordEvent!]!
+
+  """
+  Current String value
+  """
+  currentValue: String
+}
+
+"""
+RecordEvent for Date fields in PreparerShipment entity
+"""
+type DateHazProPreparerShipmentRecordEvent implements HazProRecordEvent {
+  """
+  Unique identifier for this event
+  """
+  uuid: ID!
+
+  """
+  When this change occurred
+  """
+  createdAt: Time!
+
+  """
+  User who made this change
+  """
+  createdBy: User!
+
+  """
+  The Date value that was recorded
+  """
+  value: Date!
+}
+
+"""
+Record for Date fields in PreparerShipment entity
+Tracks: savedAt
+"""
+type DateHazProPreparerShipmentRecord implements HazProRecord
+  @key(fields: "uuid") {
+  """
+  Unique identifier for this record
+  """
+  uuid: ID!
+
+  """
+  Back reference to the PreparerShipment entity
+  """
+  preparerShipment: PreparerShipment!
+
+  """
+  Complete history of all changes to this field
+  """
+  eventHistory: [DateHazProPreparerShipmentRecordEvent!]!
+
+  """
+  Current Date value
+  """
+  currentValue: Date
+}
+
+input HazProPreparerContextInput {
+  """
+  Hazardous material item details
+  """
+  hazardousMaterial: HazardousMaterialItemInput
+
+  """
+  Shipper address information
+  """
+  shipper: ShipperAddressInput
+
+  """
+  Consignee address information
+  """
+  consignee: ConsigneeAddressInput
+
+  """
+  Preparer information
+  """
+  preparer: PreparerInput
+
+  """
+  Shipment routing and details
+  """
+  shipment: ShipmentInput
+
+  """
+  Packaging configuration
+  """
+  packaging: PackagingInput
+
+  """
+  Lithium battery specific data
+  """
+  lithiumBatteryData: LithiumBatteryDataInput
+
+  """
+  Magnetized material specific data
+  """
+  magnetizedMaterialData: MagnetizedMaterialDataInput
+
+  """
+  Dry ice specific data
+  """
+  dryIceData: DryIceDataInput
+
+  """
+  Battery-powered vehicle specific data
+  """
+  batteryVehicle: BatteryVehicleDataInput
+
+  """
+  Capacitor specific data
+  """
+  capacitorData: CapacitorDataInput
+
+  """
+  Life-saving appliance specific data
+  """
+  lifeSavingApplianceData: LifeSavingApplianceDataInput
+
+  """
+  Genetically modified organism specific data
+  """
+  geneticallyModifiedOrganism: GMOShipmentDataInput
+
+  """
+  Safety device specific data
+  """
+  safetyDeviceData: SafetyDeviceDataInput
+
+  """
+  Kit preparation specific data
+  """
+  kitPreparationData: KitPreparationDataInput
+
+  """
+  Engine or machinery preparation specific data
+  """
+  engineOrMachineryPreparationData: EnginePreparationDataInput
+
+  """
+  Explosives details
+  """
+  explosivesDetails: ExplosiveContainerInput
+
+  """
+  Whether Certificate of Equivalency is used
+  """
+  usesCoeCertification: Boolean!
+
+  """
+  Whether Competent Authority Approval is used
+  """
+  usesCaaCertification: Boolean!
+
+  """
+  Whether DOT Special Permit is used
+  """
+  usesDotSpPermit: Boolean!
+
+  """
+  COE documents attached
+  """
+  coeDocuments: [COEDocumentInput!]
+
+  """
+  CAA documents attached
+  """
+  caaDocuments: [CAADocumentInput!]
+
+  """
+  DOT SP waivers attached
+  """
+  dotSpWaivers: [DOTSPWaiverInput!]
+
+  """
+  Modifiers and required acknowledgements
+  """
+  modifiersAndRequiredAcknowledgements: ModifiersAndAcknowledgementsInput
+
+  """
+  Current shipment identifier
+  """
+  currentShipmentId: String
+
+  """
+  List of completed substep identifiers
+  """
+  completedSubsteps: [String!]
+}
+
+"""
+Filter options for preparer shipments
+"""
+input PreparerShipmentFilters {
+  """
+  Filter by uuid
+  """
+  uuid: String!
+
+  """
+  Filter by shipment status
+  """
+  status: String
+
+  """
+  Filter by shipments created after this date
+  """
+  startDate: Date
+
+  """
+  Filter by shipments created before this date
+  """
+  endDate: Date
+
+  """
+  Filter by Transportation Control Number
+  """
+  tcn: String
+
+  """
+  Filter by UN/NA/ID number
+  """
+  unNumber: String
+}
+
+"""
+Input for creating a new preparer shipment
+"""
+input CreatePreparerShipmentInput {
+  """
+  Complete preparer context data
+  """
+  hazProPreparerContext: HazProPreparerContextInput!
+
+  """
+  Initial shipment status
+  """
+  status: String!
+}
+
+"""
+Input for updating a preparer shipment
+"""
+input UpdatePreparerShipmentInput {
+  """
+  Updated preparer context data
+  """
+  hazProPreparerContext: HazProPreparerContextInput
+
+  """
+  Updated shipment status
+  """
+  status: String
+}
+
+schema {
+  query: Query
+  mutation: Mutation
+}

@@ -1,0 +1,425 @@
+A3.1.2.
+A3.1.3.
+A3.1.4.
+A3.1.5.
+A3.1.6.
+A.1.7. (informative, show the one relevant to the user's packaging type selection)
+A3.1.8.
+A3.1.10.
+A3.1.11.
+A3.1.12.
+A3.1.13.
+Table A3.1.
+A3.1.14.
+A3.1.15.
+A3.1.16. (other than A3.1.16.4., A3.1.16.4. is a modifier)
+A3.1.17.
+Table A3.2.
+
+
+A3.2.
+
+A3.3.1.
+- A3.3.1.1.4. is a modifier
+- A3.3.1.10. is a modifier
+- everything else is informative
+
+A3.3.2.
+- everything else is informative
+
+figure A3.1.
+figure A3.2.
+figure A3.3.
+
+A3.3.3.
+- A3.3.3.2.1. is a modifier
+- A3.3.3.2.2. is a modifier
+- A3.3.3.5. is a modifier
+
+
+A3.3.4.
+- A3.3.4.2. is a modifier
+- A3.3.4.5. is a modifier
+
+
+A3.3.5.
+- A3.3.5.3. is a modifier
+
+A3.3.6.
+
+A3.3.7.
+- A3.3.7.12.1. is a modifier
+- A3.3.7.12.2. is a modifier
+- A3.3.7.12.3. is a modifier
+  - this one has multiple potential modifiers
+  - one of the potential modifiers: Radioactive material with a sub risk of 2.1 is forbidden on passenger aircraft, make it P4 (modifier)
+
+A3.3.8
+- A3.3.8.2. is a modifier (packaging)
+
+A3.3.9.
+- A3.3.9.2. - if lithium batteries, this is informative
+- A3.3.9.3. - informative for magnetized material
+- A3.3.9.4. - vehicles informative
+- A3.3.9.6. - dry ice informative
+  - formulas for dry ice calculations (potential tool for HazPro users)
+
+A3.4.
+
+
+
+***************** Table A4.2. SPECIAL PROVISIONS *****************
+NOTE: Separate the Special Provision codes by type of codes
+- "P" codes
+- Numeric Special Provisions
+- "A" Provisions
+- "N" Provisions
+
+P1-P5
+- relates to one of the keys on the SDDG
+Numeric Special Provisions
+1 through 4
+  - an addition to the PSN on the SDDG
+5 
+- (informative, only show if relevant to the context)
+6
+- modifier, user must provide what inhalation hazard zone it is, if not already known
+8
+- modifier
+- could modify the PSN on the SDDG
+9
+- informative
+11
+- informative
+12
+- informative
+13
+- modifier
+14
+- informative
+21
+- informative
+22
+- informative
+23
+- informative
+30
+- modifier
+- with a condition, only applicable if transported in a non-bulk package or if formed to a specific shape
+33
+- modifier
+- does this condition exist, if yes, shipment is prohibited
+43
+- informative
+44
+- informative
+46
+- modifier
+- add to Key 19 if applicable
+47
+- informative
+- potentially stops the workflow if applicable
+48
+- informative
+- potentially stops the workflow if applicable
+49
+- informative
+- potentially stops the workflow if applicable
+51
+- modifier
+- modified based on quantity of material
+53
+- modifier
+- adds the label "EXPLOSIVE" to the container
+56
+- informative
+60
+- informative
+62
+- informative
+- potentially stops the workflow if applicable
+102
+- informative
+103
+- informative
+105
+- informative
+- potentially modifies the SDDG (use "Agents" instead of "Explosives")
+106
+- informative
+107
+- informative
+108
+- informative
+109
+- informative
+110
+- informative
+111
+- informative/modifier
+- potentially stops the workflow, if applicable
+112
+- informative
+113
+- informative
+115
+- informative
+116
+- informative
+117
+- informative
+118
+- informative
+123
+- informative
+127
+- informative
+132
+- informative
+134
+- modifier
+- requires us to build out the workflow a bit more
+135
+- modifier
+- come back to this one
+- requires us to build out the workflow a bit more
+139
+- informative
+155
+- informative
+156
+- informative
+160
+- informative
+162
+- informative
+165
+- modifier
+- modifies key 19 in SDDG
+167
+- informative
+177
+- modifier
+- must be PG II, regardless of variations in volatility
+182
+- modifier
+- its a check to ensure we're  using 3091 or 3481
+198
+- informative
+237
+- informative
+328
+- modifier
+332
+- modifier
+- ends the workflow if applicable
+346
+- modifier
+- ends the workflow if applicable
+347
+- informative
+349
+- modifier
+- ends the workflow if applicable
+361
+- modifier
+- ends the workflow if applicable
+- add calculator to calculate capacitor Wh rating using V and C
+362
+- modifier
+- if condition is present, transport under UN1950
+- come back to this one
+- requires us to build out the workflow a bit more
+367
+- informative
+- for Inspector mode:
+- if user enters UN# with 367 as a special provision, add the list of PSN's listed here to the list of potential PSN's for the user to choose
+368
+- modifier
+- for this PSN, material must be classified under UN3507 or UN2978
+369
+- modifier
+- if criteria is met, make sure we have the proper subsidiary risks for radioactivity and corrosive risks
+372
+- informative
+387
+- informative
+388
+- modifier
+- based on specific conditions
+- come back to this one
+- requires us to build out the workflow a bit more
+389
+- informative
+- based on lithium batteries
+391
+- modifier
+- only offered if conditions approved by DOT Associate Administrator
+
+"A" Provisions
+A1
+- modifier
+- if single package, change P5 to P4
+A2
+- modifier
+- remove single packaging authorizations as an option
+A3
+- modifier
+- if combination packaging, refer to Attachment 20, define and tell us how much absorbent material they're using
+A4
+- modifier
+- deviations not allowed if liquid having an inhalation toxicity of PG I and identified as P1, P2, or P3
+- if A4 comes up, notify the user "Passenger Deviations are not authorized"
+A5
+- modifier
+- deviation authority for solids
+A6
+- informative
+- tell the user, if applicable
+A7
+- informative
+A8
+- informative
+A9
+- informative
+A10
+- informative
+A11
+- informative
+A19
+- we can do more with this one
+- modifier
+- limits the available combination package types that are authorized
+A20
+- modifier
+- can't use plastic bags
+A29
+- modifier
+- removes 2 different types of packages
+A30
+- modifier
+- is forbidden, ends the workflow
+A35
+- modifier
+- references 2 different packaging paragraphs
+A37
+- informative
+A43
+- modifier if applicable
+A56
+- modifier
+- user must define if they have one of these 2 conditions, which determines the next step
+A58
+- modifier
+- if the user meets this condition, workflow stops
+A61
+- if they meet this conditions, potentially modifies/alters/stops the workflow
+A67
+- if they meet this conditions, potentially modifies/alters/stops the workflow
+A69
+- modifier
+A87
+- informative
+- we can ask if material is not enclosed, if so it's not subject to marking/labeling/placarding requirements
+A117
+- informative
+- makes sure the right UN# is assigned
+A124
+- do they meet the conditions, potentially ends workflow
+A140
+- modifier
+- combination of informative and workflow modification
+- must put technical name on SDDG, but not on actual item package
+- for UN2814 or UN2900 add some words to the PSN on SDDG, but not on the actual item package
+A191
+- modifier
+- if applicable, you can remove the subsidiary hazard label
+A197
+- do they meet the criteria, either stops workflow or doesn't
+A213
+- modifier
+- only applicable to lithium batteries
+A500
+- modifier
+- P2 code if contains certain kind of liquid
+A501
+- informative
+A502
+- if shown, requires Shipper's HAZMAT service focal point approval to ship as P2
+A503
+- informative and modifier
+- if they decide to proceed, it modifies the SDDG
+- if shown, and the criteria is met, it can be shipped internationally as class 9
+A506
+- informative
+A507
+- modifier
+- do they meet these conditions
+- based on that, modify the P code on the SDDG
+A508
+- do they meet the conditions
+- stop or go, accordingly
+A509
+- do they meet the conditions
+- stop or go, accordingly
+A510
+- informative
+
+"N" Provisions
+N3
+- modifier
+N4
+- modifier
+N5
+- modifier
+N6
+- informative
+N7
+- informative
+N8
+- ?
+N9 through N36
+- modifiers
+N37
+- additive modifier
+N40
+- modifier
+- removes certain packaging types as choices
+N41
+- modifier
+N43
+- modifier
+N45
+- informative
+N65
+- informative
+N73
+- informative
+N74
+- informative
+N75
+- informative
+N76
+- informative
+N77
+- informative
+N78
+- informative
+N79
+- informative
+N85
+- modifier
+- PG I packages may not be used
+N86
+- modifier
+- alluminum alloy may not be used
+N87
+- modifier
+- copper valves cannot be used
+N88
+- informative
+N89
+- informative
+N90
+- modifier
+- metal packagings not authorized

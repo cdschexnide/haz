@@ -1,0 +1,1305 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DryIcePrepScreen renders correctly 1`] = `
+<View
+  onLayout={[Function]}
+  style={
+    [
+      {
+        "backgroundColor": "#ffffff",
+        "flex": 1,
+      },
+      {
+        "paddingBottom": 0,
+      },
+    ]
+  }
+>
+  <RCTScrollView
+    style={
+      {
+        "flex": 1,
+      }
+    }
+  >
+    <View>
+      <View
+        style={
+          {
+            "backgroundColor": "#F1F3F5",
+            "borderRadius": 4,
+            "margin": 16,
+            "padding": 16,
+          }
+        }
+      >
+        <Text
+          style={
+            {
+              "color": "#495057",
+              "fontSize": 16,
+              "fontWeight": "bold",
+              "marginBottom": 12,
+            }
+          }
+        >
+          A13.10. DRY ICE (CARBON DIOXIDE, SOLID)
+        </Text>
+        <Text
+          style={
+            {
+              "color": "#495057",
+              "fontSize": 14,
+              "lineHeight": 20,
+              "marginBottom": 8,
+            }
+          }
+        >
+          • Wrap in kraft paper, secure with tape, and pack in fiberboard boxes, polystyrene foam containers or other suitable packaging.
+        </Text>
+        <Text
+          style={
+            {
+              "color": "#495057",
+              "fontSize": 14,
+              "lineHeight": 20,
+              "marginBottom": 8,
+            }
+          }
+        >
+          • Packaging must permit the release of carbon dioxide gas and prevent pressure buildup.
+        </Text>
+      </View>
+      <View
+        style={
+          {
+            "gap": 12,
+            "padding": 16,
+          }
+        }
+      >
+        <View
+          style={
+            {
+              "borderBottomColor": "#e9ecef",
+              "borderBottomWidth": 1,
+              "marginBottom": 16,
+              "marginTop": 8,
+              "paddingBottom": 8,
+            }
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#495057",
+                "fontSize": 20,
+                "fontWeight": "bold",
+              }
+            }
+          >
+            Packaging Information
+          </Text>
+        </View>
+        <View
+          style={
+            {
+              "marginBottom": 16,
+              "minHeight": 48,
+            }
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#495057",
+                "fontSize": 16,
+                "fontWeight": "600",
+                "marginBottom": 8,
+              }
+            }
+          >
+            Packaging Type
+          </Text>
+          <View
+            style={
+              {
+                "flexDirection": "column",
+                "marginBottom": 8,
+              }
+            }
+          >
+            <View
+              accessibilityState={
+                {
+                  "busy": undefined,
+                  "checked": undefined,
+                  "disabled": undefined,
+                  "expanded": undefined,
+                  "selected": undefined,
+                }
+              }
+              accessibilityValue={
+                {
+                  "max": undefined,
+                  "min": undefined,
+                  "now": undefined,
+                  "text": undefined,
+                }
+              }
+              accessible={true}
+              collapsable={false}
+              focusable={true}
+              onClick={[Function]}
+              onResponderGrant={[Function]}
+              onResponderMove={[Function]}
+              onResponderRelease={[Function]}
+              onResponderTerminate={[Function]}
+              onResponderTerminationRequest={[Function]}
+              onStartShouldSetResponder={[Function]}
+              style={
+                {
+                  "alignItems": "center",
+                  "borderColor": "#ced4da",
+                  "borderRadius": 4,
+                  "borderWidth": 1,
+                  "flexDirection": "row",
+                  "marginBottom": 8,
+                  "opacity": 1,
+                  "padding": 12,
+                }
+              }
+            >
+              <View
+                style={
+                  {
+                    "alignItems": "center",
+                    "borderColor": "#007bff",
+                    "borderRadius": 10,
+                    "borderWidth": 2,
+                    "height": 20,
+                    "justifyContent": "center",
+                    "marginRight": 10,
+                    "width": 20,
+                  }
+                }
+              />
+              <Text
+                style={
+                  {
+                    "color": "#495057",
+                    "fontSize": 16,
+                  }
+                }
+              >
+                Fiberboard Box
+              </Text>
+            </View>
+            <View
+              accessibilityState={
+                {
+                  "busy": undefined,
+                  "checked": undefined,
+                  "disabled": undefined,
+                  "expanded": undefined,
+                  "selected": undefined,
+                }
+              }
+              accessibilityValue={
+                {
+                  "max": undefined,
+                  "min": undefined,
+                  "now": undefined,
+                  "text": undefined,
+                }
+              }
+              accessible={true}
+              collapsable={false}
+              focusable={true}
+              onClick={[Function]}
+              onResponderGrant={[Function]}
+              onResponderMove={[Function]}
+              onResponderRelease={[Function]}
+              onResponderTerminate={[Function]}
+              onResponderTerminationRequest={[Function]}
+              onStartShouldSetResponder={[Function]}
+              style={
+                {
+                  "alignItems": "center",
+                  "borderColor": "#ced4da",
+                  "borderRadius": 4,
+                  "borderWidth": 1,
+                  "flexDirection": "row",
+                  "marginBottom": 8,
+                  "opacity": 1,
+                  "padding": 12,
+                }
+              }
+            >
+              <View
+                style={
+                  {
+                    "alignItems": "center",
+                    "borderColor": "#007bff",
+                    "borderRadius": 10,
+                    "borderWidth": 2,
+                    "height": 20,
+                    "justifyContent": "center",
+                    "marginRight": 10,
+                    "width": 20,
+                  }
+                }
+              />
+              <Text
+                style={
+                  {
+                    "color": "#495057",
+                    "fontSize": 16,
+                  }
+                }
+              >
+                Polystyrene Foam Container
+              </Text>
+            </View>
+            <View
+              accessibilityState={
+                {
+                  "busy": undefined,
+                  "checked": undefined,
+                  "disabled": undefined,
+                  "expanded": undefined,
+                  "selected": undefined,
+                }
+              }
+              accessibilityValue={
+                {
+                  "max": undefined,
+                  "min": undefined,
+                  "now": undefined,
+                  "text": undefined,
+                }
+              }
+              accessible={true}
+              collapsable={false}
+              focusable={true}
+              onClick={[Function]}
+              onResponderGrant={[Function]}
+              onResponderMove={[Function]}
+              onResponderRelease={[Function]}
+              onResponderTerminate={[Function]}
+              onResponderTerminationRequest={[Function]}
+              onStartShouldSetResponder={[Function]}
+              style={
+                {
+                  "alignItems": "center",
+                  "borderColor": "#ced4da",
+                  "borderRadius": 4,
+                  "borderWidth": 1,
+                  "flexDirection": "row",
+                  "marginBottom": 8,
+                  "opacity": 1,
+                  "padding": 12,
+                }
+              }
+            >
+              <View
+                style={
+                  {
+                    "alignItems": "center",
+                    "borderColor": "#007bff",
+                    "borderRadius": 10,
+                    "borderWidth": 2,
+                    "height": 20,
+                    "justifyContent": "center",
+                    "marginRight": 10,
+                    "width": 20,
+                  }
+                }
+              />
+              <Text
+                style={
+                  {
+                    "color": "#495057",
+                    "fontSize": 16,
+                  }
+                }
+              >
+                Other
+              </Text>
+            </View>
+          </View>
+          <Text
+            style={
+              {
+                "color": "#6c757d",
+                "fontSize": 12,
+                "fontStyle": "italic",
+                "marginTop": 4,
+              }
+            }
+          >
+            Must permit release of carbon dioxide gas
+          </Text>
+        </View>
+        <View
+          style={
+            {
+              "borderBottomColor": "#e9ecef",
+              "borderBottomWidth": 1,
+              "marginBottom": 16,
+              "marginTop": 8,
+              "paddingBottom": 8,
+            }
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#495057",
+                "fontSize": 20,
+                "fontWeight": "bold",
+              }
+            }
+          >
+            Transport Requirements
+          </Text>
+        </View>
+        <View
+          style={
+            {
+              "marginBottom": 16,
+              "minHeight": 48,
+            }
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#495057",
+                "fontSize": 16,
+                "fontWeight": "600",
+                "marginBottom": 8,
+              }
+            }
+          >
+            Net Quantity of Dry Ice
+          </Text>
+          <View
+            style={
+              {
+                "alignItems": "center",
+                "flexDirection": "row",
+              }
+            }
+          >
+            <TextInput
+              accessibilityLabel="Quantity of dry ice, required"
+              keyboardType="numeric"
+              onChangeText={[Function]}
+              placeholder="Enter quantity"
+              style={
+                [
+                  {
+                    "backgroundColor": "#fff",
+                    "borderColor": "#ced4da",
+                    "borderRadius": 4,
+                    "borderWidth": 1,
+                    "color": "#212529",
+                    "fontSize": 16,
+                    "height": 48,
+                    "maxWidth": "90%",
+                    "paddingHorizontal": 12,
+                  },
+                  {
+                    "flex": 1,
+                    "marginRight": 8,
+                  },
+                ]
+              }
+              value=""
+            />
+            <View
+              style={
+                {
+                  "borderColor": "#ced4da",
+                  "borderRadius": 4,
+                  "borderWidth": 1,
+                  "flexDirection": "row",
+                  "overflow": "hidden",
+                }
+              }
+            >
+              <View
+                accessibilityRole="radio"
+                accessibilityState={
+                  {
+                    "busy": undefined,
+                    "checked": true,
+                    "disabled": undefined,
+                    "expanded": undefined,
+                    "selected": undefined,
+                  }
+                }
+                accessibilityValue={
+                  {
+                    "max": undefined,
+                    "min": undefined,
+                    "now": undefined,
+                    "text": undefined,
+                  }
+                }
+                accessible={true}
+                collapsable={false}
+                focusable={true}
+                onBlur={[Function]}
+                onClick={[Function]}
+                onFocus={[Function]}
+                onResponderGrant={[Function]}
+                onResponderMove={[Function]}
+                onResponderRelease={[Function]}
+                onResponderTerminate={[Function]}
+                onResponderTerminationRequest={[Function]}
+                onStartShouldSetResponder={[Function]}
+                style={
+                  [
+                    {
+                      "alignItems": "center",
+                      "backgroundColor": "#f8f9fa",
+                      "justifyContent": "center",
+                      "paddingHorizontal": 16,
+                      "paddingVertical": 12,
+                    },
+                    {
+                      "backgroundColor": "#007bff",
+                    },
+                  ]
+                }
+              >
+                <Text
+                  style={
+                    [
+                      {
+                        "color": "#495057",
+                        "fontSize": 16,
+                      },
+                      {
+                        "color": "#ffffff",
+                      },
+                    ]
+                  }
+                >
+                  lbs
+                </Text>
+              </View>
+              <View
+                accessibilityRole="radio"
+                accessibilityState={
+                  {
+                    "busy": undefined,
+                    "checked": false,
+                    "disabled": undefined,
+                    "expanded": undefined,
+                    "selected": undefined,
+                  }
+                }
+                accessibilityValue={
+                  {
+                    "max": undefined,
+                    "min": undefined,
+                    "now": undefined,
+                    "text": undefined,
+                  }
+                }
+                accessible={true}
+                collapsable={false}
+                focusable={true}
+                onBlur={[Function]}
+                onClick={[Function]}
+                onFocus={[Function]}
+                onResponderGrant={[Function]}
+                onResponderMove={[Function]}
+                onResponderRelease={[Function]}
+                onResponderTerminate={[Function]}
+                onResponderTerminationRequest={[Function]}
+                onStartShouldSetResponder={[Function]}
+                style={
+                  [
+                    {
+                      "alignItems": "center",
+                      "backgroundColor": "#f8f9fa",
+                      "justifyContent": "center",
+                      "paddingHorizontal": 16,
+                      "paddingVertical": 12,
+                    },
+                    false,
+                  ]
+                }
+              >
+                <Text
+                  style={
+                    [
+                      {
+                        "color": "#495057",
+                        "fontSize": 16,
+                      },
+                      false,
+                    ]
+                  }
+                >
+                  kg
+                </Text>
+              </View>
+            </View>
+          </View>
+          <Text
+            style={
+              {
+                "color": "#6c757d",
+                "fontSize": 12,
+                "fontStyle": "italic",
+                "marginTop": 4,
+              }
+            }
+          >
+            Required for hazard communication marking
+          </Text>
+        </View>
+        <View
+          style={
+            {
+              "marginBottom": 16,
+              "minHeight": 48,
+            }
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#495057",
+                "fontSize": 16,
+                "fontWeight": "600",
+                "marginBottom": 8,
+              }
+            }
+          >
+            Aircraft Pressurized?
+          </Text>
+          <View
+            style={
+              {
+                "alignItems": "center",
+                "flexDirection": "row",
+                "height": 48,
+              }
+            }
+          >
+            <RCTSwitch
+              accessibilityLabel="Is aircraft pressurized toggle"
+              accessibilityRole="switch"
+              onChange={[Function]}
+              onResponderTerminationRequest={[Function]}
+              onStartShouldSetResponder={[Function]}
+              onTintColor="#007bff"
+              style={
+                {
+                  "height": 31,
+                  "width": 51,
+                }
+              }
+              thumbTintColor="#fff"
+              tintColor="#d32f2f"
+              value={true}
+            />
+            <Text
+              style={
+                {
+                  "color": "#212529",
+                  "fontSize": 16,
+                  "marginLeft": 8,
+                }
+              }
+            >
+              Yes
+            </Text>
+          </View>
+        </View>
+        <View
+          style={
+            {
+              "marginBottom": 16,
+              "minHeight": 48,
+            }
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#495057",
+                "fontSize": 16,
+                "fontWeight": "600",
+                "marginBottom": 8,
+              }
+            }
+          >
+            Aircraft Type
+          </Text>
+          <View
+            style={
+              {
+                "flexDirection": "column",
+                "marginBottom": 8,
+              }
+            }
+          >
+            <View
+              accessibilityState={
+                {
+                  "busy": undefined,
+                  "checked": undefined,
+                  "disabled": undefined,
+                  "expanded": undefined,
+                  "selected": undefined,
+                }
+              }
+              accessibilityValue={
+                {
+                  "max": undefined,
+                  "min": undefined,
+                  "now": undefined,
+                  "text": undefined,
+                }
+              }
+              accessible={true}
+              collapsable={false}
+              focusable={true}
+              onClick={[Function]}
+              onResponderGrant={[Function]}
+              onResponderMove={[Function]}
+              onResponderRelease={[Function]}
+              onResponderTerminate={[Function]}
+              onResponderTerminationRequest={[Function]}
+              onStartShouldSetResponder={[Function]}
+              style={
+                {
+                  "alignItems": "center",
+                  "borderColor": "#ced4da",
+                  "borderRadius": 4,
+                  "borderWidth": 1,
+                  "flexDirection": "row",
+                  "marginBottom": 8,
+                  "opacity": 1,
+                  "padding": 12,
+                }
+              }
+            >
+              <View
+                style={
+                  {
+                    "alignItems": "center",
+                    "borderColor": "#007bff",
+                    "borderRadius": 10,
+                    "borderWidth": 2,
+                    "height": 20,
+                    "justifyContent": "center",
+                    "marginRight": 10,
+                    "width": 20,
+                  }
+                }
+              />
+              <Text
+                style={
+                  {
+                    "color": "#495057",
+                    "fontSize": 16,
+                  }
+                }
+              >
+                C-17
+              </Text>
+            </View>
+            <View
+              accessibilityState={
+                {
+                  "busy": undefined,
+                  "checked": undefined,
+                  "disabled": undefined,
+                  "expanded": undefined,
+                  "selected": undefined,
+                }
+              }
+              accessibilityValue={
+                {
+                  "max": undefined,
+                  "min": undefined,
+                  "now": undefined,
+                  "text": undefined,
+                }
+              }
+              accessible={true}
+              collapsable={false}
+              focusable={true}
+              onClick={[Function]}
+              onResponderGrant={[Function]}
+              onResponderMove={[Function]}
+              onResponderRelease={[Function]}
+              onResponderTerminate={[Function]}
+              onResponderTerminationRequest={[Function]}
+              onStartShouldSetResponder={[Function]}
+              style={
+                {
+                  "alignItems": "center",
+                  "borderColor": "#ced4da",
+                  "borderRadius": 4,
+                  "borderWidth": 1,
+                  "flexDirection": "row",
+                  "marginBottom": 8,
+                  "opacity": 1,
+                  "padding": 12,
+                }
+              }
+            >
+              <View
+                style={
+                  {
+                    "alignItems": "center",
+                    "borderColor": "#007bff",
+                    "borderRadius": 10,
+                    "borderWidth": 2,
+                    "height": 20,
+                    "justifyContent": "center",
+                    "marginRight": 10,
+                    "width": 20,
+                  }
+                }
+              />
+              <Text
+                style={
+                  {
+                    "color": "#495057",
+                    "fontSize": 16,
+                  }
+                }
+              >
+                C-5
+              </Text>
+            </View>
+            <View
+              accessibilityState={
+                {
+                  "busy": undefined,
+                  "checked": undefined,
+                  "disabled": undefined,
+                  "expanded": undefined,
+                  "selected": undefined,
+                }
+              }
+              accessibilityValue={
+                {
+                  "max": undefined,
+                  "min": undefined,
+                  "now": undefined,
+                  "text": undefined,
+                }
+              }
+              accessible={true}
+              collapsable={false}
+              focusable={true}
+              onClick={[Function]}
+              onResponderGrant={[Function]}
+              onResponderMove={[Function]}
+              onResponderRelease={[Function]}
+              onResponderTerminate={[Function]}
+              onResponderTerminationRequest={[Function]}
+              onStartShouldSetResponder={[Function]}
+              style={
+                {
+                  "alignItems": "center",
+                  "borderColor": "#ced4da",
+                  "borderRadius": 4,
+                  "borderWidth": 1,
+                  "flexDirection": "row",
+                  "marginBottom": 8,
+                  "opacity": 1,
+                  "padding": 12,
+                }
+              }
+            >
+              <View
+                style={
+                  {
+                    "alignItems": "center",
+                    "borderColor": "#007bff",
+                    "borderRadius": 10,
+                    "borderWidth": 2,
+                    "height": 20,
+                    "justifyContent": "center",
+                    "marginRight": 10,
+                    "width": 20,
+                  }
+                }
+              />
+              <Text
+                style={
+                  {
+                    "color": "#495057",
+                    "fontSize": 16,
+                  }
+                }
+              >
+                KC-135
+              </Text>
+            </View>
+            <View
+              accessibilityState={
+                {
+                  "busy": undefined,
+                  "checked": undefined,
+                  "disabled": undefined,
+                  "expanded": undefined,
+                  "selected": undefined,
+                }
+              }
+              accessibilityValue={
+                {
+                  "max": undefined,
+                  "min": undefined,
+                  "now": undefined,
+                  "text": undefined,
+                }
+              }
+              accessible={true}
+              collapsable={false}
+              focusable={true}
+              onClick={[Function]}
+              onResponderGrant={[Function]}
+              onResponderMove={[Function]}
+              onResponderRelease={[Function]}
+              onResponderTerminate={[Function]}
+              onResponderTerminationRequest={[Function]}
+              onStartShouldSetResponder={[Function]}
+              style={
+                {
+                  "alignItems": "center",
+                  "borderColor": "#ced4da",
+                  "borderRadius": 4,
+                  "borderWidth": 1,
+                  "flexDirection": "row",
+                  "marginBottom": 8,
+                  "opacity": 1,
+                  "padding": 12,
+                }
+              }
+            >
+              <View
+                style={
+                  {
+                    "alignItems": "center",
+                    "borderColor": "#007bff",
+                    "borderRadius": 10,
+                    "borderWidth": 2,
+                    "height": 20,
+                    "justifyContent": "center",
+                    "marginRight": 10,
+                    "width": 20,
+                  }
+                }
+              />
+              <Text
+                style={
+                  {
+                    "color": "#495057",
+                    "fontSize": 16,
+                  }
+                }
+              >
+                KC-10
+              </Text>
+            </View>
+            <View
+              accessibilityState={
+                {
+                  "busy": undefined,
+                  "checked": undefined,
+                  "disabled": undefined,
+                  "expanded": undefined,
+                  "selected": undefined,
+                }
+              }
+              accessibilityValue={
+                {
+                  "max": undefined,
+                  "min": undefined,
+                  "now": undefined,
+                  "text": undefined,
+                }
+              }
+              accessible={true}
+              collapsable={false}
+              focusable={true}
+              onClick={[Function]}
+              onResponderGrant={[Function]}
+              onResponderMove={[Function]}
+              onResponderRelease={[Function]}
+              onResponderTerminate={[Function]}
+              onResponderTerminationRequest={[Function]}
+              onStartShouldSetResponder={[Function]}
+              style={
+                {
+                  "alignItems": "center",
+                  "borderColor": "#ced4da",
+                  "borderRadius": 4,
+                  "borderWidth": 1,
+                  "flexDirection": "row",
+                  "marginBottom": 8,
+                  "opacity": 1,
+                  "padding": 12,
+                }
+              }
+            >
+              <View
+                style={
+                  {
+                    "alignItems": "center",
+                    "borderColor": "#007bff",
+                    "borderRadius": 10,
+                    "borderWidth": 2,
+                    "height": 20,
+                    "justifyContent": "center",
+                    "marginRight": 10,
+                    "width": 20,
+                  }
+                }
+              />
+              <Text
+                style={
+                  {
+                    "color": "#495057",
+                    "fontSize": 16,
+                  }
+                }
+              >
+                Other
+              </Text>
+            </View>
+          </View>
+          <Text
+            style={
+              {
+                "color": "#6c757d",
+                "fontSize": 12,
+                "fontStyle": "italic",
+                "marginTop": 4,
+              }
+            }
+          >
+            Different aircraft types have different quantity limitations
+          </Text>
+        </View>
+        <View
+          style={
+            {
+              "marginBottom": 16,
+              "minHeight": 48,
+            }
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#495057",
+                "fontSize": 16,
+                "fontWeight": "600",
+                "marginBottom": 8,
+              }
+            }
+          >
+            Venting Provided to Release CO₂ Gas?
+          </Text>
+          <View
+            style={
+              {
+                "alignItems": "center",
+                "flexDirection": "row",
+                "height": 48,
+              }
+            }
+          >
+            <RCTSwitch
+              accessibilityLabel="Is venting provided toggle"
+              accessibilityRole="switch"
+              onChange={[Function]}
+              onResponderTerminationRequest={[Function]}
+              onStartShouldSetResponder={[Function]}
+              onTintColor="#007bff"
+              style={
+                {
+                  "height": 31,
+                  "width": 51,
+                }
+              }
+              thumbTintColor="#fff"
+              tintColor="#d32f2f"
+              value={true}
+            />
+            <Text
+              style={
+                {
+                  "color": "#212529",
+                  "fontSize": 16,
+                  "marginLeft": 8,
+                }
+              }
+            >
+              Yes
+            </Text>
+          </View>
+        </View>
+        <View
+          style={
+            {
+              "marginBottom": 16,
+              "minHeight": 48,
+            }
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#495057",
+                "fontSize": 14,
+                "fontWeight": "500",
+                "marginBottom": 8,
+              }
+            }
+          >
+            Special Handling Instructions
+             
+            <Text
+              style={
+                {
+                  "color": "#6c757d",
+                  "fontStyle": "italic",
+                  "fontWeight": "normal",
+                }
+              }
+            >
+              (optional)
+            </Text>
+          </Text>
+          <TextInput
+            accessibilityLabel="Special handling instructions, optional"
+            multiline={true}
+            numberOfLines={4}
+            onChangeText={[Function]}
+            placeholder="Any special handling instructions for this shipment"
+            style={
+              [
+                {
+                  "backgroundColor": "#fff",
+                  "borderColor": "#ced4da",
+                  "borderRadius": 4,
+                  "borderWidth": 1,
+                  "color": "#212529",
+                  "fontSize": 16,
+                  "height": 48,
+                  "maxWidth": "90%",
+                  "paddingHorizontal": 12,
+                },
+                {
+                  "height": 100,
+                  "paddingTop": 12,
+                  "textAlignVertical": "top",
+                },
+                {
+                  "backgroundColor": "#f8f9fa",
+                  "borderColor": "#dee2e6",
+                },
+              ]
+            }
+            value=""
+          />
+        </View>
+      </View>
+    </View>
+  </RCTScrollView>
+  <View
+    style={
+      {
+        "backgroundColor": "#ffffff",
+        "borderTopColor": "#e9ecef",
+        "borderTopWidth": 1,
+        "flexDirection": "row",
+        "justifyContent": "space-between",
+        "padding": 16,
+      }
+    }
+  >
+    <View
+      accessibilityLabel="Cancel button"
+      accessibilityRole="button"
+      accessibilityState={
+        {
+          "busy": undefined,
+          "checked": undefined,
+          "disabled": undefined,
+          "expanded": undefined,
+          "selected": undefined,
+        }
+      }
+      accessibilityValue={
+        {
+          "max": undefined,
+          "min": undefined,
+          "now": undefined,
+          "text": undefined,
+        }
+      }
+      accessible={true}
+      collapsable={false}
+      focusable={true}
+      onClick={[Function]}
+      onResponderGrant={[Function]}
+      onResponderMove={[Function]}
+      onResponderRelease={[Function]}
+      onResponderTerminate={[Function]}
+      onResponderTerminationRequest={[Function]}
+      onStartShouldSetResponder={[Function]}
+      style={
+        {
+          "alignItems": "center",
+          "borderColor": "#0066cc",
+          "borderRadius": 4,
+          "borderWidth": 1,
+          "flex": 1,
+          "height": 48,
+          "justifyContent": "center",
+          "marginRight": 8,
+          "opacity": 1,
+        }
+      }
+    >
+      <Text
+        style={
+          {
+            "color": "#0066cc",
+            "fontSize": 16,
+            "fontWeight": "600",
+          }
+        }
+      >
+        Cancel
+      </Text>
+    </View>
+    <View
+      accessibilityLabel="Save and exit button"
+      accessibilityRole="button"
+      accessibilityState={
+        {
+          "busy": undefined,
+          "checked": undefined,
+          "disabled": undefined,
+          "expanded": undefined,
+          "selected": undefined,
+        }
+      }
+      accessibilityValue={
+        {
+          "max": undefined,
+          "min": undefined,
+          "now": undefined,
+          "text": undefined,
+        }
+      }
+      accessible={true}
+      collapsable={false}
+      focusable={true}
+      onClick={[Function]}
+      onResponderGrant={[Function]}
+      onResponderMove={[Function]}
+      onResponderRelease={[Function]}
+      onResponderTerminate={[Function]}
+      onResponderTerminationRequest={[Function]}
+      onStartShouldSetResponder={[Function]}
+      style={
+        {
+          "alignItems": "center",
+          "backgroundColor": "#6C757D",
+          "borderRadius": 4,
+          "flex": 1,
+          "height": 48,
+          "justifyContent": "center",
+          "marginHorizontal": 8,
+          "opacity": 1,
+        }
+      }
+    >
+      <Text
+        style={
+          {
+            "color": "#ffffff",
+            "fontSize": 16,
+            "fontWeight": "600",
+          }
+        }
+      >
+        Save & Exit
+      </Text>
+    </View>
+    <View
+      accessibilityLabel="Save and continue button"
+      accessibilityRole="button"
+      accessibilityState={
+        {
+          "busy": undefined,
+          "checked": undefined,
+          "disabled": true,
+          "expanded": undefined,
+          "selected": undefined,
+        }
+      }
+      accessibilityValue={
+        {
+          "max": undefined,
+          "min": undefined,
+          "now": undefined,
+          "text": undefined,
+        }
+      }
+      accessible={true}
+      collapsable={false}
+      focusable={false}
+      onClick={[Function]}
+      onResponderGrant={[Function]}
+      onResponderMove={[Function]}
+      onResponderRelease={[Function]}
+      onResponderTerminate={[Function]}
+      onResponderTerminationRequest={[Function]}
+      onStartShouldSetResponder={[Function]}
+      style={
+        {
+          "alignItems": "center",
+          "backgroundColor": "#a0a0a0",
+          "borderRadius": 4,
+          "flex": 1,
+          "height": 48,
+          "justifyContent": "center",
+          "marginLeft": 8,
+          "opacity": 0.7,
+        }
+      }
+    >
+      <Text
+        style={
+          {
+            "color": "#ffffff",
+            "fontSize": 16,
+            "fontWeight": "600",
+          }
+        }
+      >
+        Save & Continue
+      </Text>
+    </View>
+  </View>
+</View>
+`;
