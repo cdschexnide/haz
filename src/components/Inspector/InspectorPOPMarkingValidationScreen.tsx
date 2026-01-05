@@ -80,33 +80,8 @@ const NotDetectedState = ({ navigation }: { navigation: any }) => {
   };
 
   const navigateToNextScreen = () => {
-    const unIdNo = inspection.extractedContent?.unIdNo || "";
-
-    if (unIdNo === "UN1845") {
-      navigation.navigate("InspectorDryIceScreen");
-    } else if (unIdNo === "UN2807") {
-      navigation.navigate("InspectorMagnetizedMaterialsScreen");
-    } else if (unIdNo === "UN3072" || unIdNo === "UN2990") {
-      navigation.navigate("InspectorLifeSavingAppliancesScreen");
-    } else if (unIdNo === "UN3245") {
-      navigation.navigate("InspectorGeneticallyModifiedOrganismsScreen");
-    } else if (unIdNo === "UN3268") {
-      navigation.navigate("InspectorSafetyDevicesScreen");
-    } else if (unIdNo === "UN3508") {
-      navigation.navigate("InspectorCapacitorsScreen");
-    } else if (unIdNo === "UN3528" || unIdNo === "UN3529") {
-      navigation.navigate("InspectorEnginesInternalCombustionScreen");
-    } else if (unIdNo === "UN3316") {
-      navigation.navigate("InspectorFirstAidChemicalKitScreen");
-    } else if (unIdNo === "UN3363") {
-      navigation.navigate("InspectorDangerousGoodsInApparatusScreen");
-    } else if (unIdNo === "UN3171") {
-      navigation.navigate("InspectorBatteryPoweredVehicleScreen");
-    } else if (unIdNo === "UN3480" || unIdNo === "UN3090") {
-      navigation.navigate("InspectorLithiumBatteriesScreen");
-    } else {
-      navigation.navigate("InspectorPackageVerification");
-    }
+    // Navigate to markings/labels validation screen instead of material-specific screens
+    navigation.navigate("InspectorMarkingsLabelsValidationScreen");
   };
 
   return (
@@ -434,33 +409,8 @@ const DetectedState = ({ navigation }: { navigation: any }) => {
 
   // Navigate to next screen
   const navigateToNextScreen = () => {
-    const unIdNo = inspection.extractedContent?.unIdNo || "";
-
-    if (unIdNo === "UN1845") {
-      navigation.navigate("InspectorDryIceScreen");
-    } else if (unIdNo === "UN2807") {
-      navigation.navigate("InspectorMagnetizedMaterialsScreen");
-    } else if (unIdNo === "UN3072" || unIdNo === "UN2990") {
-      navigation.navigate("InspectorLifeSavingAppliancesScreen");
-    } else if (unIdNo === "UN3245") {
-      navigation.navigate("InspectorGeneticallyModifiedOrganismsScreen");
-    } else if (unIdNo === "UN3268") {
-      navigation.navigate("InspectorSafetyDevicesScreen");
-    } else if (unIdNo === "UN3508") {
-      navigation.navigate("InspectorCapacitorsScreen");
-    } else if (unIdNo === "UN3528" || unIdNo === "UN3529") {
-      navigation.navigate("InspectorEnginesInternalCombustionScreen");
-    } else if (unIdNo === "UN3316") {
-      navigation.navigate("InspectorFirstAidChemicalKitScreen");
-    } else if (unIdNo === "UN3363") {
-      navigation.navigate("InspectorDangerousGoodsInApparatusScreen");
-    } else if (unIdNo === "UN3171") {
-      navigation.navigate("InspectorBatteryPoweredVehicleScreen");
-    } else if (unIdNo === "UN3480" || unIdNo === "UN3090") {
-      navigation.navigate("InspectorLithiumBatteriesScreen");
-    } else {
-      navigation.navigate("InspectorPackageVerification");
-    }
+    // Navigate to markings/labels validation screen instead of material-specific screens
+    navigation.navigate("InspectorMarkingsLabelsValidationScreen");
   };
 
   return (
