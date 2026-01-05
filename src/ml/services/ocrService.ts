@@ -552,9 +552,13 @@ export function extractOtherMarkings(text: string): string[] {
  * This is the main extraction function that combines all extractors
  *
  * @param ocrText - Raw OCR text from image
+ * @param textLines - Array of text lines from OCR (for line-level extraction)
  * @returns Structured extraction results
  */
-export function extractMarkingsFromText(ocrText: string): ExtractedMarkings {
+export function extractMarkingsFromText(
+  ocrText: string,
+  textLines: { text: string }[] = []
+): ExtractedMarkings {
   console.log('[OCR] Extracting markings from text, length:', ocrText?.length || 0);
 
   if (!ocrText || ocrText.trim().length === 0) {
@@ -567,11 +571,17 @@ export function extractMarkingsFromText(ocrText: string): ExtractedMarkings {
       dates: [],
       countryOfOrigin: null,
       otherMarkings: [],
+      exNumbers: [],
+      properShippingNames: [],
+      unWithPSN: [],
     };
   }
 
-  // 1. Try to extract POP marking (reuse existing parser)
+  // ===== PASS 1: Extract POP marking FIRST =====
+  // This prevents false positives (e.g., "4G" from "UN 4G / X 25 / S / 22 / USA / DOD" being matched as 4 grams)
   let popMarking: ParsedPOPMarking | null = null;
+  let textWithoutPOP = ocrText;
+
   try {
     const popResult = extractPOPMarkingFromText(ocrText);
 
@@ -582,9 +592,15 @@ export function extractMarkingsFromText(ocrText: string): ExtractedMarkings {
         confidence: popResult.confidence,
         issues: popResult.issues,
         detectedType: popResult.detectedType,
-        sourceText: ocrText,
+        sourceText: popResult.matchedText || '',
       };
       console.log('[OCR] POP marking found with confidence:', popResult.confidence);
+
+      // Remove POP text from further processing to prevent false positives
+      if (popResult.matchedText) {
+        textWithoutPOP = ocrText.replace(popResult.matchedText, ' ');
+        console.log('[OCR] Excluded POP text from further extraction');
+      }
     } else {
       console.log('[OCR] No POP marking found in text');
     }
@@ -592,37 +608,42 @@ export function extractMarkingsFromText(ocrText: string): ExtractedMarkings {
     console.error('[OCR] POP marking extraction error:', error);
   }
 
-  // 2. Extract UN numbers
-  const unNumbers = extractUNNumbers(ocrText);
+  // ===== PASS 2: Line-level extraction for UN+PSN, EX numbers =====
+  const unWithPSN = extractUNWithPSN(textLines);
+  const exNumbers = extractEXNumbers(ocrText);
 
-  // 3. Extract weights
-  const weights = extractWeights(ocrText);
+  // ===== PASS 3: Remaining extractions from text WITHOUT POP marking =====
+  const unNumbers = extractUNNumbers(textWithoutPOP);
+  const weights = extractWeights(textWithoutPOP);
+  const hazardClasses = extractHazardClasses(textWithoutPOP);
+  const dates = extractDates(textWithoutPOP);
+  const countryOfOrigin = extractCountryOfOrigin(textWithoutPOP);
+  const otherMarkings = extractOtherMarkings(textWithoutPOP);
 
-  // 4. Extract hazard classes
-  const hazardClasses = extractHazardClasses(ocrText);
-
-  // 5. Extract dates
-  const dates = extractDates(ocrText);
-
-  // 6. Extract country of origin
-  const countryOfOrigin = extractCountryOfOrigin(ocrText);
-
-  // 7. Extract other significant markings
-  const otherMarkings = extractOtherMarkings(ocrText);
+  // Merge UN numbers from both sources (deduplicated)
+  const allUNNumbers = [...new Set([
+    ...unNumbers,
+    ...unWithPSN.map(pair => pair.un)
+  ])];
 
   const result: ExtractedMarkings = {
     popMarking,
-    unNumbers,
+    unNumbers: allUNNumbers,
     weights,
     hazardClasses,
     dates,
     countryOfOrigin,
     otherMarkings,
+    exNumbers,
+    properShippingNames: unWithPSN.map(pair => pair.psn),
+    unWithPSN,
   };
 
   console.log('[OCR] Extraction complete:', {
     hasPOP: !!popMarking,
-    unCount: unNumbers.length,
+    unCount: allUNNumbers.length,
+    exCount: exNumbers.length,
+    psnCount: unWithPSN.length,
     weightCount: weights.length,
     hazClassCount: hazardClasses.length,
     dateCount: dates.length,
