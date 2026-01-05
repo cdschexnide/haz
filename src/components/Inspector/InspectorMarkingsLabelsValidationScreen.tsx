@@ -194,6 +194,225 @@ export default function InspectorMarkingsLabelsValidationScreen({
     ?.data.filter((i) => i.validationStatus !== "pending").length || 0;
   const labelsTotal = sections.find((s) => s.title === "LABELS")?.data.length || 0;
 
+  // ============ HANDLERS ============
+
+  const handleValidate = useCallback((item: ValidationItem) => {
+    // If previously frustrated, remove the frustration
+    if (item.validationStatus === "frustrated") {
+      removePackageFrustration(item.id);
+    }
+
+    // Update local state
+    setSections((prevSections) =>
+      prevSections.map((section) => ({
+        ...section,
+        data: section.data.map((dataItem) =>
+          dataItem.id === item.id
+            ? { ...dataItem, validationStatus: "validated" as const }
+            : dataItem
+        ),
+      }))
+    );
+  }, [removePackageFrustration]);
+
+  const handleFrustrate = useCallback((item: ValidationItem) => {
+    // Add frustration to context
+    addPackageFrustration({
+      category: item.category,
+      itemId: item.id,
+      itemLabel: item.label,
+      expectedValues: item.expectedValues,
+      verificationStatus: "missing",
+      defaultMessage: `Required ${item.category} "${item.label}" not found on package`,
+      afmanReference: item.afmanReference || "AFMAN 24-604",
+    });
+
+    // Update local state
+    setSections((prevSections) =>
+      prevSections.map((section) => ({
+        ...section,
+        data: section.data.map((dataItem) =>
+          dataItem.id === item.id
+            ? { ...dataItem, validationStatus: "frustrated" as const }
+            : dataItem
+        ),
+      }))
+    );
+  }, [addPackageFrustration]);
+
+  // ============ RENDER HELPERS ============
+
+  const renderValidationCard = ({ item }: { item: ValidationItem }) => {
+    const isMatched = item.matchStatus === "matched";
+    const isValidated = item.validationStatus === "validated";
+    const isFrustrated = item.validationStatus === "frustrated";
+
+    // Determine card styling based on state
+    let borderColor = "#E5E5EA";
+    let backgroundColor = "#FFFFFF";
+    let leftBorderColor = item.category === "marking" ? "#FF9500" : "#007AFF";
+
+    if (isValidated) {
+      borderColor = "#34C759";
+      backgroundColor = "#F0FFF4";
+      leftBorderColor = "#34C759";
+    } else if (isFrustrated) {
+      borderColor = "#FF3B30";
+      backgroundColor = "#FFF5F5";
+      leftBorderColor = "#FF3B30";
+    } else if (isMatched) {
+      borderColor = "#007AFF";
+      backgroundColor = "#FFFFFF";
+    } else {
+      // Unmatched - needs attention
+      backgroundColor = "#FFF8E1";
+      borderColor = "#FF9500";
+    }
+
+    return (
+      <View
+        style={[
+          styles.card,
+          {
+            borderColor,
+            backgroundColor,
+            borderLeftColor: leftBorderColor,
+          },
+        ]}
+      >
+        {/* Header Row */}
+        <View style={styles.cardHeader}>
+          <Text style={styles.cardTitle}>{item.label}</Text>
+          {renderStatusBadge(item)}
+        </View>
+
+        {/* Expected Values */}
+        <View style={styles.expectedValuesContainer}>
+          {item.expectedValues.map((value, index) => (
+            <View key={index} style={styles.expectedValueChip}>
+              <Text style={styles.expectedValueText}>{value}</Text>
+            </View>
+          ))}
+        </View>
+
+        {/* Match Info */}
+        {isMatched && item.matchedDetection && (
+          <Text style={styles.matchInfoText}>
+            Detected: "{item.matchedDetection.className}"
+          </Text>
+        )}
+        {isMatched && !item.matchedDetection && item.category === "marking" && (
+          <Text style={styles.matchInfoText}>Found in package text (OCR)</Text>
+        )}
+        {!isMatched && (
+          <View style={styles.warningRow}>
+            <MaterialIcons name="warning" size={16} color="#FF9500" />
+            <Text style={styles.warningText}>Verify manually on package</Text>
+          </View>
+        )}
+
+        {/* Action Buttons */}
+        <View style={styles.cardActions}>
+          <TouchableOpacity
+            style={[
+              styles.actionButton,
+              styles.validateButton,
+              isValidated && styles.validateButtonActive,
+            ]}
+            onPress={() => handleValidate(item)}
+          >
+            <MaterialIcons
+              name="check"
+              size={24}
+              color={isValidated ? "#FFFFFF" : "#34C759"}
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.actionButton,
+              styles.frustrateButton,
+              isFrustrated && styles.frustrateButtonActive,
+            ]}
+            onPress={() => handleFrustrate(item)}
+          >
+            <MaterialIcons
+              name="close"
+              size={24}
+              color={isFrustrated ? "#FFFFFF" : "#FF3B30"}
+            />
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
+
+  const renderStatusBadge = (item: ValidationItem) => {
+    if (item.validationStatus === "validated") {
+      return (
+        <View style={[styles.badge, styles.badgeValidated]}>
+          <MaterialIcons name="check-circle" size={14} color="#FFFFFF" />
+          <Text style={styles.badgeText}>Verified</Text>
+        </View>
+      );
+    }
+
+    if (item.validationStatus === "frustrated") {
+      return (
+        <View style={[styles.badge, styles.badgeFrustrated]}>
+          <MaterialIcons name="cancel" size={14} color="#FFFFFF" />
+          <Text style={styles.badgeText}>Frustration</Text>
+        </View>
+      );
+    }
+
+    if (item.matchStatus === "matched") {
+      const confidence = item.matchConfidence
+        ? Math.round(item.matchConfidence * 100)
+        : null;
+      return (
+        <View style={[styles.badge, styles.badgeMatched]}>
+          <MaterialIcons name="auto-awesome" size={14} color="#FFFFFF" />
+          <Text style={styles.badgeText}>
+            ML Detected{confidence ? ` ${confidence}%` : ""}
+          </Text>
+        </View>
+      );
+    }
+
+    return (
+      <View style={[styles.badge, styles.badgeUnmatched]}>
+        <MaterialIcons name="search-off" size={14} color="#FFFFFF" />
+        <Text style={styles.badgeText}>Not Detected</Text>
+      </View>
+    );
+  };
+
+  const renderSectionHeader = ({ section }: { section: ValidationSection }) => {
+    const completedCount = section.data.filter(
+      (item) => item.validationStatus !== "pending"
+    ).length;
+    const totalCount = section.data.length;
+
+    return (
+      <View style={styles.sectionHeader}>
+        <View style={styles.sectionHeaderLeft}>
+          <MaterialIcons
+            name={section.icon as any}
+            size={20}
+            color="#1D1D1F"
+          />
+          <Text style={styles.sectionHeaderTitle}>{section.title}</Text>
+        </View>
+        <View style={styles.sectionHeaderBadge}>
+          <Text style={styles.sectionHeaderBadgeText}>
+            {completedCount}/{totalCount}
+          </Text>
+        </View>
+      </View>
+    );
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
@@ -335,5 +554,153 @@ const styles = StyleSheet.create({
   },
   disabledButtonText: {
     color: "#8E8E93",
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: "#F8F9FA",
+    paddingVertical: 12,
+    marginBottom: 8,
+    marginTop: 8,
+  },
+  sectionHeaderLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  sectionHeaderTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#1D1D1F",
+    letterSpacing: 0.5,
+  },
+  sectionHeaderBadge: {
+    backgroundColor: "#E5E5EA",
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  sectionHeaderBadgeText: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#3C3C43",
+  },
+  card: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 12,
+    marginBottom: 12,
+    borderLeftWidth: 4,
+    borderWidth: 1,
+    borderColor: "#E5E5EA",
+    padding: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  cardHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: 12,
+  },
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#1D1D1F",
+    flex: 1,
+    marginRight: 8,
+  },
+  badge: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    gap: 4,
+  },
+  badgeMatched: {
+    backgroundColor: "#007AFF",
+  },
+  badgeUnmatched: {
+    backgroundColor: "#FF9500",
+  },
+  badgeValidated: {
+    backgroundColor: "#34C759",
+  },
+  badgeFrustrated: {
+    backgroundColor: "#FF3B30",
+  },
+  badgeText: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: "#FFFFFF",
+  },
+  expectedValuesContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    marginBottom: 12,
+  },
+  expectedValueChip: {
+    backgroundColor: "#F2F2F7",
+    borderRadius: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderWidth: 1,
+    borderColor: "#D1D1D6",
+  },
+  expectedValueText: {
+    fontSize: 13,
+    fontWeight: "500",
+    color: "#3C3C43",
+  },
+  matchInfoText: {
+    fontSize: 13,
+    color: "#007AFF",
+    marginBottom: 12,
+    fontStyle: "italic",
+  },
+  warningRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginBottom: 12,
+  },
+  warningText: {
+    fontSize: 13,
+    color: "#FF9500",
+    fontWeight: "500",
+  },
+  cardActions: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: 12,
+  },
+  actionButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 10,
+    borderWidth: 2,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  validateButton: {
+    backgroundColor: "#FFFFFF",
+    borderColor: "#34C759",
+  },
+  validateButtonActive: {
+    backgroundColor: "#34C759",
+    borderColor: "#34C759",
+  },
+  frustrateButton: {
+    backgroundColor: "#FFFFFF",
+    borderColor: "#FF3B30",
+  },
+  frustrateButtonActive: {
+    backgroundColor: "#FF3B30",
+    borderColor: "#FF3B30",
   },
 });
