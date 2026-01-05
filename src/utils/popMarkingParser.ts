@@ -1063,6 +1063,7 @@ export function extractPOPMarkingFromText(ocrText: string): {
   confidence: number;
   issues: string[];
   detectedType: POPMarkingType;
+  matchedText: string | null;
 } {
   console.log('\n=== extractPOPMarkingFromText START ===');
   console.log('Input OCR text:', ocrText);
@@ -1072,6 +1073,9 @@ export function extractPOPMarkingFromText(ocrText: string): {
   // Converts everything to canonical format: " / " (space-slash-space)
   const normalizedText = normalizeDelimiters(ocrText);
   console.log('After normalization:', normalizedText);
+
+  // Track the text that was matched for exclusion from other extractors
+  let matchedText: string | null = null;
 
   // Step 1: Detect the type of POP marking (using normalized text)
   const detectedType = detectPOPMarkingType(normalizedText);
@@ -1120,11 +1124,16 @@ export function extractPOPMarkingFromText(ocrText: string): {
       fields: null,
       confidence: 0,
       issues: ['Could not locate POP marking in text. Look for format: UN / code / X|Y|Z / number / ...'],
-      detectedType: POPMarkingType.UNKNOWN
+      detectedType: POPMarkingType.UNKNOWN,
+      matchedText: null
     };
   }
 
   console.log('✓ Fields extracted successfully');
+
+  // Capture the normalized text that was successfully parsed
+  // This allows other extractors to exclude this text to prevent false positives
+  matchedText = normalizedText;
 
   // Step 3: Validate fields (type-aware validation)
   const issues = validatePOPMarkingFields(fields);
@@ -1211,6 +1220,7 @@ export function extractPOPMarkingFromText(ocrText: string): {
     fields,
     confidence,
     issues,
-    detectedType
+    detectedType,
+    matchedText
   };
 }
