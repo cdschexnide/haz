@@ -92,6 +92,9 @@ function aggregateResults(results: ImageAnalysisResult[]): AggregatedAnalysis {
   const allHazardClasses = new Set<string>();
   let bestPopMarking: AggregatedAnalysis['bestPopMarking'] = null;
   let countryOfOrigin: string | null = null;
+  const allEXNumbers = new Set<string>();
+  const allPSNs = new Set<string>();
+  const allUnWithPSN: { un: string; psn: string }[] = [];
 
   results.forEach((result, imageIndex) => {
     totalProcessingTime += result.totalProcessingTime;
@@ -134,6 +137,17 @@ function aggregateResults(results: ImageAnalysisResult[]): AggregatedAnalysis {
         countryOfOrigin = markings.countryOfOrigin;
       }
 
+      // EX numbers
+      markings.exNumbers?.forEach((ex) => allEXNumbers.add(ex));
+
+      // Proper shipping names
+      markings.properShippingNames?.forEach((psn) => allPSNs.add(psn));
+
+      // UN+PSN pairs (keep all, may have duplicates with different images)
+      if (markings.unWithPSN) {
+        allUnWithPSN.push(...markings.unWithPSN);
+      }
+
       // POP marking (highest confidence wins)
       if (markings.popMarking?.found && markings.popMarking.fields) {
         const popConfidence = markings.popMarking.confidence;
@@ -161,6 +175,9 @@ function aggregateResults(results: ImageAnalysisResult[]): AggregatedAnalysis {
     allWeights,
     allHazardClasses: Array.from(allHazardClasses),
     countryOfOrigin,
+    allEXNumbers: Array.from(allEXNumbers),
+    allPSNs: Array.from(allPSNs),
+    allUnWithPSN,
     imagesProcessed: results.length,
     totalProcessingTime,
     perImageResults: results,
@@ -169,6 +186,8 @@ function aggregateResults(results: ImageAnalysisResult[]): AggregatedAnalysis {
   console.log('[useDetection] Aggregation complete:', {
     labels: sortedLabels.length,
     unNumbers: allUnNumbers.size,
+    exNumbers: allEXNumbers.size,
+    unWithPSN: allUnWithPSN.length,
     hasPOP: !!bestPopMarking,
     totalTime: totalProcessingTime,
   });

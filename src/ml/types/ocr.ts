@@ -157,6 +157,15 @@ export interface AggregatedAnalysis {
   /** Best country of origin (first found) */
   countryOfOrigin: string | null;
 
+  /** All EX classification numbers found */
+  allEXNumbers: string[];
+
+  /** All proper shipping names found */
+  allPSNs: string[];
+
+  /** All UN+PSN pairs found */
+  allUnWithPSN: { un: string; psn: string }[];
+
   /** Number of images successfully processed */
   imagesProcessed: number;
 
