@@ -786,22 +786,22 @@ export function MLDetectionScreen({
             aggregatedResults.allUnNumbers.length > 0 ||
             aggregatedResults.allEXNumbers?.length > 0 ||
             aggregatedResults.allUnWithPSN?.length > 0 ||
-            aggregatedResults.allWeights.length > 0 ||
-            aggregatedResults.allHazardClasses.length > 0 ||
-            aggregatedResults.countryOfOrigin
+            aggregatedResults.rawPopMarkingText ||
+            aggregatedResults.allHazardClasses.length > 0
           ) && (
             <ExtractedDataCard
               markings={{
                 popMarking: null,
                 unNumbers: aggregatedResults.allUnNumbers,
-                weights: aggregatedResults.allWeights,
+                weights: [],
                 hazardClasses: aggregatedResults.allHazardClasses,
                 dates: [],
-                countryOfOrigin: aggregatedResults.countryOfOrigin,
+                countryOfOrigin: null,
                 otherMarkings: [],
                 exNumbers: aggregatedResults.allEXNumbers || [],
                 properShippingNames: aggregatedResults.allPSNs || [],
                 unWithPSN: aggregatedResults.allUnWithPSN || [],
+                rawPopMarkingText: aggregatedResults.rawPopMarkingText || null,
               }}
             />
           )}
@@ -809,10 +809,10 @@ export function MLDetectionScreen({
           {/* Per-image detection results */}
           {displayResults.map((result, index) => (
             <View key={`result-${index}`} style={styles.resultCard}>
-              <Text style={styles.resultCardTitle}>
+              {/* <Text style={styles.resultCardTitle}>
                 Image {index + 1} • {result.inferenceTime}ms
                 {result.ocrResult ? ` • OCR: ${result.ocrResult.processingTime}ms` : ""}
-              </Text>
+              </Text> */}
               <DetectionOverlay result={result} maxHeight={250} />
 
               {/* Detection list with always-visible edit actions */}
@@ -877,26 +877,8 @@ export function MLDetectionScreen({
                 </TouchableOpacity>
               </View>
 
-              {/* Show raw OCR text if available */}
-              {result.ocrResult?.fullText && (
-                <View style={styles.ocrTextContainer}>
-                  <Text style={styles.ocrTextLabel}>OCR Text:</Text>
-                  <Text style={styles.ocrText} numberOfLines={3}>
-                    {result.ocrResult.fullText}
-                  </Text>
-                </View>
-              )}
             </View>
           ))}
-
-          {/* Processing time summary */}
-          {aggregatedResults && (
-            <View style={styles.timingSummary}>
-              <Text style={styles.timingText}>
-                Total: {aggregatedResults.totalProcessingTime}ms • {aggregatedResults.imagesProcessed} image{aggregatedResults.imagesProcessed !== 1 ? "s" : ""}
-              </Text>
-            </View>
-          )}
         </ScrollView>
 
         <View style={styles.footer}>
@@ -1483,33 +1465,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "600",
     color: "#007AFF",
-  },
-  ocrTextContainer: {
-    marginTop: 10,
-    paddingTop: 10,
-    borderTopWidth: 1,
-    borderTopColor: "#E5E5EA",
-  },
-  ocrTextLabel: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#8E8E93",
-    marginBottom: 4,
-  },
-  ocrText: {
-    fontSize: 12,
-    color: "#3C3C43",
-    fontFamily: "monospace",
-    lineHeight: 16,
-  },
-  timingSummary: {
-    alignItems: "center",
-    paddingVertical: 12,
-    marginTop: 8,
-  },
-  timingText: {
-    fontSize: 12,
-    color: "#8E8E93",
   },
   retakeButton: {
     flexDirection: "row",

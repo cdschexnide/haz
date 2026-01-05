@@ -247,38 +247,3 @@ Display order prioritizes compliance-critical data.
 | `src/contexts/InspectionFormProvider.tsx` | Add ML results state |
 | `src/components/Inspector/MLDetectionScreen.tsx` | Integrate with context |
 
-## Testing Strategy
-
-### Unit Tests
-
-```typescript
-describe('extractEXNumbers', () => {
-  it('extracts EX-2019037142 format', () => {
-    expect(extractEXNumbers('EX-2019037142')).toEqual(['EX-2019037142']);
-  });
-});
-
-describe('extractUNWithPSN', () => {
-  it('extracts UN number with proper shipping name', () => {
-    const lines = [{ text: 'UN0106 FUZES DETONATING', boundingBox: null }];
-    expect(extractUNWithPSN(lines)).toEqual([
-      { un: 'UN0106', psn: 'FUZES DETONATING' }
-    ]);
-  });
-});
-
-describe('POP exclusion', () => {
-  it('does not extract 4G as weight when part of POP marking', () => {
-    const text = 'UN 4G / X 25 / S / 22 / USA / DOD';
-    const result = extractMarkingsFromText(text, []);
-    expect(result.weights).toEqual([]);
-  });
-});
-```
-
-### Manual Testing
-
-1. Use test image (UN0106 FUZES DETONATING package)
-2. Verify all markings appear in Extracted Data card
-3. Verify no "4 G" weight false positive
-4. Navigate to next screen, verify data persists in context

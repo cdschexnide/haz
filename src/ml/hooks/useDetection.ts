@@ -92,6 +92,7 @@ function aggregateResults(results: ImageAnalysisResult[]): AggregatedAnalysis {
   const allHazardClasses = new Set<string>();
   let bestPopMarking: AggregatedAnalysis['bestPopMarking'] = null;
   let countryOfOrigin: string | null = null;
+  let rawPopMarkingText: string | null = null;
   const allEXNumbers = new Set<string>();
   const allPSNs = new Set<string>();
   const allUnWithPSN: { un: string; psn: string }[] = [];
@@ -137,6 +138,11 @@ function aggregateResults(results: ImageAnalysisResult[]): AggregatedAnalysis {
         countryOfOrigin = markings.countryOfOrigin;
       }
 
+      // Raw POP marking text (first found wins)
+      if (!rawPopMarkingText && markings.rawPopMarkingText) {
+        rawPopMarkingText = markings.rawPopMarkingText;
+      }
+
       // EX numbers
       markings.exNumbers?.forEach((ex) => allEXNumbers.add(ex));
 
@@ -178,6 +184,7 @@ function aggregateResults(results: ImageAnalysisResult[]): AggregatedAnalysis {
     allEXNumbers: Array.from(allEXNumbers),
     allPSNs: Array.from(allPSNs),
     allUnWithPSN,
+    rawPopMarkingText,
     imagesProcessed: results.length,
     totalProcessingTime,
     perImageResults: results,

@@ -413,6 +413,54 @@ export default function InspectorMarkingsLabelsValidationScreen({
     );
   };
 
+  const renderAdditionalDetections = () => {
+    if (additionalDetections.length === 0) return null;
+
+    return (
+      <View style={styles.additionalSection}>
+        <TouchableOpacity
+          style={styles.additionalHeader}
+          onPress={() => setShowAdditionalDetections(!showAdditionalDetections)}
+        >
+          <View style={styles.additionalHeaderLeft}>
+            <MaterialIcons
+              name={showAdditionalDetections ? "expand-less" : "expand-more"}
+              size={24}
+              color="#8E8E93"
+            />
+            <Text style={styles.additionalHeaderText}>
+              Additional Detections ({additionalDetections.length})
+            </Text>
+          </View>
+          <Text style={styles.additionalHeaderSubtext}>
+            ML detected but not required
+          </Text>
+        </TouchableOpacity>
+
+        {showAdditionalDetections && (
+          <View style={styles.additionalContent}>
+            {additionalDetections.map((detection, index) => (
+              <View key={index} style={styles.additionalItem}>
+                <MaterialIcons name="label" size={16} color="#8E8E93" />
+                <Text style={styles.additionalItemText}>
+                  {detection.className}
+                </Text>
+                <Text style={styles.additionalItemConfidence}>
+                  {Math.round(detection.maxConfidence * 100)}%
+                </Text>
+              </View>
+            ))}
+          </View>
+        )}
+      </View>
+    );
+  };
+
+  // Placeholder for navigateToNextScreen - will be implemented in Task 7
+  const navigateToNextScreen = () => {
+    // TODO: Implement navigation logic in Task 7
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
@@ -426,15 +474,18 @@ export default function InspectorMarkingsLabelsValidationScreen({
         </TouchableOpacity>
       </View>
 
-      {/* Content Placeholder */}
-      <View style={styles.content}>
-        <Text style={styles.placeholderText}>
-          Validation items will appear here after Task 4
-        </Text>
-        <Text style={styles.placeholderSubtext}>
-          Markings: {markingsProgress}/{markingsTotal} | Labels: {labelsProgress}/{labelsTotal}
-        </Text>
-      </View>
+      {/* Main Content */}
+      <SectionList
+        sections={sections}
+        keyExtractor={(item) => item.id}
+        renderItem={renderValidationCard}
+        renderSectionHeader={renderSectionHeader}
+        style={styles.list}
+        contentContainerStyle={styles.listContent}
+        showsVerticalScrollIndicator={false}
+        stickySectionHeadersEnabled={true}
+        ListFooterComponent={renderAdditionalDetections}
+      />
 
       {/* Footer */}
       <View style={styles.footer}>
@@ -442,23 +493,41 @@ export default function InspectorMarkingsLabelsValidationScreen({
           style={styles.cancelButton}
           onPress={() => navigation.goBack()}
         >
+          <MaterialIcons name="arrow-back" size={18} color="#007AFF" />
           <Text style={styles.cancelButtonText}>Cancel</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.saveExitButton}
-          onPress={() => Alert.alert("Save Progress", "Progress saved.")}
+          onPress={() =>
+            Alert.alert("Save Progress", "Your verification progress has been saved.")
+          }
         >
+          <MaterialIcons name="save" size={18} color="#FFFFFF" />
           <Text style={styles.buttonText}>Save & Exit</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.continueButton, !allItemsAddressed && styles.disabledButton]}
+          style={[
+            styles.continueButton,
+            !allItemsAddressed && styles.disabledButton,
+          ]}
+          onPress={allItemsAddressed ? navigateToNextScreen : undefined}
           disabled={!allItemsAddressed}
         >
-          <Text style={[styles.buttonText, !allItemsAddressed && styles.disabledButtonText]}>
+          <Text
+            style={[
+              styles.buttonText,
+              !allItemsAddressed && styles.disabledButtonText,
+            ]}
+          >
             Continue
           </Text>
+          <MaterialIcons
+            name="arrow-forward"
+            size={18}
+            color={allItemsAddressed ? "#FFFFFF" : "#8E8E93"}
+          />
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -487,21 +556,13 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#1D1D1F",
   },
-  content: {
+  list: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 16,
   },
-  placeholderText: {
-    fontSize: 16,
-    color: "#8E8E93",
-    textAlign: "center",
-  },
-  placeholderSubtext: {
-    fontSize: 14,
-    color: "#C7C7CC",
-    marginTop: 8,
+  listContent: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    paddingBottom: 24,
   },
   footer: {
     flexDirection: "row",
@@ -517,13 +578,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#007AFF",
     borderRadius: 8,
+    flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
     marginRight: 8,
+    gap: 4,
   },
   cancelButtonText: {
     color: "#007AFF",
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "600",
   },
   saveExitButton: {
@@ -531,25 +594,29 @@ const styles = StyleSheet.create({
     height: 48,
     backgroundColor: "#6C757D",
     borderRadius: 8,
+    flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
     marginHorizontal: 8,
+    gap: 6,
   },
   continueButton: {
     flex: 1,
     height: 48,
     backgroundColor: "#007AFF",
     borderRadius: 8,
+    flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
     marginLeft: 8,
+    gap: 6,
   },
   disabledButton: {
     backgroundColor: "#C7C7CC",
   },
   buttonText: {
     color: "#FFFFFF",
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "600",
   },
   disabledButtonText: {
@@ -703,4 +770,54 @@ const styles = StyleSheet.create({
     backgroundColor: "#FF3B30",
     borderColor: "#FF3B30",
   },
-});
+  additionalSection: {
+    marginTop: 16,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#E5E5EA",
+    overflow: "hidden",
+  },
+  additionalHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: 16,
+    backgroundColor: "#F8F9FA",
+  },
+  additionalHeaderLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  additionalHeaderText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#3C3C43",
+  },
+  additionalHeaderSubtext: {
+    fontSize: 12,
+    color: "#8E8E93",
+  },
+  additionalContent: {
+    padding: 16,
+    paddingTop: 8,
+  },
+  additionalItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F2F2F7",
+  },
+  additionalItemText: {
+    flex: 1,
+    fontSize: 14,
+    color: "#3C3C43",
+  },
+  additionalItemConfidence: {
+    fontSize: 12,
+    color: "#8E8E93",
+    fontWeight: "500",
+  },

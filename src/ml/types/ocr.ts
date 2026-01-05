@@ -89,6 +89,8 @@ export interface ExtractedMarkings {
   properShippingNames: string[];
   /** UN numbers paired with their proper shipping names */
   unWithPSN: { un: string; psn: string }[];
+  /** Raw UN specification POP marking text as scanned (e.g., "UN 4G / X 25 / S / 22 / USA / DOD") */
+  rawPopMarkingText: string | null;
 }
 
 /**
@@ -165,6 +167,9 @@ export interface AggregatedAnalysis {
 
   /** All UN+PSN pairs found */
   allUnWithPSN: { un: string; psn: string }[];
+
+  /** Best raw POP marking text found (first non-null) */
+  rawPopMarkingText: string | null;
 
   /** Number of images successfully processed */
   imagesProcessed: number;

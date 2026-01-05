@@ -179,6 +179,88 @@ export function extractUNWithPSN(lines: { text: string }[]): { un: string; psn: 
 }
 
 /**
+ * Extract raw UN specification POP marking text
+ * Matches patterns like "UN 4G / X 25 / S / 22 / USA / DOD"
+ * This captures the raw text without attempting to parse it
+ *
+ * @param text - Text to search
+ * @returns Raw POP marking text or null if not found
+ */
+export function extractRawPopMarkingText(text: string): string | null {
+  if (!text) return null;
+
+  const upperText = text.toUpperCase();
+
+  // POP marking structure: UN [code] / [perf] / [type] / [year] / [country] / [mfr]
+  // Each field is short (1-6 chars typically), except perf which can be "X 25" format
+  // Fields do NOT contain long text like "CARGO AIRCRAFT"
+
+  // Strategy: Find "UN [code] /" pattern, then extract exactly 5 more slash-separated short fields
+  const popStartPattern = /UN\s+([A-Z]\d|\d[A-Z])[A-Z0-9]*\s*\//gi;
+  const startMatch = popStartPattern.exec(upperText);
+
+  if (startMatch) {
+    const startIndex = startMatch.index;
+    const afterStart = upperText.substring(startIndex);
+
+    // Split by "/" and take first 6 parts (UN+code is part 1)
+    const parts = afterStart.split('/');
+    if (parts.length >= 5) {
+      // Take exactly 6 parts, trim each, and filter out parts that are too long (> 10 chars)
+      // or contain multiple words that aren't the "X 25" pattern
+      const cleanParts: string[] = [];
+      for (let i = 0; i < Math.min(6, parts.length); i++) {
+        let part = parts[i].trim();
+        // Stop if part is too long (likely picked up extra text)
+        if (part.length > 10) {
+          // Try to extract just the first word(s) that look like a POP field
+          const words = part.split(/\s+/);
+          if (i === 1 && words.length >= 2 && /^[XYZ]$/.test(words[0])) {
+            // Performance field like "X 25" - take first two words
+            part = words.slice(0, 2).join(' ');
+          } else {
+            // Take just the first word
+            part = words[0];
+          }
+        }
+        cleanParts.push(part);
+      }
+
+      const rawText = cleanParts.join(' / ');
+      console.log('[OCR] Found raw POP marking text:', rawText);
+      return rawText;
+    }
+  }
+
+  // Try alternative pattern for lines containing POP-like structure
+  const lines = text.split('\n');
+  for (const line of lines) {
+    const upperLine = line.toUpperCase().trim();
+    // Check if line starts with UN + packaging code pattern and has slashes
+    const slashCount = (upperLine.match(/\//g) || []).length;
+    if (/^UN\s+[A-Z0-9]{2,4}\s*\//.test(upperLine) && slashCount >= 4) {
+      // Extract only up to the 6th slash-separated part, with length limits
+      const parts = upperLine.split('/').slice(0, 6).map((p, i) => {
+        const trimmed = p.trim();
+        if (trimmed.length > 10) {
+          const words = trimmed.split(/\s+/);
+          if (i === 1 && words.length >= 2 && /^[XYZ]$/.test(words[0])) {
+            return words.slice(0, 2).join(' ');
+          }
+          return words[0];
+        }
+        return trimmed;
+      });
+      const rawText = parts.join(' / ');
+      console.log('[OCR] Found raw POP marking text from line:', rawText);
+      return rawText;
+    }
+  }
+
+  return null;
+}
+
+/**
  * Extract weight/mass values from text
  * Matches patterns like "25 KG", "25KG", "25 KILOGRAMS"
  *
@@ -195,10 +277,25 @@ export function extractWeights(text: string): ExtractedWeight[] {
     /(\d+(?:\.\d+)?)\s*(KG|G|LB|OZ|KILOGRAMS?|GRAMS?|POUNDS?|OUNCES?)\b/gi;
   const matches = [...upperText.matchAll(weightPattern)];
 
-  const weights: ExtractedWeight[] = matches.map(m => ({
-    value: m[1],
-    unit: normalizeWeightUnit(m[2]),
-  }));
+  const weights: ExtractedWeight[] = matches
+    .filter(m => {
+      // Filter out packaging codes that look like weights
+      // Packaging codes are typically single digit + single letter (1G, 4G, 1H, etc.)
+      // These appear in POP markings like "UN 4G / X 25 / S / 22 / USA / DOD"
+      const value = m[1];
+      const unit = m[2].toUpperCase();
+
+      // Single digit + "G" alone (not KG, GRAM, etc.) is likely a packaging code
+      if (unit === 'G' && value.length === 1 && !value.includes('.')) {
+        console.log('[OCR] Filtering potential packaging code from weights:', m[0]);
+        return false;
+      }
+      return true;
+    })
+    .map(m => ({
+      value: m[1],
+      unit: normalizeWeightUnit(m[2]),
+    }));
 
   if (weights.length > 0) {
     console.log('[OCR] Found weights:', weights);
@@ -590,6 +687,7 @@ export function extractMarkingsFromText(
       exNumbers: [],
       properShippingNames: [],
       unWithPSN: [],
+      rawPopMarkingText: null,
     };
   }
 
@@ -628,6 +726,14 @@ export function extractMarkingsFromText(
   const unWithPSN = extractUNWithPSN(textLines);
   const exNumbers = extractEXNumbers(ocrText);
 
+  // ===== PASS 2.5: Extract raw POP marking text (even if parsing failed) =====
+  const rawPopMarkingText = extractRawPopMarkingText(ocrText);
+  if (rawPopMarkingText && !popMarking) {
+    // If we found raw POP text but parsing failed, still exclude it from weight extraction
+    textWithoutPOP = textWithoutPOP.replace(rawPopMarkingText, ' ');
+    console.log('[OCR] Excluded raw POP text from weight extraction');
+  }
+
   // ===== PASS 3: Remaining extractions from text WITHOUT POP marking =====
   const unNumbers = extractUNNumbers(textWithoutPOP);
   const weights = extractWeights(textWithoutPOP);
@@ -653,6 +759,7 @@ export function extractMarkingsFromText(
     exNumbers,
     properShippingNames: unWithPSN.map(pair => pair.psn),
     unWithPSN,
+    rawPopMarkingText,
   };
 
   console.log('[OCR] Extraction complete:', {

@@ -5,18 +5,14 @@
  * and other significant markings found in the image.
  */
 
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import type { ExtractedMarkings, ExtractedWeight } from '../types/ocr';
+import type { ExtractedMarkings } from '../types/ocr';
 
 interface ExtractedDataCardProps {
   /** Extracted markings data */
   markings: ExtractedMarkings;
-  /** Raw OCR text (for expandable view) */
-  rawText?: string;
-  /** Whether to show raw OCR text by default */
-  showRawText?: boolean;
   /** Title override */
   title?: string;
 }
@@ -67,22 +63,16 @@ const DataChip: React.FC<DataChipProps> = ({
 
 const ExtractedDataCard: React.FC<ExtractedDataCardProps> = ({
   markings,
-  rawText,
-  showRawText: initialShowRawText = false,
   title = 'Extracted Data',
 }) => {
-  const [showRawText, setShowRawText] = useState(initialShowRawText);
-
   const {
     unNumbers,
-    weights,
     hazardClasses,
     dates,
-    countryOfOrigin,
     otherMarkings,
     exNumbers = [],
-    properShippingNames = [],
     unWithPSN = [],
+    rawPopMarkingText = null,
   } = markings;
 
   // Check if there's any data to display
@@ -90,22 +80,14 @@ const ExtractedDataCard: React.FC<ExtractedDataCardProps> = ({
     unNumbers.length > 0 ||
     exNumbers.length > 0 ||
     unWithPSN.length > 0 ||
-    weights.length > 0 ||
+    rawPopMarkingText ||
     hazardClasses.length > 0 ||
     dates.length > 0 ||
-    countryOfOrigin ||
     otherMarkings.length > 0;
 
-  if (!hasData && !rawText) {
+  if (!hasData) {
     return null;
   }
-
-  /**
-   * Format weight for display
-   */
-  const formatWeight = (weight: ExtractedWeight): string => {
-    return `${weight.value} ${weight.unit}`;
-  };
 
   /**
    * Get hazard class display info
@@ -155,7 +137,7 @@ const ExtractedDataCard: React.FC<ExtractedDataCardProps> = ({
 
       {/* UN + PSN Combined Section (prioritized for compliance) */}
       {unWithPSN.length > 0 && (
-        <DataSection icon="assignment" iconColor="#E65100" title="UN Identification">
+        <DataSection icon="assignment" iconColor="#E65100" title="UN Number & Proper Shipping Name">
           <View style={styles.unPsnContainer}>
             {unWithPSN.map((item, index) => (
               <View key={index} style={styles.unPsnItem}>
@@ -183,19 +165,10 @@ const ExtractedDataCard: React.FC<ExtractedDataCardProps> = ({
         </DataSection>
       )}
 
-      {/* UN Numbers */}
-      {unNumbers.length > 0 && (
-        <DataSection icon="warning" iconColor="#E65100" title="UN Numbers">
-          <View style={styles.chipsContainer}>
-            {unNumbers.map((un, index) => (
-              <DataChip
-                key={index}
-                label={un}
-                color="#E65100"
-                backgroundColor="#FFF3E0"
-              />
-            ))}
-          </View>
+      {/* UN Specification POP Marking */}
+      {rawPopMarkingText && (
+        <DataSection icon="inventory-2" iconColor="#5D4037" title="UN Specification POP Marking">
+          <Text style={styles.popMarkingText}>{rawPopMarkingText}</Text>
         </DataSection>
       )}
 
@@ -215,33 +188,6 @@ const ExtractedDataCard: React.FC<ExtractedDataCardProps> = ({
               );
             })}
           </View>
-        </DataSection>
-      )}
-
-      {/* Weights */}
-      {weights.length > 0 && (
-        <DataSection icon="scale" iconColor="#1976D2" title="Weights">
-          <View style={styles.chipsContainer}>
-            {weights.map((weight, index) => (
-              <DataChip
-                key={index}
-                label={formatWeight(weight)}
-                color="#1976D2"
-                backgroundColor="#E3F2FD"
-              />
-            ))}
-          </View>
-        </DataSection>
-      )}
-
-      {/* Country of Origin */}
-      {countryOfOrigin && (
-        <DataSection icon="public" iconColor="#388E3C" title="Country">
-          <DataChip
-            label={countryOfOrigin}
-            color="#388E3C"
-            backgroundColor="#E8F5E9"
-          />
         </DataSection>
       )}
 
@@ -277,46 +223,6 @@ const ExtractedDataCard: React.FC<ExtractedDataCardProps> = ({
         </DataSection>
       )}
 
-      {/* Raw OCR Text Toggle */}
-      {rawText && (
-        <View style={styles.rawTextSection}>
-          <TouchableOpacity
-            style={styles.rawTextToggle}
-            onPress={() => setShowRawText(!showRawText)}
-            activeOpacity={0.7}
-          >
-            <MaterialIcons
-              name={showRawText ? 'visibility-off' : 'visibility'}
-              size={16}
-              color="#666"
-            />
-            <Text style={styles.rawTextToggleText}>
-              {showRawText ? 'Hide' : 'Show'} Raw OCR Text
-            </Text>
-            <MaterialIcons
-              name={showRawText ? 'expand-less' : 'expand-more'}
-              size={20}
-              color="#666"
-            />
-          </TouchableOpacity>
-
-          {showRawText && (
-            <View style={styles.rawTextContainer}>
-              <Text style={styles.rawText}>{rawText || '(No text detected)'}</Text>
-            </View>
-          )}
-        </View>
-      )}
-
-      {/* No Data Message */}
-      {!hasData && rawText && (
-        <View style={styles.noDataContainer}>
-          <MaterialIcons name="info-outline" size={20} color="#666" />
-          <Text style={styles.noDataText}>
-            No structured data could be extracted from the image text.
-          </Text>
-        </View>
-      )}
     </View>
   );
 };
@@ -387,6 +293,12 @@ const styles = StyleSheet.create({
     color: '#333',
     fontWeight: '500',
   },
+  popMarkingText: {
+    fontSize: 14,
+    color: '#5D4037',
+    fontWeight: '600',
+    fontFamily: 'monospace',
+  },
   chip: {
     paddingHorizontal: 12,
     paddingVertical: 6,
@@ -395,51 +307,6 @@ const styles = StyleSheet.create({
   chipText: {
     fontSize: 13,
     fontWeight: '600',
-  },
-  rawTextSection: {
-    marginTop: 8,
-    borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
-    paddingTop: 12,
-  },
-  rawTextToggle: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 8,
-  },
-  rawTextToggleText: {
-    fontSize: 13,
-    color: '#666',
-    marginHorizontal: 8,
-  },
-  rawTextContainer: {
-    backgroundColor: '#F5F5F5',
-    borderRadius: 8,
-    padding: 12,
-    marginTop: 8,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-  },
-  rawText: {
-    fontFamily: 'monospace',
-    fontSize: 11,
-    color: '#333',
-    lineHeight: 16,
-  },
-  noDataContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 16,
-    backgroundColor: '#F5F5F5',
-    borderRadius: 8,
-  },
-  noDataText: {
-    fontSize: 13,
-    color: '#666',
-    marginLeft: 8,
-    textAlign: 'center',
   },
 });
 
