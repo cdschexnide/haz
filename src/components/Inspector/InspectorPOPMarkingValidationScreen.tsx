@@ -397,6 +397,72 @@ const DetectedState = ({ navigation }: { navigation: any }) => {
     validateFieldC(fields.C);
   }, [fields.C, validateFieldC]);
 
+  // Handle Field B frustration
+  const handleFieldBFrustration = () => {
+    const packagingParagraph = inspection.extractedContent?.packingInstruction || "unknown";
+    addPackageFrustration({
+      category: "marking",
+      itemId: "pop-field-b-validation",
+      itemLabel: "Packaging Code (Field B)",
+      expectedValues: ["Valid packaging code for " + packagingParagraph],
+      verificationStatus: "incorrect",
+      defaultMessage: `Packaging code '${fields.B}' not authorized for ${packagingParagraph}`,
+      afmanReference: "AFMAN 24-604 A14.2",
+    });
+    setFieldBStatus("frustrated");
+  };
+
+  // Handle Field C frustration
+  const handleFieldCFrustration = () => {
+    const allowedGroups = allowablePackingGroups();
+    addPackageFrustration({
+      category: "marking",
+      itemId: "pop-field-c-validation",
+      itemLabel: "Packing Group (Field C)",
+      expectedValues: allowedGroups,
+      verificationStatus: "incorrect",
+      defaultMessage: `Packing group '${fields.C}' insufficient. Required: ${allowedGroups.join(" or ")}`,
+      afmanReference: "AFMAN 24-604 A14.2",
+    });
+    setFieldCStatus("frustrated");
+  };
+
+  // Check if can continue (all fields valid or frustrated)
+  const canContinue =
+    (fieldBStatus === "valid" || fieldBStatus === "frustrated") &&
+    (fieldCStatus === "valid" || fieldCStatus === "frustrated");
+
+  // Navigate to next screen
+  const navigateToNextScreen = () => {
+    const unIdNo = inspection.extractedContent?.unIdNo || "";
+
+    if (unIdNo === "UN1845") {
+      navigation.navigate("InspectorDryIceScreen");
+    } else if (unIdNo === "UN2807") {
+      navigation.navigate("InspectorMagnetizedMaterialsScreen");
+    } else if (unIdNo === "UN3072" || unIdNo === "UN2990") {
+      navigation.navigate("InspectorLifeSavingAppliancesScreen");
+    } else if (unIdNo === "UN3245") {
+      navigation.navigate("InspectorGeneticallyModifiedOrganismsScreen");
+    } else if (unIdNo === "UN3268") {
+      navigation.navigate("InspectorSafetyDevicesScreen");
+    } else if (unIdNo === "UN3508") {
+      navigation.navigate("InspectorCapacitorsScreen");
+    } else if (unIdNo === "UN3528" || unIdNo === "UN3529") {
+      navigation.navigate("InspectorEnginesInternalCombustionScreen");
+    } else if (unIdNo === "UN3316") {
+      navigation.navigate("InspectorFirstAidChemicalKitScreen");
+    } else if (unIdNo === "UN3363") {
+      navigation.navigate("InspectorDangerousGoodsInApparatusScreen");
+    } else if (unIdNo === "UN3171") {
+      navigation.navigate("InspectorBatteryPoweredVehicleScreen");
+    } else if (unIdNo === "UN3480" || unIdNo === "UN3090") {
+      navigation.navigate("InspectorLithiumBatteriesScreen");
+    } else {
+      navigation.navigate("InspectorPackageVerification");
+    }
+  };
+
   // Placeholder for validation - will be implemented in next task
   return (
     <View style={styles.container}>
