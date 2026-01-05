@@ -31,6 +31,7 @@ import {
   LabelPickerModal,
 } from "../../ml/components";
 import { useInspectionForm } from "../../contexts/InspectionFormProvider";
+import { useHazProStore } from "../../stores/useHazProStore";
 import {
   CapturedImage,
   ImageDetectionResult,
@@ -73,7 +74,8 @@ export function MLDetectionScreen({
       navigation.goBack();
     }
   }, [onClose, navigation]);
-  const { inspection } = useInspectionForm();
+  const { inspection, setMLAnalysisResults } = useInspectionForm();
+  const { actions } = useHazProStore();
   const [permission, requestPermission] = useCameraPermissions();
   const [screenState, setScreenState] = useState<ScreenState>("home");
   const [capturedImages, setCapturedImages] = useState<CapturedImage[]>([]);
@@ -104,6 +106,11 @@ export function MLDetectionScreen({
 
   const { results, modelLoaded, isProcessing, error, analysisResults, aggregatedResults, processingStatus } = state;
 
+  // Set chevron on mount
+  useEffect(() => {
+    actions.setCurrentChevron("package");
+  }, [actions]);
+
   // Load model on mount
   useEffect(() => {
     if (isRuntimeAvailable && !modelLoaded) {
@@ -123,6 +130,17 @@ export function MLDetectionScreen({
   const modelStatus = getModelStatus();
 
   const navigateToNextScreen = useCallback(() => {
+    // Save ML analysis results to context before navigating
+    // This includes bestPopMarking, detected labels, UN numbers, etc.
+    if (aggregatedResults) {
+      console.log('[MLDetectionScreen] Saving ML results to context:', {
+        hasPOP: !!aggregatedResults.bestPopMarking,
+        labels: aggregatedResults.allDetectedLabels.length,
+        unNumbers: aggregatedResults.allUnNumbers.length,
+      });
+      setMLAnalysisResults(aggregatedResults);
+    }
+
     // In modal mode, just close the modal
     if (onClose) {
       onClose();
@@ -134,7 +152,7 @@ export function MLDetectionScreen({
     // Always go to POP marking validation screen first
     // That screen will then route to material-specific screens after validation
     navigation.navigate("InspectorPOPMarkingValidationScreen");
-  }, [navigation, onClose]);
+  }, [navigation, onClose, aggregatedResults, setMLAnalysisResults]);
 
   // Handle skip
   const handleSkip = useCallback(() => {
@@ -426,9 +444,9 @@ export function MLDetectionScreen({
           <TouchableOpacity onPress={handleGoBack}>
             <MaterialIcons name="arrow-back" size={24} color="#007AFF" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Label Detection</Text>
+          <Text style={styles.headerTitle}>Hazmat Marking & Label Detection</Text>
           <TouchableOpacity onPress={handleSkip}>
-            <Text style={styles.skipText}>Skip</Text>
+            <Text style={styles.skipText}></Text>
           </TouchableOpacity>
         </View>
 
@@ -437,10 +455,7 @@ export function MLDetectionScreen({
           contentContainerStyle={styles.contentContainer}
         >
           {/* Instruction */}
-          <Text style={styles.instructionText}>
-            Scan package labels using AI detection
-          </Text>
-
+    
           {/* Scan Option */}
           <TouchableOpacity
             style={[
@@ -526,10 +541,10 @@ export function MLDetectionScreen({
             <MaterialIcons name="arrow-back" size={20} color="#007AFF" />
             <Text style={styles.backButtonText}>Back</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
+          {/* <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
             <Text style={styles.skipButtonText}>Skip Detection</Text>
             <MaterialIcons name="arrow-forward" size={20} color="#8E8E93" />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
 
         {/* Camera Modal */}
