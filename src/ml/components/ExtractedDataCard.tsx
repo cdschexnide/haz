@@ -80,11 +80,16 @@ const ExtractedDataCard: React.FC<ExtractedDataCardProps> = ({
     dates,
     countryOfOrigin,
     otherMarkings,
+    exNumbers = [],
+    properShippingNames = [],
+    unWithPSN = [],
   } = markings;
 
   // Check if there's any data to display
   const hasData =
     unNumbers.length > 0 ||
+    exNumbers.length > 0 ||
+    unWithPSN.length > 0 ||
     weights.length > 0 ||
     hazardClasses.length > 0 ||
     dates.length > 0 ||
@@ -147,6 +152,36 @@ const ExtractedDataCard: React.FC<ExtractedDataCardProps> = ({
           <Text style={styles.title}>{title}</Text>
         </View>
       </View>
+
+      {/* UN + PSN Combined Section (prioritized for compliance) */}
+      {unWithPSN.length > 0 && (
+        <DataSection icon="assignment" iconColor="#E65100" title="UN Identification">
+          <View style={styles.unPsnContainer}>
+            {unWithPSN.map((item, index) => (
+              <View key={index} style={styles.unPsnItem}>
+                <DataChip label={item.un} color="#E65100" backgroundColor="#FFF3E0" />
+                <Text style={styles.psnText}>{item.psn}</Text>
+              </View>
+            ))}
+          </View>
+        </DataSection>
+      )}
+
+      {/* EX Classification Numbers */}
+      {exNumbers.length > 0 && (
+        <DataSection icon="verified" iconColor="#1565C0" title="EX Classification">
+          <View style={styles.chipsContainer}>
+            {exNumbers.map((ex, index) => (
+              <DataChip
+                key={index}
+                label={ex}
+                color="#1565C0"
+                backgroundColor="#E3F2FD"
+              />
+            ))}
+          </View>
+        </DataSection>
+      )}
 
       {/* UN Numbers */}
       {unNumbers.length > 0 && (
@@ -337,6 +372,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
+  },
+  unPsnContainer: {
+    gap: 8,
+  },
+  unPsnItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    flexWrap: 'wrap',
+  },
+  psnText: {
+    fontSize: 14,
+    color: '#333',
+    fontWeight: '500',
   },
   chip: {
     paddingHorizontal: 12,
