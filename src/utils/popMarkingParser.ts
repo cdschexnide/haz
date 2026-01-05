@@ -367,17 +367,26 @@ export function detectPOPMarkingType(ocrText: string): POPMarkingType {
 
   // Step 1: Check for large packaging via packaging code (Field B)
   // Large packaging codes start with "50" (rigid) or "51" (flexible)
-  // Pattern: UN / 50A / ... or UN / 51 / ...
-  const packagingCodeMatch = normalizedText.match(/UN\s*[\/|I1]?\s*([A-Z0-9]{2,4})/i);
+  // Pattern: UN / 50A / ... or UN 4G / ...
+  // IMPORTANT: Must have a separator (/, space, or similar) after UN to distinguish from UN ID numbers
+  // UN ID numbers like UN0106 have NO separator - digits immediately follow "UN"
+  const packagingCodeMatch = normalizedText.match(/UN[\s\/|I1]+([A-Z0-9]{2,4})/i);
   if (packagingCodeMatch) {
     const fieldB = packagingCodeMatch[1].replace(/[^A-Z0-9]/g, '');
     console.log('Extracted Field B:', fieldB);
 
-    // Check for large packaging indicators
-    // Handle OCR confusion: "50" might be read as "S0" or "5O"
-    if (/^5[01][A-Z]/.test(fieldB) || /^[S5][O0][A-Z]/.test(fieldB)) {
-      console.log('→ Detected LARGE_PACKAGING via Field B pattern');
-      return POPMarkingType.LARGE_PACKAGING;
+    // Reject if fieldB looks like a UN ID number (4 consecutive digits, possibly with O→0 OCR error)
+    // UN ID numbers are 4 digits like 0106, 1203, 3082
+    // POP packaging codes have letters like 4G, 4H1, 50A, 1A1
+    if (/^[O0]?\d{3,4}$/.test(fieldB)) {
+      console.log('⚠️ Field B looks like UN ID number, not packaging code:', fieldB);
+    } else {
+      // Check for large packaging indicators
+      // Handle OCR confusion: "50" might be read as "S0" or "5O"
+      if (/^5[01][A-Z]/.test(fieldB) || /^[S5][O0][A-Z]/.test(fieldB)) {
+        console.log('→ Detected LARGE_PACKAGING via Field B pattern');
+        return POPMarkingType.LARGE_PACKAGING;
+      }
     }
   }
 

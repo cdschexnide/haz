@@ -88,7 +88,14 @@ export async function performOCR(imageUri: string): Promise<ImageOCRResult | nul
 export function extractUNNumbers(text: string): string[] {
   if (!text) return [];
 
-  const upperText = text.toUpperCase();
+  let upperText = text.toUpperCase();
+
+  // OCR fix: Replace O with 0 in UN number context (e.g., "UNO106" → "UN0106")
+  // This handles common OCR misreads where zero is read as letter O
+  upperText = upperText.replace(/\bUN([O0])(\d{3})\b/g, 'UN0$2');
+  upperText = upperText.replace(/\bUN(\d)([O0])(\d{2})\b/g, 'UN$10$3');
+  upperText = upperText.replace(/\bUN(\d{2})([O0])(\d)\b/g, 'UN$10$3');
+  upperText = upperText.replace(/\bUN(\d{3})([O0])\b/g, 'UN$10');
 
   // Pattern: UN followed by optional separator and 4 digits
   const unPattern = /UN[\s\-]*(\d{4})/gi;
@@ -141,10 +148,19 @@ export function extractUNWithPSN(lines: { text: string }[]): { un: string; psn: 
   const results: { un: string; psn: string }[] = [];
 
   // Pattern: UN + 4 digits + remaining uppercase text (PSN)
+  // Note: OCR often confuses 0/O, so we normalize before matching
   const unPsnPattern = /UN[\s\-]*(\d{4})\s+([A-Z][A-Z\s,\-]+)/gi;
 
   for (const line of lines) {
-    const text = line.text.toUpperCase();
+    let text = line.text.toUpperCase();
+
+    // OCR fix: Replace O with 0 in UN number context (e.g., "UNO106" → "UN0106")
+    // This handles common OCR misreads where zero is read as letter O
+    text = text.replace(/\bUN([O0])(\d{3})\b/gi, 'UN0$2');
+    text = text.replace(/\bUN(\d)([O0])(\d{2})\b/gi, 'UN$10$3');
+    text = text.replace(/\bUN(\d{2})([O0])(\d)\b/gi, 'UN$10$3');
+    text = text.replace(/\bUN(\d{3})([O0])\b/gi, 'UN$10');
+
     const matches = [...text.matchAll(unPsnPattern)];
 
     for (const match of matches) {
