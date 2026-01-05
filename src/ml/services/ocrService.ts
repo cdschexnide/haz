@@ -691,13 +691,23 @@ export function extractMarkingsFromText(
     };
   }
 
-  // ===== PASS 1: Extract POP marking FIRST =====
-  // This prevents false positives (e.g., "4G" from "UN 4G / X 25 / S / 22 / USA / DOD" being matched as 4 grams)
-  let popMarking: ParsedPOPMarking | null = null;
+  // ===== PASS 1: Extract raw POP marking text FIRST =====
+  // This isolates the POP marking from surrounding noise (UN ID numbers, labels, etc.)
+  const rawPopMarkingText = extractRawPopMarkingText(ocrText);
   let textWithoutPOP = ocrText;
 
+  // ===== PASS 1.5: Parse the isolated POP marking text =====
+  // Use the isolated raw text for parsing to avoid confusion with UN ID numbers
+  let popMarking: ParsedPOPMarking | null = null;
+
   try {
-    const popResult = extractPOPMarkingFromText(ocrText);
+    // CRITICAL FIX: Parse the ISOLATED POP text, not the entire OCR text
+    // This prevents the parser from confusing UN ID numbers (e.g., UN0106) with POP packaging codes
+    const textToParse = rawPopMarkingText || ocrText;
+    console.log('[OCR] Parsing POP from:', rawPopMarkingText ? 'isolated raw text' : 'full OCR text');
+    console.log('[OCR] Text to parse:', textToParse);
+
+    const popResult = extractPOPMarkingFromText(textToParse);
 
     if (popResult.fields) {
       popMarking = {
@@ -706,17 +716,25 @@ export function extractMarkingsFromText(
         confidence: popResult.confidence,
         issues: popResult.issues,
         detectedType: popResult.detectedType,
-        sourceText: popResult.matchedText || '',
+        sourceText: rawPopMarkingText || popResult.matchedText || '',
       };
       console.log('[OCR] POP marking found with confidence:', popResult.confidence);
 
       // Remove POP text from further processing to prevent false positives
-      if (popResult.matchedText) {
+      if (rawPopMarkingText) {
+        textWithoutPOP = ocrText.replace(rawPopMarkingText, ' ');
+        console.log('[OCR] Excluded POP text from further extraction');
+      } else if (popResult.matchedText) {
         textWithoutPOP = ocrText.replace(popResult.matchedText, ' ');
         console.log('[OCR] Excluded POP text from further extraction');
       }
     } else {
       console.log('[OCR] No POP marking found in text');
+      // Still exclude raw POP text from weight extraction if found
+      if (rawPopMarkingText) {
+        textWithoutPOP = textWithoutPOP.replace(rawPopMarkingText, ' ');
+        console.log('[OCR] Excluded raw POP text from weight extraction');
+      }
     }
   } catch (error) {
     console.error('[OCR] POP marking extraction error:', error);
@@ -725,14 +743,6 @@ export function extractMarkingsFromText(
   // ===== PASS 2: Line-level extraction for UN+PSN, EX numbers =====
   const unWithPSN = extractUNWithPSN(textLines);
   const exNumbers = extractEXNumbers(ocrText);
-
-  // ===== PASS 2.5: Extract raw POP marking text (even if parsing failed) =====
-  const rawPopMarkingText = extractRawPopMarkingText(ocrText);
-  if (rawPopMarkingText && !popMarking) {
-    // If we found raw POP text but parsing failed, still exclude it from weight extraction
-    textWithoutPOP = textWithoutPOP.replace(rawPopMarkingText, ' ');
-    console.log('[OCR] Excluded raw POP text from weight extraction');
-  }
 
   // ===== PASS 3: Remaining extractions from text WITHOUT POP marking =====
   const unNumbers = extractUNNumbers(textWithoutPOP);
