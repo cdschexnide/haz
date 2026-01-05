@@ -13,6 +13,7 @@ import {
 import type {
   ImageOCRResult,
   OCRTextBlock,
+  OCRTextLine,
   ExtractedMarkings,
   ParsedPOPMarking,
   ExtractedWeight,
@@ -48,11 +49,27 @@ export async function performOCR(imageUri: string): Promise<ImageOCRResult | nul
         : null,
     }));
 
-    console.log('[OCR] Extracted', textBlocks.length, 'text blocks');
+    // Extract line-level data for more precise extraction
+    const textLines: OCRTextLine[] = result.blocks.flatMap(block =>
+      (block.lines || []).map(line => ({
+        text: line.text,
+        boundingBox: line.boundingBox
+          ? {
+              x: line.boundingBox.left,
+              y: line.boundingBox.top,
+              width: line.boundingBox.width,
+              height: line.boundingBox.height,
+            }
+          : null,
+      }))
+    );
+
+    console.log('[OCR] Extracted', textBlocks.length, 'text blocks,', textLines.length, 'text lines');
 
     return {
       fullText: result.text || '',
       textBlocks,
+      textLines,
       processingTime,
     };
   } catch (error) {
