@@ -206,11 +206,102 @@ const NotDetectedState = ({ navigation }: { navigation: any }) => {
   );
 };
 
-const DetectedState = ({ navigation }: { navigation: any }) => (
-  <View style={styles.container}>
-    <Text>Detected State - To be implemented</Text>
-  </View>
-);
+const DetectedState = ({ navigation }: { navigation: any }) => {
+  const {
+    inspection,
+    updatePackagePopField,
+    setPackagePopMarking,
+    addPackageFrustration,
+    removePackageFrustration,
+  } = useInspectionForm();
+
+  const bestPopMarking = inspection.mlAnalysisResults?.bestPopMarking;
+
+  // Detect physical state from extracted SDDG content
+  const detectPhysicalState = (): PhysicalState => {
+    const hazardousMaterial = hazardousMaterialsList.find(
+      (material) => material.unid === inspection.extractedContent?.unIdNo
+    );
+    const psn = hazardousMaterial?.properShippingName?.toLowerCase() || "";
+    const hazClass = hazardousMaterial?.hazclassDiv?.toLowerCase() || "";
+
+    if (
+      psn.includes("solid") ||
+      psn.includes("powder") ||
+      psn.includes("granules") ||
+      psn.includes("flakes") ||
+      hazClass === "4.1" ||
+      hazClass === "4.2" ||
+      hazClass === "4.3"
+    ) {
+      return PhysicalState.SOLID;
+    }
+
+    if (hazClass.startsWith("2.")) {
+      return PhysicalState.SOLID;
+    }
+
+    if (
+      hazClass === "3" ||
+      psn.includes("liquid") ||
+      psn.includes("solution")
+    ) {
+      return PhysicalState.LIQUID;
+    }
+
+    return PhysicalState.SOLID;
+  };
+
+  const physicalState = detectPhysicalState();
+
+  // Initialize editable fields from ML-detected values
+  const [fields, setFields] = useState({
+    B: bestPopMarking?.fields?.B || "",
+    C: bestPopMarking?.fields?.C || "",
+    D: bestPopMarking?.fields?.D || "",
+    E: bestPopMarking?.fields?.E || (physicalState === PhysicalState.SOLID ? "S" : ""),
+    F: bestPopMarking?.fields?.F || "",
+    G: bestPopMarking?.fields?.G || "",
+    H: bestPopMarking?.fields?.H || "",
+  });
+
+  // Validation states: 'valid' | 'invalid' | 'frustrated'
+  const [fieldBStatus, setFieldBStatus] = useState<"valid" | "invalid" | "frustrated">("valid");
+  const [fieldCStatus, setFieldCStatus] = useState<"valid" | "invalid" | "frustrated">("valid");
+
+  // Error messages
+  const [fieldBError, setFieldBError] = useState<string | null>(null);
+  const [fieldCError, setFieldCError] = useState<string | null>(null);
+
+  // Initialize package pop marking in context
+  useEffect(() => {
+    if (bestPopMarking?.fields) {
+      setPackagePopMarking({
+        B: bestPopMarking.fields.B || "",
+        C: bestPopMarking.fields.C || "",
+        D: bestPopMarking.fields.D || "",
+        E: bestPopMarking.fields.E || (physicalState === PhysicalState.SOLID ? "S" : ""),
+        F: bestPopMarking.fields.F || "",
+        G: bestPopMarking.fields.G || "",
+        H: bestPopMarking.fields.H || "",
+      });
+    }
+  }, []);
+
+  const updateField = (key: keyof typeof fields, value: string) => {
+    setFields((prev) => ({ ...prev, [key]: value }));
+    updatePackagePopField(key, value);
+  };
+
+  // Placeholder for validation - will be implemented in next task
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>UN Specification Marking Validation</Text>
+      <Text>Fields initialized: B={fields.B}, C={fields.C}</Text>
+      <Text>Physical State: {physicalState}</Text>
+    </View>
+  );
+};
 
 export default InspectorPOPMarkingValidationScreen;
 
