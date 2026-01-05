@@ -463,13 +463,205 @@ const DetectedState = ({ navigation }: { navigation: any }) => {
     }
   };
 
-  // Placeholder for validation - will be implemented in next task
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>UN Specification Marking Validation</Text>
-      <Text>Fields initialized: B={fields.B}, C={fields.C}</Text>
-      <Text>Physical State: {physicalState}</Text>
-    </View>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={styles.container}
+      keyboardVerticalOffset={100}
+    >
+      <ScrollView
+        contentContainerStyle={styles.scroll}
+        keyboardShouldPersistTaps="handled"
+      >
+        <Text style={styles.title}>UN Specification Marking Validation</Text>
+
+        {/* POP Marking Display */}
+        <View style={styles.popDisplaySection}>
+          <Text style={styles.sectionTitle}>Detected Marking</Text>
+          <View style={styles.popRow}>
+            {physicalState === PhysicalState.LIQUID ? (
+              <LiquidPopMarking
+                B={fields.B}
+                C={fields.C}
+                D={fields.D}
+                E={fields.E}
+                F={fields.F}
+                G={fields.G}
+                H={fields.H}
+              />
+            ) : (
+              <SolidPopMarking
+                B={fields.B}
+                C={fields.C}
+                D={fields.D}
+                E="S"
+                F={fields.F}
+                G={fields.G}
+                H={fields.H}
+              />
+            )}
+          </View>
+          <Text style={styles.confidenceText}>
+            Detection Confidence: {((bestPopMarking?.confidence || 0) * 100).toFixed(0)}%
+          </Text>
+        </View>
+
+        {/* Validation Section */}
+        <View style={styles.validationSection}>
+          <Text style={styles.sectionTitle}>Compliance Validation</Text>
+
+          {/* Field B: Packaging Code */}
+          <View style={styles.validationCard}>
+            <View style={styles.validationHeader}>
+              <Text style={styles.fieldLabel}>Field B: Packaging Code</Text>
+              {fieldBStatus === "valid" && (
+                <MaterialIcons name="check-circle" size={24} color="#4CAF50" />
+              )}
+              {fieldBStatus === "invalid" && (
+                <MaterialIcons name="cancel" size={24} color="#F44336" />
+              )}
+              {fieldBStatus === "frustrated" && (
+                <MaterialIcons name="warning" size={24} color="#FF9800" />
+              )}
+            </View>
+
+            <TextInput
+              style={[
+                styles.input,
+                fieldBStatus === "invalid" && styles.inputError,
+                fieldBStatus === "frustrated" && styles.inputFrustrated,
+              ]}
+              value={fields.B}
+              onChangeText={(text) => updateField("B", text.toUpperCase())}
+              placeholder="e.g., 4G, 1A1"
+              editable={fieldBStatus !== "frustrated"}
+            />
+
+            {fieldBStatus === "valid" && (
+              <Text style={styles.validText}>
+                Authorized for {inspection.extractedContent?.packingInstruction || "this material"}
+              </Text>
+            )}
+
+            {fieldBStatus === "invalid" && fieldBError && (
+              <>
+                <Text style={styles.errorText}>{fieldBError}</Text>
+                <TouchableOpacity
+                  style={styles.frustrationButton}
+                  onPress={handleFieldBFrustration}
+                >
+                  <MaterialIcons name="report-problem" size={18} color="#fff" />
+                  <Text style={styles.frustrationButtonText}>
+                    Create Frustration
+                  </Text>
+                </TouchableOpacity>
+              </>
+            )}
+
+            {fieldBStatus === "frustrated" && (
+              <Text style={styles.frustratedText}>
+                Frustration created for this field
+              </Text>
+            )}
+          </View>
+
+          {/* Field C: Packing Group */}
+          <View style={styles.validationCard}>
+            <View style={styles.validationHeader}>
+              <Text style={styles.fieldLabel}>Field C: Packing Group</Text>
+              {fieldCStatus === "valid" && (
+                <MaterialIcons name="check-circle" size={24} color="#4CAF50" />
+              )}
+              {fieldCStatus === "invalid" && (
+                <MaterialIcons name="cancel" size={24} color="#F44336" />
+              )}
+              {fieldCStatus === "frustrated" && (
+                <MaterialIcons name="warning" size={24} color="#FF9800" />
+              )}
+            </View>
+
+            <ButtonGroup
+              buttons={allowablePackingGroups()}
+              selectedIndex={allowablePackingGroups().indexOf(fields.C)}
+              onPress={(selectedIndex) => {
+                if (fieldCStatus !== "frustrated") {
+                  const selectedValue = allowablePackingGroups()[selectedIndex];
+                  updateField("C", selectedValue);
+                }
+              }}
+              containerStyle={[
+                styles.buttonGroupContainer,
+                fieldCStatus === "invalid" && styles.buttonGroupError,
+                fieldCStatus === "frustrated" && styles.buttonGroupFrustrated,
+              ]}
+              selectedButtonStyle={styles.selectedButton}
+              textStyle={styles.buttonGroupText}
+              disabled={fieldCStatus === "frustrated"}
+            />
+
+            <Text style={styles.allowedText}>
+              Allowed: {allowablePackingGroups().join(", ")}
+            </Text>
+
+            {fieldCStatus === "valid" && (
+              <Text style={styles.validText}>
+                Meets requirement for PG {inspection.extractedContent?.packingGroup || "material"}
+              </Text>
+            )}
+
+            {fieldCStatus === "invalid" && fieldCError && (
+              <>
+                <Text style={styles.errorText}>{fieldCError}</Text>
+                <TouchableOpacity
+                  style={styles.frustrationButton}
+                  onPress={handleFieldCFrustration}
+                >
+                  <MaterialIcons name="report-problem" size={18} color="#fff" />
+                  <Text style={styles.frustrationButtonText}>
+                    Create Frustration
+                  </Text>
+                </TouchableOpacity>
+              </>
+            )}
+
+            {fieldCStatus === "frustrated" && (
+              <Text style={styles.frustratedText}>
+                Frustration created for this field
+              </Text>
+            )}
+          </View>
+        </View>
+      </ScrollView>
+
+      {/* Bottom Buttons */}
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          style={styles.cancelButton}
+          onPress={() => navigation.goBack()}
+        >
+          <Text style={styles.cancelButtonText}>Cancel</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.saveExitButton}
+          onPress={() => {
+            Alert.alert("Save Progress", "Inspection progress saved.", [
+              { text: "OK" },
+            ]);
+          }}
+        >
+          <Text style={styles.buttonText}>Save & Exit</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.continueButton, !canContinue && styles.disabledButton]}
+          onPress={navigateToNextScreen}
+          disabled={!canContinue}
+        >
+          <Text style={styles.buttonText}>Continue</Text>
+        </TouchableOpacity>
+      </View>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -590,5 +782,121 @@ const styles = StyleSheet.create({
     color: "#ffffff",
     fontSize: 16,
     fontWeight: "600",
+  },
+  popDisplaySection: {
+    backgroundColor: "#f8f9fa",
+    borderRadius: 8,
+    padding: 16,
+    marginBottom: 16,
+    alignItems: "center",
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#212529",
+    marginBottom: 12,
+  },
+  popRow: {
+    marginVertical: 8,
+  },
+  confidenceText: {
+    fontSize: 13,
+    color: "#666",
+    marginTop: 8,
+  },
+  validationSection: {
+    marginBottom: 16,
+  },
+  validationCard: {
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#dee2e6",
+    borderRadius: 8,
+    padding: 16,
+    marginBottom: 12,
+  },
+  validationHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  fieldLabel: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#212529",
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ced4da",
+    borderRadius: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 16,
+    backgroundColor: "#fff",
+  },
+  inputError: {
+    borderColor: "#F44336",
+    backgroundColor: "#FFEBEE",
+  },
+  inputFrustrated: {
+    borderColor: "#FF9800",
+    backgroundColor: "#FFF3E0",
+  },
+  validText: {
+    fontSize: 13,
+    color: "#4CAF50",
+    marginTop: 8,
+  },
+  errorText: {
+    fontSize: 13,
+    color: "#F44336",
+    marginTop: 8,
+  },
+  frustrationButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#F57C00",
+    borderRadius: 4,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    marginTop: 12,
+  },
+  frustrationButtonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "600",
+    marginLeft: 8,
+  },
+  frustratedText: {
+    fontSize: 13,
+    color: "#FF9800",
+    marginTop: 8,
+    fontStyle: "italic",
+  },
+  buttonGroupContainer: {
+    marginHorizontal: 0,
+    marginTop: 0,
+    marginBottom: 8,
+    borderRadius: 4,
+  },
+  buttonGroupError: {
+    borderColor: "#F44336",
+  },
+  buttonGroupFrustrated: {
+    borderColor: "#FF9800",
+    opacity: 0.7,
+  },
+  selectedButton: {
+    backgroundColor: colors.blue,
+  },
+  buttonGroupText: {
+    fontSize: 14,
+  },
+  allowedText: {
+    fontSize: 12,
+    color: "#666",
+    marginTop: 4,
   },
 });
