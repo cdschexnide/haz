@@ -72,11 +72,111 @@ export default function InspectorMarkingsLabelsValidationScreen({
   // Initialize validation items
   useEffect(() => {
     initializeValidationItems();
-  }, []);
+  }, [initializeValidationItems]);
 
   const initializeValidationItems = useCallback(() => {
-    // TODO: Implement in Task 4
-    console.log("[MarkingsLabelsValidation] Initialization placeholder");
+    try {
+      // Get ML analysis results
+      const mlResults = inspection.mlAnalysisResults;
+      const detectedLabels = mlResults?.allDetectedLabels || [];
+      const perImageResults = mlResults?.perImageResults || [];
+
+      // Combine all OCR text for marking matching
+      const allOCRText = perImageResults
+        .map((result) => result.ocrResult?.fullText || "")
+        .join(" ");
+
+      // Get required markings
+      const requiredMarkings = evaluateMarkingRequirementsInspector(inspection);
+      const markingItems: ValidationItem[] = Object.entries(requiredMarkings).map(
+        ([label, expectedValues], index) => {
+          // Check if marking was found in OCR text
+          const foundInOCR = findMatchingMarkingInOCR(label, allOCRText);
+
+          return {
+            id: `marking-${index}-${label.replace(/\s+/g, "-").toLowerCase()}`,
+            category: "marking" as const,
+            label,
+            expectedValues,
+            matchStatus: foundInOCR ? "matched" : "unmatched",
+            matchedDetection: null,
+            matchConfidence: foundInOCR ? 0.8 : null,
+            validationStatus: "pending" as const,
+            afmanReference: "AFMAN 24-604",
+          };
+        }
+      );
+
+      // Get required labels
+      const requiredLabels = evaluateLabelingRequirements(inspection);
+      const matchedClassNames = new Set<string>();
+
+      const labelItems: ValidationItem[] = Object.entries(requiredLabels).map(
+        ([label, expectedValues], index) => {
+          // Find matching ML detection
+          const matchedDetection = findMatchingDetection(
+            label,
+            expectedValues,
+            detectedLabels
+          );
+
+          if (matchedDetection) {
+            matchedClassNames.add(matchedDetection.className);
+          }
+
+          return {
+            id: `label-${index}-${label.replace(/\s+/g, "-").toLowerCase()}`,
+            category: "label" as const,
+            label,
+            expectedValues,
+            matchStatus: matchedDetection ? "matched" : "unmatched",
+            matchedDetection,
+            matchConfidence: matchedDetection?.maxConfidence || null,
+            validationStatus: "pending" as const,
+            afmanReference: "AFMAN 24-604",
+          };
+        }
+      );
+
+      // Get additional detections (ML found but not in requirements)
+      const unmatchedDetections = getUnmatchedDetections(
+        detectedLabels,
+        matchedClassNames
+      );
+      setAdditionalDetections(unmatchedDetections);
+
+      // Build sections
+      const newSections: ValidationSection[] = [];
+
+      if (markingItems.length > 0) {
+        newSections.push({
+          title: "MARKINGS",
+          icon: "label",
+          data: markingItems,
+        });
+      }
+
+      if (labelItems.length > 0) {
+        newSections.push({
+          title: "LABELS",
+          icon: "local-offer",
+          data: labelItems,
+        });
+      }
+
+      setSections(newSections);
+
+      console.log("[MarkingsLabelsValidation] Initialized:", {
+        markings: markingItems.length,
+        labels: labelItems.length,
+        additionalDetections: unmatchedDetections.length,
+        matchedMarkings: markingItems.filter((m) => m.matchStatus === "matched").length,
+        matchedLabels: labelItems.filter((l) => l.matchStatus === "matched").length,
+      });
+    } catch (error) {
+      console.error("[MarkingsLabelsValidation] Initialization error:", error);
+      setSections([]);
+    }
   }, [inspection]);
 
   // Computed values
