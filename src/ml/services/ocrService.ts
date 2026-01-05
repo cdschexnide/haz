@@ -88,6 +88,64 @@ export function extractUNNumbers(text: string): string[] {
 }
 
 /**
+ * Extract EX classification numbers from text
+ * Matches patterns like "EX-2019037142", "EX 2019037142", "EX2019037142"
+ *
+ * @param text - Text to search
+ * @returns Array of unique EX numbers found (formatted as "EX-XXXXXXXXXX")
+ */
+export function extractEXNumbers(text: string): string[] {
+  if (!text) return [];
+
+  const upperText = text.toUpperCase();
+
+  // Pattern: EX followed by optional separator and 7-12 digits
+  const exPattern = /EX[\s\-]*(\d{7,12})/gi;
+  const matches = [...upperText.matchAll(exPattern)];
+
+  // Format consistently as "EX-XXXXXXXXXX"
+  const exNumbers = [...new Set(matches.map(m => `EX-${m[1]}`))];
+
+  if (exNumbers.length > 0) {
+    console.log('[OCR] Found EX numbers:', exNumbers);
+  }
+
+  return exNumbers;
+}
+
+/**
+ * Extract UN numbers with their associated Proper Shipping Names
+ * Matches patterns like "UN0106 FUZES DETONATING" on single lines
+ *
+ * @param lines - Array of OCR text lines
+ * @returns Array of UN+PSN pairs
+ */
+export function extractUNWithPSN(lines: { text: string }[]): { un: string; psn: string }[] {
+  const results: { un: string; psn: string }[] = [];
+
+  // Pattern: UN + 4 digits + remaining uppercase text (PSN)
+  const unPsnPattern = /UN[\s\-]*(\d{4})\s+([A-Z][A-Z\s,\-]+)/gi;
+
+  for (const line of lines) {
+    const text = line.text.toUpperCase();
+    const matches = [...text.matchAll(unPsnPattern)];
+
+    for (const match of matches) {
+      const un = `UN${match[1]}`;
+      // Clean PSN: trim, collapse spaces, remove trailing punctuation
+      const psn = match[2].trim().replace(/\s+/g, ' ').replace(/[,\-\s]+$/, '');
+
+      if (psn.length >= 3) {  // Minimum PSN length
+        results.push({ un, psn });
+        console.log('[OCR] Found UN+PSN:', un, psn);
+      }
+    }
+  }
+
+  return results;
+}
+
+/**
  * Extract weight/mass values from text
  * Matches patterns like "25 KG", "25KG", "25 KILOGRAMS"
  *
