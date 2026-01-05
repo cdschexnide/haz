@@ -67,13 +67,9 @@ export default function InspectorMarkingsLabelsValidationScreen({
   // Set chevron on mount
   useEffect(() => {
     actions.setCurrentChevron("package");
-  }, []);
+  }, [actions]);
 
   // Initialize validation items
-  useEffect(() => {
-    initializeValidationItems();
-  }, [initializeValidationItems]);
-
   const initializeValidationItems = useCallback(() => {
     try {
       // Get ML analysis results
@@ -178,6 +174,11 @@ export default function InspectorMarkingsLabelsValidationScreen({
       setSections([]);
     }
   }, [inspection]);
+
+  // Initialize on mount
+  useEffect(() => {
+    initializeValidationItems();
+  }, [initializeValidationItems]);
 
   // Computed values
   const allItems = sections.flatMap((section) => section.data);
