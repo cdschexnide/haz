@@ -334,10 +334,13 @@ export function useDetection(): UseDetectionReturn {
           return null;
         }
 
-        // Extract markings from OCR text
+        // Extract markings from OCR text, passing line data for UN+PSN extraction
         let extractedMarkings: ExtractedMarkings | null = null;
         if (ocrResult?.fullText) {
-          extractedMarkings = extractMarkingsFromText(ocrResult.fullText);
+          extractedMarkings = extractMarkingsFromText(
+            ocrResult.fullText,
+            ocrResult.textLines || []
+          );
         }
 
         const totalProcessingTime = Date.now() - startTime;
