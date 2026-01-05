@@ -104,11 +104,6 @@ export function MLDetectionScreen({
 
   const { results, modelLoaded, isProcessing, error, analysisResults, aggregatedResults, processingStatus } = state;
 
-  const unIdNo =
-    route?.params?.unIdNo ||
-    inspection?.verificationCopy?.unIdNo ||
-    inspection?.extractedContent?.unIdNo;
-
   // Load model on mount
   useEffect(() => {
     if (isRuntimeAvailable && !modelLoaded) {
@@ -127,42 +122,19 @@ export function MLDetectionScreen({
 
   const modelStatus = getModelStatus();
 
-  // Navigate to next screen based on UN number (or close modal in modal mode)
   const navigateToNextScreen = useCallback(() => {
     // In modal mode, just close the modal
     if (onClose) {
       onClose();
       return;
     }
-    // In navigation mode, navigate to the appropriate screen
+    // In navigation mode, navigate to the POP marking validation screen first
     if (!navigation) return;
 
-    if (unIdNo === "UN1845") {
-      navigation.navigate("InspectorDryIceScreen");
-    } else if (unIdNo === "UN2807") {
-      navigation.navigate("InspectorMagnetizedMaterialsScreen");
-    } else if (unIdNo === "UN3072" || unIdNo === "UN2990") {
-      navigation.navigate("InspectorLifeSavingAppliancesScreen");
-    } else if (unIdNo === "UN3245") {
-      navigation.navigate("InspectorGeneticallyModifiedOrganismsScreen");
-    } else if (unIdNo === "UN3268") {
-      navigation.navigate("InspectorSafetyDevicesScreen");
-    } else if (unIdNo === "UN3508") {
-      navigation.navigate("InspectorCapacitorsScreen");
-    } else if (unIdNo === "UN3528" || unIdNo === "UN3529") {
-      navigation.navigate("InspectorEnginesInternalCombustionScreen");
-    } else if (unIdNo === "UN3316") {
-      navigation.navigate("InspectorFirstAidChemicalKitScreen");
-    } else if (unIdNo === "UN3363") {
-      navigation.navigate("InspectorDangerousGoodsInApparatusScreen");
-    } else if (unIdNo === "UN3171") {
-      navigation.navigate("InspectorBatteryPoweredVehicleScreen");
-    } else if (unIdNo === "UN3480" || unIdNo === "UN3090") {
-      navigation.navigate("InspectorLithiumBatteriesScreen");
-    } else {
-      navigation.navigate("InspectorPackageVerification");
-    }
-  }, [unIdNo, navigation, onClose]);
+    // Always go to POP marking validation screen first
+    // That screen will then route to material-specific screens after validation
+    navigation.navigate("InspectorPOPMarkingValidationScreen");
+  }, [navigation, onClose]);
 
   // Handle skip
   const handleSkip = useCallback(() => {
