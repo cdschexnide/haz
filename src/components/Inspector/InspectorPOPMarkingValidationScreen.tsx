@@ -293,6 +293,110 @@ const DetectedState = ({ navigation }: { navigation: any }) => {
     updatePackagePopField(key, value);
   };
 
+  // Determine allowable packing groups based on extracted SDDG data
+  const allowablePackingGroups = useCallback(() => {
+    const hazardClass = inspection.extractedContent?.hazardClass || "";
+    const packingGroup = inspection.extractedContent?.packingGroup || "";
+    const packingInstruction =
+      inspection.extractedContent?.packingInstruction || "";
+
+    if (hazardClass.startsWith("1")) {
+      return ["X", "Y"];
+    } else if (packingInstruction === "A7.12.") {
+      return ["X", "Y"];
+    } else if (hazardClass.startsWith("4") && packingGroup === "III") {
+      return ["X", "Y"];
+    } else if (
+      packingInstruction &&
+      hazardClass4ParagraphsWithNoPackingGroup.includes(packingInstruction)
+    ) {
+      return ["X", "Y"];
+    } else if (
+      packingInstruction &&
+      packagingParagraphValuesThatRequirePGIPackaging.includes(packingInstruction)
+    ) {
+      return ["X"];
+    } else if (packingGroup === "I") {
+      return ["X"];
+    } else if (packingGroup === "II") {
+      return ["X", "Y"];
+    } else if (packingGroup === "III") {
+      return ["X", "Y", "Z"];
+    }
+
+    return ["X", "Y", "Z"];
+  }, [inspection.extractedContent]);
+
+  // Validate Field B (Packaging Code)
+  const validateFieldB = useCallback(
+    (value: string) => {
+      const packagingParagraph = inspection.extractedContent?.packingInstruction;
+
+      if (!packagingParagraph || value.trim() === "") {
+        setFieldBError(null);
+        setFieldBStatus("valid");
+        return;
+      }
+
+      const result = validatePackagingCodeV2(
+        packagingDatabaseV2,
+        packagingParagraph,
+        value,
+        undefined
+      );
+
+      if (!result?.isValid) {
+        setFieldBError(
+          `Packaging code '${value}' not authorized for ${packagingParagraph}`
+        );
+        setFieldBStatus("invalid");
+      } else {
+        setFieldBError(null);
+        setFieldBStatus("valid");
+      }
+    },
+    [inspection.extractedContent?.packingInstruction]
+  );
+
+  // Validate Field C (Packing Group)
+  const validateFieldC = useCallback(
+    (value: string) => {
+      const allowedGroups = allowablePackingGroups();
+
+      if (!value || value.trim() === "") {
+        setFieldCError("Packing group is required");
+        setFieldCStatus("invalid");
+        return;
+      }
+
+      if (!allowedGroups.includes(value)) {
+        setFieldCError(
+          `Packing group '${value}' insufficient. Required: ${allowedGroups.join(" or ")}`
+        );
+        setFieldCStatus("invalid");
+      } else {
+        setFieldCError(null);
+        setFieldCStatus("valid");
+      }
+    },
+    [allowablePackingGroups]
+  );
+
+  // Run initial validation on mount
+  useEffect(() => {
+    validateFieldB(fields.B);
+    validateFieldC(fields.C);
+  }, []);
+
+  // Re-validate on field change
+  useEffect(() => {
+    validateFieldB(fields.B);
+  }, [fields.B, validateFieldB]);
+
+  useEffect(() => {
+    validateFieldC(fields.C);
+  }, [fields.C, validateFieldC]);
+
   // Placeholder for validation - will be implemented in next task
   return (
     <View style={styles.container}>
