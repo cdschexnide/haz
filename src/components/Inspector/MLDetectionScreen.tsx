@@ -812,6 +812,8 @@ export function MLDetectionScreen({
           {/* Extracted OCR Data Card */}
           {aggregatedResults && (
             aggregatedResults.allUnNumbers.length > 0 ||
+            aggregatedResults.allEXNumbers?.length > 0 ||
+            aggregatedResults.allUnWithPSN?.length > 0 ||
             aggregatedResults.allWeights.length > 0 ||
             aggregatedResults.allHazardClasses.length > 0 ||
             aggregatedResults.countryOfOrigin
@@ -825,6 +827,9 @@ export function MLDetectionScreen({
                 dates: [],
                 countryOfOrigin: aggregatedResults.countryOfOrigin,
                 otherMarkings: [],
+                exNumbers: aggregatedResults.allEXNumbers || [],
+                properShippingNames: aggregatedResults.allPSNs || [],
+                unWithPSN: aggregatedResults.allUnWithPSN || [],
               }}
             />
           )}
