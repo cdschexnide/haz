@@ -18,6 +18,14 @@ export interface OCRTextBlock {
 }
 
 /**
+ * A single line of text detected by OCR with optional position
+ */
+export interface OCRTextLine {
+  text: string;
+  boundingBox: BoundingBox | null;
+}
+
+/**
  * Raw OCR result from ML Kit text recognition
  */
 export interface ImageOCRResult {
@@ -25,6 +33,8 @@ export interface ImageOCRResult {
   fullText: string;
   /** Individual text blocks with positions */
   textBlocks: OCRTextBlock[];
+  /** Individual text lines with positions (for line-level extraction) */
+  textLines: OCRTextLine[];
   /** Time taken for OCR processing in milliseconds */
   processingTime: number;
 }
@@ -73,6 +83,12 @@ export interface ExtractedMarkings {
   countryOfOrigin: string | null;
   /** Any other significant text patterns */
   otherMarkings: string[];
+  /** EX classification numbers found (e.g., ["EX-2019037142"]) */
+  exNumbers: string[];
+  /** Proper shipping names found (e.g., ["FUZES DETONATING"]) */
+  properShippingNames: string[];
+  /** UN numbers paired with their proper shipping names */
+  unWithPSN: { un: string; psn: string }[];
 }
 
 /**
