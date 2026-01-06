@@ -22,7 +22,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
-import { useDetection } from "../../ml/hooks/useDetection";
+import { useDetection, aggregateResults } from "../../ml/hooks/useDetection";
 import { DetectionOverlay } from "../../ml/components/DetectionOverlay";
 import { ImageCropScreen } from "../../ml/components/ImageCropScreen";
 import {
@@ -131,14 +131,19 @@ export function MLDetectionScreen({
 
   const navigateToNextScreen = useCallback(() => {
     // Save ML analysis results to context before navigating
-    // This includes bestPopMarking, detected labels, UN numbers, etc.
-    if (aggregatedResults) {
-      console.log('[MLDetectionScreen] Saving ML results to context:', {
-        hasPOP: !!aggregatedResults.bestPopMarking,
-        labels: aggregatedResults.allDetectedLabels.length,
-        unNumbers: aggregatedResults.allUnNumbers.length,
+    // Use correctedResults if available (contains user corrections), otherwise use original
+    const resultsToSave = correctedResults.length > 0 ? correctedResults : (analysisResults || []);
+
+    if (resultsToSave.length > 0) {
+      // Re-aggregate from corrected results to include user corrections
+      const finalAggregated = aggregateResults(resultsToSave);
+      console.log('[MLDetectionScreen] Saving ML results to context (with corrections):', {
+        hasPOP: !!finalAggregated.bestPopMarking,
+        labels: finalAggregated.allDetectedLabels.length,
+        labelClassNames: finalAggregated.allDetectedLabels.map(l => l.className),
+        unNumbers: finalAggregated.allUnNumbers.length,
       });
-      setMLAnalysisResults(aggregatedResults);
+      setMLAnalysisResults(finalAggregated);
     }
 
     // In modal mode, just close the modal
@@ -146,13 +151,12 @@ export function MLDetectionScreen({
       onClose();
       return;
     }
-    // In navigation mode, navigate to the POP marking validation screen first
+    // In navigation mode, navigate to the POP marking data entry screen
     if (!navigation) return;
 
-    // Always go to POP marking validation screen first
-    // That screen will then route to material-specific screens after validation
-    navigation.navigate("InspectorPOPMarkingValidationScreen");
-  }, [navigation, onClose, aggregatedResults, setMLAnalysisResults]);
+    // Navigate to POP marking data entry instead of validation screen
+    navigation.navigate("InspectorPOPMarkingDataEntry");
+  }, [navigation, onClose, correctedResults, analysisResults, setMLAnalysisResults]);
 
   // Handle skip
   const handleSkip = useCallback(() => {
