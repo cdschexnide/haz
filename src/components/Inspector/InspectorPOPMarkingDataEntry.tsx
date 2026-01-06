@@ -5,6 +5,7 @@ import colors from "../../../src/theming/colors";
 import { PhysicalState } from "../../../types";
 import { validatePackagingCodeV2 } from "../../../src/utils/packagingWizardV2Helpers";
 import { Picker } from "@react-native-picker/picker";
+import { MaterialIcons } from "@expo/vector-icons";
 import React, { useCallback, useEffect, useState } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import {
@@ -45,9 +46,6 @@ const InspectorPOPMarkingDataEntry = ({ navigation }: { navigation: any }) => {
   const { actions } = useHazProStore();
 
   const [hasSelectedCountry, setHasSelectedCountry] = useState<boolean>(false);
-  const [packagingCodeError, setPackagingCodeError] = useState<string | null>(
-    null
-  );
   const [yearError, setYearError] = useState<string | null>(null);
 
   // Detect physical state from extracted SDDG content
@@ -100,6 +98,12 @@ const InspectorPOPMarkingDataEntry = ({ navigation }: { navigation: any }) => {
     G: inspection.packagePopMarking?.G || "",
     H: inspection.packagePopMarking?.H || "",
   });
+
+  // Validation state for Field B and Field C
+  const [fieldBStatus, setFieldBStatus] = useState<"valid" | "invalid" | "frustrated">("valid");
+  const [fieldCStatus, setFieldCStatus] = useState<"valid" | "invalid" | "frustrated">("valid");
+  const [fieldBError, setFieldBError] = useState<string | null>(null);
+  const [fieldCError, setFieldCError] = useState<string | null>(null);
 
   // Set active chevron when component mounts
   useEffect(() => {
@@ -212,31 +216,63 @@ const InspectorPOPMarkingDataEntry = ({ navigation }: { navigation: any }) => {
     return ["X", "Y", "Z"];
   };
 
-  const updateField = (key: keyof typeof fields, value: string) => {
-    setFields(prev => ({ ...prev, [key]: value }));
-  };
-
-  const validatePackagingCodeField = () => {
+  // Validate Field B (packaging code)
+  const validateFieldB = useCallback((value: string) => {
     const packagingParagraph = inspection.extractedContent?.packingInstruction;
 
-    if (!packagingParagraph || fields.B.trim() === "") {
+    if (!packagingParagraph || value.trim() === "") {
+      setFieldBError(null);
+      setFieldBStatus("valid");
       return;
     }
 
-    // Validate packaging code against database
-    // Note: Inspector doesn't have packagingType, so we pass undefined
     const result = validatePackagingCodeV2(
       packagingDatabaseV2,
       packagingParagraph,
-      fields.B,
-      undefined // packagingType not available in Inspector context
+      value,
+      undefined
     );
 
     if (!result?.isValid) {
-      setPackagingCodeError("Packaging code not authorized for this material");
+      setFieldBError(`Packaging code '${value}' not authorized for ${packagingParagraph}`);
+      setFieldBStatus("invalid");
     } else {
-      setPackagingCodeError(null);
+      setFieldBError(null);
+      setFieldBStatus("valid");
     }
+  }, [inspection.extractedContent?.packingInstruction]);
+
+  // Validate Field C (packing group)
+  const validateFieldC = useCallback((value: string) => {
+    const allowedGroups = allowablePackingGroups();
+
+    if (!value || value.trim() === "") {
+      setFieldCError("Packing group is required");
+      setFieldCStatus("invalid");
+      return;
+    }
+
+    if (!allowedGroups.includes(value)) {
+      setFieldCError(`Packing group '${value}' insufficient. Required: ${allowedGroups.join(" or ")}`);
+      setFieldCStatus("invalid");
+    } else {
+      setFieldCError(null);
+      setFieldCStatus("valid");
+    }
+  }, [allowablePackingGroups]);
+
+  // Run Field B validation on mount and field change
+  useEffect(() => {
+    validateFieldB(fields.B);
+  }, [fields.B, validateFieldB]);
+
+  // Run Field C validation on mount and field change
+  useEffect(() => {
+    validateFieldC(fields.C);
+  }, [fields.C, validateFieldC]);
+
+  const updateField = (key: keyof typeof fields, value: string) => {
+    setFields(prev => ({ ...prev, [key]: value }));
   };
 
   const validateYearField = (yearValue: string) => {
@@ -272,7 +308,7 @@ const InspectorPOPMarkingDataEntry = ({ navigation }: { navigation: any }) => {
     /^\d{2}$/.test(fields.F) &&
     /^[A-Z]+$/.test(fields.G) &&
     /^[A-Z]+$/.test(fields.H) &&
-    !packagingCodeError &&
+    !fieldBError &&
     !yearError;
 
   const explanations = {
@@ -472,7 +508,8 @@ const InspectorPOPMarkingDataEntry = ({ navigation }: { navigation: any }) => {
                 <TextInput
                   style={[
                     styles.input,
-                    packagingCodeError && styles.inputError,
+                    fieldBStatus === "invalid" && styles.inputError,
+                    fieldBStatus === "frustrated" && styles.inputFrustrated,
                   ]}
                   placeholder="Field B"
                   value={fields.B}
@@ -480,9 +517,9 @@ const InspectorPOPMarkingDataEntry = ({ navigation }: { navigation: any }) => {
                     updateField("B", text);
                     updatePackagePopField("B", text);
                   }}
-                  // onBlur={validatePackagingCodeField}
+                  editable={fieldBStatus !== "frustrated"}
                   accessibilityHint={
-                    packagingCodeError ||
+                    fieldBError ||
                     "Enter packaging code for outer packaging"
                   }
                 />
@@ -490,8 +527,31 @@ const InspectorPOPMarkingDataEntry = ({ navigation }: { navigation: any }) => {
                   {explanations.B}
                   <Text style={styles.fieldId}> (Field B)</Text>
                 </Text>
-                {packagingCodeError && (
-                  <Text style={styles.errorText}>{packagingCodeError}</Text>
+                {fieldBError && fieldBStatus === "invalid" && (
+                  <Text style={styles.errorText}>{fieldBError}</Text>
+                )}
+                {fieldBStatus === "invalid" && (
+                  <TouchableOpacity
+                    style={styles.frustrationButton}
+                    onPress={() => {
+                      addPackageFrustration({
+                        category: "marking",
+                        itemId: "pop-field-b",
+                        itemLabel: "Packaging Code (Field B)",
+                        expectedValues: [inspection.extractedContent?.packingInstruction || "valid packaging code"],
+                        verificationStatus: "incorrect",
+                        defaultMessage: fieldBError || "Packaging code validation failed",
+                        afmanReference: "AFMAN 24-604 A11.3.2",
+                      });
+                      setFieldBStatus("frustrated");
+                    }}
+                  >
+                    <MaterialIcons name="report-problem" size={18} color="#fff" />
+                    <Text style={styles.frustrationButtonText}>Create Frustration</Text>
+                  </TouchableOpacity>
+                )}
+                {fieldBStatus === "frustrated" && (
+                  <Text style={styles.frustratedText}>Frustration created for this field</Text>
                 )}
               </View>
               <View style={styles.inputGroup}>
@@ -499,14 +559,20 @@ const InspectorPOPMarkingDataEntry = ({ navigation }: { navigation: any }) => {
                   buttons={allowablePackingGroups()}
                   selectedIndex={allowablePackingGroups().indexOf(fields.C)}
                   onPress={selectedIndex => {
+                    if (fieldCStatus === "frustrated") return;
                     const groups = allowablePackingGroups();
                     const selectedValue = groups[selectedIndex];
                     updateField("C", selectedValue);
                     updatePackagePopField("C", selectedValue);
                   }}
-                  containerStyle={styles.buttonGroupContainer}
+                  containerStyle={[
+                    styles.buttonGroupContainer,
+                    fieldCStatus === "invalid" && styles.buttonGroupError,
+                    fieldCStatus === "frustrated" && styles.buttonGroupFrustrated,
+                  ]}
                   selectedButtonStyle={styles.selectedButton}
                   textStyle={styles.buttonGroupButtonText}
+                  disabled={fieldCStatus === "frustrated"}
                 />
                 <Text style={styles.explanation}>
                   {`${explanations.C} (Allowed: ${allowablePackingGroups().join(
@@ -514,6 +580,32 @@ const InspectorPOPMarkingDataEntry = ({ navigation }: { navigation: any }) => {
                   )})`}
                   <Text style={styles.fieldId}> (Field C)</Text>
                 </Text>
+                {fieldCError && fieldCStatus === "invalid" && (
+                  <Text style={styles.errorText}>{fieldCError}</Text>
+                )}
+                {fieldCStatus === "invalid" && (
+                  <TouchableOpacity
+                    style={styles.frustrationButton}
+                    onPress={() => {
+                      addPackageFrustration({
+                        category: "marking",
+                        itemId: "pop-field-c",
+                        itemLabel: "Packing Group (Field C)",
+                        expectedValues: allowablePackingGroups(),
+                        verificationStatus: fields.C ? "incorrect" : "missing",
+                        defaultMessage: fieldCError || "Packing group validation failed",
+                        afmanReference: "AFMAN 24-604 A11.3.3",
+                      });
+                      setFieldCStatus("frustrated");
+                    }}
+                  >
+                    <MaterialIcons name="report-problem" size={18} color="#fff" />
+                    <Text style={styles.frustrationButtonText}>Create Frustration</Text>
+                  </TouchableOpacity>
+                )}
+                {fieldCStatus === "frustrated" && (
+                  <Text style={styles.frustratedText}>Frustration created for this field</Text>
+                )}
               </View>
               <View style={styles.inputGroup}>
                 <TextInput
@@ -849,5 +941,39 @@ const styles = StyleSheet.create({
   },
   buttonGroupButtonText: {
     color: "#000",
+  },
+  inputFrustrated: {
+    borderColor: "#FF9800",
+    backgroundColor: "#FFF3E0",
+    opacity: 0.7,
+  },
+  buttonGroupError: {
+    borderColor: "#F44336",
+  },
+  buttonGroupFrustrated: {
+    borderColor: "#FF9800",
+    opacity: 0.7,
+  },
+  frustrationButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#F57C00",
+    borderRadius: 4,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    marginTop: 12,
+  },
+  frustrationButtonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "600",
+    marginLeft: 8,
+  },
+  frustratedText: {
+    fontSize: 13,
+    color: "#FF9800",
+    marginTop: 8,
+    fontStyle: "italic",
   },
 });
