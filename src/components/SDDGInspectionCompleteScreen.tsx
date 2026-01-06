@@ -250,7 +250,7 @@ export default function SDDGInspectionCompleteScreen({
           onPress={() => navigation.goBack()}
           disabled={isSaving}
         >
-          <MaterialIcons name="arrow-back" size={20} color="#007AFF" />
+          <MaterialIcons name="arrow-back" size={20} color="#8E8E93" />
           <Text style={styles.backButtonText}>Back</Text>
         </TouchableOpacity>
 
