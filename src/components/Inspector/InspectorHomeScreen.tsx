@@ -297,8 +297,8 @@ export default function InspectorHomeScreen({
 
     if (inspection.packageStatus === null) {
       Alert.alert(
-        "Package Not Started",
-        "The package inspection has not been started yet. Would you like to continue with the package inspection now?",
+        "Package Inspection Not Started",
+        "The package inspection has not been started yet. Would you like to continue to package inspection now?",
         [
           { text: "Cancel", style: "cancel" },
           {
@@ -306,10 +306,12 @@ export default function InspectorHomeScreen({
             onPress: async () => {
               try {
                 await loadInspectionForEdit(inspection.id);
-                // Navigate to package verification screen
-                console.log("📦 Navigating to package inspection...");
+                // Navigate to ML Detection Screen for package inspection
+                const unIdNo = inspection.unId || "";
+                console.log("📦 Navigating to MLDetectionScreen for package inspection...");
                 navigate("InspectorWrappedStack", {
-                  screen: "InspectorPackageVerification",
+                  screen: "MLDetectionScreen",
+                  params: { unIdNo },
                 });
               } catch (error) {
                 console.error("Failed to load inspection:", error);
