@@ -219,12 +219,21 @@ export default function InspectorHomeScreen({
     );
 
     if (inspection.sddgStatus === "verified") {
-      console.log("🔍 [InspectorHome] Status is verified, showing alert");
-      Alert.alert(
-        "SDDG Verified",
-        "This inspection's SDDG has been verified and passed compliance validation.",
-        [{ text: "OK" }]
-      );
+      console.log("🔍 [InspectorHome] Status is verified, navigating to SDDGInspectionCompleteScreen");
+
+      try {
+        await loadInspectionForEdit(inspection.id);
+        navigate("InspectorWrappedStack", {
+          screen: "SDDGInspectionCompleteScreen",
+        });
+      } catch (error) {
+        console.error("🔍 [InspectorHome] Failed to load inspection:", error);
+        Alert.alert(
+          "Error",
+          "Failed to load inspection data. Please try again.",
+          [{ text: "OK" }]
+        );
+      }
       return;
     }
 
