@@ -295,10 +295,11 @@ export default function InspectorHomeScreen({
       return;
     }
 
+    // Package not started yet (N/A)
     if (inspection.packageStatus === null) {
       Alert.alert(
         "Package Inspection Not Started",
-        "The package inspection has not been started yet. Would you like to continue to package inspection now?",
+        "The SDDG phase is complete. Would you like to continue with the package inspection?",
         [
           { text: "Cancel", style: "cancel" },
           {
@@ -306,20 +307,13 @@ export default function InspectorHomeScreen({
             onPress: async () => {
               try {
                 await loadInspectionForEdit(inspection.id);
-                // Navigate to ML Detection Screen for package inspection
                 const unIdNo = inspection.unId || "";
-                console.log("📦 Navigating to MLDetectionScreen for package inspection...");
                 navigate("InspectorWrappedStack", {
                   screen: "MLDetectionScreen",
                   params: { unIdNo },
                 });
               } catch (error) {
-                console.error("Failed to load inspection:", error);
-                Alert.alert(
-                  "Error",
-                  "Failed to load inspection data. Please try again.",
-                  [{ text: "OK" }]
-                );
+                Alert.alert("Error", "Failed to load inspection data. Please try again.");
               }
             },
           },
@@ -328,23 +322,20 @@ export default function InspectorHomeScreen({
       return;
     }
 
-    // Load the full inspection data for frustrated packages
-    try {
-      await loadInspectionForEdit(inspection.id);
-
-      // Navigate to PackageFrustrationSummary
-      console.log("📦 Navigating to PackageFrustrationSummary...");
-      navigate("InspectorWrappedStack", {
-        screen: "PackageFrustrationSummary",
-      });
-    } catch (error) {
-      console.error("Failed to load inspection:", error);
-      Alert.alert(
-        "Error",
-        "Failed to load inspection data. Please try again.",
-        [{ text: "OK" }]
-      );
+    // Package frustrated -> Load and navigate to summary
+    if (inspection.packageStatus === "frustrated") {
+      try {
+        await loadInspectionForEdit(inspection.id);
+        navigate("InspectorWrappedStack", {
+          screen: "PackageFrustrationSummary",
+        });
+      } catch (error) {
+        Alert.alert("Error", "Failed to load inspection data. Please try again.");
+      }
+      return;
     }
+
+    // Package verified -> Show detail view (existing logic handled above)
   };
 
   // Function to handle View Form 1015 click - load inspection and open modal
