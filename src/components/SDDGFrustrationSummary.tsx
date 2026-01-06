@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -6,10 +6,12 @@ import {
   StyleSheet,
   ScrollView,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useInspectionForm } from "@/contexts/InspectionFormProvider";
-import { FrustrationRecord } from "@/types/sddg";
+import { useDatabase } from "@/contexts/DataProvider";
+import { FrustrationRecord, InspectorShipment } from "@/types/sddg";
 import { useHazProStore } from "@/stores/useHazProStore";
 
 interface SDDGFrustrationSummaryProps {
@@ -35,6 +37,8 @@ export default function SDDGFrustrationSummary({
     startNewInspection,
   } = useInspectionForm();
   const { actions } = useHazProStore();
+  const database = useDatabase();
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     actions.setCurrentChevron("sddg");
@@ -161,6 +165,74 @@ export default function SDDGFrustrationSummary({
     }
   };
 
+  // Handle Save & Exit - save inspection with frustrations and exit without continuing to package
+  const handleSaveAndExit = async () => {
+    try {
+      setIsSaving(true);
+
+      const sddgData = inspection.verificationCopy;
+      if (!sddgData) {
+        Alert.alert("Error", "No SDDG data available to save");
+        return;
+      }
+
+      // Mark SDDG workflow complete
+      completeSDDGSubstep("SDDGFrustrationSummary");
+      setSDDGComplete(true);
+
+      // Create inspection record with frustrated SDDG status
+      const inspectionRecord: InspectorShipment = {
+        id: Date.now().toString(),
+        status: "in-progress",
+        inspectedAt: new Date(),
+        inspectionContext: { ...inspection },
+        tcn: sddgData.shippersReferenceNumber || "N/A",
+        unId: sddgData.unIdNo || "N/A",
+        properShippingName: sddgData.properShippingName || "N/A",
+        inspector: inspection.inspector,
+        sddgStatus: "frustrated",
+        packageStatus: null,
+        totalFrustrations: frustrations.length,
+        sddgFrustrations: frustrations.length,
+        packageFrustrations: 0,
+      };
+
+      console.log(
+        "📝 [SDDGFrustrationSummary] Saving inspection with frustrations"
+      );
+
+      await database.saveInspection(inspectionRecord);
+
+      console.log(
+        "📝 [SDDGFrustrationSummary] Inspection saved successfully"
+      );
+
+      Alert.alert(
+        "Inspection Saved",
+        `SDDG inspection saved with ${frustrations.length} frustration(s). You can reinspect or continue package inspection later.`,
+        [
+          {
+            text: "OK",
+            onPress: () => {
+              startNewInspection();
+              navigation.navigate("InspectorHomeStack", {
+                screen: "InspectorHome",
+              });
+            },
+          },
+        ]
+      );
+    } catch (error) {
+      console.error(
+        "📝 [SDDGFrustrationSummary] Failed to save inspection:",
+        error
+      );
+      Alert.alert("Save Failed", "Failed to save inspection. Please try again.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const renderFrustrationCard = (
     frustration: FrustrationRecord,
     index: number
@@ -243,27 +315,44 @@ export default function SDDGFrustrationSummary({
 
       {/* Action Buttons */}
       <View style={styles.footer}>
-        <TouchableOpacity style={styles.cancelButton} onPress={handleCancel}>
+        <TouchableOpacity
+          style={styles.cancelButton}
+          onPress={handleCancel}
+          disabled={isSaving}
+        >
           <Text style={styles.cancelButtonText}>Cancel</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.saveExitButton}
+          onPress={handleSaveAndExit}
+          disabled={isSaving}
+        >
+          {isSaving ? (
+            <ActivityIndicator color="#FFFFFF" size="small" />
+          ) : (
+            <>
+              <MaterialIcons name="save" size={18} color="#FFFFFF" />
+              <Text style={styles.saveExitButtonText}>Save & Exit</Text>
+            </>
+          )}
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.reinspectionButton}
           onPress={handleReinspectFrustrations}
+          disabled={isSaving}
         >
           <MaterialIcons name="refresh" size={20} color="#007AFF" />
-          <Text style={styles.reinspectionButtonText}>
-            Reinspect Frustrations
-          </Text>
+          <Text style={styles.reinspectionButtonText}>Reinspect</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.completeButton}
           onPress={handleCompleteWithFrustration}
+          disabled={isSaving}
         >
-          <Text style={styles.completeButtonText}>
-            Complete with Frustration & Continue
-          </Text>
+          <Text style={styles.completeButtonText}>Continue</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -414,6 +503,22 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     marginLeft: 4,
+  },
+  saveExitButton: {
+    flex: 1,
+    backgroundColor: "#6C757D",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 16,
+    paddingHorizontal: 8,
+    borderRadius: 12,
+    gap: 4,
+  },
+  saveExitButtonText: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    fontWeight: "600",
   },
   completeButton: {
     flex: 1,
