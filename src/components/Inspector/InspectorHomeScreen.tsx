@@ -1025,10 +1025,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFEBEE",
     color: "#D32F2F",
   },
-  notStartedStatus: {
-    backgroundColor: "#F5F5F5",
-    color: "#8E8E93",
-  },
   naStatus: {
     backgroundColor: "#F5F5F5",
     color: "#8E8E93",
