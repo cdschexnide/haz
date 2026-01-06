@@ -176,10 +176,6 @@ export default function SDDGFrustrationSummary({
         return;
       }
 
-      // Mark SDDG workflow complete
-      completeSDDGSubstep("SDDGFrustrationSummary");
-      setSDDGComplete(true);
-
       // Create inspection record with frustrated SDDG status
       const inspectionRecord: InspectorShipment = {
         id: Date.now().toString(),
@@ -201,11 +197,16 @@ export default function SDDGFrustrationSummary({
         "📝 [SDDGFrustrationSummary] Saving inspection with frustrations"
       );
 
-      await database.saveInspection(inspectionRecord);
+      const savedId = await database.saveInspection(inspectionRecord);
 
       console.log(
-        "📝 [SDDGFrustrationSummary] Inspection saved successfully"
+        "📝 [SDDGFrustrationSummary] Inspection saved successfully with ID:",
+        savedId
       );
+
+      // Mark SDDG workflow complete AFTER successful save
+      completeSDDGSubstep("SDDGFrustrationSummary");
+      setSDDGComplete(true);
 
       Alert.alert(
         "Inspection Saved",
@@ -223,11 +224,15 @@ export default function SDDGFrustrationSummary({
         ]
       );
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
       console.error(
         "📝 [SDDGFrustrationSummary] Failed to save inspection:",
         error
       );
-      Alert.alert("Save Failed", "Failed to save inspection. Please try again.");
+      Alert.alert(
+        "Save Failed",
+        `Failed to save inspection: ${errorMessage}. Please try again.`
+      );
     } finally {
       setIsSaving(false);
     }
