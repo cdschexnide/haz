@@ -103,7 +103,7 @@ export default function SDDGInspectionCompleteScreen({
               // Clear provider state
               startNewInspection();
               // Navigate to home screen
-              navigation.navigate("InspectorHomeScreen");
+              navigation.navigate("InspectorHomeStack", { screen: "InspectorHome" });
             },
           },
         ]
@@ -244,6 +244,16 @@ export default function SDDGInspectionCompleteScreen({
 
       {/* Action Buttons */}
       <View style={styles.footer}>
+        {/* Back Button */}
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+          disabled={isSaving}
+        >
+          <MaterialIcons name="arrow-back" size={20} color="#007AFF" />
+          <Text style={styles.backButtonText}>Back</Text>
+        </TouchableOpacity>
+
         <TouchableOpacity
           style={styles.saveButton}
           onPress={handleSaveAndExit}
@@ -264,9 +274,7 @@ export default function SDDGInspectionCompleteScreen({
           onPress={handleContinueToPackage}
           disabled={isSaving}
         >
-          <Text style={styles.continueButtonText}>
-            Continue to Package Inspection
-          </Text>
+          <Text style={styles.continueButtonText}>Continue to Package</Text>
           <MaterialIcons name="arrow-forward" size={20} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
@@ -377,6 +385,23 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
     flexDirection: "row",
     gap: 12,
+  },
+  backButton: {
+    flex: 0.8,
+    backgroundColor: "#FFFFFF",
+    borderWidth: 2,
+    borderColor: "#8E8E93",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 14,
+    borderRadius: 12,
+    gap: 4,
+  },
+  backButtonText: {
+    color: "#8E8E93",
+    fontSize: 16,
+    fontWeight: "600",
   },
   saveButton: {
     flex: 1,
