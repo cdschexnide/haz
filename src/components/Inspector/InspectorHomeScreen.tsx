@@ -728,14 +728,14 @@ export default function InspectorHomeScreen({
                               styles.columnText,
                               styles.statusText,
                               item.packageStatus === null
-                                ? styles.notStartedStatus
+                                ? styles.naStatus
                                 : item.packageStatus === "verified"
                                 ? styles.verifiedStatus
                                 : styles.frustratedStatus,
                             ]}
                           >
                             {item.packageStatus === null
-                              ? "Not Started"
+                              ? "N/A"
                               : item.packageStatus === "verified"
                               ? "Verified"
                               : "Frustrated"}
@@ -1026,6 +1026,10 @@ const styles = StyleSheet.create({
     color: "#D32F2F",
   },
   notStartedStatus: {
+    backgroundColor: "#F5F5F5",
+    color: "#8E8E93",
+  },
+  naStatus: {
     backgroundColor: "#F5F5F5",
     color: "#8E8E93",
   },
