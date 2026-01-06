@@ -122,26 +122,30 @@ export default function PackageFrustrationSummary({
     // Start reinspection mode
     startPackageReinspection(frustratedItemIds);
 
-    // Determine which screen to navigate to based on frustration categories
-    const hasMarkingFrustrations = markingFrustrations.length > 0;
-    const hasLabelFrustrations = labelFrustrations.length > 0;
-    const hasDryIceFrustrations = dryIceFrustrations.length > 0;
-    const hasMagnetizedFrustrations = magnetizedFrustrations.length > 0;
+    // Determine navigation based on what's frustrated
+    const hasPOPFrustrations = packageFrustrations.some(f =>
+      f.itemId.startsWith("pop-") || f.itemId.includes("pop-")
+    );
+
+    const hasMarkingOrLabelFrustrations = packageFrustrations.some(f =>
+      f.category === "marking" || f.category === "label"
+    );
 
     console.log("📦 [PackageFrustrationSummary] Frustration breakdown:", {
-      markings: hasMarkingFrustrations,
-      labels: hasLabelFrustrations,
-      dryIce: hasDryIceFrustrations,
-      magnetized: hasMagnetizedFrustrations,
+      hasPOP: hasPOPFrustrations,
+      hasMarkingLabel: hasMarkingOrLabelFrustrations,
     });
 
-    // Navigate to the unified verification screen for reinspection
-    if (hasMarkingFrustrations || hasLabelFrustrations) {
-      console.log(
-        "📦 [PackageFrustrationSummary] Navigating to package verification screen for reinspection"
-      );
-      navigation.navigate("InspectorPackageVerification");
+    if (hasPOPFrustrations) {
+      // Navigate to POP marking screen first
+      console.log("📦 [PackageFrustrationSummary] Navigating to POP marking reinspection");
+      navigation.navigate("InspectorPOPMarkingDataEntry");
+    } else if (hasMarkingOrLabelFrustrations) {
+      // Skip POP, go directly to markings/labels
+      console.log("📦 [PackageFrustrationSummary] Navigating to markings/labels reinspection");
+      navigation.navigate("InspectorMarkingsLabelsValidationScreen");
     } else {
+      // Other categories (dry ice, magnetized, etc.) - not yet supported
       Alert.alert(
         "Reinspection Required",
         "Special inspection workflows (dry ice, magnetized materials) require manual reinspection. Please contact your supervisor.",
