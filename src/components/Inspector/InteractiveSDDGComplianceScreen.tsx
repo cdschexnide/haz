@@ -402,24 +402,15 @@ const InteractiveSDDGComplianceScreen: React.FC<
     // Normal flow
     if (frustratedCount === 0) {
       console.log("if block - frustratedCount === 0");
-      // Zero frustrations - mark SDDG complete and route to package inspection
+      // Zero frustrations - navigate to SDDGInspectionCompleteScreen
       console.log(
-        "📋 [InteractiveSDDG] Zero frustrations - proceeding to package inspection"
+        "📋 [InteractiveSDDG] Zero frustrations - navigating to SDDGInspectionCompleteScreen"
       );
 
       completeSDDGSubstep("InteractiveSDDGComplianceScreen");
-      setSDDGComplete(true);
-      completeSDDGAndMoveToPackage();
 
-      // Route to ML Detection Screen first, passing UN number for subsequent routing
-      const unIdNo = inspection.verificationCopy?.unIdNo || "";
-      console.log("const unIdNo = inspection.verificationCopy?.unIdNo");
-      console.log("unIdNo:", unIdNo);
-      console.log("Navigating to MLDetectionScreen for label detection");
-
-      // Navigate to ML Detection Screen - it will handle routing to package verification
-      // or specialized screens based on UN number after detection is complete
-      navigation.navigate("MLDetectionScreen", { unIdNo });
+      // Navigate to the SDDG completion screen (user can Save & Exit or Continue to Package)
+      navigation.navigate("SDDGInspectionCompleteScreen");
     } else {
       // Has frustrations - go to summary
       console.log("else block - indicates frustratedCount > 0");
@@ -639,7 +630,7 @@ const InteractiveSDDGComplianceScreen: React.FC<
           <Text style={styles.primaryButtonText}>
             {frustratedFields.size > 0
               ? "Review Frustrations"
-              : "Continue to Package"}
+              : "Continue Inspection"}
           </Text>
           <MaterialIcons name="arrow-forward" size={20} color="#FFFFFF" />
         </TouchableOpacity>
