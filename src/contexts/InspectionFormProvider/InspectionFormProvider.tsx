@@ -14,7 +14,9 @@ import {
   InspectorMagnetizedMaterialData,
   InspectorShipment,
   PackagePopMarking,
+  ReinspectionAttempt,
 } from "@/types/sddg";
+import { Inspector } from "../../../types";
 import { InnerPackagingInspectionData } from "@/types/innerPackaging";
 import { useDatabase } from "../DataProvider";
 import {
@@ -84,6 +86,8 @@ interface InspectionFormContextValue {
   // Reinspection
   startSDDGReinspection: (keys: string[]) => void;
   startPackageReinspection: (itemIds: string[]) => void;
+  resolvePackageFrustration: (itemId: string, inspector: Inspector, comments?: string) => void;
+  refrustratePackageFrustration: (itemId: string, inspector: Inspector, comments?: string) => void;
   advanceReinspectionItem: () => void;
   completeReinspection: () => void;
 
@@ -891,6 +895,92 @@ export function InspectionFormProvider({
     }));
   }, []);
 
+  // Helper to format inspector for audit trail
+  const formatInspector = (inspector: Inspector): string => {
+    const rank = inspector.inspectorRank || "";
+    const name = inspector.inspectorName || "";
+    return `${rank} ${name}`.trim() || "Unknown Inspector";
+  };
+
+  const resolvePackageFrustration = useCallback((
+    itemId: string,
+    inspector: Inspector,
+    comments?: string
+  ) => {
+    console.log("📝 [InspectionForm] Resolving package frustration:", itemId);
+
+    setInspection(prev => {
+      const frustration = prev.packageFrustrations.find(f => f.itemId === itemId);
+      if (!frustration) {
+        console.warn("📝 [InspectionForm] Frustration not found:", itemId);
+        return prev;
+      }
+
+      const reinspectionAttempt: ReinspectionAttempt = {
+        date: new Date(),
+        inspector: formatInspector(inspector),
+        action: "verified",
+        additionalComments: comments,
+      };
+
+      const updatedFrustration = {
+        ...frustration,
+        reinspectionHistory: [
+          ...(frustration.reinspectionHistory || []),
+          reinspectionAttempt,
+        ],
+      };
+
+      console.log("📝 [InspectionForm] Moving frustration to resolved:", {
+        itemId,
+        reinspectionCount: updatedFrustration.reinspectionHistory.length,
+      });
+
+      return {
+        ...prev,
+        packageFrustrations: prev.packageFrustrations.filter(f => f.itemId !== itemId),
+        resolvedPackageFrustrations: [
+          ...prev.resolvedPackageFrustrations,
+          updatedFrustration,
+        ],
+      };
+    });
+    setHasUnsavedChanges(true);
+  }, []);
+
+  const refrustratePackageFrustration = useCallback((
+    itemId: string,
+    inspector: Inspector,
+    comments?: string
+  ) => {
+    console.log("📝 [InspectionForm] Re-frustrating package item:", itemId);
+
+    setInspection(prev => {
+      const reinspectionAttempt: ReinspectionAttempt = {
+        date: new Date(),
+        inspector: formatInspector(inspector),
+        action: "frustrated",
+        additionalComments: comments,
+      };
+
+      return {
+        ...prev,
+        packageFrustrations: prev.packageFrustrations.map(f =>
+          f.itemId === itemId
+            ? {
+                ...f,
+                reinspectionHistory: [
+                  ...(f.reinspectionHistory || []),
+                  reinspectionAttempt,
+                ],
+              }
+            : f
+        ),
+      };
+    });
+    setHasUnsavedChanges(true);
+  }, []);
+
   const advanceReinspectionItem = useCallback(() => {
     setWorkflow(prev => {
       if (
@@ -1150,6 +1240,8 @@ export function InspectionFormProvider({
       resetWorkflow,
       startSDDGReinspection,
       startPackageReinspection,
+      resolvePackageFrustration,
+      refrustratePackageFrustration,
       advanceReinspectionItem,
       completeReinspection,
       setMagnetizedMaterialInspection,
@@ -1194,6 +1286,8 @@ export function InspectionFormProvider({
       resetWorkflow,
       startSDDGReinspection,
       startPackageReinspection,
+      resolvePackageFrustration,
+      refrustratePackageFrustration,
       advanceReinspectionItem,
       completeReinspection,
       setMagnetizedMaterialInspection,
