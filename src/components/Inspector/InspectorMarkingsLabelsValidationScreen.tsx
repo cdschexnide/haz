@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   View,
   Text,
@@ -54,8 +54,11 @@ export default function InspectorMarkingsLabelsValidationScreen({
 }: InspectorMarkingsLabelsValidationScreenProps) {
   const {
     inspection,
+    workflow,
     addPackageFrustration,
     removePackageFrustration,
+    resolvePackageFrustration,
+    refrustratePackageFrustration,
   } = useInspectionForm();
   const { actions } = useHazProStore();
 
@@ -63,19 +66,32 @@ export default function InspectorMarkingsLabelsValidationScreen({
   const [sections, setSections] = useState<ValidationSection[]>([]);
   const [additionalDetections, setAdditionalDetections] = useState<AggregatedLabel[]>([]);
   const [showAdditionalDetections, setShowAdditionalDetections] = useState(false);
+  const hasInitialized = useRef(false);
 
   // Set chevron on mount
   useEffect(() => {
     actions.setCurrentChevron("package");
   }, [actions]);
 
-  // Initialize validation items
+  // Initialize validation items (only once on mount)
   const initializeValidationItems = useCallback(() => {
+    // Skip re-initialization if already initialized
+    // This prevents resetting validation status when inspection context updates
+    if (hasInitialized.current) {
+      return;
+    }
+    hasInitialized.current = true;
+
     try {
       // Get ML analysis results
       const mlResults = inspection.mlAnalysisResults;
       const detectedLabels = mlResults?.allDetectedLabels || [];
       const perImageResults = mlResults?.perImageResults || [];
+
+      // Get existing package frustrations to preserve status
+      const existingFrustrationIds = new Set(
+        inspection.packageFrustrations.map((f) => f.itemId)
+      );
 
       // Combine all OCR text for marking matching
       const allOCRText = perImageResults
@@ -86,18 +102,34 @@ export default function InspectorMarkingsLabelsValidationScreen({
       const requiredMarkings = evaluateMarkingRequirementsInspector(inspection);
       const markingItems: ValidationItem[] = Object.entries(requiredMarkings).map(
         ([label, expectedValues], index) => {
-          // Check if marking was found in OCR text
-          const foundInOCR = findMatchingMarkingInOCR(label, allOCRText);
+          // Special handling for PSN and UN Number - use structured data from ML analysis
+          let foundInOCR = false;
+          let matchConfidence: number | null = null;
+
+          if (label === "PSN and UN Number") {
+            // Check structured data - allUnWithPSN contains parsed UN+PSN pairs
+            const hasUnWithPSN = (mlResults?.allUnWithPSN?.length ?? 0) > 0;
+            foundInOCR = hasUnWithPSN;
+            matchConfidence = hasUnWithPSN ? 0.95 : null; // Higher confidence for structured data
+
+          } else {
+            // Fall back to regex pattern matching for other markings
+            foundInOCR = findMatchingMarkingInOCR(label, allOCRText);
+            matchConfidence = foundInOCR ? 0.8 : null;
+          }
+
+          const itemId = `marking-${index}-${label.replace(/\s+/g, "-").toLowerCase()}`;
 
           return {
-            id: `marking-${index}-${label.replace(/\s+/g, "-").toLowerCase()}`,
+            id: itemId,
             category: "marking" as const,
             label,
             expectedValues,
             matchStatus: foundInOCR ? "matched" : "unmatched",
             matchedDetection: null,
-            matchConfidence: foundInOCR ? 0.8 : null,
-            validationStatus: "pending" as const,
+            matchConfidence,
+            // Preserve frustrated status if this item was already frustrated
+            validationStatus: existingFrustrationIds.has(itemId) ? "frustrated" as const : "pending" as const,
             afmanReference: "AFMAN 24-604",
           };
         }
@@ -120,15 +152,18 @@ export default function InspectorMarkingsLabelsValidationScreen({
             matchedClassNames.add(matchedDetection.className);
           }
 
+          const itemId = `label-${index}-${label.replace(/\s+/g, "-").toLowerCase()}`;
+
           return {
-            id: `label-${index}-${label.replace(/\s+/g, "-").toLowerCase()}`,
+            id: itemId,
             category: "label" as const,
             label,
             expectedValues,
             matchStatus: matchedDetection ? "matched" : "unmatched",
             matchedDetection,
             matchConfidence: matchedDetection?.maxConfidence || null,
-            validationStatus: "pending" as const,
+            // Preserve frustrated status if this item was already frustrated
+            validationStatus: existingFrustrationIds.has(itemId) ? "frustrated" as const : "pending" as const,
             afmanReference: "AFMAN 24-604",
           };
         }
@@ -160,20 +195,36 @@ export default function InspectorMarkingsLabelsValidationScreen({
         });
       }
 
-      setSections(newSections);
+      // Filter items in reinspection mode to show only frustrated items
+      if (workflow.reinspection.mode === "package") {
+        const frustratedIds = new Set(workflow.reinspection.targetFrustrations);
+        const filteredSections = newSections.map(section => ({
+          ...section,
+          data: section.data.filter(item => frustratedIds.has(item.id)),
+        })).filter(section => section.data.length > 0);
+        setSections(filteredSections);
 
-      console.log("[MarkingsLabelsValidation] Initialized:", {
-        markings: markingItems.length,
-        labels: labelItems.length,
-        additionalDetections: unmatchedDetections.length,
-        matchedMarkings: markingItems.filter((m) => m.matchStatus === "matched").length,
-        matchedLabels: labelItems.filter((l) => l.matchStatus === "matched").length,
-      });
+        console.log("[MarkingsLabelsValidation] Reinspection mode - filtered to frustrated items:", {
+          totalFrustrations: frustratedIds.size,
+          sectionsWithItems: filteredSections.length,
+          items: filteredSections.flatMap(s => s.data).map(i => i.id),
+        });
+      } else {
+        setSections(newSections);
+
+        console.log("[MarkingsLabelsValidation] Initialized:", {
+          markings: markingItems.length,
+          labels: labelItems.length,
+          additionalDetections: unmatchedDetections.length,
+          matchedMarkings: markingItems.filter((m) => m.matchStatus === "matched").length,
+          matchedLabels: labelItems.filter((l) => l.matchStatus === "matched").length,
+        });
+      }
     } catch (error) {
       console.error("[MarkingsLabelsValidation] Initialization error:", error);
       setSections([]);
     }
-  }, [inspection]);
+  }, [inspection, workflow.reinspection.mode, workflow.reinspection.targetFrustrations]);
 
   // Initialize on mount
   useEffect(() => {
@@ -197,12 +248,17 @@ export default function InspectorMarkingsLabelsValidationScreen({
   // ============ HANDLERS ============
 
   const handleValidate = useCallback((item: ValidationItem) => {
-    // If previously frustrated, remove the frustration
-    if (item.validationStatus === "frustrated") {
-      removePackageFrustration(item.id);
+    const isReinspection = workflow.reinspection.mode === "package";
+
+    if (isReinspection && item.validationStatus === "frustrated") {
+      console.log("[MarkingsLabels] Resolving frustration in reinspection:", item.id);
+      resolvePackageFrustration(item.id, inspection.inspector);
+    } else {
+      if (item.validationStatus === "frustrated") {
+        removePackageFrustration(item.id);
+      }
     }
 
-    // Update local state
     setSections((prevSections) =>
       prevSections.map((section) => ({
         ...section,
@@ -213,19 +269,45 @@ export default function InspectorMarkingsLabelsValidationScreen({
         ),
       }))
     );
-  }, [removePackageFrustration]);
+  }, [workflow.reinspection.mode, inspection.inspector, resolvePackageFrustration, removePackageFrustration]);
 
   const handleFrustrate = useCallback((item: ValidationItem) => {
-    // Add frustration to context
-    addPackageFrustration({
-      category: item.category,
-      itemId: item.id,
-      itemLabel: item.label,
-      expectedValues: item.expectedValues,
-      verificationStatus: "missing",
-      defaultMessage: `Required ${item.category} "${item.label}" not found on package`,
-      afmanReference: item.afmanReference || "AFMAN 24-604",
-    });
+    const isReinspection = workflow.reinspection.mode === "package";
+
+    // If already frustrated, toggle back to pending (remove frustration)
+    if (item.validationStatus === "frustrated") {
+      removePackageFrustration(item.id);
+
+      // Update local state back to pending
+      setSections((prevSections) =>
+        prevSections.map((section) => ({
+          ...section,
+          data: section.data.map((dataItem) =>
+            dataItem.id === item.id
+              ? { ...dataItem, validationStatus: "pending" as const }
+              : dataItem
+          ),
+        }))
+      );
+      return;
+    }
+
+    // In reinspection mode, use refrustratePackageFrustration to track re-frustration
+    if (isReinspection) {
+      console.log("[MarkingsLabels] Re-frustrating item in reinspection:", item.id);
+      refrustratePackageFrustration(item.id, inspection.inspector);
+    } else {
+      // Add frustration to context (first inspection)
+      addPackageFrustration({
+        category: item.category,
+        itemId: item.id,
+        itemLabel: item.label,
+        expectedValues: item.expectedValues,
+        verificationStatus: "missing",
+        defaultMessage: `Required ${item.category} "${item.label}" not found on package`,
+        afmanReference: item.afmanReference || "AFMAN 24-604",
+      });
+    }
 
     // Update local state
     setSections((prevSections) =>
@@ -238,7 +320,7 @@ export default function InspectorMarkingsLabelsValidationScreen({
         ),
       }))
     );
-  }, [addPackageFrustration]);
+  }, [workflow.reinspection.mode, inspection.inspector, addPackageFrustration, removePackageFrustration, refrustratePackageFrustration]);
 
   // ============ RENDER HELPERS ============
 
@@ -261,7 +343,8 @@ export default function InspectorMarkingsLabelsValidationScreen({
       backgroundColor = "#FFF5F5";
       leftBorderColor = "#FF3B30";
     } else if (isMatched) {
-      borderColor = "#007AFF";
+      borderColor = "#34C759";
+      leftBorderColor = "#34C759";
       backgroundColor = "#FFFFFF";
     } else {
       // Unmatched - needs attention
@@ -296,14 +379,11 @@ export default function InspectorMarkingsLabelsValidationScreen({
         </View>
 
         {/* Match Info */}
-        {isMatched && item.matchedDetection && (
+        {/* {isMatched && item.matchedDetection && (
           <Text style={styles.matchInfoText}>
             Detected: "{item.matchedDetection.className}"
           </Text>
-        )}
-        {isMatched && !item.matchedDetection && item.category === "marking" && (
-          <Text style={styles.matchInfoText}>Found in package text (OCR)</Text>
-        )}
+        )} */}
         {!isMatched && (
           <View style={styles.warningRow}>
             <MaterialIcons name="warning" size={16} color="#FF9500" />
@@ -367,15 +447,10 @@ export default function InspectorMarkingsLabelsValidationScreen({
     }
 
     if (item.matchStatus === "matched") {
-      const confidence = item.matchConfidence
-        ? Math.round(item.matchConfidence * 100)
-        : null;
       return (
         <View style={[styles.badge, styles.badgeMatched]}>
-          <MaterialIcons name="auto-awesome" size={14} color="#FFFFFF" />
-          <Text style={styles.badgeText}>
-            ML Detected{confidence ? ` ${confidence}%` : ""}
-          </Text>
+          <MaterialIcons name="check-circle" size={14} color="#FFFFFF" />
+          <Text style={styles.badgeText}>Detected</Text>
         </View>
       );
     }
@@ -457,12 +532,30 @@ export default function InspectorMarkingsLabelsValidationScreen({
   };
 
   const navigateToNextScreen = useCallback(() => {
+    const isReinspection = workflow.reinspection.mode === "package";
+
+    // In reinspection mode, check frustrations and navigate accordingly
+    if (isReinspection) {
+      const hasPackageFrustrations = inspection.packageFrustrations.length > 0;
+
+      if (hasPackageFrustrations) {
+        // Navigate to frustration summary to review remaining frustrations
+        console.log("[MarkingsLabels] Reinspection complete with remaining frustrations");
+        navigation.navigate("PackageFrustrationSummary");
+      } else {
+        // All frustrations resolved - inspection is complete
+        console.log("[MarkingsLabels] Reinspection complete - all frustrations resolved");
+        navigation.navigate("PackageInspectionCompleteScreen");
+      }
+      return;
+    }
+
+    // First inspection: route based on UN number (same logic as POP validation screen)
     const unIdNo =
       inspection.verificationCopy?.unIdNo ||
       inspection.extractedContent?.unIdNo ||
       "";
 
-    // Route based on UN number (same logic as POP validation screen)
     if (unIdNo === "UN1845") {
       navigation.navigate("InspectorDryIceScreen");
     } else if (unIdNo === "UN2807") {
@@ -486,9 +579,19 @@ export default function InspectorMarkingsLabelsValidationScreen({
     } else if (unIdNo === "UN3480" || unIdNo === "UN3090") {
       navigation.navigate("InspectorLithiumBatteriesScreen");
     } else {
-      navigation.navigate("InspectorPackageVerification");
+      // No material-specific screen needed - go directly to summary or complete
+      // Check if there are any package frustrations from POP validation or markings/labels validation
+      const hasPackageFrustrations = inspection.packageFrustrations.length > 0;
+
+      if (hasPackageFrustrations) {
+        // Navigate to frustration summary to review package issues
+        navigation.navigate("PackageFrustrationSummary");
+      } else {
+        // No frustrations - inspection is complete
+        navigation.navigate("PackageInspectionCompleteScreen");
+      }
     }
-  }, [navigation, inspection]);
+  }, [navigation, inspection, workflow.reinspection.mode]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -660,7 +763,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   badgeMatched: {
-    backgroundColor: "#007AFF",
+    backgroundColor: "#34C759",
   },
   badgeUnmatched: {
     backgroundColor: "#FF9500",
