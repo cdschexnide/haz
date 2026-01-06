@@ -45,7 +45,6 @@ import InspectorPOPScannerScreen from "./InspectorPOPScannerScreen";
 import InspectorPOPScanResultsScreen from "./InspectorPOPScanResultsScreen";
 import InspectorPOPMethodSelectionScreen from "./InspectorPOPMethodSelectionScreen";
 import MLDetectionScreen from "./MLDetectionScreen";
-import InspectorPOPMarkingValidationScreen from "./InspectorPOPMarkingValidationScreen";
 import InspectorMarkingsLabelsValidationScreen from "./InspectorMarkingsLabelsValidationScreen";
 
 const InspectorStack = createStackNavigator();
@@ -215,10 +214,6 @@ const InspectorWrappedStack = ({ navigation }: { navigation: any }) => (
       <MainStack.Screen
         name="MLDetectionScreen"
         component={MLDetectionScreen}
-      />
-      <MainStack.Screen
-        name="InspectorPOPMarkingValidationScreen"
-        component={InspectorPOPMarkingValidationScreen}
       />
       <MainStack.Screen
         name="InspectorMarkingsLabelsValidationScreen"
