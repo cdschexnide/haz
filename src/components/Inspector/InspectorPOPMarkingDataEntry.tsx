@@ -36,6 +36,7 @@ const packagingParagraphValuesThatRequirePGIPackaging = ["A12.9.", "A12.11."];
 const InspectorPOPMarkingDataEntry = ({ navigation }: { navigation: any }) => {
   const {
     inspection,
+    workflow,
     updatePackagePopField,
     resetPackagePopMarking,
     setPackagePopMarking,
@@ -327,138 +328,37 @@ const InspectorPOPMarkingDataEntry = ({ navigation }: { navigation: any }) => {
   const handleContinue = () => {
     console.log("📝 [InspectorPOPMarkingDataEntry] Continue button pressed");
 
-    // Validate all fields and create frustrations for any invalid fields
-    let hasErrors = false;
+    // Detect reinspection mode
+    const isReinspection = workflow.reinspection.mode === "package";
 
-    // Validate Field B
-    if (!fields.B || !/^[a-zA-Z0-9]{2,4}$/.test(fields.B)) {
-      hasErrors = true;
-      addPackageFrustration({
-        category: "marking",
-        itemId: "pop-field-b",
-        itemLabel: "Package Code (Field B)",
-        expectedValues: ["Valid packaging code (2-4 alphanumeric characters)"],
-        verificationStatus: fields.B ? "incorrect" : "missing",
-        defaultMessage: fields.B
-          ? "Packaging code format is incorrect"
-          : "Packaging code is missing",
-        afmanReference: "AFMAN 24-604 A11.3.2",
-      });
-    } else {
-      removePackageFrustration("pop-field-b");
-    }
+    if (isReinspection) {
+      // REINSPECTION MODE
 
-    // Validate Field C
-    if (!fields.C || !/^[XYZ]$/.test(fields.C)) {
-      hasErrors = true;
-      addPackageFrustration({
-        category: "marking",
-        itemId: "pop-field-c",
-        itemLabel: "Packing Group (Field C)",
-        expectedValues: ["X", "Y", "Z"],
-        verificationStatus: fields.C ? "incorrect" : "missing",
-        defaultMessage: fields.C
-          ? "Packing group must be X, Y, or Z"
-          : "Packing group is missing",
-        afmanReference: "AFMAN 24-604 A11.3.3",
-      });
-    } else {
-      removePackageFrustration("pop-field-c");
-    }
-
-    // Validate Field D
-    if (!fields.D || !/^\d+(\.\d+)?$/.test(fields.D)) {
-      hasErrors = true;
-      const fieldDLabel =
-        physicalState === PhysicalState.LIQUID
-          ? "Relative Density (Field D)"
-          : "Maximum Gross Mass (Field D)";
-      addPackageFrustration({
-        category: "marking",
-        itemId: "pop-field-d",
-        itemLabel: fieldDLabel,
-        expectedValues: ["Numeric value"],
-        verificationStatus: fields.D ? "incorrect" : "missing",
-        defaultMessage: fields.D
-          ? "Field D must be a valid number"
-          : "Field D is missing",
-        afmanReference: "AFMAN 24-604 A11.3.4",
-      });
-    } else {
-      removePackageFrustration("pop-field-d");
-    }
-
-    // Validate Field F (Year)
-    if (!fields.F || !/^\d{2}$/.test(fields.F) || yearError) {
-      hasErrors = true;
-      addPackageFrustration({
-        category: "marking",
-        itemId: "pop-field-f",
-        itemLabel: "Year of Manufacture (Field F)",
-        expectedValues: ["2-digit year (cannot be future)"],
-        verificationStatus: fields.F ? "incorrect" : "missing",
-        defaultMessage:
-          yearError || "Year of manufacture is missing or invalid",
-        afmanReference: "AFMAN 24-604 A11.3.6",
-      });
-    } else {
-      removePackageFrustration("pop-field-f");
-    }
-
-    // Validate Field G
-    if (!fields.G || !/^[A-Z]+$/.test(fields.G)) {
-      hasErrors = true;
-      addPackageFrustration({
-        category: "marking",
-        itemId: "pop-field-g",
-        itemLabel: "Country Code (Field G)",
-        expectedValues: ["Valid country code (uppercase letters)"],
-        verificationStatus: fields.G ? "incorrect" : "missing",
-        defaultMessage: fields.G
-          ? "Country code format is incorrect"
-          : "Country code is missing",
-        afmanReference: "AFMAN 24-604 A11.3.7",
-      });
-    } else {
-      removePackageFrustration("pop-field-g");
-    }
-
-    // Validate Field H
-    if (!fields.H || !/^[A-Z]+$/.test(fields.H)) {
-      hasErrors = true;
-      addPackageFrustration({
-        category: "marking",
-        itemId: "pop-field-h",
-        itemLabel: "Manufacturer Symbol (Field H)",
-        expectedValues: ["Valid manufacturer symbol (uppercase letters)"],
-        verificationStatus: fields.H ? "incorrect" : "missing",
-        defaultMessage: fields.H
-          ? "Manufacturer symbol format is incorrect"
-          : "Manufacturer symbol is missing",
-        afmanReference: "AFMAN 24-604 A11.3.8",
-      });
-    } else {
-      removePackageFrustration("pop-field-h");
-    }
-
-    // Navigate based on frustrations
-    const packageFrustrations = inspection.packageFrustrations || [];
-    console.log(
-      "📝 [InspectorPOPMarkingDataEntry] Package frustrations count:",
-      packageFrustrations.length
-    );
-
-    if (packageFrustrations.length > 0) {
-      console.log(
-        "📝 [InspectorPOPMarkingDataEntry] Navigating to PackageFrustrationSummary"
+      // Check if there are frustrated marking/label items (excluding POP)
+      const markingLabelFrustrations = inspection.packageFrustrations.filter(
+        f => (f.category === "marking" || f.category === "label") &&
+             !f.itemId.startsWith("pop-")
       );
-      navigation.navigate("PackageFrustrationSummary");
+
+      console.log("📝 [InspectorPOPMarkingDataEntry] Reinspection mode:", {
+        markingLabelFrustrationsCount: markingLabelFrustrations.length,
+      });
+
+      if (markingLabelFrustrations.length > 0) {
+        // Navigate to markings/labels for reinspection
+        console.log("📝 Reinspection: Navigating to InspectorMarkingsLabelsValidationScreen");
+        navigation.navigate("InspectorMarkingsLabelsValidationScreen");
+      } else {
+        // No more frustrated items - inspection complete
+        console.log("📝 Reinspection: No more frustrations, navigating to PackageInspectionCompleteScreen");
+        navigation.navigate("PackageInspectionCompleteScreen");
+      }
     } else {
-      console.log(
-        "📝 [InspectorPOPMarkingDataEntry] No frustrations, navigating to next screen"
-      );
-      // Navigate to next inspector screen - adjust as needed
-      navigation.navigate("PackageInspectionCompleteScreen");
+      // FIRST INSPECTION MODE
+
+      // Always navigate to markings/labels validation
+      console.log("📝 First inspection: Navigating to InspectorMarkingsLabelsValidationScreen");
+      navigation.navigate("InspectorMarkingsLabelsValidationScreen");
     }
   };
 
