@@ -123,20 +123,32 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const inspectionToRow = (
     inspection: InspectorShipment
   ): InspectorShipmentRow => {
+    // Handle inspector field - could be a string (from DB load) or object (from new inspection)
+    const inspectorName = typeof inspection.inspector === 'string'
+      ? inspection.inspector
+      : inspection.inspector?.inspectorName ?? 'Unknown';
+
+    // Handle inspectedAt - could be a Date object or string
+    const inspectedAtStr = inspection.inspectedAt instanceof Date
+      ? inspection.inspectedAt.toISOString()
+      : typeof inspection.inspectedAt === 'string'
+        ? inspection.inspectedAt
+        : new Date().toISOString();
+
     return {
-      id: inspection.id,
-      status: inspection.status,
-      inspected_at: inspection.inspectedAt.toISOString(),
-      inspection_context: JSON.stringify(inspection.inspectionContext),
-      tcn: inspection.tcn,
-      un_id: inspection.unId,
-      proper_shipping_name: inspection.properShippingName,
-      inspector: inspection.inspector.inspectorName,
-      sddg_status: inspection.sddgStatus ?? "verified", // Default to "verified" if null
-      package_status: inspection.packageStatus,
-      total_frustrations: inspection.totalFrustrations,
-      sddg_frustrations: inspection.sddgFrustrations,
-      package_frustrations: inspection.packageFrustrations,
+      id: inspection.id || Date.now().toString(),
+      status: inspection.status || "pending",
+      inspected_at: inspectedAtStr,
+      inspection_context: JSON.stringify(inspection.inspectionContext || {}),
+      tcn: inspection.tcn || "N/A",
+      un_id: inspection.unId || "N/A",
+      proper_shipping_name: inspection.properShippingName || "N/A",
+      inspector: inspectorName,
+      sddg_status: inspection.sddgStatus ?? "verified",
+      package_status: inspection.packageStatus ?? "verified",
+      total_frustrations: inspection.totalFrustrations ?? 0,
+      sddg_frustrations: inspection.sddgFrustrations ?? 0,
+      package_frustrations: inspection.packageFrustrations ?? 0,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
@@ -220,9 +232,32 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     async (inspection: InspectorShipment): Promise<string> => {
       try {
         const db = getDb();
+        if (!db) {
+          throw new DatabaseError("Database not available", "DB_NULL");
+        }
+
         const row = inspectionToRow(inspection);
 
         console.log("📊 [DataProvider] Saving inspection:", row.id);
+
+        // Ensure all values are not null/undefined for SQLite
+        const values = [
+          row.id || Date.now().toString(),
+          row.status || "pending",
+          row.inspected_at || new Date().toISOString(),
+          row.inspection_context || "{}",
+          row.tcn || "N/A",
+          row.un_id || "N/A",
+          row.proper_shipping_name || "N/A",
+          row.inspector || "Unknown",
+          row.sddg_status || "verified",
+          row.package_status || "verified",
+          row.total_frustrations ?? 0,
+          row.sddg_frustrations ?? 0,
+          row.package_frustrations ?? 0,
+          row.created_at || new Date().toISOString(),
+          row.updated_at || new Date().toISOString(),
+        ];
 
         await db.runAsync(
           `INSERT OR REPLACE INTO inspector_shipments
@@ -230,23 +265,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
           inspector, sddg_status, package_status, total_frustrations, sddg_frustrations,
           package_frustrations, created_at, updated_at)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-          [
-            row.id,
-            row.status,
-            row.inspected_at,
-            row.inspection_context,
-            row.tcn,
-            row.un_id,
-            row.proper_shipping_name,
-            row.inspector,
-            row.sddg_status,
-            row.package_status,
-            row.total_frustrations,
-            row.sddg_frustrations,
-            row.package_frustrations,
-            row.created_at,
-            row.updated_at,
-          ]
+          values
         );
 
         console.log("📊 [DataProvider] Inspection saved successfully");

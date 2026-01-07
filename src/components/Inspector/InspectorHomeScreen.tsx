@@ -542,7 +542,7 @@ export default function InspectorHomeScreen({
               </Text>
             </TouchableOpacity>
             {/* ML Label Detection Test Button */}
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={[styles.calcSoft, { backgroundColor: '#FFF3E0' }]}
               onPress={() => setMlModalVisible(true)}
             >
@@ -554,7 +554,7 @@ export default function InspectorHomeScreen({
               <Text style={[styles.calcTextSoft, { color: '#E65100' }]}>
                 ML Label Test
               </Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
 
           {/* === SHIPMENTS HEADER ROW === */}
@@ -995,7 +995,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   columnText: {
-    fontSize: 16,
+    fontSize: 15,
     flex: 1,
     textAlign: "center",
     color: "black",

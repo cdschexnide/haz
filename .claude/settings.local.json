@@ -37,7 +37,10 @@
       "Bash(git checkout:*)",
       "Bash(npm test:*)",
       "Bash(mkdir:*)",
-      "Bash(pkill:*)"
+      "Bash(pkill:*)",
+      "Skill(superpowers:brainstorming)",
+      "Skill(superpowers:writing-plans)",
+      "Bash(node -e:*)"
     ],
     "deny": [],
     "ask": []

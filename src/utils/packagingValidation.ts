@@ -35,7 +35,12 @@ export function extractValidPackageCodes(
     return new Set();
   }
 
-  const entry = packagingDatabaseV2[packingInstruction];
+  // Normalize the key - ensure it ends with a period
+  const normalizedKey = packingInstruction.endsWith(".")
+    ? packingInstruction
+    : packingInstruction + ".";
+
+  const entry = packagingDatabaseV2[normalizedKey];
   if (!entry) {
     return new Set();
   }
@@ -70,7 +75,12 @@ export function getRestrictedCodesForPackingGroup(
   packingInstruction: string,
   packingGroup: "I" | "II" | "III"
 ): Set<string> {
-  const entry = packagingDatabaseV2[packingInstruction];
+  // Normalize the key - ensure it ends with a period
+  const normalizedKey = packingInstruction.endsWith(".")
+    ? packingInstruction
+    : packingInstruction + ".";
+
+  const entry = packagingDatabaseV2[normalizedKey];
   if (!entry) {
     return new Set();
   }

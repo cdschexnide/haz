@@ -46,6 +46,21 @@ const CATEGORY_CONFIG: { key: string; label: string; color: string }[] = [
 
 // Format camelCase class name to readable text
 function formatClassName(name: string): string {
+  // Special handling for explosives with compatibility group (e.g., "explosives1.1B" -> "Explosives 1.1B")
+  const explosivesMatch = name.match(/^explosives(\d+\.?\d*)([A-Z])?(_.*)?$/i);
+  if (explosivesMatch) {
+    const division = explosivesMatch[1];
+    const compatGroup = explosivesMatch[2] || "";
+    const suffix = explosivesMatch[3]
+      ? explosivesMatch[3]
+          .replace(/_/g, " ")
+          .replace(/([A-Z])/g, " $1")
+          .trim()
+      : "";
+    return `Explosives ${division}${compatGroup}${suffix ? " " + suffix : ""}`;
+  }
+
+  // Default formatting for other class names
   return name
     .replace(/([A-Z])/g, " $1")
     .replace(/([0-9]+)/g, " $1")

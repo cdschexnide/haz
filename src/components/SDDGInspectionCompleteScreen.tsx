@@ -172,7 +172,8 @@ export default function SDDGInspectionCompleteScreen({
       navigation.navigate("InspectorLithiumBatteriesScreen");
     } else {
       // Navigate to Package Verification screen for standard workflow
-      navigation.navigate("InspectorPackageVerification");
+      // navigation.navigate("InspectorPackageVerification");
+      navigation.navigate("MLDetectionScreen");
     }
   };
 

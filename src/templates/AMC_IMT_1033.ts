@@ -16,240 +16,239 @@
 import { SDDGTemplate } from "../types/sddg-template";
 
 export const AMC_IMT_1033_TEMPLATE: SDDGTemplate = {
-  formType: "AMC_IMT_1033",
-  formName: "Air Mobility Command - Shipper's Declaration for Dangerous Goods",
-  version: "V1",
-  identifiers: [
+  "formType": "AMC_IMT_1033",
+  "formName": "Air Mobility Command - Shipper's Declaration for Dangerous Goods",
+  "version": "V1",
+  "identifiers": [
     {
-      text: "AMC IMT 1033",
-      region: {
-        x: 75,
-        y: 1090,
-        w: 200,
-        h: 25,
+      "text": "AMC IMT 1033",
+      "region": {
+        "x": 75,
+        "y": 1090,
+        "w": 200,
+        "h": 25
       },
-      confidence: 0.9,
+      "confidence": 0.9
     },
     {
-      text: "SHIPPER'S DECLARATION FOR DANGEROUS GOODS",
-      region: {
-        x: 80,
-        y: 52,
-        w: 600,
-        h: 25,
+      "text": "SHIPPER'S DECLARATION FOR DANGEROUS GOODS",
+      "region": {
+        "x": 80,
+        "y": 52,
+        "w": 600,
+        "h": 25
       },
-      confidence: 0.95,
+      "confidence": 0.95
     },
     {
-      text: "AIR WAYBILL NO",
-      region: {
-        x: 550,
-        y: 92,
-        w: 150,
-        h: 20,
+      "text": "AIR WAYBILL NO",
+      "region": {
+        "x": 550,
+        "y": 92,
+        "w": 150,
+        "h": 20
       },
-      confidence: 0.85,
-    },
+      "confidence": 0.85
+    }
   ],
-  regions: {
-    shipper: {
-      x: 264,
-      y: 397,
-      w: 1174,
-      h: 291,
-      fieldType: "text",
-      validation: "shipper",
+  "regions": {
+    "shipper": {
+      "x": 255,
+      "y": 275,
+      "w": 1179,
+      "h": 301,
+      "fieldType": "text",
+      "validation": "shipper"
     },
-    air_waybill: {
-      awb_number: {
-        x: 1432,
-        y: 391,
-        w: 833,
-        h: 78,
-        fieldType: "alphanumeric",
-        validation: "awb_number",
+    "air_waybill": {
+      "awb_number": {
+        "x": 1472,
+        "y": 303,
+        "w": 799,
+        "h": 79,
+        "fieldType": "alphanumeric",
+        "validation": "awb_number"
       },
-      page_info: {
-        x: 1429,
-        y: 462,
-        w: 847,
-        h: 117,
-        fieldType: "text",
-        regex: "PAGE\\s+\\d+\\s+OF\\s+\\d+\\s+PAGES",
-      },
+      "page_info": {
+        "x": 1468,
+        "y": 376,
+        "w": 822,
+        "h": 103,
+        "fieldType": "text",
+        "regex": "PAGE\\s+\\d+\\s+OF\\s+\\d+\\s+PAGES"
+      }
     },
-    shipper_reference: {
-      tcn: {
-        x: 1438,
-        y: 573,
-        w: 833,
-        h: 123,
-        fieldType: "alphanumeric",
-        validation: "tcn",
-        regex: "[A-Z0-9]{17}",
-      },
+    "shipper_reference": {
+      "tcn": {
+        "x": 1462,
+        "y": 489,
+        "w": 812,
+        "h": 113,
+        "fieldType": "alphanumeric",
+        "validation": "tcn",
+        "regex": "[A-Z0-9]{17}"
+      }
     },
-    consignee: {
-      x: 263,
-      y: 687,
-      w: 1178,
-      h: 210,
-      fieldType: "text",
-      validation: "consignee",
+    "consignee": {
+      "x": 254,
+      "y": 570,
+      "w": 1177,
+      "h": 202,
+      "fieldType": "text",
+      "validation": "consignee"
     },
-    inspector: {
-      x: 1429,
-      y: 679,
-      w: 825,
-      h: 211,
-      fieldType: "text",
-      validation: "inspector",
-      optional: true,
+    "inspector": {
+      "x": 1491,
+      "y": 628,
+      "w": 790,
+      "h": 152,
+      "fieldType": "text",
+      "validation": "inspector",
+      "optional": true
     },
-    transportation_details: {
-      airport_departure: {
-        x: 1093,
-        y: 1019,
-        w: 334,
-        h: 215,
-        fieldType: "text",
-        validation: "airport_code",
-        regex: "[A-Z]{3}",
+    "transportation_details": {
+      "airport_departure": {
+        "x": 1109,
+        "y": 931,
+        "w": 354,
+        "h": 204,
+        "fieldType": "text",
+        "validation": "airport_code",
+        "regex": "[A-Z]{3}"
       },
-      cargo_aircraft_only: {
-        x: 353,
-        y: 1106,
-        w: 749,
-        h: 138,
-        fieldType: "checkbox",
+      "cargo_aircraft_only": {
+        "x": 243,
+        "y": 907,
+        "w": 851,
+        "h": 232,
+        "fieldType": "checkbox"
       },
-      airport_destination: {
-        x: 269,
-        y: 1235,
-        w: 1154,
-        h: 98,
-        fieldType: "text",
-        validation: "airport_code",
-        regex: "[A-Z]{3}",
-      },
+      "airport_destination": {
+        "x": 229,
+        "y": 1136,
+        "w": 1211,
+        "h": 98,
+        "fieldType": "text",
+        "validation": "airport_code",
+        "regex": "[A-Z]{3}"
+      }
     },
-    shipment_type: {
-      non_radioactive: {
-        x: 1495,
-        y: 1214,
-        w: 284,
-        h: 73,
-        fieldType: "checkbox",
+    "shipment_type": {
+      "non_radioactive": {
+        "x": 1522,
+        "y": 1131,
+        "w": 285,
+        "h": 80,
+        "fieldType": "checkbox"
       },
-      radioactive: {
-        x: 1839,
-        y: 1194,
-        w: 237,
-        h: 101,
-        fieldType: "checkbox",
-      },
+      "radioactive": {
+        "x": 1899,
+        "y": 1139,
+        "w": 215,
+        "h": 82,
+        "fieldType": "checkbox"
+      }
     },
-    dangerous_goods: {
-      un_number: {
-        x: 283,
-        y: 1509,
-        w: 188,
-        h: 611,
-        fieldType: "alphanumeric",
-        validation: "un_number",
-        regex: "UN\\d{4}",
+    "dangerous_goods": {
+      "un_number": {
+        "x": 236,
+        "y": 1419,
+        "w": 190,
+        "h": 635,
+        "fieldType": "alphanumeric",
+        "validation": "un_number",
+        "regex": "UN\\d{4}"
       },
-      proper_shipping_name: {
-        x: 464,
-        y: 1508,
-        w: 512,
-        h: 607,
-        fieldType: "text",
+      "proper_shipping_name": {
+        "x": 434,
+        "y": 1417,
+        "w": 506,
+        "h": 633,
+        "fieldType": "text"
       },
-      class_division: {
-        x: 991,
-        y: 1505,
-        w: 266,
-        h: 596,
-        fieldType: "alphanumeric",
+      "class_division": {
+        "x": 1008,
+        "y": 1446,
+        "w": 220,
+        "h": 610,
+        "fieldType": "alphanumeric"
       },
-      packing_group: {
-        x: 1258,
-        y: 1507,
-        w: 140,
-        h: 599,
-        fieldType: "alphanumeric",
-        regex: "I{1,3}",
-        optional: true,
+      "packing_group": {
+        "x": 1273,
+        "y": 1457,
+        "w": 125,
+        "h": 589,
+        "fieldType": "alphanumeric",
+        "regex": "I{1,3}",
+        "optional": true
       },
-      quantity_packing: {
-        x: 1389,
-        y: 1507,
-        w: 365,
-        h: 595,
-        fieldType: "text",
+      "quantity_packing": {
+        "x": 1418,
+        "y": 1454,
+        "w": 344,
+        "h": 606,
+        "fieldType": "text"
       },
-      packing_inst: {
-        x: 1749,
-        y: 1509,
-        w: 246,
-        h: 605,
-        fieldType: "alphanumeric",
-        optional: true,
+      "packing_inst": {
+        "x": 1825,
+        "y": 1467,
+        "w": 198,
+        "h": 594,
+        "fieldType": "alphanumeric",
+        "optional": true
       },
-      authorization: {
-        x: 1982,
-        y: 1503,
-        w: 272,
-        h: 593,
-        fieldType: "text",
-        optional: true,
-      },
+      "authorization": {
+        "x": 2063,
+        "y": 1491,
+        "w": 208,
+        "h": 579,
+        "fieldType": "text",
+        "optional": true
+      }
     },
-    additional_handling: {
-      x: 278,
-      y: 2100,
-      w: 1965,
-      h: 341,
-      fieldType: "text",
-      optional: true,
+    "additional_handling": {
+      "x": 205,
+      "y": 2066,
+      "w": 2073,
+      "h": 371,
+      "fieldType": "text",
+      "optional": true
     },
-    signature_block: {
-      name_title: {
-        x: 1524,
-        y: 2433,
-        w: 727,
-        h: 140,
-        fieldType: "text",
+    "signature_block": {
+      "name_title": {
+        "x": 1550,
+        "y": 2446,
+        "w": 765,
+        "h": 143,
+        "fieldType": "text"
       },
-      place_date: {
-        x: 1535,
-        y: 2573,
-        w: 368,
-        h: 98,
-        fieldType: "text",
-        validation: "place_date",
+      "place_date": {
+        "x": 1548,
+        "y": 2590,
+        "w": 312,
+        "h": 105,
+        "fieldType": "text",
+        "validation": "place_date"
       },
-      signature_date: {
-        x: 1912,
-        y: 2573,
-        w: 343,
-        h: 102,
-        fieldType: "text",
-        validation: "date",
-        regex: "\\w{3}\\s+\\d{1,2},\\s+\\d{4}",
+      "signature_date": {
+        "x": 2002,
+        "y": 2644,
+        "w": 300,
+        "h": 70,
+        "fieldType": "text",
+        "validation": "date",
+        "regex": "\\w{3}\\s+\\d{1,2},\\s+\\d{4}"
       },
-      signature: {
-        x: 1543,
-        y: 2662,
-        w: 703,
-        h: 143,
-        fieldType: "signature",
-      },
-    },
-  },
+      "signature": {
+        "x": 1555,
+        "y": 2706,
+        "w": 763,
+        "h": 138,
+        "fieldType": "signature"
+      }
+    }
+  }
 };
-
 /**
  * Helper function to get a specific region by path
  * Example: getRegion('shipper.shipper_id')

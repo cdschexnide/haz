@@ -98,7 +98,7 @@ function BoundingBoxView({ detection, scaleX, scaleY }: BoundingBoxViewProps) {
           { backgroundColor: color },
         ]}
       >
-        <Text style={styles.labelText} numberOfLines={1}>
+        <Text style={styles.labelText}>
           {labelText}
         </Text>
         <View style={styles.confidenceBadge}>
@@ -138,7 +138,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
-    maxWidth: 180,
   },
   labelAbove: {
     bottom: '100%',
@@ -153,7 +152,6 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '600',
     marginRight: 4,
-    flexShrink: 1,
   },
   confidenceBadge: {
     backgroundColor: 'rgba(255,255,255,0.3)',

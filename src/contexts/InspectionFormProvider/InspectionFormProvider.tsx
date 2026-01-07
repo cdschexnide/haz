@@ -273,6 +273,7 @@ export function InspectionFormProvider({
         }
 
         console.log("📝 [InspectionForm] Saving current inspection");
+        console.log("📝 [InspectionForm] Existing inspectionId:", inspectionId);
         setIsProcessing(true);
 
         // Determine status
@@ -289,16 +290,20 @@ export function InspectionFormProvider({
             ? "frustrated"
             : "verified";
 
-        // Create inspection record
+        // Use existing inspectionId if available (for reinspection updates), otherwise create new
+        const recordId = inspectionId || Date.now().toString();
+        console.log("📝 [InspectionForm] Using record ID:", recordId, inspectionId ? "(existing)" : "(new)");
+
+        // Create inspection record with null-safe field access
         const inspectionRecord: InspectorShipment = {
-          id: Date.now().toString(),
+          id: recordId,
           status: status,
           inspectedAt: new Date(),
           inspectionContext: { ...currentInspection },
-          tcn: currentInspection.verificationCopy.shippersReferenceNumber,
-          unId: currentInspection.verificationCopy.unIdNo,
+          tcn: currentInspection.verificationCopy.shippersReferenceNumber || "N/A",
+          unId: currentInspection.verificationCopy.unIdNo || "N/A",
           properShippingName:
-            currentInspection.verificationCopy.properShippingName,
+            currentInspection.verificationCopy.properShippingName || "N/A",
           inspector: currentInspection.inspector,
           sddgStatus,
           packageStatus,
@@ -322,7 +327,7 @@ export function InspectionFormProvider({
         setIsProcessing(false);
       }
     },
-    [database]
+    [database, inspectionId]
   );
 
   const completeInspection = useCallback(async () => {

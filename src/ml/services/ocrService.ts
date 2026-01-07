@@ -814,3 +814,98 @@ export async function processImageOCR(imageUri: string): Promise<{
     extractedMarkings,
   };
 }
+
+/**
+ * MSL (Military Shipping Label) Detection Result
+ */
+export interface MSLDetectionResult {
+  /** Whether an MSL was detected */
+  detected: boolean;
+  /** Confidence level of detection */
+  confidence: 'high' | 'medium' | 'low' | null;
+  /** Patterns that matched */
+  matchedPatterns: string[];
+}
+
+/**
+ * Detect Military Shipping Label (DD Form 1387) presence via OCR text analysis
+ *
+ * MSLs have very distinctive text markers that make them identifiable without
+ * needing a trained object detection model. This function analyzes OCR text
+ * for characteristic patterns found on military shipping labels.
+ *
+ * @param ocrText - Full OCR text extracted from an image
+ * @returns Detection result with confidence level and matched patterns
+ */
+export function detectMSLPresence(ocrText: string): MSLDetectionResult {
+  if (!ocrText || ocrText.trim().length === 0) {
+    return { detected: false, confidence: null, matchedPatterns: [] };
+  }
+
+  const upperText = ocrText.toUpperCase();
+  const matchedPatterns: string[] = [];
+
+  // High-confidence markers - unique to MSL (DD Form 1387)
+  const highConfidencePatterns: { pattern: RegExp; name: string }[] = [
+    { pattern: /DD\s*FORM\s*1387/i, name: 'DD Form 1387' },
+    { pattern: /MIL(ITARY)?\s*SHIP(MENT|PING)\s*LABEL/i, name: 'Military Shipping Label' },
+    { pattern: /MILITARY\s+STANDARD\s+REQUISITIONING/i, name: 'MILSTRIP reference' },
+  ];
+
+  // Medium-confidence markers - common on MSL but could appear elsewhere
+  const mediumConfidencePatterns: { pattern: RegExp; name: string }[] = [
+    { pattern: /\bTCN\s*[:.]?\s*[A-Z0-9]{12,}/i, name: 'TCN with value' },
+    { pattern: /\bPOE\b[\s\S]{0,50}\bPOD\b/i, name: 'POE and POD together' },
+    { pattern: /\bPOD\b[\s\S]{0,50}\bPOE\b/i, name: 'POD and POE together' },
+    { pattern: /\bCONSIGNEE\b[\s\S]{0,100}\bSHIPPER\b/i, name: 'Consignee and Shipper' },
+    { pattern: /\bSHIPPER\b[\s\S]{0,100}\bCONSIGNEE\b/i, name: 'Shipper and Consignee' },
+    { pattern: /\bRDD\b[\s\S]{0,50}\bTAC\b/i, name: 'RDD and TAC together' },
+    { pattern: /\bTAC\b[\s\S]{0,50}\bRDD\b/i, name: 'TAC and RDD together' },
+    { pattern: /\bDODAAC\b/i, name: 'DODAAC' },
+    { pattern: /\bMIL[\s-]*PAC\b/i, name: 'MIL-PAC' },
+    { pattern: /\bPRIORITY\s*:\s*\d{1,2}\b/i, name: 'Priority designation' },
+    { pattern: /\bPROJECT\s*CODE\b/i, name: 'Project Code' },
+    { pattern: /\bREQ(UISITION)?\s*NO\b/i, name: 'Requisition number' },
+  ];
+
+  // Check high-confidence patterns first
+  for (const { pattern, name } of highConfidencePatterns) {
+    if (pattern.test(upperText)) {
+      matchedPatterns.push(name);
+    }
+  }
+
+  // If any high-confidence pattern matched, we're confident it's an MSL
+  if (matchedPatterns.length > 0) {
+    console.log('[MSL Detection] High confidence - matched:', matchedPatterns);
+    return { detected: true, confidence: 'high', matchedPatterns };
+  }
+
+  // Check medium-confidence patterns
+  for (const { pattern, name } of mediumConfidencePatterns) {
+    if (pattern.test(upperText)) {
+      matchedPatterns.push(name);
+    }
+  }
+
+  // Multiple medium-confidence matches = high confidence
+  if (matchedPatterns.length >= 3) {
+    console.log('[MSL Detection] High confidence (multiple medium matches):', matchedPatterns);
+    return { detected: true, confidence: 'high', matchedPatterns };
+  }
+
+  // Two medium-confidence matches = medium confidence
+  if (matchedPatterns.length === 2) {
+    console.log('[MSL Detection] Medium confidence:', matchedPatterns);
+    return { detected: true, confidence: 'medium', matchedPatterns };
+  }
+
+  // Single medium-confidence match = low confidence (might be false positive)
+  if (matchedPatterns.length === 1) {
+    console.log('[MSL Detection] Low confidence:', matchedPatterns);
+    return { detected: true, confidence: 'low', matchedPatterns };
+  }
+
+  // No matches
+  return { detected: false, confidence: null, matchedPatterns: [] };
+}

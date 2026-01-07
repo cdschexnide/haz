@@ -45,6 +45,12 @@ export const SDDG_TO_FORM1015_MAPPING: Record<string, string> = {
   // SDDG PACKING GROUP (Key 15) -> 17. PACKAGING GROUP
   packingGroup: "17",
 
+  // SDDG QUANTITY AND TYPE OF PACKING (Key 16) -> Split into two Form 1015 fields
+  // Field 18: NUMBER AND TYPE OF PACKAGES (e.g., "1 Wooden Box (4G)")
+  quantityAndPackingType: "18",
+  // Field 19: NET QUANTITY PER PACKAGE (e.g., "10 Kg NEW")
+  quantityAndPackingQuantity: "19",
+
   // SDDG PACKING INSTRUCTION (Key 17) -> 23. PACKAGING PARAGRAPH (FROM ATTACHMENTS 5-13)
   packingInstruction: "23",
 };
@@ -76,9 +82,14 @@ export const SPECIAL_MAPPINGS: SpecialMappingRule[] = [
 
 // Mapping from Package Marking/Label names to Form 1015 line item identifiers
 export const PACKAGE_TO_FORM1015_MAPPING: Record<string, string> = {
+  // POP Marking frustrations from InspectorPOPMarkingValidationScreen -> Field 54
+  "UN Specification Marking": "54", // Maps to 54. UN SPECIFICATION PACKAGE MARKING
+  "Packaging Code (Field B)": "54", // Maps to 54. UN SPECIFICATION PACKAGE MARKING
+  "Packing Group (Field C)": "54", // Maps to 54. UN SPECIFICATION PACKAGE MARKING
+
   // Package markings from evaluateMarkingRequirementsInspector
   "PSN and UN Number": "53", // Maps to 53. PSN AND IDENTIFICATION NUMBER
-  "Military Shipping Label (MSL) or DD Form 1387": "53", // Also maps to general PSN/ID requirement
+  "Military Shipping Label (MSL) or DD Form 1387": "75", // Maps to 75. OTHER (Labeling section)
   "Inhalation Hazard": "30", // Maps to 30. "INHALATION HAZARD (ZONE)"
   "This End Up": "59", // Maps to 59. "ORIENTATION ARROWS"
   "DOT Requirements": "63", // Maps to 63. DOT SPECIAL PERMIT
@@ -101,6 +112,8 @@ export const PACKAGE_TO_FORM1015_MAPPING: Record<string, string> = {
   "Class 6 PG III": "75", // Maps to 75. OTHER
   "INFECTIOUS SUBSTANCE": "75", // Maps to 75. OTHER
   "Package Orientation": "59", // Maps to 59. "ORIENTATION ARROWS"
+  "Package Orientation Labels (applied to opposite vertical sides)": "59", // Maps to 59. "ORIENTATION ARROWS" (UN3363)
+  "Orientation (This Side Up with Arrows)": "59", // Maps to 59. "ORIENTATION ARROWS" (UN0247 - Class 1 liquid requiring both THIS SIDE UP and orientation arrows)
   "Chemical Kit Primary Hazard": "69", // Maps to 69. PRIMARY RISK LABEL
 };
 
@@ -249,7 +262,7 @@ export function getForm1015FrustrationDescription(
           f.verificationStatus === "incorrect")
     );
     if (packageFrustration) {
-      return `${packageFrustration.itemLabel} (${packageFrustration.verificationStatus})`;
+      return packageFrustration.itemLabel;
     }
   }
 

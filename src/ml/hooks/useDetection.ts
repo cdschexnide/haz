@@ -29,7 +29,7 @@ import {
   isRuntimeAvailable,
   getRuntimeError,
 } from '../services';
-import { performOCR, extractMarkingsFromText } from '../services/ocrService';
+import { performOCR, extractMarkingsFromText, detectMSLPresence } from '../services/ocrService';
 import { POPMarkingType } from '@/utils/popMarkingParser';
 
 // Import class mapping
@@ -81,8 +81,9 @@ const DEFAULT_OPTIONS: AnalysisOptions = {
 
 /**
  * Aggregate results across multiple images
+ * Exported so it can be used to re-aggregate after manual corrections
  */
-function aggregateResults(results: ImageAnalysisResult[]): AggregatedAnalysis {
+export function aggregateResults(results: ImageAnalysisResult[]): AggregatedAnalysis {
   console.log('[useDetection] Aggregating results from', results.length, 'images');
 
   let totalProcessingTime = 0;
@@ -96,6 +97,7 @@ function aggregateResults(results: ImageAnalysisResult[]): AggregatedAnalysis {
   const allEXNumbers = new Set<string>();
   const allPSNs = new Set<string>();
   const allUnWithPSN: { un: string; psn: string }[] = [];
+  const allOCRText: string[] = []; // Collect all OCR text for MSL detection
 
   results.forEach((result, imageIndex) => {
     totalProcessingTime += result.totalProcessingTime;
@@ -119,6 +121,11 @@ function aggregateResults(results: ImageAnalysisResult[]): AggregatedAnalysis {
         });
       }
     });
+
+    // Collect OCR text for MSL detection
+    if (result.ocrResult?.fullText) {
+      allOCRText.push(result.ocrResult.fullText);
+    }
 
     // Aggregate OCR data
     if (result.extractedMarkings) {
@@ -174,6 +181,14 @@ function aggregateResults(results: ImageAnalysisResult[]): AggregatedAnalysis {
     (a, b) => b.maxConfidence - a.maxConfidence
   );
 
+  // Run MSL detection on combined OCR text from all images
+  const combinedOCRText = allOCRText.join('\n');
+  const mslDetection = detectMSLPresence(combinedOCRText);
+
+  if (mslDetection.detected) {
+    console.log('[useDetection] MSL detected with', mslDetection.confidence, 'confidence');
+  }
+
   const aggregated: AggregatedAnalysis = {
     bestPopMarking,
     allDetectedLabels: sortedLabels,
@@ -185,6 +200,9 @@ function aggregateResults(results: ImageAnalysisResult[]): AggregatedAnalysis {
     allPSNs: Array.from(allPSNs),
     allUnWithPSN,
     rawPopMarkingText,
+    mslDetected: mslDetection.detected,
+    mslConfidence: mslDetection.confidence,
+    mslMatchedPatterns: mslDetection.matchedPatterns,
     imagesProcessed: results.length,
     totalProcessingTime,
     perImageResults: results,
@@ -196,6 +214,8 @@ function aggregateResults(results: ImageAnalysisResult[]): AggregatedAnalysis {
     exNumbers: allEXNumbers.size,
     unWithPSN: allUnWithPSN.length,
     hasPOP: !!bestPopMarking,
+    mslDetected: mslDetection.detected,
+    mslConfidence: mslDetection.confidence,
     totalTime: totalProcessingTime,
   });
 

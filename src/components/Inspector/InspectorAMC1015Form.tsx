@@ -17,6 +17,7 @@ import { useInspectionForm } from "../../../src/contexts/InspectionFormProvider"
 import {
   mapFrustrationsToForm1015WithResolved,
   getForm1015FrustrationDescription,
+  PACKAGE_TO_FORM1015_MAPPING,
 } from "../../../src/utils/sddgToForm1015Mapping";
 import { Form1015CheckBoxWithStatus } from "./Form1015CheckboxWithStatus";
 import { useHazProStore } from "../../../src/stores/useHazProStore";
@@ -193,7 +194,9 @@ export const InspectorAMC1015Form = ({
       ),
     ];
     allPackageFrustrations.forEach(frustration => {
-      const form1015Id =
+      // Directly look up the form1015Id from the mapping using the frustration's itemLabel
+      // This avoids the issue where multiple labels map to the same ID (e.g., multiple labels -> "59")
+      const form1015Id = PACKAGE_TO_FORM1015_MAPPING[frustration.itemLabel] ||
         Array.from(frustratedForm1015Ids).find(id => {
           const description = getForm1015FrustrationDescription(
             id,
@@ -211,16 +214,24 @@ export const InspectorAMC1015Form = ({
           return description?.includes(frustration.itemLabel);
         });
       const lineNumber = form1015Id || "N/A";
-      const status = frustration.verificationStatus.toUpperCase();
 
-      // Add original frustration entry
+      // Determine label display - for MSL mapped to Field 75 (Other), add "MSL" annotation
+      let labelDisplay = frustration.itemLabel.toUpperCase();
+      if (
+        frustration.itemLabel === "Military Shipping Label (MSL) or DD Form 1387" &&
+        lineNumber === "75"
+      ) {
+        labelDisplay = "MSL (MILITARY SHIPPING LABEL)";
+      }
+
+      // Add original frustration entry (without MISSING/INCORRECT status)
       const { formattedDate, formattedTime } = formatDateTime(
         new Date(frustration.frustrationDate)
       );
       allEntries.push({
         date: new Date(frustration.frustrationDate),
         lineNumber,
-        formatted: `${lineNumber}. – ${formattedDate} @ ${formattedTime} – ${frustration.itemLabel.toUpperCase()} (${status}) – Inspector: ${formatInspector(
+        formatted: `${lineNumber}. – ${formattedDate} @ ${formattedTime} – ${labelDisplay} – Inspector: ${formatInspector(
           frustration.inspector
         )}`,
       });
@@ -511,7 +522,7 @@ export const InspectorAMC1015Form = ({
             border-bottom: 1px solid black;
           }
           .comments-body {
-            min-height: 350px;
+            min-height: 450px;
             padding: 15px;
           }
           .comments-text {
@@ -3000,7 +3011,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
   },
   commentsBody: {
-    height: 350,
+    height: 450,
   },
   commentsPlaceholder: {
     padding: 6,

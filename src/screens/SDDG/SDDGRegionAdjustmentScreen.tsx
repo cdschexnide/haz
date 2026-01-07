@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import * as Sharing from "expo-sharing";
 import * as FileSystem from "expo-file-system";
+import * as Clipboard from "expo-clipboard";
 import DraggableRegion from "../../components/SDDG/DraggableRegion";
 import { AMC_IMT_1033_TEMPLATE } from "../../templates/AMC_IMT_1033";
 import { Region, SDDGTemplate, FieldRegion } from "@/types/sddg-template";
@@ -369,6 +370,36 @@ export default function RegionAdjustmentScreen({
     }
   };
 
+  const handleCopyToClipboard = async () => {
+    try {
+      const adjustedTemplate = createAdjustedTemplate();
+
+      // Format the full template for pasting into AMC_IMT_1033.ts
+      const templateJson = JSON.stringify(adjustedTemplate, null, 2);
+
+      // Create the full export format ready to paste
+      const output = `// Adjusted template - Generated ${new Date().toISOString()}
+// Adjusted fields: ${Object.keys(adjustedRegions).join(", ") || "None"}
+
+export const AMC_IMT_1033_TEMPLATE: SDDGTemplate = ${templateJson};`;
+
+      await Clipboard.setStringAsync(output);
+
+      Alert.alert(
+        "Copied to Clipboard!",
+        `Full template copied.\n\n${Object.keys(adjustedRegions).length} field(s) adjusted:\n${Object.keys(adjustedRegions).join("\n") || "None"}\n\nPaste into AMC_IMT_1033.ts`,
+        [{ text: "OK" }]
+      );
+    } catch (error) {
+      console.error("Error copying to clipboard:", error);
+      Alert.alert(
+        "Copy Failed",
+        `Failed to copy: ${error instanceof Error ? error.message : "Unknown error"}`,
+        [{ text: "OK" }]
+      );
+    }
+  };
+
   const selectedRegion = regions.find(r => r.path === selectedRegionPath);
 
   return (
@@ -576,15 +607,10 @@ export default function RegionAdjustmentScreen({
                 <Text style={styles.resetAllButtonText}>Reset All</Text>
               </TouchableOpacity>
               {/* <TouchableOpacity
-                style={[
-                  styles.exportButton,
-                  Object.keys(adjustedRegions).length === 0 &&
-                    styles.exportButtonDisabled,
-                ]}
-                onPress={handleExportTemplate}
-                disabled={Object.keys(adjustedRegions).length === 0}
+                style={styles.copyButton}
+                onPress={handleCopyToClipboard}
               >
-                <Text style={styles.exportButtonText}>Export Template</Text>
+                <Text style={styles.copyButtonText}>📋 Copy JSON</Text>
               </TouchableOpacity> */}
               <TouchableOpacity
                 style={styles.saveButton}
@@ -721,6 +747,18 @@ const styles = StyleSheet.create({
   resetAllButtonText: {
     color: "#fff",
     fontSize: 16,
+    fontWeight: "600",
+  },
+  copyButton: {
+    flex: 1,
+    backgroundColor: "#FF9500",
+    padding: 16,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+  copyButtonText: {
+    color: "#fff",
+    fontSize: 14,
     fontWeight: "600",
   },
   exportButton: {

@@ -6,12 +6,9 @@ import {
   StyleSheet,
   ScrollView,
   Alert,
-  ActivityIndicator,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useInspectionForm } from "../../../src/contexts/InspectionFormProvider";
-import { useDatabase } from "../../../src/contexts/DataProvider";
-import { InspectorShipment } from "../../../src/types/sddg";
 import { useHazProStore } from "../../../src/stores/useHazProStore";
 
 interface PackageInspectionCompleteScreenProps {
@@ -21,10 +18,16 @@ interface PackageInspectionCompleteScreenProps {
 export default function PackageInspectionCompleteScreen({
   navigation,
 }: PackageInspectionCompleteScreenProps) {
-  const { inspection, startNewInspection, completeInspection } =
-    useInspectionForm();
+  const {
+    inspection,
+    workflow,
+    completeInspection,
+    updateReinspectedInspection,
+    completeReinspection,
+  } = useInspectionForm();
 
-  const database = useDatabase();
+  const isReinspectionMode = workflow.reinspection.mode === "package";
+
   const { actions } = useHazProStore();
   const [isSaving, setIsSaving] = useState(false);
 
@@ -57,98 +60,46 @@ export default function PackageInspectionCompleteScreen({
   // Determine SDDG status
   const sddgStatus = sddgFrustrations.length > 0 ? "frustrated" : "verified";
 
-  // Handle Save & Exit
-  const handleSaveAndExit = async () => {
-    try {
-      setIsSaving(true);
-
-      if (!sddgData) {
-        Alert.alert("Error", "No SDDG data available to save");
-        return;
-      }
-
-      // Create InspectorShipment record with full completion status
-      const inspectionRecord: InspectorShipment = {
-        id: Date.now().toString(),
-        status: "completed", // Both SDDG and Package phases complete
-        inspectedAt: new Date(),
-        inspectionContext: { ...inspection },
-        tcn: sddgData.shippersReferenceNumber || "N/A",
-        unId: sddgData.unIdNo || "N/A",
-        properShippingName: sddgData.properShippingName || "N/A",
-        inspector: inspection.inspector,
-        sddgStatus: sddgStatus,
-        packageStatus: "verified", // Package phase complete with no frustrations
-        totalFrustrations: totalFrustrations,
-        sddgFrustrations: sddgFrustrations.length,
-        packageFrustrations: 0, // Confirmed zero package frustrations
-      };
-
-      console.log(
-        "📦 [PackageInspectionComplete] Saving completed inspection to database"
-      );
-
-      // Save to database
-      const id = await database.saveInspection(inspectionRecord);
-
-      console.log(
-        "📦 [PackageInspectionComplete] Inspection saved successfully:",
-        id
-      );
-
-      // Show success message
-      Alert.alert(
-        "Inspection Saved",
-        "Package inspection has been saved successfully.",
-        [
-          {
-            text: "OK",
-            onPress: () => {
-              // Clear provider state
-              startNewInspection();
-              // Navigate to home screen
-              navigation.navigate("InspectorHomeStack", {
-                screen: "InspectorHome",
-              });
-            },
-          },
-        ]
-      );
-    } catch (error) {
-      console.error(
-        "📦 [PackageInspectionComplete] Failed to save inspection:",
-        error
-      );
-      Alert.alert(
-        "Save Failed",
-        "Failed to save inspection. Please try again.",
-        [{ text: "OK" }]
-      );
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
   // Handle Continue to Form 1015
   const handleContinueToForm1015 = async () => {
     try {
       setIsSaving(true);
 
       console.log("📦 [PackageInspectionComplete] Continuing to Form 1015");
+      console.log("📦 [PackageInspectionComplete] isReinspectionMode:", isReinspectionMode);
 
-      // Save inspection to database (but don't clear provider - form needs the data)
-      const result = await completeInspection();
+      if (isReinspectionMode) {
+        // Reinspection mode: Update existing inspection record (like SDDG reinspection does)
+        console.log("📦 [PackageInspectionComplete] Reinspection mode - updating existing inspection");
 
-      if (!result.success) {
-        Alert.alert("Error", result.error || "Failed to save inspection", [
-          { text: "OK" },
-        ]);
-        return;
+        const result = await updateReinspectedInspection();
+
+        if (!result.success) {
+          Alert.alert("Error", result.error || "Failed to update reinspection", [
+            { text: "OK" },
+          ]);
+          return;
+        }
+
+        // Clear reinspection mode
+        completeReinspection();
+
+        console.log("📦 [PackageInspectionComplete] Reinspection updated successfully, navigating to Form 1015");
+      } else {
+        // Normal flow: Save new inspection to database
+        const result = await completeInspection();
+
+        if (!result.success) {
+          Alert.alert("Error", result.error || "Failed to save inspection", [
+            { text: "OK" },
+          ]);
+          return;
+        }
+
+        console.log(
+          "📦 [PackageInspectionComplete] Inspection saved, navigating to Form 1015"
+        );
       }
-
-      console.log(
-        "📦 [PackageInspectionComplete] Inspection saved, navigating to Form 1015"
-      );
 
       // Navigate to AMC 1015 Form
       navigation.navigate("InspectorAMC1015Form");
@@ -285,18 +236,11 @@ export default function PackageInspectionCompleteScreen({
       {/* Action Buttons */}
       <View style={styles.footer}>
         <TouchableOpacity
-          style={styles.saveButton}
-          onPress={handleSaveAndExit}
-          disabled={isSaving}
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
         >
-          {isSaving ? (
-            <ActivityIndicator color="#007AFF" />
-          ) : (
-            <>
-              <MaterialIcons name="save" size={20} color="#007AFF" />
-              <Text style={styles.saveButtonText}>Save & Exit</Text>
-            </>
-          )}
+          <MaterialIcons name="arrow-back" size={20} color="#007AFF" />
+          <Text style={styles.backButtonText}>Back</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -446,7 +390,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 12,
   },
-  saveButton: {
+  backButton: {
     flex: 1,
     backgroundColor: "#FFFFFF",
     borderWidth: 2,
@@ -457,7 +401,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     borderRadius: 12,
   },
-  saveButtonText: {
+  backButtonText: {
     color: "#007AFF",
     fontSize: 16,
     fontWeight: "600",

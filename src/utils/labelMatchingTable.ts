@@ -130,6 +130,22 @@ export const markingMatchingPatterns: Record<string, RegExp[]> = {
   "DRY ICE": [/DRY\s*ICE/i, /CARBON\s*DIOXIDE\s*SOLID/i],
 };
 
+/**
+ * Normalize a class name for lookup by removing spaces and lowercasing
+ * e.g., "Explosives1.1 B" -> "explosives1.1b"
+ */
+function normalizeClassName(name: string): string {
+  return name.toLowerCase().replace(/\s+/g, "");
+}
+
+/**
+ * Create a normalized lookup map for case-insensitive matching
+ */
+const normalizedLabelMatchingTable: Record<string, string[]> = {};
+for (const [key, values] of Object.entries(labelMatchingTable)) {
+  normalizedLabelMatchingTable[normalizeClassName(key)] = values;
+}
+
 export function findMatchingDetection(
   requirementLabel: string,
   expectedValues: string[],
@@ -139,8 +155,27 @@ export function findMatchingDetection(
   let bestConfidence = 0;
 
   for (const detection of detectedLabels) {
-    const mappedValues = labelMatchingTable[detection.className];
-    if (!mappedValues) continue;
+    // Normalize the class name for lookup (handles "Explosives1.1 B" -> "explosives1.1b")
+    const normalizedClassName = normalizeClassName(detection.className);
+    const mappedValues = normalizedLabelMatchingTable[normalizedClassName];
+
+    if (!mappedValues) {
+      // Try direct expected value matching as fallback
+      // This handles cases where className directly contains the hazard class
+      const classNameLower = detection.className.toLowerCase();
+      for (const expected of expectedValues) {
+        const expectedLower = expected.toLowerCase().replace(/\s+/g, "");
+        // Check if className contains the expected class (e.g., "explosives1.1b" contains "1.1b")
+        const classWithoutExplosives = classNameLower.replace("explosives", "").replace(/\s+/g, "");
+        if (classNameLower.includes(expectedLower) || expectedLower.includes(classWithoutExplosives)) {
+          if (detection.maxConfidence > bestConfidence) {
+            bestMatch = detection;
+            bestConfidence = detection.maxConfidence;
+          }
+        }
+      }
+      continue;
+    }
 
     for (const mapped of mappedValues) {
       for (const expected of expectedValues) {

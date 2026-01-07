@@ -25,11 +25,7 @@ import * as ImagePicker from "expo-image-picker";
 import { useDetection, aggregateResults } from "../../ml/hooks/useDetection";
 import { DetectionOverlay } from "../../ml/components/DetectionOverlay";
 import { ImageCropScreen } from "../../ml/components/ImageCropScreen";
-import {
-  POPMarkingCard,
-  ExtractedDataCard,
-  LabelPickerModal,
-} from "../../ml/components";
+import { LabelPickerModal } from "../../ml/components";
 import { useInspectionForm } from "../../contexts/InspectionFormProvider";
 import { useHazProStore } from "../../stores/useHazProStore";
 import {
@@ -784,47 +780,6 @@ export function MLDetectionScreen({
           style={styles.content}
           contentContainerStyle={styles.contentContainer}
         >
-          {/* POP Marking Card - if found */}
-          {aggregatedResults?.bestPopMarking && (
-            <POPMarkingCard
-              popMarking={{
-                found: true,
-                fields: aggregatedResults.bestPopMarking.fields,
-                confidence: aggregatedResults.bestPopMarking.confidence,
-                issues: [],
-                detectedType: aggregatedResults.bestPopMarking.detectedType,
-                sourceText: "",
-              }}
-              sourceImageIndex={aggregatedResults.bestPopMarking.sourceImageIndex}
-              isBest={true}
-            />
-          )}
-
-          {/* Extracted OCR Data Card */}
-          {aggregatedResults && (
-            aggregatedResults.allUnNumbers.length > 0 ||
-            aggregatedResults.allEXNumbers?.length > 0 ||
-            aggregatedResults.allUnWithPSN?.length > 0 ||
-            aggregatedResults.rawPopMarkingText ||
-            aggregatedResults.allHazardClasses.length > 0
-          ) && (
-            <ExtractedDataCard
-              markings={{
-                popMarking: null,
-                unNumbers: aggregatedResults.allUnNumbers,
-                weights: [],
-                hazardClasses: aggregatedResults.allHazardClasses,
-                dates: [],
-                countryOfOrigin: null,
-                otherMarkings: [],
-                exNumbers: aggregatedResults.allEXNumbers || [],
-                properShippingNames: aggregatedResults.allPSNs || [],
-                unWithPSN: aggregatedResults.allUnWithPSN || [],
-                rawPopMarkingText: aggregatedResults.rawPopMarkingText || null,
-              }}
-            />
-          )}
-
           {/* Per-image detection results */}
           {displayResults.map((result, index) => (
             <View key={`result-${index}`} style={styles.resultCard}>
@@ -845,40 +800,53 @@ export function MLDetectionScreen({
                     const wasEdited = corrected.originalClassName && corrected.originalClassName !== d.className;
 
                     return (
-                      <TouchableOpacity
+                      <View
                         key={d.id}
                         style={styles.detectionItemAlwaysEditable}
-                        onPress={() => handleEditDetectionPress(index, d)}
-                        activeOpacity={0.7}
                       >
-                        <View
-                          style={[
-                            styles.detectionDot,
-                            { backgroundColor: getCategoryColor(d.category) },
-                          ]}
-                        />
-                        <View style={styles.detectionTextContainer}>
-                          <Text style={[styles.detectionName, isManual && styles.detectionNameManual]}>
-                            {formatClassName(d.className)}
-                          </Text>
-                          {wasEdited && (
-                            <Text style={styles.originalClassName}>
-                              Was: {formatClassName(corrected.originalClassName!)}
+                        <TouchableOpacity
+                          style={styles.detectionItemContent}
+                          onPress={() => handleEditDetectionPress(index, d)}
+                          activeOpacity={0.7}
+                        >
+                          <View
+                            style={[
+                              styles.detectionDot,
+                              { backgroundColor: getCategoryColor(d.category) },
+                            ]}
+                          />
+                          <View style={styles.detectionTextContainer}>
+                            <Text style={[styles.detectionName, isManual && styles.detectionNameManual]}>
+                              {formatClassName(d.className)}
+                            </Text>
+                            {wasEdited && (
+                              <Text style={styles.originalClassName}>
+                                Was: {formatClassName(corrected.originalClassName!)}
+                              </Text>
+                            )}
+                          </View>
+                          {isManual && !wasEdited ? (
+                            <View style={styles.manualBadge}>
+                              <Text style={styles.manualBadgeText}>Added</Text>
+                            </View>
+                          ) : (
+                            <Text style={styles.detectionConfidence}>
+                              {Math.round(d.confidence * 100)}%
                             </Text>
                           )}
-                        </View>
-                        {isManual && !wasEdited ? (
-                          <View style={styles.manualBadge}>
-                            <Text style={styles.manualBadgeText}>Added</Text>
-                          </View>
-                        ) : (
-                          <Text style={styles.detectionConfidence}>
-                            {Math.round(d.confidence * 100)}%
-                          </Text>
-                        )}
-                        {/* Always show edit icon */}
-                        <MaterialIcons name="edit" size={18} color="#8E8E93" style={styles.editIcon} />
-                      </TouchableOpacity>
+                          {/* Edit icon */}
+                          <MaterialIcons name="edit" size={18} color="#8E8E93" style={styles.editIcon} />
+                        </TouchableOpacity>
+                        {/* Delete icon */}
+                        <TouchableOpacity
+                          style={styles.deleteIconButton}
+                          onPress={() => handleDeleteDetection(index, d)}
+                          activeOpacity={0.7}
+                          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                        >
+                          <MaterialIcons name="close" size={20} color="#FF3B30" />
+                        </TouchableOpacity>
+                      </View>
                     );
                   })
                 ) : (
@@ -1283,6 +1251,7 @@ const styles = StyleSheet.create({
   gridImage: {
     width: "100%",
     height: "100%",
+    resizeMode: "contain",
   },
   removeImageButton: {
     position: "absolute",
@@ -1440,6 +1409,15 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: "#FAFAFA",
     marginBottom: 6,
+  },
+  detectionItemContent: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  deleteIconButton: {
+    padding: 4,
+    marginLeft: 8,
   },
   detectionDot: {
     width: 10,

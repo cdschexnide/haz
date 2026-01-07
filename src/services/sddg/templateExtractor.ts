@@ -569,6 +569,8 @@ function cleanFieldText(fieldPath: string, text: string): string {
     text = text.replace(/TCN\s*:?\s*/gi, "");
     text = text.replace(/\(optional\)/gi, "");
     text = text.trim();
+    // TCN values never contain spaces - remove any spaces introduced by OCR
+    text = text.replace(/\s+/g, "");
   }
 
   // Departure Airport: Remove various label formats

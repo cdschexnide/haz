@@ -1,7 +1,23 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import TappableSDDGField from "./TappableSDDGField";
-import TappableTableCell from "./TappableTableCell";
+import TappableTableCell, {
+  SubFieldDefinition,
+} from "./TappableTableCell";
+
+// Sub-field definitions for quantityAndPacking (maps to Form 1015 Fields 18 & 19)
+const QUANTITY_AND_PACKING_SUBFIELDS: SubFieldDefinition[] = [
+  {
+    key: "quantityAndPackingType",
+    label: "Number and Type of Packages (Field 18)",
+    description: 'e.g., "1 Wooden Box (4G)" - the container type and count',
+  },
+  {
+    key: "quantityAndPackingQuantity",
+    label: "Net Quantity Per Package (Field 19)",
+    description: 'e.g., "10 Kg NEW" - the weight/quantity of contents',
+  },
+];
 
 export interface InteractiveSDDGFormProps {
   extractedData: {
@@ -530,6 +546,8 @@ const InteractiveSDDGForm: React.FC<InteractiveSDDGFormProps> = ({
                 key: "quantityAndPacking",
                 label: "QUANTITY AND TYPE OF PACKING (Key 16)",
                 value: hazmat.quantityAndPacking || "",
+                // Special: has subFields for Form 1015 Fields 18 & 19
+                subFields: QUANTITY_AND_PACKING_SUBFIELDS,
               },
               {
                 key: "packingInstruction",
@@ -550,6 +568,8 @@ const InteractiveSDDGForm: React.FC<InteractiveSDDGFormProps> = ({
                   isFrustrated={frustratedFields.has(field.key)}
                   isRecommended={recommendedFrustrations.has(field.key)}
                   onPress={onFieldPress}
+                  subFields={"subFields" in field ? field.subFields : undefined}
+                  frustratedSubFields={frustratedFields}
                 >
                   <View style={styles.tableCell}>
                     <Text style={styles.tableCellText}>{field.value}</Text>

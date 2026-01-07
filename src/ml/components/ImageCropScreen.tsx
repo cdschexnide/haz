@@ -130,9 +130,12 @@ export function ImageCropScreen({
     displayW.value = dw;
     displayH.value = dh;
 
-    // Initialize crop box to 80% of image, centered
-    const initialWidth = dw * 0.8;
-    const initialHeight = dh * 0.8;
+    // Initialize crop box:
+    // - From camera: 80% centered (new image, user needs to crop)
+    // - From preview: 100% full image (already cropped, user is adjusting)
+    const cropRatio = source === 'preview' ? 1.0 : 0.8;
+    const initialWidth = dw * cropRatio;
+    const initialHeight = dh * cropRatio;
     const initialX = (dw - initialWidth) / 2;
     const initialY = (dh - initialHeight) / 2;
 
@@ -147,7 +150,7 @@ export function ImageCropScreen({
       width: initialWidth,
       height: initialHeight,
     });
-  }, [image.width, image.height, cropX, cropY, cropWidth, cropHeight, displayW, displayH]);
+  }, [image.width, image.height, source, cropX, cropY, cropWidth, cropHeight, displayW, displayH]);
 
   // ============ GESTURE HANDLERS ============
 

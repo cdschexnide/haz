@@ -90,14 +90,17 @@ const InspectorPOPMarkingDataEntry = ({ navigation }: { navigation: any }) => {
 
   const physicalState = detectPhysicalState();
 
+  // Get ML-detected POP marking fields (if available)
+  const mlPopFields = inspection.mlAnalysisResults?.bestPopMarking?.fields;
+
   const [fields, setFields] = useState({
-    B: inspection.packagePopMarking?.B || "",
-    C: inspection.packagePopMarking?.C || "",
-    D: inspection.packagePopMarking?.D || "",
-    E: inspection.packagePopMarking?.E || "",
-    F: inspection.packagePopMarking?.F || "",
-    G: inspection.packagePopMarking?.G || "",
-    H: inspection.packagePopMarking?.H || "",
+    B: inspection.packagePopMarking?.B || mlPopFields?.B || "",
+    C: inspection.packagePopMarking?.C || mlPopFields?.C || "",
+    D: inspection.packagePopMarking?.D || mlPopFields?.D || "",
+    E: inspection.packagePopMarking?.E || mlPopFields?.E || "",
+    F: inspection.packagePopMarking?.F || mlPopFields?.F || "",
+    G: inspection.packagePopMarking?.G || mlPopFields?.G || "",
+    H: inspection.packagePopMarking?.H || mlPopFields?.H || "",
   });
 
   // Validation state for Field B and Field C
@@ -112,16 +115,18 @@ const InspectorPOPMarkingDataEntry = ({ navigation }: { navigation: any }) => {
   }, []);
 
   // Initialize package pop marking in context if it doesn't exist
+  // Pre-populate with ML-detected values if available
   useEffect(() => {
     if (!inspection.packagePopMarking) {
+      const mlFields = inspection.mlAnalysisResults?.bestPopMarking?.fields;
       setPackagePopMarking({
-        B: "",
-        C: "",
-        D: "",
-        E: physicalState === PhysicalState.SOLID ? "S" : "",
-        F: "",
-        G: "",
-        H: "",
+        B: mlFields?.B || "",
+        C: mlFields?.C || "",
+        D: mlFields?.D || "",
+        E: mlFields?.E || (physicalState === PhysicalState.SOLID ? "S" : ""),
+        F: mlFields?.F || "",
+        G: mlFields?.G || "",
+        H: mlFields?.H || "",
       });
     }
   }, []);

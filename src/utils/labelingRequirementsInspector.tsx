@@ -7,7 +7,7 @@ import {
 } from "@//hazardousMaterials/hazardousMaterialsList";
 
 export function evaluateLabelingRequirements(
-  sddgInspectionContext: any
+  sddgInspectionContext: SDDGInspectionContext
 ): Record<string, string[]> {
   const labels: Record<string, string[]> = {};
 
@@ -81,9 +81,26 @@ export function evaluateLabelingRequirements(
       ["This Way Up"];
   }
 
-  const specialProvisions = extractedContentFromSddg.aircraftType || "";
+  // A14.4.1.3 - Class 1 explosives containing liquids require "THIS SIDE UP" on TOP of package
+  // A14.3.6.1 - Liquid hazmat in combination packaging requires orientation arrows on TWO OPPOSITE SIDES
+  // UN0247: AMMUNITION, INCENDIARY (liquid or gel) - requires both per AFMAN 24-604
+  // ML detection class: thisSideUpWithOrientationArrows
+  if (extractedContentFromSddg.unIdNo === "UN0247") {
+    labels["Orientation (This Side Up with Arrows)"] = [
+      "This Side Up",
+      "Orientation",
+    ];
+  }
 
-  if (specialProvisions === "CARGO AIRCRAFT ONLY") {
+  const specialProvisions = extractedContentFromSddg.aircraftType || "";
+  const unNumber = extractedContentFromSddg.unIdNo;
+  const hazardousMaterial = hazardousMaterialsList.find((material) => material.unid === unNumber);
+
+  // Check if Cargo Aircraft Only label is required:
+  // 1. Aircraft type is explicitly "CARGO AIRCRAFT ONLY", OR
+  // 2. Material has special provision P1, P2, P3, or P4 (word boundary to avoid matching P11, P12, etc.)
+  const hasCargoOnlyProvision = hazardousMaterial && /\bP[1-4]\b/.test(hazardousMaterial.specialProvision);
+  if (specialProvisions === "CARGO AIRCRAFT ONLY" || hasCargoOnlyProvision) {
     labels["Cargo Aircraft Only"] = ["Cargo Aircraft Only"];
   }
 

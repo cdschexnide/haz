@@ -27,7 +27,6 @@ export default function PackageFrustrationSummary({
     completeInspection,
     completeReinspection,
     updateReinspectedInspection,
-    startNewInspection,
   } = useInspectionForm();
 
   const { actions } = useHazProStore();
@@ -178,9 +177,18 @@ export default function PackageFrustrationSummary({
       // Complete reinspection workflow
       completeReinspection();
 
-      // Clear inspection and navigate home
-      startNewInspection();
-      navigation.navigate("InspectorHomeStack", { screen: "InspectorHome" });
+      // Log the completion with frustrations (reinspection)
+      console.log("Package reinspection completed with frustrations:", {
+        frustrationCount: packageFrustrations.length,
+        markingFrustrations: markingFrustrations.length,
+        labelFrustrations: labelFrustrations.length,
+        dryIceFrustrations: dryIceFrustrations.length,
+        inspector: sddgInspectionContext.inspector,
+        completionTime: new Date(),
+      });
+
+      // Navigate to Form 1015 (same as initial inspection flow)
+      navigation.navigate("InspectorAMC1015Form");
     } else {
       // Original inspection flow - complete and go to Form 1015
       completeInspection();
@@ -350,7 +358,7 @@ export default function PackageFrustrationSummary({
         >
           <MaterialIcons name="refresh" size={20} color="#007AFF" />
           <Text style={styles.reinspectionButtonText}>
-            Reinspect Frustrations
+            Reinspect
           </Text>
         </TouchableOpacity>
 

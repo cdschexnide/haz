@@ -89,9 +89,12 @@ export default function InspectorMarkingsLabelsValidationScreen({
       const perImageResults = mlResults?.perImageResults || [];
 
       // Get existing package frustrations to preserve status
-      const existingFrustrationIds = new Set(
-        inspection.packageFrustrations.map((f) => f.itemId)
-      );
+      // Include BOTH current frustrations AND resolved frustrations to prevent
+      // re-frustrating items that were already resolved in previous reinspections
+      const existingFrustrationIds = new Set([
+        ...inspection.packageFrustrations.map((f) => f.itemId),
+        ...(inspection.resolvedPackageFrustrations || []).map((f) => f.itemId),
+      ]);
 
       // Combine all OCR text for marking matching
       const allOCRText = perImageResults
@@ -112,6 +115,19 @@ export default function InspectorMarkingsLabelsValidationScreen({
             foundInOCR = hasUnWithPSN;
             matchConfidence = hasUnWithPSN ? 0.95 : null; // Higher confidence for structured data
 
+          } else if (label === "Military Shipping Label (MSL) or DD Form 1387") {
+            // Use MSL detection from OCR text analysis
+            const mslDetected = mlResults?.mslDetected ?? false;
+            const mslConfidence = mlResults?.mslConfidence;
+            foundInOCR = mslDetected;
+            // Map confidence level to numeric value
+            matchConfidence = mslDetected
+              ? mslConfidence === 'high' ? 0.95
+                : mslConfidence === 'medium' ? 0.8
+                : mslConfidence === 'low' ? 0.6
+                : 0.7
+              : null;
+
           } else {
             // Fall back to regex pattern matching for other markings
             foundInOCR = findMatchingMarkingInOCR(label, allOCRText);
@@ -119,6 +135,30 @@ export default function InspectorMarkingsLabelsValidationScreen({
           }
 
           const itemId = `marking-${index}-${label.replace(/\s+/g, "-").toLowerCase()}`;
+
+          // Determine validation status:
+          // - Already frustrated: keep frustrated
+          // - Matched/detected: validated
+          // - Unmatched/not detected: frustrated (auto-frustrate missing items)
+          const isAlreadyFrustrated = existingFrustrationIds.has(itemId);
+          const validationStatus = isAlreadyFrustrated
+            ? "frustrated" as const
+            : foundInOCR
+              ? "validated" as const
+              : "frustrated" as const;
+
+          // Add frustration to context for unmatched items that aren't already frustrated
+          if (!foundInOCR && !isAlreadyFrustrated) {
+            addPackageFrustration({
+              category: "marking",
+              itemId,
+              itemLabel: label,
+              expectedValues,
+              verificationStatus: "missing",
+              defaultMessage: `Required marking "${label}" not found on package`,
+              afmanReference: "AFMAN 24-604",
+            });
+          }
 
           return {
             id: itemId,
@@ -128,8 +168,7 @@ export default function InspectorMarkingsLabelsValidationScreen({
             matchStatus: foundInOCR ? "matched" : "unmatched",
             matchedDetection: null,
             matchConfidence,
-            // Preserve frustrated status if this item was already frustrated
-            validationStatus: existingFrustrationIds.has(itemId) ? "frustrated" as const : "pending" as const,
+            validationStatus,
             afmanReference: "AFMAN 24-604",
           };
         }
@@ -154,6 +193,30 @@ export default function InspectorMarkingsLabelsValidationScreen({
 
           const itemId = `label-${index}-${label.replace(/\s+/g, "-").toLowerCase()}`;
 
+          // Determine validation status:
+          // - Already frustrated: keep frustrated
+          // - Matched/detected: validated
+          // - Unmatched/not detected: frustrated (auto-frustrate missing items)
+          const isAlreadyFrustrated = existingFrustrationIds.has(itemId);
+          const validationStatus = isAlreadyFrustrated
+            ? "frustrated" as const
+            : matchedDetection
+              ? "validated" as const
+              : "frustrated" as const;
+
+          // Add frustration to context for unmatched items that aren't already frustrated
+          if (!matchedDetection && !isAlreadyFrustrated) {
+            addPackageFrustration({
+              category: "label",
+              itemId,
+              itemLabel: label,
+              expectedValues,
+              verificationStatus: "missing",
+              defaultMessage: `Required label "${label}" not found on package`,
+              afmanReference: "AFMAN 24-604",
+            });
+          }
+
           return {
             id: itemId,
             category: "label" as const,
@@ -162,8 +225,7 @@ export default function InspectorMarkingsLabelsValidationScreen({
             matchStatus: matchedDetection ? "matched" : "unmatched",
             matchedDetection,
             matchConfidence: matchedDetection?.maxConfidence || null,
-            // Preserve frustrated status if this item was already frustrated
-            validationStatus: existingFrustrationIds.has(itemId) ? "frustrated" as const : "pending" as const,
+            validationStatus,
             afmanReference: "AFMAN 24-604",
           };
         }
@@ -369,27 +431,29 @@ export default function InspectorMarkingsLabelsValidationScreen({
           {renderStatusBadge(item)}
         </View>
 
-        {/* Expected Values */}
-        <View style={styles.expectedValuesContainer}>
-          {item.expectedValues.map((value, index) => (
-            <View key={index} style={styles.expectedValueChip}>
-              <Text style={styles.expectedValueText}>{value}</Text>
-            </View>
-          ))}
-        </View>
+        {/* Expected Values - filter out redundant values that match the card title */}
+        {(() => {
+          const normalizedLabel = item.label.toLowerCase().replace(/[^a-z0-9]/g, '');
+          const nonRedundantValues = item.expectedValues.filter((value) => {
+            const normalizedValue = value.toLowerCase().replace(/[^a-z0-9]/g, '');
+            // Filter out values that are essentially the same as the label
+            return normalizedValue !== normalizedLabel &&
+                   !normalizedLabel.includes(normalizedValue) &&
+                   !normalizedValue.includes(normalizedLabel);
+          });
 
-        {/* Match Info */}
-        {/* {isMatched && item.matchedDetection && (
-          <Text style={styles.matchInfoText}>
-            Detected: "{item.matchedDetection.className}"
-          </Text>
-        )} */}
-        {!isMatched && (
-          <View style={styles.warningRow}>
-            <MaterialIcons name="warning" size={16} color="#FF9500" />
-            <Text style={styles.warningText}>Verify manually on package</Text>
-          </View>
-        )}
+          if (nonRedundantValues.length === 0) return null;
+
+          return (
+            <View style={styles.expectedValuesContainer}>
+              {nonRedundantValues.map((value, index) => (
+                <View key={index} style={styles.expectedValueChip}>
+                  <Text style={styles.expectedValueText}>{value}</Text>
+                </View>
+              ))}
+            </View>
+          );
+        })()}
 
         {/* Action Buttons */}
         <View style={styles.cardActions}>
@@ -536,9 +600,11 @@ export default function InspectorMarkingsLabelsValidationScreen({
 
     // In reinspection mode, check frustrations and navigate accordingly
     if (isReinspection) {
-      const hasPackageFrustrations = inspection.packageFrustrations.length > 0;
+      // Check local UI state for remaining frustrated items (more reliable than context state due to async updates)
+      const allItems = sections.flatMap(s => s.data);
+      const hasRemainingFrustrations = allItems.some(item => item.validationStatus === "frustrated");
 
-      if (hasPackageFrustrations) {
+      if (hasRemainingFrustrations) {
         // Navigate to frustration summary to review remaining frustrations
         console.log("[MarkingsLabels] Reinspection complete with remaining frustrations");
         navigation.navigate("PackageFrustrationSummary");
@@ -591,7 +657,7 @@ export default function InspectorMarkingsLabelsValidationScreen({
         navigation.navigate("PackageInspectionCompleteScreen");
       }
     }
-  }, [navigation, inspection, workflow.reinspection.mode]);
+  }, [navigation, inspection, workflow.reinspection.mode, sections]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -803,17 +869,6 @@ const styles = StyleSheet.create({
     color: "#007AFF",
     marginBottom: 12,
     fontStyle: "italic",
-  },
-  warningRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    marginBottom: 12,
-  },
-  warningText: {
-    fontSize: 13,
-    color: "#FF9500",
-    fontWeight: "500",
   },
   cardActions: {
     flexDirection: "row",

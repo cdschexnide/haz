@@ -171,6 +171,15 @@ export interface AggregatedAnalysis {
   /** Best raw POP marking text found (first non-null) */
   rawPopMarkingText: string | null;
 
+  /** Military Shipping Label (MSL / DD Form 1387) detection */
+  mslDetected: boolean;
+
+  /** MSL detection confidence level */
+  mslConfidence: 'high' | 'medium' | 'low' | null;
+
+  /** Patterns that matched for MSL detection */
+  mslMatchedPatterns: string[];
+
   /** Number of images successfully processed */
   imagesProcessed: number;
 

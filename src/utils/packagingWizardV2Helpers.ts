@@ -377,9 +377,15 @@ export function validatePackagingCodeV2(
   // Normalize the input code
   const normalizedCode = code.trim().toUpperCase();
 
+  // Normalize the packaging paragraph ID - ensure it ends with a period
+  // (packagingDatabaseV2 keys use trailing periods, e.g., "A5.24." not "A5.24")
+  const normalizedParagraphId = packagingParagraphId.endsWith(".")
+    ? packagingParagraphId
+    : packagingParagraphId + ".";
+
   // Look up the packaging entry
   const packagingEntry: PackagingParagraphEntry =
-    packagingDatabaseV2[packagingParagraphId];
+    packagingDatabaseV2[normalizedParagraphId];
   if (!packagingEntry) {
     return { isValid: false };
   }
