@@ -256,48 +256,45 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
         console.log("📊 [DataProvider] Saving inspection:", row.id, mlResults ? "(with ML results)" : "(no ML results)");
 
-        // Use transaction for atomicity
-        await db.withTransactionAsync(async () => {
-          // Ensure all values are not null/undefined for SQLite
-          const values = [
-            row.id || Date.now().toString(),
-            row.status || "pending",
-            row.inspected_at || now,
-            row.inspection_context || "{}",
-            row.tcn || "N/A",
-            row.un_id || "N/A",
-            row.proper_shipping_name || "N/A",
-            row.inspector || "Unknown",
-            row.sddg_status || "verified",
-            row.package_status || "verified",
-            row.total_frustrations ?? 0,
-            row.sddg_frustrations ?? 0,
-            row.package_frustrations ?? 0,
-            row.created_at || now,
-            row.updated_at || now,
-          ];
+        // Ensure all values are not null/undefined for SQLite
+        const values = [
+          row.id || Date.now().toString(),
+          row.status || "pending",
+          row.inspected_at || now,
+          row.inspection_context || "{}",
+          row.tcn || "N/A",
+          row.un_id || "N/A",
+          row.proper_shipping_name || "N/A",
+          row.inspector || "Unknown",
+          row.sddg_status || "verified",
+          row.package_status || "verified",
+          row.total_frustrations ?? 0,
+          row.sddg_frustrations ?? 0,
+          row.package_frustrations ?? 0,
+          row.created_at || now,
+          row.updated_at || now,
+        ];
 
-          // Save main inspection record
-          await db.runAsync(
-            `INSERT OR REPLACE INTO inspector_shipments
+        // Save main inspection record
+        await db.runAsync(
+          `INSERT OR REPLACE INTO inspector_shipments
            (id, status, inspected_at, inspection_context, tcn, un_id, proper_shipping_name,
             inspector, sddg_status, package_status, total_frustrations, sddg_frustrations,
             package_frustrations, created_at, updated_at)
            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            values
-          );
+          values
+        );
 
-          // Save ML results to separate table (if present)
-          if (mlResults) {
-            await db.runAsync(
-              `INSERT OR REPLACE INTO inspection_ml_results
-               (inspection_id, ml_data, created_at, updated_at)
-               VALUES (?, ?, ?, ?)`,
-              [row.id, JSON.stringify(mlResults), now, now]
-            );
-            console.log("📊 [DataProvider] ML results saved to separate table");
-          }
-        });
+        // Save ML results to separate table (if present)
+        if (mlResults) {
+          await db.runAsync(
+            `INSERT OR REPLACE INTO inspection_ml_results
+             (inspection_id, ml_data, created_at, updated_at)
+             VALUES (?, ?, ?, ?)`,
+            [row.id, JSON.stringify(mlResults), now, now]
+          );
+          console.log("📊 [DataProvider] ML results saved to separate table");
+        }
 
         console.log("📊 [DataProvider] Inspection saved successfully");
         return row.id;
