@@ -36,3 +36,6 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 llama.cpp/
+
+# Git worktrees
+.worktrees/
