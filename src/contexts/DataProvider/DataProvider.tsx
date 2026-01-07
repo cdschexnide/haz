@@ -84,6 +84,10 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       dbRef.current = db;
       console.log("Database path:", db.databasePath);
 
+      // Enable foreign keys for cascade deletes
+      await db.execAsync("PRAGMA foreign_keys = ON;");
+      console.log("📊 [DataProvider] Foreign keys enabled");
+
       // Initialize schema
       await initializeDatabase(db);
 
@@ -119,6 +123,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   /**
    * Convert InspectorShipment to database row
+   * NOTE: mlAnalysisResults is stored separately in inspection_ml_results table (v3+)
    */
   const inspectionToRow = (
     inspection: InspectorShipment
@@ -135,11 +140,16 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         ? inspection.inspectedAt
         : new Date().toISOString();
 
+    // Create context WITHOUT mlAnalysisResults (stored separately for performance)
+    const contextForStorage = inspection.inspectionContext
+      ? { ...inspection.inspectionContext, mlAnalysisResults: null }
+      : {};
+
     return {
       id: inspection.id || Date.now().toString(),
       status: inspection.status || "pending",
       inspected_at: inspectedAtStr,
-      inspection_context: JSON.stringify(inspection.inspectionContext || {}),
+      inspection_context: JSON.stringify(contextForStorage),
       tcn: inspection.tcn || "N/A",
       un_id: inspection.unId || "N/A",
       proper_shipping_name: inspection.properShippingName || "N/A",
@@ -227,6 +237,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   /**
    * Save inspection to database
+   * Splits ML results into separate table for better performance (v3+)
    */
   const saveInspection = useCallback(
     async (inspection: InspectorShipment): Promise<string> => {
@@ -236,37 +247,57 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
           throw new DatabaseError("Database not available", "DB_NULL");
         }
 
+        // Extract ML results (will be stored separately)
+        const mlResults = inspection.inspectionContext?.mlAnalysisResults ?? null;
+
+        // Convert to row (this already excludes mlAnalysisResults)
         const row = inspectionToRow(inspection);
+        const now = new Date().toISOString();
 
-        console.log("📊 [DataProvider] Saving inspection:", row.id);
+        console.log("📊 [DataProvider] Saving inspection:", row.id, mlResults ? "(with ML results)" : "(no ML results)");
 
-        // Ensure all values are not null/undefined for SQLite
-        const values = [
-          row.id || Date.now().toString(),
-          row.status || "pending",
-          row.inspected_at || new Date().toISOString(),
-          row.inspection_context || "{}",
-          row.tcn || "N/A",
-          row.un_id || "N/A",
-          row.proper_shipping_name || "N/A",
-          row.inspector || "Unknown",
-          row.sddg_status || "verified",
-          row.package_status || "verified",
-          row.total_frustrations ?? 0,
-          row.sddg_frustrations ?? 0,
-          row.package_frustrations ?? 0,
-          row.created_at || new Date().toISOString(),
-          row.updated_at || new Date().toISOString(),
-        ];
+        // Use transaction for atomicity
+        await db.withTransactionAsync(async () => {
+          // Ensure all values are not null/undefined for SQLite
+          const values = [
+            row.id || Date.now().toString(),
+            row.status || "pending",
+            row.inspected_at || now,
+            row.inspection_context || "{}",
+            row.tcn || "N/A",
+            row.un_id || "N/A",
+            row.proper_shipping_name || "N/A",
+            row.inspector || "Unknown",
+            row.sddg_status || "verified",
+            row.package_status || "verified",
+            row.total_frustrations ?? 0,
+            row.sddg_frustrations ?? 0,
+            row.package_frustrations ?? 0,
+            row.created_at || now,
+            row.updated_at || now,
+          ];
 
-        await db.runAsync(
-          `INSERT OR REPLACE INTO inspector_shipments
-         (id, status, inspected_at, inspection_context, tcn, un_id, proper_shipping_name,
-          inspector, sddg_status, package_status, total_frustrations, sddg_frustrations,
-          package_frustrations, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-          values
-        );
+          // Save main inspection record
+          await db.runAsync(
+            `INSERT OR REPLACE INTO inspector_shipments
+           (id, status, inspected_at, inspection_context, tcn, un_id, proper_shipping_name,
+            inspector, sddg_status, package_status, total_frustrations, sddg_frustrations,
+            package_frustrations, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            values
+          );
+
+          // Save ML results to separate table (if present)
+          if (mlResults) {
+            await db.runAsync(
+              `INSERT OR REPLACE INTO inspection_ml_results
+               (inspection_id, ml_data, created_at, updated_at)
+               VALUES (?, ?, ?, ?)`,
+              [row.id, JSON.stringify(mlResults), now, now]
+            );
+            console.log("📊 [DataProvider] ML results saved to separate table");
+          }
+        });
 
         console.log("📊 [DataProvider] Inspection saved successfully");
         return row.id;
@@ -280,6 +311,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   /**
    * Load inspection by ID
+   * Loads ML results from separate table and merges for complete data (v3+)
    */
   const loadInspection = useCallback(
     async (id: string): Promise<InspectorShipment | null> => {
@@ -287,17 +319,37 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         const db = getDb();
         console.log("📊 [DataProvider] Loading inspection:", id);
 
-        const rows = await db.getAllAsync<InspectorShipmentRow>(
-          "SELECT * FROM inspector_shipments WHERE id = ?",
-          [id]
-        );
+        // Parallel load: main inspection + ML results (faster than sequential)
+        const [rows, mlRows] = await Promise.all([
+          db.getAllAsync<InspectorShipmentRow>(
+            "SELECT * FROM inspector_shipments WHERE id = ?",
+            [id]
+          ),
+          db.getAllAsync<{ ml_data: string }>(
+            "SELECT ml_data FROM inspection_ml_results WHERE inspection_id = ?",
+            [id]
+          ),
+        ]);
 
         if (rows.length === 0) {
           console.warn("📊 [DataProvider] Inspection not found:", id);
           return null;
         }
 
+        // Parse main context (now smaller, faster)
         const inspection = rowToInspection(rows[0]);
+
+        // Merge ML results back into context (if exists)
+        if (mlRows.length > 0 && mlRows[0].ml_data && inspection.inspectionContext) {
+          try {
+            inspection.inspectionContext.mlAnalysisResults = JSON.parse(mlRows[0].ml_data);
+            console.log("📊 [DataProvider] ML results loaded from separate table");
+          } catch (parseErr) {
+            console.error("📊 [DataProvider] Failed to parse ML results:", parseErr);
+            // Don't fail the entire load - just continue without ML results
+          }
+        }
+
         console.log("📊 [DataProvider] Inspection loaded successfully");
         return inspection;
       } catch (err) {
@@ -561,7 +613,10 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       const db = getDb();
       console.log("📊 [DataProvider] Resetting database tables...");
 
-      // Drop all tables using individual statements
+      // Drop all tables using individual statements (ML results first due to FK)
+      console.log("📊 [DataProvider] Dropping inspection_ml_results table...");
+      await db.execAsync("DROP TABLE IF EXISTS inspection_ml_results;");
+
       console.log("📊 [DataProvider] Dropping inspector_shipments table...");
       await db.execAsync("DROP TABLE IF EXISTS inspector_shipments;");
 
@@ -575,6 +630,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       await db.execAsync("DROP INDEX IF EXISTS idx_inspected_at;");
       await db.execAsync("DROP INDEX IF EXISTS idx_sddg_status;");
       await db.execAsync("DROP INDEX IF EXISTS idx_package_status;");
+      await db.execAsync("DROP INDEX IF EXISTS idx_ml_results_inspection_id;");
 
       console.log("📊 [DataProvider] All tables dropped, reinitializing...");
 

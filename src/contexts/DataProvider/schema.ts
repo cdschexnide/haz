@@ -4,7 +4,7 @@ import * as SQLite from 'expo-sqlite';
  * Database schema version
  * Increment this when making schema changes
  */
-export const SCHEMA_VERSION = 2;
+export const SCHEMA_VERSION = 3;
 
 /**
  * Database name
@@ -49,6 +49,24 @@ CREATE TABLE IF NOT EXISTS migrations (
   migrated_at TEXT NOT NULL,
   async_storage_migration_complete INTEGER NOT NULL DEFAULT 0
 );
+`;
+
+/**
+ * SQL for creating ML results table (v3)
+ * Stores mlAnalysisResults separately for better performance
+ */
+export const CREATE_ML_RESULTS_TABLE_SQL = `
+-- ML analysis results table (split from inspection_context for performance)
+CREATE TABLE IF NOT EXISTS inspection_ml_results (
+  inspection_id TEXT PRIMARY KEY,
+  ml_data TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  FOREIGN KEY (inspection_id) REFERENCES inspector_shipments(id) ON DELETE CASCADE
+);
+
+-- Index for fast lookups
+CREATE INDEX IF NOT EXISTS idx_ml_results_inspection_id ON inspection_ml_results(inspection_id);
 `;
 
 /**
@@ -102,6 +120,97 @@ async function migrateV1ToV2(db: SQLite.SQLiteDatabase): Promise<void> {
 }
 
 /**
+ * Migrate from version 2 to version 3
+ * Changes: Split mlAnalysisResults into separate table for performance
+ *
+ * CRITICAL: This migration preserves all existing data
+ */
+async function migrateV2ToV3(db: SQLite.SQLiteDatabase): Promise<void> {
+  console.log('📊 [Database] Migrating from v2 to v3: Split ML results...');
+
+  // Step 1: Create new ML results table
+  await db.execAsync(CREATE_ML_RESULTS_TABLE_SQL);
+  console.log('📊 [Database] Created inspection_ml_results table');
+
+  // Step 2: Extract ML data from existing inspection_context blobs
+  const existingRows = await db.getAllAsync<{
+    id: string;
+    inspection_context: string;
+  }>('SELECT id, inspection_context FROM inspector_shipments');
+
+  console.log(`📊 [Database] Processing ${existingRows.length} existing inspections...`);
+
+  const now = new Date().toISOString();
+  let migratedCount = 0;
+  let skippedCount = 0;
+
+  for (const row of existingRows) {
+    try {
+      const context = JSON.parse(row.inspection_context);
+
+      // Skip if no ML results to extract
+      if (!context.mlAnalysisResults) {
+        skippedCount++;
+        continue;
+      }
+
+      // Step 2a: Insert ML data into new table
+      await db.runAsync(
+        `INSERT OR REPLACE INTO inspection_ml_results
+         (inspection_id, ml_data, created_at, updated_at)
+         VALUES (?, ?, ?, ?)`,
+        [row.id, JSON.stringify(context.mlAnalysisResults), now, now]
+      );
+
+      // Step 2b: Update inspection_context WITHOUT mlAnalysisResults
+      const contextWithoutML = { ...context, mlAnalysisResults: null };
+      await db.runAsync(
+        `UPDATE inspector_shipments
+         SET inspection_context = ?, updated_at = ?
+         WHERE id = ?`,
+        [JSON.stringify(contextWithoutML), now, row.id]
+      );
+
+      migratedCount++;
+    } catch (err) {
+      // Log but don't fail - preserve existing data
+      console.error(`📊 [Database] Error processing inspection ${row.id}:`, err);
+    }
+  }
+
+  console.log(`📊 [Database] Migration v2 to v3 complete: ${migratedCount} migrated, ${skippedCount} skipped (no ML data)`);
+}
+
+/**
+ * Verify migration v3 integrity
+ * Checks that no inspections still have embedded mlAnalysisResults
+ */
+async function verifyMigrationV3(db: SQLite.SQLiteDatabase): Promise<boolean> {
+  // Count inspections that still have mlAnalysisResults in their context (excluding null)
+  const mainRows = await db.getAllAsync<{ count: number }>(
+    `SELECT COUNT(*) as count FROM inspector_shipments
+     WHERE inspection_context LIKE '%"mlAnalysisResults":%'
+       AND inspection_context NOT LIKE '%"mlAnalysisResults":null%'`
+  );
+
+  // Count ML results in new table
+  const mlRows = await db.getAllAsync<{ count: number }>(
+    'SELECT COUNT(*) as count FROM inspection_ml_results'
+  );
+
+  const unmigrated = mainRows[0]?.count ?? 0;
+  const migrated = mlRows[0]?.count ?? 0;
+
+  if (unmigrated > 0) {
+    console.warn(`📊 [Database] WARNING: ${unmigrated} inspections still have embedded ML data`);
+    return false;
+  }
+
+  console.log(`📊 [Database] Migration v3 verified: ${migrated} ML result records in new table`);
+  return true;
+}
+
+/**
  * Initialize database with schema
  */
 export async function initializeDatabase(db: SQLite.SQLiteDatabase): Promise<void> {
@@ -129,6 +238,7 @@ export async function initializeDatabase(db: SQLite.SQLiteDatabase): Promise<voi
     if (currentVersion === 0) {
       // First time initialization - create tables with latest schema
       await db.execAsync(CREATE_TABLES_SQL);
+      await db.execAsync(CREATE_ML_RESULTS_TABLE_SQL);
       await db.runAsync(
         'INSERT INTO migrations (version, migrated_at, async_storage_migration_complete) VALUES (?, ?, ?)',
         [SCHEMA_VERSION, new Date().toISOString(), 0]
@@ -144,6 +254,20 @@ export async function initializeDatabase(db: SQLite.SQLiteDatabase): Promise<voi
           'INSERT INTO migrations (version, migrated_at, async_storage_migration_complete) VALUES (?, ?, ?)',
           [2, new Date().toISOString(), 1]
         );
+      }
+
+      if (currentVersion <= 2 && SCHEMA_VERSION >= 3) {
+        await migrateV2ToV3(db);
+        await db.runAsync(
+          'INSERT INTO migrations (version, migrated_at, async_storage_migration_complete) VALUES (?, ?, ?)',
+          [3, new Date().toISOString(), 1]
+        );
+
+        // Verify migration succeeded
+        const verified = await verifyMigrationV3(db);
+        if (!verified) {
+          console.error('📊 [Database] Migration v3 verification failed - some data may not have been migrated');
+        }
       }
 
       console.log('📊 [Database] Migration complete (v' + SCHEMA_VERSION + ')');
@@ -164,6 +288,7 @@ export async function dropAllTables(db: SQLite.SQLiteDatabase): Promise<void> {
   try {
     console.log('📊 [Database] Dropping all tables...');
     await db.execAsync(`
+      DROP TABLE IF EXISTS inspection_ml_results;
       DROP TABLE IF EXISTS inspector_shipments;
       DROP TABLE IF EXISTS migrations;
       DROP INDEX IF EXISTS idx_status;
@@ -172,6 +297,7 @@ export async function dropAllTables(db: SQLite.SQLiteDatabase): Promise<void> {
       DROP INDEX IF EXISTS idx_inspected_at;
       DROP INDEX IF EXISTS idx_sddg_status;
       DROP INDEX IF EXISTS idx_package_status;
+      DROP INDEX IF EXISTS idx_ml_results_inspection_id;
     `);
     console.log('📊 [Database] All tables dropped successfully');
   } catch (error) {

@@ -8,7 +8,7 @@ export interface InspectorShipmentRow {
   id: string;
   status: InspectionStatus;
   inspected_at: string; // ISO datetime string
-  inspection_context?: string; // JSON blob of SDDGInspectionContext
+  inspection_context?: string; // JSON blob of SDDGInspectionContext (without mlAnalysisResults in v3+)
   tcn: string;
   un_id: string;
   proper_shipping_name: string;
@@ -18,6 +18,17 @@ export interface InspectorShipmentRow {
   total_frustrations: number;
   sddg_frustrations: number;
   package_frustrations: number;
+  created_at: string; // ISO datetime
+  updated_at: string; // ISO datetime
+}
+
+/**
+ * Database row structure for inspection_ml_results table (v3+)
+ * Stores ML analysis results separately for better performance
+ */
+export interface InspectionMLResultsRow {
+  inspection_id: string;
+  ml_data: string; // JSON blob of AggregatedAnalysis
   created_at: string; // ISO datetime
   updated_at: string; // ISO datetime
 }
