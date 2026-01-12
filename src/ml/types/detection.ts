@@ -61,7 +61,7 @@ export interface ModelConfig {
 export const DEFAULT_MODEL_CONFIG: ModelConfig = {
   inputWidth: 640,
   inputHeight: 640,
-  numClasses: 92,
+  numClasses: 97,  // Updated to match trained model (was 92)
   confidenceThreshold: 0.4,
   nmsThreshold: 0.45,
   strides: [8, 16, 32],

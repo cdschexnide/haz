@@ -20,7 +20,8 @@ import {
   PACKAGE_TO_FORM1015_MAPPING,
 } from "../../../src/utils/sddgToForm1015Mapping";
 import { Form1015CheckBoxWithStatus } from "./Form1015CheckboxWithStatus";
-import { useHazProStore } from "../../../src/stores/useHazProStore";
+import { useHazProActions } from "../../../src/stores/useHazProStore";
+import { DevBenchmarkButton } from "../dev/DevBenchmarkButton";
 
 interface InspectorAMC1015FormProps {
   navigation?: any;
@@ -30,7 +31,7 @@ export const InspectorAMC1015Form = ({
   navigation,
 }: InspectorAMC1015FormProps) => {
   const { inspection, completeInspection } = useInspectionForm();
-  const { actions } = useHazProStore();
+  const actions = useHazProActions();
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
   // Set the active chevron to "Complete" when this screen is mounted
@@ -2752,6 +2753,9 @@ export const InspectorAMC1015Form = ({
           <Text style={styles.buttonText}>Complete Inspection</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Dev Benchmark Button - only visible in __DEV__ */}
+      <DevBenchmarkButton position="bottom-right" />
     </View>
   );
 };

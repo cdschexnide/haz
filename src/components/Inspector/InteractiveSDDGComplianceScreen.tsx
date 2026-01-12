@@ -20,7 +20,9 @@ import {
 } from "./utils/sddgValidation";
 import { HazardousMaterialItem } from "../../../src/hazardousMaterials/hazardousMaterialsList";
 import { useDatabase } from "../../../src/contexts/DataProvider";
-import { useHazProStore } from "../../../src/stores/useHazProStore";
+import { useHazProActions } from "../../../src/stores/useHazProStore";
+import { DevBenchmarkButton } from "../dev/DevBenchmarkButton";
+import { useRenderTracker, useContextRenderTracker } from "@/hooks/useRenderTracker";
 
 interface InteractiveSDDGComplianceScreenProps {
   navigation: any;
@@ -36,9 +38,12 @@ interface InteractiveSDDGComplianceScreenProps {
  * - Supports recommended frustrations
  * - Supports reinspection mode
  */
-const InteractiveSDDGComplianceScreen: React.FC<
+const InteractiveSDDGComplianceScreenComponent: React.FC<
   InteractiveSDDGComplianceScreenProps
 > = ({ navigation }) => {
+  // === CONTEXT SUBSCRIPTIONS ===
+  // NOTE: useInspectionForm() subscribes to ENTIRE context - potential render issue!
+  const inspectionFormContext = useInspectionForm();
   const {
     inspection,
     workflow,
@@ -52,11 +57,12 @@ const InteractiveSDDGComplianceScreen: React.FC<
     completeSDDGAndMoveToPackage,
     updateVerificationField,
     startNewInspection,
-  } = useInspectionForm();
+  } = inspectionFormContext;
 
   const database = useDatabase();
-  const { actions } = useHazProStore();
+  const actions = useHazProActions();
 
+  // === LOCAL STATE ===
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedField, setSelectedField] = useState<{
     key: string;
@@ -75,6 +81,24 @@ const InteractiveSDDGComplianceScreen: React.FC<
   const [hazMatData, setHazMatData] = useState<HazardousMaterialItem | null>(
     null
   );
+
+  // === RENDER TRACKING ===
+  useRenderTracker('InteractiveSDDGComplianceScreen', { navigation }, {
+    modalVisible,
+    selectedFieldKey: selectedField?.key,
+    frustratedFieldsCount: frustratedFields.size,
+    recommendedFrustrationsCount: recommendedFrustrations.size,
+    dismissedCount: dismissedRecommendations.size,
+    hasHazMatData: !!hazMatData,
+    frustrationCount: inspection?.frustrations?.length ?? 0,
+  });
+
+  // Track context changes - THIS IS KEY to finding the render source
+  useContextRenderTracker('InteractiveSDDGComplianceScreen', 'InspectionFormContext', {
+    frustrationCount: inspection?.frustrations?.length ?? 0,
+    reinspectionMode: workflow?.reinspection?.mode,
+  });
+  useContextRenderTracker('InteractiveSDDGComplianceScreen', 'Database', { isInitialized: database.isInitialized });
 
   const isReinspectionMode = workflow.reinspection.mode === "sddg";
   const existingFrustrations = inspection.frustrations || [];
@@ -654,10 +678,19 @@ const InteractiveSDDGComplianceScreen: React.FC<
         allowValueEdit={true}
         isReinspectionMode={isReinspectionMode}
       />
+
+      {/* Dev Benchmark Button - only visible in __DEV__ */}
+      <DevBenchmarkButton position="bottom-right" />
     </SafeAreaView>
   );
 };
 
+// Wrap in React.memo with custom comparison
+// The navigation prop from React Navigation changes frequently, so we ignore it
+const InteractiveSDDGComplianceScreen = React.memo(
+  InteractiveSDDGComplianceScreenComponent,
+  () => true // Always consider props equal - state/context changes still trigger re-renders
+);
 export default InteractiveSDDGComplianceScreen;
 
 const styles = StyleSheet.create({

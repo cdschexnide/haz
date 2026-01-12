@@ -12,7 +12,8 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useInspectionForm } from "@/contexts/InspectionFormProvider";
 import { useDatabase } from "@/contexts/DataProvider";
 import { InspectorShipment } from "@/types/sddg";
-import { useHazProStore } from "@/stores/useHazProStore";
+import { useHazProActions } from "@/stores/useHazProStore";
+import { DevBenchmarkButton } from "./dev/DevBenchmarkButton";
 
 interface SDDGInspectionCompleteScreenProps {
   navigation: any;
@@ -30,7 +31,7 @@ export default function SDDGInspectionCompleteScreen({
   } = useInspectionForm();
 
   const database = useDatabase();
-  const { actions } = useHazProStore();
+  const actions = useHazProActions();
   const [isSaving, setIsSaving] = useState(false);
 
   // Set active chevron when component mounts
@@ -279,6 +280,9 @@ export default function SDDGInspectionCompleteScreen({
           <MaterialIcons name="arrow-forward" size={20} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
+
+      {/* Dev Benchmark Button - only visible in __DEV__ */}
+      <DevBenchmarkButton position="bottom-right" />
     </View>
   );
 }

@@ -1,6 +1,13 @@
 import { countries } from "../../../src/mock/countries";
 import { packagingDatabaseV2 } from "../../../server/lookupFunctions/packagingLookupV2";
-import { useInspectionForm } from "../../../src/contexts/InspectionFormProvider";
+import {
+  useInspectionFormActions,
+  useExtractedContent,
+  useMLAnalysisResults,
+  usePackagePopMarking,
+  useInspectionFrustrations,
+  useReinspectionState,
+} from "../../../src/contexts/InspectionFormProvider";
 import colors from "../../../src/theming/colors";
 import { PhysicalState } from "../../../types";
 import { validatePackagingCodeV2 } from "../../../src/utils/packagingWizardV2Helpers";
@@ -25,7 +32,8 @@ import { TextInput as PaperInput } from "react-native-paper";
 import LiquidPopMarking from "../LiquidPopMarking";
 import SolidPopMarking from "../SolidPopMarking";
 import { hazardousMaterialsList } from "../../../src/hazardousMaterials/hazardousMaterialsList";
-import { useHazProStore } from "../../../src/stores/useHazProStore";
+import { useHazProActions } from "../../../src/stores/useHazProStore";
+import { DevBenchmarkButton } from "../dev/DevBenchmarkButton";
 
 const { width } = Dimensions.get("window");
 const screenWidth = width;
@@ -34,17 +42,23 @@ const hazardClass4ParagraphsWithNoPackingGroup = ["A8.6.", "A8.7.", "A8.8."];
 const packagingParagraphValuesThatRequirePGIPackaging = ["A12.9.", "A12.11."];
 
 const InspectorPOPMarkingDataEntry = ({ navigation }: { navigation: any }) => {
+  // Selector hooks for specific data
+  const extractedContent = useExtractedContent();
+  const mlAnalysisResults = useMLAnalysisResults();
+  const packagePopMarking = usePackagePopMarking();
+  const { packageFrustrations } = useInspectionFrustrations();
+  const reinspection = useReinspectionState();
+
+  // Actions-only hook
   const {
-    inspection,
-    workflow,
     updatePackagePopField,
     resetPackagePopMarking,
     setPackagePopMarking,
     addPackageFrustration,
     removePackageFrustration,
-  } = useInspectionForm();
+  } = useInspectionFormActions();
 
-  const { actions } = useHazProStore();
+  const actions = useHazProActions();
 
   const [hasSelectedCountry, setHasSelectedCountry] = useState<boolean>(false);
   const [yearError, setYearError] = useState<string | null>(null);
@@ -52,7 +66,7 @@ const InspectorPOPMarkingDataEntry = ({ navigation }: { navigation: any }) => {
   // Detect physical state from extracted SDDG content
   const detectPhysicalState = (): PhysicalState => {
     const hazardousMaterial = hazardousMaterialsList.find(
-      material => material.unid === inspection.extractedContent?.unIdNo
+      material => material.unid === extractedContent?.unIdNo
     );
     const psn = hazardousMaterial?.properShippingName?.toLowerCase() || "";
     const hazClass = hazardousMaterial?.hazclassDiv?.toLowerCase() || "";
@@ -91,16 +105,16 @@ const InspectorPOPMarkingDataEntry = ({ navigation }: { navigation: any }) => {
   const physicalState = detectPhysicalState();
 
   // Get ML-detected POP marking fields (if available)
-  const mlPopFields = inspection.mlAnalysisResults?.bestPopMarking?.fields;
+  const mlPopFields = mlAnalysisResults?.bestPopMarking?.fields;
 
   const [fields, setFields] = useState({
-    B: inspection.packagePopMarking?.B || mlPopFields?.B || "",
-    C: inspection.packagePopMarking?.C || mlPopFields?.C || "",
-    D: inspection.packagePopMarking?.D || mlPopFields?.D || "",
-    E: inspection.packagePopMarking?.E || mlPopFields?.E || "",
-    F: inspection.packagePopMarking?.F || mlPopFields?.F || "",
-    G: inspection.packagePopMarking?.G || mlPopFields?.G || "",
-    H: inspection.packagePopMarking?.H || mlPopFields?.H || "",
+    B: packagePopMarking?.B || mlPopFields?.B || "",
+    C: packagePopMarking?.C || mlPopFields?.C || "",
+    D: packagePopMarking?.D || mlPopFields?.D || "",
+    E: packagePopMarking?.E || mlPopFields?.E || "",
+    F: packagePopMarking?.F || mlPopFields?.F || "",
+    G: packagePopMarking?.G || mlPopFields?.G || "",
+    H: packagePopMarking?.H || mlPopFields?.H || "",
   });
 
   // Validation state for Field B and Field C
@@ -117,8 +131,8 @@ const InspectorPOPMarkingDataEntry = ({ navigation }: { navigation: any }) => {
   // Initialize package pop marking in context if it doesn't exist
   // Pre-populate with ML-detected values if available
   useEffect(() => {
-    if (!inspection.packagePopMarking) {
-      const mlFields = inspection.mlAnalysisResults?.bestPopMarking?.fields;
+    if (!packagePopMarking) {
+      const mlFields = mlAnalysisResults?.bestPopMarking?.fields;
       setPackagePopMarking({
         B: mlFields?.B || "",
         C: mlFields?.C || "",
@@ -148,7 +162,7 @@ const InspectorPOPMarkingDataEntry = ({ navigation }: { navigation: any }) => {
   );
 
   useEffect(() => {
-    if (inspection.packagePopMarking?.G !== "") {
+    if (packagePopMarking?.G !== "") {
       setHasSelectedCountry(true);
     }
   }, []);
@@ -170,18 +184,18 @@ const InspectorPOPMarkingDataEntry = ({ navigation }: { navigation: any }) => {
       updatePackagePopField("C", selectedValue);
     }
   }, [
-    inspection.extractedContent?.hazardClass,
-    inspection.extractedContent?.packingGroup,
-    inspection.extractedContent?.packingInstruction,
+    extractedContent?.hazardClass,
+    extractedContent?.packingGroup,
+    extractedContent?.packingInstruction,
     fields.C,
   ]);
 
   // Determine allowable packing groups based on extracted SDDG data
   const allowablePackingGroups = () => {
-    const hazardClass = inspection.extractedContent?.hazardClass || "";
-    const packingGroup = inspection.extractedContent?.packingGroup || "";
+    const hazardClass = extractedContent?.hazardClass || "";
+    const packingGroup = extractedContent?.packingGroup || "";
     const packingInstruction =
-      inspection.extractedContent?.packingInstruction || "";
+      extractedContent?.packingInstruction || "";
 
     // Hazard Class 1 (Explosives)
     if (hazardClass.startsWith("1")) {
@@ -224,7 +238,7 @@ const InspectorPOPMarkingDataEntry = ({ navigation }: { navigation: any }) => {
 
   // Validate Field B (packaging code)
   const validateFieldB = useCallback((value: string) => {
-    const packagingParagraph = inspection.extractedContent?.packingInstruction;
+    const packagingParagraph = extractedContent?.packingInstruction;
 
     if (!packagingParagraph || value.trim() === "") {
       setFieldBError(null);
@@ -246,7 +260,7 @@ const InspectorPOPMarkingDataEntry = ({ navigation }: { navigation: any }) => {
       setFieldBError(null);
       setFieldBStatus("valid");
     }
-  }, [inspection.extractedContent?.packingInstruction]);
+  }, [extractedContent?.packingInstruction]);
 
   // Validate Field C (packing group)
   const validateFieldC = useCallback((value: string) => {
@@ -334,13 +348,13 @@ const InspectorPOPMarkingDataEntry = ({ navigation }: { navigation: any }) => {
     console.log("📝 [InspectorPOPMarkingDataEntry] Continue button pressed");
 
     // Detect reinspection mode
-    const isReinspection = workflow.reinspection.mode === "package";
+    const isReinspection = reinspection.mode === "package";
 
     if (isReinspection) {
       // REINSPECTION MODE
 
       // Check if there are frustrated marking/label items (excluding POP)
-      const markingLabelFrustrations = inspection.packageFrustrations.filter(
+      const markingLabelFrustrations = packageFrustrations.filter(
         f => (f.category === "marking" || f.category === "label") &&
              !f.itemId.startsWith("pop-")
       );
@@ -443,7 +457,7 @@ const InspectorPOPMarkingDataEntry = ({ navigation }: { navigation: any }) => {
                         category: "marking",
                         itemId: "pop-field-b",
                         itemLabel: "Packaging Code (Field B)",
-                        expectedValues: [inspection.extractedContent?.packingInstruction || "valid packaging code"],
+                        expectedValues: [extractedContent?.packingInstruction || "valid packaging code"],
                         verificationStatus: "incorrect",
                         defaultMessage: fieldBError || "Packaging code validation failed",
                         afmanReference: "AFMAN 24-604 A11.3.2",
@@ -685,6 +699,9 @@ const InspectorPOPMarkingDataEntry = ({ navigation }: { navigation: any }) => {
           <Text style={styles.buttonText}>Continue</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Dev Benchmark Button - only visible in __DEV__ */}
+      <DevBenchmarkButton position="bottom-right" />
     </KeyboardAvoidingView>
   );
 };

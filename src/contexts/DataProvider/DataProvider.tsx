@@ -16,6 +16,10 @@ import {
   DatabaseError,
 } from "./types";
 import { migrateFromAsyncStorage } from "./migrations";
+import {
+  perfTracker,
+  PERFORMANCE_TRACKING_ENABLED,
+} from "@/utils/performanceUtils";
 
 /**
  * DataProvider Context Interface
@@ -230,13 +234,25 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
    */
   const saveInspection = useCallback(
     async (inspection: InspectorShipment): Promise<string> => {
+      const perfId = perfTracker.start("saveInspection", { id: inspection.id });
+
       try {
         const db = getDb();
         if (!db) {
+          perfTracker.end(perfId, 0);
           throw new DatabaseError("Database not available", "DB_NULL");
         }
 
+        // Measure JSON stringify time
+        const stringifyStart = performance.now();
         const row = inspectionToRow(inspection);
+        const stringifyTime = performance.now() - stringifyStart;
+        const contextSize = row.inspection_context?.length || 0;
+        console.log(`⏱️ [PERF] JSON.stringify: ${stringifyTime.toFixed(1)}ms (${(contextSize / 1024).toFixed(1)} KB)`);
+
+        if (PERFORMANCE_TRACKING_ENABLED) {
+          perfTracker.recordSubMetric(perfId, "JSON.stringify", stringifyTime, contextSize);
+        }
 
         console.log("📊 [DataProvider] Saving inspection:", row.id);
 
@@ -259,6 +275,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
           row.updated_at || new Date().toISOString(),
         ];
 
+        // Measure SQLite write time
+        console.log(`⏱️ [PERF] Starting SQLite INSERT...`);
+        const sqlStart = performance.now();
         await db.runAsync(
           `INSERT OR REPLACE INTO inspector_shipments
          (id, status, inspected_at, inspection_context, tcn, un_id, proper_shipping_name,
@@ -267,10 +286,18 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           values
         );
+        const sqlTime = performance.now() - sqlStart;
+        console.log(`⏱️ [PERF] SQLite.write: ${sqlTime.toFixed(1)}ms`);
 
-        console.log("📊 [DataProvider] Inspection saved successfully");
+        if (PERFORMANCE_TRACKING_ENABLED) {
+          perfTracker.recordSubMetric(perfId, "SQLite.write", sqlTime);
+        }
+
+        console.log(`📊 [DataProvider] Inspection saved successfully (stringify=${stringifyTime.toFixed(0)}ms, sql=${sqlTime.toFixed(0)}ms, total=${(stringifyTime + sqlTime).toFixed(0)}ms)`);
+        perfTracker.end(perfId, contextSize);
         return row.id;
       } catch (err) {
+        perfTracker.end(perfId, 0);
         console.error("📊 [DataProvider] Failed to save inspection:", err);
         throw new DatabaseError("Failed to save inspection", "SAVE_ERROR", err);
       }
@@ -283,24 +310,46 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
    */
   const loadInspection = useCallback(
     async (id: string): Promise<InspectorShipment | null> => {
+      const perfId = perfTracker.start("loadInspection", { id });
+
       try {
         const db = getDb();
         console.log("📊 [DataProvider] Loading inspection:", id);
 
+        // Measure SQLite read time
+        const sqlStart = performance.now();
         const rows = await db.getAllAsync<InspectorShipmentRow>(
           "SELECT * FROM inspector_shipments WHERE id = ?",
           [id]
         );
+        const sqlTime = performance.now() - sqlStart;
+
+        if (PERFORMANCE_TRACKING_ENABLED) {
+          perfTracker.recordSubMetric(perfId, "SQLite.read", sqlTime);
+        }
 
         if (rows.length === 0) {
           console.warn("📊 [DataProvider] Inspection not found:", id);
+          perfTracker.end(perfId, 0);
           return null;
         }
 
+        const contextSize = rows[0].inspection_context?.length || 0;
+
+        // Measure JSON parse + Date reconstruction time
+        const parseStart = performance.now();
         const inspection = rowToInspection(rows[0]);
+        const parseTime = performance.now() - parseStart;
+
+        if (PERFORMANCE_TRACKING_ENABLED) {
+          perfTracker.recordSubMetric(perfId, "JSON.parse+dates", parseTime, contextSize);
+        }
+
         console.log("📊 [DataProvider] Inspection loaded successfully");
+        perfTracker.end(perfId, contextSize);
         return inspection;
       } catch (err) {
+        perfTracker.end(perfId, 0);
         console.error("📊 [DataProvider] Failed to load inspection:", err);
         throw new DatabaseError("Failed to load inspection", "LOAD_ERROR", err);
       }
@@ -313,24 +362,51 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
    */
   const updateInspection = useCallback(
     async (id: string, updates: Partial<InspectorShipment>): Promise<void> => {
+      const perfId = perfTracker.start("updateInspection", {
+        id,
+        updateKeys: Object.keys(updates).length
+      });
+
       try {
         const db = getDb();
         console.log("📊 [DataProvider] Updating inspection:", id);
 
-        // Load existing inspection
+        // Load existing inspection (already instrumented)
+        const loadStart = performance.now();
         const existing = await loadInspection(id);
+        const loadTime = performance.now() - loadStart;
+
         if (!existing) {
+          perfTracker.end(perfId, 0);
           throw new DatabaseError("Inspection not found", "NOT_FOUND");
         }
 
-        // Merge updates
-        const updated: InspectorShipment = { ...existing, ...updates };
+        if (PERFORMANCE_TRACKING_ENABLED) {
+          perfTracker.recordSubMetric(perfId, "load-existing", loadTime);
+        }
 
-        // Save updated inspection
+        // Merge updates
+        const mergeStart = performance.now();
+        const updated: InspectorShipment = { ...existing, ...updates };
+        const mergeTime = performance.now() - mergeStart;
+
+        if (PERFORMANCE_TRACKING_ENABLED) {
+          perfTracker.recordSubMetric(perfId, "merge-updates", mergeTime);
+        }
+
+        // Save updated inspection (already instrumented)
+        const saveStart = performance.now();
         await saveInspection(updated);
+        const saveTime = performance.now() - saveStart;
+
+        if (PERFORMANCE_TRACKING_ENABLED) {
+          perfTracker.recordSubMetric(perfId, "save-merged", saveTime);
+        }
 
         console.log("📊 [DataProvider] Inspection updated successfully");
+        perfTracker.end(perfId);
       } catch (err) {
+        perfTracker.end(perfId, 0);
         console.error("📊 [DataProvider] Failed to update inspection:", err);
         throw new DatabaseError(
           "Failed to update inspection",
@@ -368,6 +444,11 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
    */
   const listInspections = useCallback(
     async (filters?: InspectionFilters): Promise<InspectorShipment[]> => {
+      const perfId = perfTracker.start("listInspections", {
+        hasFilters: !!filters,
+        filterKeys: filters ? Object.keys(filters) : []
+      });
+
       try {
         const db = getDb();
         console.log(
@@ -375,7 +456,11 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
           filters
         );
 
-        let query = "SELECT * FROM inspector_shipments WHERE 1=1";
+        // OPTIMIZATION: Only select columns needed for listing, NOT the huge inspection_context blob
+        let query = `SELECT id, status, inspected_at, tcn, un_id, proper_shipping_name,
+                     inspector, sddg_status, package_status, total_frustrations,
+                     sddg_frustrations, package_frustrations
+                     FROM inspector_shipments WHERE 1=1`;
         const params: any[] = [];
 
         // Apply filters
@@ -412,12 +497,31 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         // Sort by most recent first
         query += " ORDER BY inspected_at DESC";
 
+        // Measure SQLite query time
+        const sqlStart = performance.now();
         const rows = await db.getAllAsync<InspectorShipmentRow>(query, params);
+        const sqlTime = performance.now() - sqlStart;
+
+        if (PERFORMANCE_TRACKING_ENABLED) {
+          // Note: We now only fetch metadata columns, not inspection_context
+          perfTracker.recordSubMetric(perfId, "SQLite.query", sqlTime, rows.length);
+          console.log(`📊 [DataProvider] Query returned ${rows.length} rows in ${sqlTime.toFixed(1)}ms`);
+        }
+
+        // Measure mapping time
+        const mapStart = performance.now();
         const metadata = rows.map(rowToMetadata);
+        const mapTime = performance.now() - mapStart;
+
+        if (PERFORMANCE_TRACKING_ENABLED) {
+          perfTracker.recordSubMetric(perfId, "row-mapping", mapTime);
+        }
 
         console.log("📊 [DataProvider] Found", metadata.length, "inspections");
+        perfTracker.end(perfId, rows.length);
         return metadata;
       } catch (err) {
+        perfTracker.end(perfId, 0);
         console.error("📊 [DataProvider] Failed to list inspections:", err);
         throw new DatabaseError(
           "Failed to list inspections",

@@ -1,0 +1,547 @@
+{
+  "0": {
+    "id": 0,
+    "name": "biohazardLabelForBulkPackagesContainingRegulatedMedicalWaste",
+    "category": "general_marking"
+  },
+  "1": {
+    "id": 1,
+    "name": "cargoAircraftOnly",
+    "category": "general_marking"
+  },
+  "2": {
+    "id": 2,
+    "name": "empty",
+    "category": "general_marking"
+  },
+  "3": {
+    "id": 3,
+    "name": "exceptedQuantityMarking",
+    "category": "general_marking"
+  },
+  "4": {
+    "id": 4,
+    "name": "inhalationHazardMarking",
+    "category": "general_marking"
+  },
+  "5": {
+    "id": 5,
+    "name": "insideContainersComplyWithPrescriberdRegulations",
+    "category": "general_marking"
+  },
+  "6": {
+    "id": 6,
+    "name": "keepAwayFromHeat",
+    "category": "general_marking"
+  },
+  "7": {
+    "id": 7,
+    "name": "limitedQuantityMarking",
+    "category": "general_marking"
+  },
+  "8": {
+    "id": 8,
+    "name": "orientationArrows",
+    "category": "general_marking"
+  },
+  "9": {
+    "id": 9,
+    "name": "overpack",
+    "category": "general_marking"
+  },
+  "10": {
+    "id": 10,
+    "name": "thisEndUpWithOrientationArrows",
+    "category": "general_marking"
+  },
+  "11": {
+    "id": 11,
+    "name": "thisSideUpWithOrientationArrows",
+    "category": "general_marking"
+  },
+  "12": {
+    "id": 12,
+    "name": "thisWayUpWithOrientationArrows",
+    "category": "general_marking"
+  },
+  "13": {
+    "id": 13,
+    "name": "explosives1.1",
+    "category": "hazardClass1"
+  },
+  "14": {
+    "id": 14,
+    "name": "explosives1.1A",
+    "category": "hazardClass1"
+  },
+  "15": {
+    "id": 15,
+    "name": "explosives1.1B",
+    "category": "hazardClass1"
+  },
+  "16": {
+    "id": 16,
+    "name": "explosives1.1C",
+    "category": "hazardClass1"
+  },
+  "17": {
+    "id": 17,
+    "name": "explosives1.1D",
+    "category": "hazardClass1"
+  },
+  "18": {
+    "id": 18,
+    "name": "explosives1.1E",
+    "category": "hazardClass1"
+  },
+  "19": {
+    "id": 19,
+    "name": "explosives1.1F",
+    "category": "hazardClass1"
+  },
+  "20": {
+    "id": 20,
+    "name": "explosives1.1G",
+    "category": "hazardClass1"
+  },
+  "21": {
+    "id": 21,
+    "name": "explosives1.1J",
+    "category": "hazardClass1"
+  },
+  "22": {
+    "id": 22,
+    "name": "explosives1.1L",
+    "category": "hazardClass1"
+  },
+  "23": {
+    "id": 23,
+    "name": "explosives1.2",
+    "category": "hazardClass1"
+  },
+  "24": {
+    "id": 24,
+    "name": "explosives1.2B",
+    "category": "hazardClass1"
+  },
+  "25": {
+    "id": 25,
+    "name": "explosives1.2C",
+    "category": "hazardClass1"
+  },
+  "26": {
+    "id": 26,
+    "name": "explosives1.2D",
+    "category": "hazardClass1"
+  },
+  "27": {
+    "id": 27,
+    "name": "explosives1.2E",
+    "category": "hazardClass1"
+  },
+  "28": {
+    "id": 28,
+    "name": "explosives1.2F",
+    "category": "hazardClass1"
+  },
+  "29": {
+    "id": 29,
+    "name": "explosives1.2G",
+    "category": "hazardClass1"
+  },
+  "30": {
+    "id": 30,
+    "name": "explosives1.2H",
+    "category": "hazardClass1"
+  },
+  "31": {
+    "id": 31,
+    "name": "explosives1.2J",
+    "category": "hazardClass1"
+  },
+  "32": {
+    "id": 32,
+    "name": "explosives1.2L",
+    "category": "hazardClass1"
+  },
+  "33": {
+    "id": 33,
+    "name": "explosives1.3",
+    "category": "hazardClass1"
+  },
+  "34": {
+    "id": 34,
+    "name": "explosives1.3C",
+    "category": "hazardClass1"
+  },
+  "35": {
+    "id": 35,
+    "name": "explosives1.3G",
+    "category": "hazardClass1"
+  },
+  "36": {
+    "id": 36,
+    "name": "explosives1.3H",
+    "category": "hazardClass1"
+  },
+  "37": {
+    "id": 37,
+    "name": "explosives1.3J",
+    "category": "hazardClass1"
+  },
+  "38": {
+    "id": 38,
+    "name": "explosives1.3K",
+    "category": "hazardClass1"
+  },
+  "39": {
+    "id": 39,
+    "name": "explosives1.3L",
+    "category": "hazardClass1"
+  },
+  "40": {
+    "id": 40,
+    "name": "explosives1.4",
+    "category": "hazardClass1"
+  },
+  "41": {
+    "id": 41,
+    "name": "explosives1.4B",
+    "category": "hazardClass1"
+  },
+  "42": {
+    "id": 42,
+    "name": "explosives1.4C",
+    "category": "hazardClass1"
+  },
+  "43": {
+    "id": 43,
+    "name": "explosives1.4D",
+    "category": "hazardClass1"
+  },
+  "44": {
+    "id": 44,
+    "name": "explosives1.4E",
+    "category": "hazardClass1"
+  },
+  "45": {
+    "id": 45,
+    "name": "explosives1.4F",
+    "category": "hazardClass1"
+  },
+  "46": {
+    "id": 46,
+    "name": "explosives1.4G",
+    "category": "hazardClass1"
+  },
+  "47": {
+    "id": 47,
+    "name": "explosives1.4S",
+    "category": "hazardClass1"
+  },
+  "48": {
+    "id": 48,
+    "name": "explosives1.5",
+    "category": "hazardClass1"
+  },
+  "49": {
+    "id": 49,
+    "name": "explosives1.5D",
+    "category": "hazardClass1"
+  },
+  "50": {
+    "id": 50,
+    "name": "explosives1.5D_blastingAgents",
+    "category": "hazardClass1"
+  },
+  "51": {
+    "id": 51,
+    "name": "explosives1.6",
+    "category": "hazardClass1"
+  },
+  "52": {
+    "id": 52,
+    "name": "explosives1.6N",
+    "category": "hazardClass1"
+  },
+  "53": {
+    "id": 53,
+    "name": "explosives1",
+    "category": "hazardClass1"
+  },
+  "54": {
+    "id": 54,
+    "name": "UN1977",
+    "category": "hazardClass2"
+  },
+  "55": {
+    "id": 55,
+    "name": "fireExtinguisherManufacturedPriorToJan1976Label",
+    "category": "hazardClass2"
+  },
+  "56": {
+    "id": 56,
+    "name": "flammableGasHazmatClass2.1",
+    "category": "hazardClass2"
+  },
+  "57": {
+    "id": 57,
+    "name": "inhalationHazardHazmatClass2.3",
+    "category": "hazardClass2"
+  },
+  "58": {
+    "id": 58,
+    "name": "meetsDotRequirements",
+    "category": "hazardClass2"
+  },
+  "59": {
+    "id": 59,
+    "name": "nonFlammableGasHazmatClass2.2",
+    "category": "hazardClass2"
+  },
+  "60": {
+    "id": 60,
+    "name": "nonOdorized",
+    "category": "hazardClass2"
+  },
+  "61": {
+    "id": 61,
+    "name": "oxygenHazmatClass2.2",
+    "category": "hazardClass2"
+  },
+  "62": {
+    "id": 62,
+    "name": "poisonGasHazmatClass2.3",
+    "category": "hazardClass2"
+  },
+  "63": {
+    "id": 63,
+    "name": "toxicGasHazmatClass2.3",
+    "category": "hazardClass2"
+  },
+  "64": {
+    "id": 64,
+    "name": "combustibleHazmatClass3",
+    "category": "hazardClass3"
+  },
+  "65": {
+    "id": 65,
+    "name": "flammableHazmatClass3",
+    "category": "hazardClass3"
+  },
+  "66": {
+    "id": 66,
+    "name": "flammableLiquidHazmatClass3",
+    "category": "hazardClass3"
+  },
+  "67": {
+    "id": 67,
+    "name": "fuelOilHazmatClass3",
+    "category": "hazardClass3"
+  },
+  "68": {
+    "id": 68,
+    "name": "gasolineHazmatClass3",
+    "category": "hazardClass3"
+  },
+  "69": {
+    "id": 69,
+    "name": "dangerousWhenWetHazmatClass4.3",
+    "category": "hazardClass4"
+  },
+  "70": {
+    "id": 70,
+    "name": "flammableSolidHazmatClass4.1",
+    "category": "hazardClass4"
+  },
+  "71": {
+    "id": 71,
+    "name": "spontaneouslyCombustibleHazmatClass4.2",
+    "category": "hazardClass4"
+  },
+  "72": {
+    "id": 72,
+    "name": "oxidizerHazmatClass5.1",
+    "category": "hazardClass5"
+  },
+  "73": {
+    "id": 73,
+    "name": "oxidizingAgentHazmatClass5.1",
+    "category": "hazardClass5"
+  },
+  "74": {
+    "id": 74,
+    "name": "oxygenGeneratorChemicalWithUN3356",
+    "category": "hazardClass5"
+  },
+  "75": {
+    "id": 75,
+    "name": "biologicalSubstanceCategoryBWithUN3373",
+    "category": "hazardClass6"
+  },
+  "76": {
+    "id": 76,
+    "name": "harmfulStowAwayFromFoodStuffsHazmatClass6.1",
+    "category": "hazardClass6"
+  },
+  "77": {
+    "id": 77,
+    "name": "hazmatClass6PackingGroupIII",
+    "category": "hazardClass6"
+  },
+  "78": {
+    "id": 78,
+    "name": "infectiousSubstanceHazmatClass6.2",
+    "category": "hazardClass6"
+  },
+  "79": {
+    "id": 79,
+    "name": "inhalationHazardHazmatClass6.1",
+    "category": "hazardClass6"
+  },
+  "80": {
+    "id": 80,
+    "name": "poisonHazmatClass6.1",
+    "category": "hazardClass6"
+  },
+  "81": {
+    "id": 81,
+    "name": "toxicHazmatClass6",
+    "category": "hazardClass6"
+  },
+  "82": {
+    "id": 82,
+    "name": "corrosiveHazmatClass8",
+    "category": "hazardClass8"
+  },
+  "83": {
+    "id": 83,
+    "name": "chemicalKit",
+    "category": "hazardClass9"
+  },
+  "84": {
+    "id": 84,
+    "name": "environmentallyHazardousSubstancesSolidNOS",
+    "category": "hazardClass9"
+  },
+  "85": {
+    "id": 85,
+    "name": "exceptedLithiumBatteries",
+    "category": "hazardClass9"
+  },
+  "86": {
+    "id": 86,
+    "name": "firstAidKit",
+    "category": "hazardClass9"
+  },
+  "87": {
+    "id": 87,
+    "name": "lithiumMetalBatteriesForbiddenForPassengerAircraft",
+    "category": "hazardClass9"
+  },
+  "88": {
+    "id": 88,
+    "name": "magnetizedMaterials",
+    "category": "hazardClass9"
+  },
+  "89": {
+    "id": 89,
+    "name": "magnetizedMaterialsWithUN2807",
+    "category": "hazardClass9"
+  },
+  "90": {
+    "id": 90,
+    "name": "miscellaneousHazmatClass9",
+    "category": "hazardClass9"
+  },
+  "91": {
+    "id": 91,
+    "name": "variousDangerousSubstancesHazmatClass9",
+    "category": "hazardClass9"
+  },
+  "92": {
+    "id": 92,
+    "name": "UN3090_lithiumMetalBatteries",
+    "category": "hazardClass9"
+  },
+  "93": {
+    "id": 93,
+    "name": "UN3481_lithiumIonBatteriesContainedInEquipment",
+    "category": "hazardClass9"
+  },
+  "94": {
+    "id": 94,
+    "name": "marinePollutant",
+    "category": "general_marking"
+  },
+  "95": {
+    "id": 95,
+    "name": "marinePollutantFishAndTree",
+    "category": "general_marking"
+  },
+  "96": {
+    "id": 96,
+    "name": "environmentallyHazardousSubstanceMark",
+    "category": "general_marking"
+  },
+  "97": {
+    "id": 97,
+    "name": "mslMilitaryShippingLabel",
+    "category": "military_msl",
+    "description": "Full MIL-STD-129 Military Shipping Label (4x6 inch) with PDF417 barcode"
+  },
+  "98": {
+    "id": 98,
+    "name": "mslPriorityDesignator1",
+    "category": "military_msl",
+    "description": "Priority Designator 1 - Highest priority (number 1 in circle)"
+  },
+  "99": {
+    "id": 99,
+    "name": "mslPriorityDesignator2",
+    "category": "military_msl",
+    "description": "Priority Designator 2 - Medium priority (number 2 in circle)"
+  },
+  "100": {
+    "id": 100,
+    "name": "mslPriorityDesignator3",
+    "category": "military_msl",
+    "description": "Priority Designator 3 - Routine priority (number 3 in circle)"
+  },
+  "101": {
+    "id": 101,
+    "name": "mslPdf417Barcode",
+    "category": "military_msl",
+    "description": "PDF417 2D barcode per MIL-STD-129R (replaced linear barcodes)"
+  },
+  "102": {
+    "id": 102,
+    "name": "mslLinearBarcode",
+    "category": "military_msl",
+    "description": "Code39 linear barcode (legacy/optional per MIL-STD-129R)"
+  },
+  "103": {
+    "id": 103,
+    "name": "mslExteriorContainerLabel",
+    "category": "military_msl",
+    "description": "Exterior container identification marking"
+  },
+  "104": {
+    "id": 104,
+    "name": "mslIntermediateContainerLabel",
+    "category": "military_msl",
+    "description": "Intermediate container identification marking"
+  },
+  "105": {
+    "id": 105,
+    "name": "mslUnitPackLabel",
+    "category": "military_msl",
+    "description": "Unit pack (smallest container) identification marking"
+  },
+  "106": {
+    "id": 106,
+    "name": "mslAddressMarkingBlock",
+    "category": "military_msl",
+    "description": "FROM/TO/MARK FOR address block with DODAAC codes"
+  }
+}

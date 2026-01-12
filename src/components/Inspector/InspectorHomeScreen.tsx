@@ -38,20 +38,30 @@ import PlacardingTool from "../PlacardingTool";
 import CompatibilitySegregationModal from "../CompatibilitySegregationModal";
 import { InspectorShipment } from "../../../src/types/sddg";
 import { useDatabase } from "../../../src/contexts/DataProvider";
-import { useInspectionForm } from "../../../src/contexts/InspectionFormProvider";
+import { useInspectionFormActions } from "../../../src/contexts/InspectionFormProvider";
 import { InspectorAMC1015Form } from "./InspectorAMC1015Form";
 import { MLDetectionScreen } from "./MLDetectionScreen";
+import { DevBenchmarkButton } from "../dev/DevBenchmarkButton";
+import { useRenderTracker, useContextRenderTracker } from "@/hooks/useRenderTracker";
+import { hazardousMaterialsList } from "@/hazardousMaterials/hazardousMaterialsList";
 
 console.warn = () => {};
 
-export default function InspectorHomeScreen({
+function InspectorHomeScreenComponent({
   navigation,
 }: {
   navigation: any;
 }) {
-  const { dispatch } = useContext(HazProPreparerContext);
-  const { dispatch: inspectorDispatch } = useContext(HazProInspectorContext);
+  // === CONTEXT SUBSCRIPTIONS ===
+  const preparerContext = useContext(HazProPreparerContext);
+  const { dispatch } = preparerContext;
+  const inspectorContext = useContext(HazProInspectorContext);
+  const { dispatch: inspectorDispatch } = inspectorContext;
   const { navigate } = useNavigationRef();
+  const database = useDatabase();
+  const { loadInspectionForEdit } = useInspectionFormActions();
+
+  // === LOCAL STATE ===
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const [gasModalVisible, setGasModalVisible] = useState<boolean>(false);
@@ -72,8 +82,28 @@ export default function InspectorHomeScreen({
   const [selectedInspection, setSelectedInspection] =
     useState<InspectorShipment>();
   const [inspections, setInspections] = useState<InspectorShipment[]>([]);
-  const database = useDatabase();
-  const { loadInspectionForEdit } = useInspectionForm();
+
+  // === RENDER TRACKING ===
+  useRenderTracker('InspectorHomeScreen', { navigation }, {
+    searchQuery,
+    refreshing,
+    gasModalVisible,
+    dryIceModalVisible,
+    unitConversionModalVisible,
+    placardingModalVisible,
+    placardingModalExpanded,
+    compatibilityModalVisible,
+    form1015ModalVisible,
+    mlModalVisible,
+    bottomSheetVisible,
+    inspectionsCount: inspections.length,
+    dbInitialized: database.isInitialized,
+  });
+
+  // Track context changes
+  useContextRenderTracker('InspectorHomeScreen', 'HazProPreparerContext', preparerContext);
+  useContextRenderTracker('InspectorHomeScreen', 'HazProInspectorContext', inspectorContext);
+  useContextRenderTracker('InspectorHomeScreen', 'Database', { isInitialized: database.isInitialized });
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -598,6 +628,9 @@ export default function InspectorHomeScreen({
     </>
   );
 
+  const materialsWithoutPackingGroup = hazardousMaterialsList.filter((material) => material.packingGroup === "" && material.hazclassDiv !== "" && material.packagingParagraph !== "FORBIDDEN" && material.hazclassDiv !== "7" && material.hazclassDiv !== "5.2" && !material.hazclassDiv.startsWith("1") && material.hazclassDiv !== "9");
+  console.log("materialsWithoutPackingGroup: ", JSON.stringify(materialsWithoutPackingGroup, null, 2));
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <KeyboardAvoidingView
@@ -867,6 +900,9 @@ export default function InspectorHomeScreen({
         >
           <MLDetectionScreen onClose={() => setMlModalVisible(false)} />
         </Modal>
+
+        {/* Dev Benchmark Button - only visible in __DEV__ */}
+        <DevBenchmarkButton position="bottom-right" />
       </KeyboardAvoidingView>
     </GestureHandlerRootView>
   );
@@ -1165,4 +1201,13 @@ const styles = StyleSheet.create({
   modalFormContainer: {
     flex: 1,
   },
+});
+
+// Wrap in React.memo with custom comparison
+// The navigation prop from React Navigation changes frequently, so we ignore it
+// Screen re-renders should only happen from internal state/context changes
+export default React.memo(InspectorHomeScreenComponent, () => {
+  // Return true = props are equal = don't re-render from parent
+  // Screens get navigation state via hooks, not props, so this is safe
+  return true;
 });

@@ -26,8 +26,9 @@ import { useDetection, aggregateResults } from "../../ml/hooks/useDetection";
 import { DetectionOverlay } from "../../ml/components/DetectionOverlay";
 import { ImageCropScreen } from "../../ml/components/ImageCropScreen";
 import { LabelPickerModal } from "../../ml/components";
-import { useInspectionForm } from "../../contexts/InspectionFormProvider";
-import { useHazProStore } from "../../stores/useHazProStore";
+import { useInspectionFormActions } from "../../contexts/InspectionFormProvider";
+import { useHazProActions } from "../../stores/useHazProStore";
+import { DevBenchmarkButton } from "../dev/DevBenchmarkButton";
 import {
   CapturedImage,
   ImageDetectionResult,
@@ -70,8 +71,8 @@ export function MLDetectionScreen({
       navigation.goBack();
     }
   }, [onClose, navigation]);
-  const { inspection, setMLAnalysisResults } = useInspectionForm();
-  const { actions } = useHazProStore();
+  const { setMLAnalysisResults } = useInspectionFormActions();
+  const actions = useHazProActions();
   const [permission, requestPermission] = useCameraPermissions();
   const [screenState, setScreenState] = useState<ScreenState>("home");
   const [capturedImages, setCapturedImages] = useState<CapturedImage[]>([]);
@@ -900,6 +901,9 @@ export function MLDetectionScreen({
           currentClassId={editingDetection?.classId}
           title={labelPickerMode === 'add' ? "Add Missing Label" : "Change Label"}
         />
+
+        {/* Dev Benchmark Button - only visible in __DEV__ */}
+        <DevBenchmarkButton position="bottom-right" />
       </SafeAreaView>
     );
   }

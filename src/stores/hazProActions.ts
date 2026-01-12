@@ -2,6 +2,7 @@ import { hazProStore, ChevronType, SDDGStepType } from "./hazProStore";
 import ShipmentDatabase from "../../src/services/shipment/ShipmentDatabase";
 import DatabaseInitializer from "../../src/services/shipment/DatabaseInitializer";
 import ErrorHandlingService from "../../src/services/shipment/ErrorHandlingService";
+import { storeUpdateTracker, PERFORMANCE_TRACKING_ENABLED } from "../../src/utils/performanceUtils";
 import {
   HazProPreparerContext,
   SavedShipment,
@@ -32,14 +33,24 @@ import {
   RequiredLabel,
 } from "../../src/utils/labelingRequirements";
 
+// Helper to track store updates
+const trackUpdate = (path: string, value?: unknown) => {
+  if (PERFORMANCE_TRACKING_ENABLED) {
+    const size = value ? JSON.stringify(value).length : undefined;
+    storeUpdateTracker.recordUpdate('hazProStore', path, size);
+  }
+};
+
 // Type-safe actions for state mutations
 export const hazProActions = {
   // Field update actions with full type safety
   updateHazardousMaterial(material: HazardousMaterialItem | null) {
+    trackUpdate('hazardousMaterial', material);
     hazProStore.hazProPreparerContext.hazardousMaterial = material;
   },
 
   updatePackaging(updates: Partial<HazProPreparerContext["packaging"]>) {
+    trackUpdate('packaging', updates);
     if (hazProStore.hazProPreparerContext.packaging) {
       Object.assign(hazProStore.hazProPreparerContext.packaging, updates);
     }
@@ -53,6 +64,7 @@ export const hazProActions = {
     field: K,
     value: NonNullable<HazProPreparerContext["packaging"]>["inputPOPMarking"][K]
   ) {
+    trackUpdate(`packaging.inputPOPMarking.${String(field)}`, value);
     if (hazProStore.hazProPreparerContext.packaging?.inputPOPMarking) {
       hazProStore.hazProPreparerContext.packaging.inputPOPMarking[field] =
         value;
@@ -62,6 +74,7 @@ export const hazProActions = {
   updateShipment(
     updates: Partial<NonNullable<HazProPreparerContext["shipment"]>>
   ) {
+    trackUpdate('shipment', updates);
     if (hazProStore.hazProPreparerContext.shipment) {
       Object.assign(hazProStore.hazProPreparerContext.shipment, updates);
     }
@@ -70,6 +83,7 @@ export const hazProActions = {
   updateShipper(
     updates: Partial<NonNullable<HazProPreparerContext["shipper"]>>
   ) {
+    trackUpdate('shipper', updates);
     if (hazProStore.hazProPreparerContext.shipper) {
       Object.assign(hazProStore.hazProPreparerContext.shipper, updates);
     }
@@ -78,6 +92,7 @@ export const hazProActions = {
   updateConsignee(
     updates: Partial<NonNullable<HazProPreparerContext["consignee"]>>
   ) {
+    trackUpdate('consignee', updates);
     if (hazProStore.hazProPreparerContext.consignee) {
       Object.assign(hazProStore.hazProPreparerContext.consignee, updates);
     }
@@ -86,6 +101,7 @@ export const hazProActions = {
   updatePreparer(
     updates: Partial<NonNullable<HazProPreparerContext["preparer"]>>
   ) {
+    trackUpdate('preparer', updates);
     if (!hazProStore.hazProPreparerContext.preparer) {
       hazProStore.hazProPreparerContext.preparer = {
         preparerName: null,

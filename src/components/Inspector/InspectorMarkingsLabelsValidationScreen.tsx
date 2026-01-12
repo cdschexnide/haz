@@ -10,7 +10,9 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useInspectionForm } from "../../contexts/InspectionFormProvider";
-import { useHazProStore } from "../../stores/useHazProStore";
+import { useHazProActions } from "../../stores/useHazProStore";
+import { DevBenchmarkButton } from "../dev/DevBenchmarkButton";
+import { useRenderTracker, useContextRenderTracker } from "@/hooks/useRenderTracker";
 import { evaluateMarkingRequirementsInspector } from "../../utils/markingRequirementsInspector";
 import { evaluateLabelingRequirements } from "../../utils/labelingRequirementsInspector";
 import {
@@ -49,9 +51,12 @@ interface InspectorMarkingsLabelsValidationScreenProps {
 
 // ============ COMPONENT ============
 
-export default function InspectorMarkingsLabelsValidationScreen({
+function InspectorMarkingsLabelsValidationScreenComponent({
   navigation,
 }: InspectorMarkingsLabelsValidationScreenProps) {
+  // === CONTEXT SUBSCRIPTIONS ===
+  // NOTE: useInspectionForm() subscribes to ENTIRE context - potential render issue!
+  const inspectionFormContext = useInspectionForm();
   const {
     inspection,
     workflow,
@@ -59,14 +64,29 @@ export default function InspectorMarkingsLabelsValidationScreen({
     removePackageFrustration,
     resolvePackageFrustration,
     refrustratePackageFrustration,
-  } = useInspectionForm();
-  const { actions } = useHazProStore();
+  } = inspectionFormContext;
+  const actions = useHazProActions();
 
-  // State
+  // === LOCAL STATE ===
   const [sections, setSections] = useState<ValidationSection[]>([]);
   const [additionalDetections, setAdditionalDetections] = useState<AggregatedLabel[]>([]);
   const [showAdditionalDetections, setShowAdditionalDetections] = useState(false);
   const hasInitialized = useRef(false);
+
+  // === RENDER TRACKING ===
+  useRenderTracker('InspectorMarkingsLabelsValidationScreen', { navigation }, {
+    sectionsCount: sections.length,
+    additionalDetectionsCount: additionalDetections.length,
+    showAdditionalDetections,
+    hasInitialized: hasInitialized.current,
+    packageFrustrationCount: inspection?.packageFrustrations?.length ?? 0,
+  });
+
+  // Track context changes
+  useContextRenderTracker('InspectorMarkingsLabelsValidationScreen', 'InspectionFormContext', {
+    packageFrustrationCount: inspection?.packageFrustrations?.length ?? 0,
+    mlResultsPresent: !!inspection?.mlAnalysisResults,
+  });
 
   // Set chevron on mount
   useEffect(() => {
@@ -728,6 +748,9 @@ export default function InspectorMarkingsLabelsValidationScreen({
           />
         </TouchableOpacity>
       </View>
+
+      {/* Dev Benchmark Button - only visible in __DEV__ */}
+      <DevBenchmarkButton position="bottom-right" />
     </SafeAreaView>
   );
 }
@@ -1009,3 +1032,10 @@ const styles = StyleSheet.create({
     color: "#8E8E93",
   },
 });
+
+// Wrap in React.memo with custom comparison
+// The navigation prop from React Navigation changes frequently, so we ignore it
+export default React.memo(
+  InspectorMarkingsLabelsValidationScreenComponent,
+  () => true // Always consider props equal - state/context changes still trigger re-renders
+);

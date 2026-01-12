@@ -27,6 +27,10 @@ import {
   initialInspectionContext,
   AggregatedAnalysis,
 } from "./types";
+import {
+  perfTracker,
+  PERFORMANCE_TRACKING_ENABLED,
+} from "@/utils/performanceUtils";
 
 interface InspectionFormContextValue {
   // State
@@ -173,6 +177,8 @@ export function InspectionFormProvider({
 
   const loadInspectionForEdit = useCallback(
     async (id: string) => {
+      const perfId = perfTracker.start("loadInspectionForEdit", { id });
+
       try {
         console.log("📝📝📝 [InspectionForm] LOAD INSPECTION FOR EDIT CALLED");
         console.log(
@@ -186,7 +192,14 @@ export function InspectionFormProvider({
         setIsProcessing(true);
 
         console.log("📝 [InspectionForm] Calling database.loadInspection...");
+        const dbLoadStart = performance.now();
         const loaded = await database.loadInspection(id);
+        const dbLoadTime = performance.now() - dbLoadStart;
+
+        if (PERFORMANCE_TRACKING_ENABLED) {
+          perfTracker.recordSubMetric(perfId, "database.loadInspection", dbLoadTime);
+        }
+
         console.log(
           "📝 [InspectionForm] Database load result:",
           loaded ? "SUCCESS" : "NULL"
@@ -196,6 +209,7 @@ export function InspectionFormProvider({
           console.error(
             "📝 [InspectionForm] ERROR - Inspection not found in database"
           );
+          perfTracker.end(perfId, 0);
           throw new Error(`Inspection ${id} not found`);
         }
 
@@ -212,6 +226,9 @@ export function InspectionFormProvider({
         // Store the inspection ID
         console.log("📝 [InspectionForm] Setting inspection ID:", id);
         setInspectionId(id);
+
+        // Measure state update time
+        const stateUpdateStart = performance.now();
 
         // Load inspection context (with backward compatibility for resolved frustrations)
         console.log("📝 [InspectionForm] Setting inspection context...");
@@ -239,9 +256,16 @@ export function InspectionFormProvider({
           setWorkflow({ ...initialWorkflowState });
         }
 
+        const stateUpdateTime = performance.now() - stateUpdateStart;
+        if (PERFORMANCE_TRACKING_ENABLED) {
+          perfTracker.recordSubMetric(perfId, "setState", stateUpdateTime);
+        }
+
         setHasUnsavedChanges(false);
         console.log("📝 [InspectionForm] Inspection loaded successfully ✅");
+        perfTracker.end(perfId);
       } catch (error) {
+        perfTracker.end(perfId, 0);
         console.error(
           "📝 [InspectionForm] ❌ Failed to load inspection:",
           error
@@ -261,6 +285,11 @@ export function InspectionFormProvider({
 
   const saveCurrentInspection = useCallback(
     async (inspectionData?: typeof inspection): Promise<string> => {
+      const perfId = perfTracker.start("saveCurrentInspection", {
+        hasProvidedData: !!inspectionData,
+        existingId: inspectionId
+      });
+
       try {
         // Use provided data or fall back to ref to access current state without causing recreation cycles
         const currentInspection = inspectionData || inspectionRef.current;
@@ -269,12 +298,16 @@ export function InspectionFormProvider({
           !currentInspection.extractedContent ||
           !currentInspection.verificationCopy
         ) {
+          perfTracker.end(perfId, 0);
           throw new Error("No inspection data to save");
         }
 
         console.log("📝 [InspectionForm] Saving current inspection");
         console.log("📝 [InspectionForm] Existing inspectionId:", inspectionId);
         setIsProcessing(true);
+
+        // Measure status calculation time
+        const statusStart = performance.now();
 
         // Determine status
         const hasFrustrations =
@@ -292,14 +325,40 @@ export function InspectionFormProvider({
 
         // Use existing inspectionId if available (for reinspection updates), otherwise create new
         const recordId = inspectionId || Date.now().toString();
-        console.log("📝 [InspectionForm] Using record ID:", recordId, inspectionId ? "(existing)" : "(new)");
 
-        // Create inspection record with null-safe field access
+        const statusTime = performance.now() - statusStart;
+        if (PERFORMANCE_TRACKING_ENABLED) {
+          perfTracker.recordSubMetric(perfId, "calculate-status", statusTime);
+        }
+
+        // Measure context copy time (THIS IS THE SUSPECT!)
+        const copyStart = performance.now();
+        const inspectionContextCopy = { ...currentInspection };
+        const copyTime = performance.now() - copyStart;
+        console.log(`⏱️ [PERF] copy-context: ${copyTime.toFixed(1)}ms`);
+
+        // Measure ML results size (this stringify is part of the overhead!)
+        const sizeStart = performance.now();
+        const mlResultsSize = currentInspection.mlAnalysisResults
+          ? JSON.stringify(currentInspection.mlAnalysisResults).length
+          : 0;
+        const sizeTime = performance.now() - sizeStart;
+        console.log(`📝 [InspectionForm] ML Results size: ${(mlResultsSize / 1024).toFixed(1)} KB (measured in ${sizeTime.toFixed(1)}ms)`);
+
+        if (PERFORMANCE_TRACKING_ENABLED) {
+          perfTracker.recordSubMetric(perfId, "copy-context", copyTime, mlResultsSize);
+          if (sizeTime > 10) {
+            perfTracker.recordSubMetric(perfId, "measure-ml-size", sizeTime, mlResultsSize);
+          }
+        }
+
+        // Measure record assembly time
+        const assembleStart = performance.now();
         const inspectionRecord: InspectorShipment = {
           id: recordId,
           status: status,
           inspectedAt: new Date(),
-          inspectionContext: { ...currentInspection },
+          inspectionContext: inspectionContextCopy,
           tcn: currentInspection.verificationCopy.shippersReferenceNumber || "N/A",
           unId: currentInspection.verificationCopy.unIdNo || "N/A",
           properShippingName:
@@ -313,14 +372,36 @@ export function InspectionFormProvider({
           sddgFrustrations: currentInspection.frustrations.length,
           packageFrustrations: currentInspection.packageFrustrations.length,
         };
+        const assembleTime = performance.now() - assembleStart;
+        console.log(`⏱️ [PERF] assemble-record: ${assembleTime.toFixed(1)}ms`);
+
+        if (PERFORMANCE_TRACKING_ENABLED) {
+          perfTracker.recordSubMetric(perfId, "assemble-record", assembleTime);
+        }
 
         // Save to database
+        console.log(`⏱️ [PERF] Starting database.saveInspection...`);
+        const dbSaveStart = performance.now();
         const id = await database.saveInspection(inspectionRecord);
+        const dbSaveTime = performance.now() - dbSaveStart;
+        console.log(`⏱️ [PERF] database.saveInspection: ${dbSaveTime.toFixed(1)}ms`);
+
+        if (PERFORMANCE_TRACKING_ENABLED) {
+          perfTracker.recordSubMetric(perfId, "database.saveInspection", dbSaveTime);
+        }
+
         setHasUnsavedChanges(false);
 
+        // Log total time breakdown
+        const totalTime = performance.now() - statusStart;
+        console.log(`⏱️ [PERF] saveCurrentInspection TOTAL: ${totalTime.toFixed(1)}ms`);
+        console.log(`⏱️ [PERF] BREAKDOWN: status=${statusTime.toFixed(0)}ms, copy=${copyTime.toFixed(0)}ms, assemble=${assembleTime.toFixed(0)}ms, dbSave=${dbSaveTime.toFixed(0)}ms`);
+
         console.log("📝 [InspectionForm] Inspection saved successfully:", id);
+        perfTracker.end(perfId);
         return id;
       } catch (error) {
+        perfTracker.end(perfId, 0);
         console.error("📝 [InspectionForm] Failed to save inspection:", error);
         throw error;
       } finally {
@@ -370,8 +451,13 @@ export function InspectionFormProvider({
   }, [startNewInspection]);
 
   const updateReinspectedInspection = useCallback(async () => {
+    const perfId = perfTracker.start("updateReinspectedInspection", {
+      inspectionId
+    });
+
     try {
       if (!inspectionId) {
+        perfTracker.end(perfId, 0);
         throw new Error("No inspection ID available for update");
       }
 
@@ -382,6 +468,9 @@ export function InspectionFormProvider({
       setIsProcessing(true);
 
       const currentInspection = inspectionRef.current;
+
+      // Measure status calculation time
+      const calcStart = performance.now();
 
       // Determine new statuses
       const sddgFrustrations = currentInspection.frustrations.length;
@@ -394,7 +483,13 @@ export function InspectionFormProvider({
           ? "completed"
           : "frustrated";
 
+      const calcTime = performance.now() - calcStart;
+      if (PERFORMANCE_TRACKING_ENABLED) {
+        perfTracker.recordSubMetric(perfId, "calculate-status", calcTime);
+      }
+
       // Update inspection in database
+      const dbUpdateStart = performance.now();
       await database.updateInspection(inspectionId, {
         status,
         sddgStatus,
@@ -404,18 +499,25 @@ export function InspectionFormProvider({
         packageFrustrations,
         inspectionContext: { ...currentInspection },
       });
+      const dbUpdateTime = performance.now() - dbUpdateStart;
+
+      if (PERFORMANCE_TRACKING_ENABLED) {
+        perfTracker.recordSubMetric(perfId, "database.updateInspection", dbUpdateTime);
+      }
 
       console.log("📝 [InspectionForm] Reinspection updated successfully");
 
       // Check if all SDDG frustrations were resolved
       const allResolved = sddgFrustrations === 0;
 
+      perfTracker.end(perfId);
       return {
         success: true,
         allResolved,
         sddgStatus,
       };
     } catch (error) {
+      perfTracker.end(perfId, 0);
       console.error(
         "📝 [InspectionForm] Failed to update reinspection:",
         error
@@ -1325,4 +1427,146 @@ export function useInspectionForm() {
     );
   }
   return context;
+}
+
+// ============================================================================
+// PERFORMANCE OPTIMIZATION: Selector Hooks
+// ============================================================================
+// These hooks provide focused access to specific parts of the context,
+// documenting data dependencies and enabling future optimization.
+// ============================================================================
+
+/**
+ * Actions-only hook - returns only action methods.
+ * Use this when you only need to dispatch actions and don't need to read state.
+ *
+ * PERFORMANCE: Actions are stable useCallback references. Components that
+ * only use actions can benefit from reduced re-render scope.
+ */
+export function useInspectionFormActions() {
+  const context = useContext(InspectionFormContext);
+  if (!context) {
+    throw new Error(
+      "useInspectionFormActions must be used within InspectionFormProvider"
+    );
+  }
+
+  // Return only action methods - these are stable references
+  return {
+    startNewInspection: context.startNewInspection,
+    loadInspectionForEdit: context.loadInspectionForEdit,
+    saveCurrentInspection: context.saveCurrentInspection,
+    completeInspection: context.completeInspection,
+    cancelInspection: context.cancelInspection,
+    updateReinspectedInspection: context.updateReinspectedInspection,
+    setExtractedSDDGContent: context.setExtractedSDDGContent,
+    setVerificationCopy: context.setVerificationCopy,
+    updateVerificationField: context.updateVerificationField,
+    addFrustration: context.addFrustration,
+    removeFrustration: context.removeFrustration,
+    addPackageFrustration: context.addPackageFrustration,
+    removePackageFrustration: context.removePackageFrustration,
+    setCurrentChevron: context.setCurrentChevron,
+    setCurrentSDDGStep: context.setCurrentSDDGStep,
+    setCurrentSDDGScreen: context.setCurrentSDDGScreen,
+    completeSDDGSubstep: context.completeSDDGSubstep,
+    setSDDGComplete: context.setSDDGComplete,
+    setPackageComplete: context.setPackageComplete,
+    completeSDDGAndMoveToPackage: context.completeSDDGAndMoveToPackage,
+    resetWorkflow: context.resetWorkflow,
+    startSDDGReinspection: context.startSDDGReinspection,
+    startPackageReinspection: context.startPackageReinspection,
+    resolvePackageFrustration: context.resolvePackageFrustration,
+    refrustratePackageFrustration: context.refrustratePackageFrustration,
+    advanceReinspectionItem: context.advanceReinspectionItem,
+    completeReinspection: context.completeReinspection,
+    setMagnetizedMaterialInspection: context.setMagnetizedMaterialInspection,
+    updateMagnetizedMaterialField: context.updateMagnetizedMaterialField,
+    clearMagnetizedMaterialInspection: context.clearMagnetizedMaterialInspection,
+    setInnerPackagingInspection: context.setInnerPackagingInspection,
+    updateInnerPackagingField: context.updateInnerPackagingField,
+    updateInnerPackagingInspectionItem: context.updateInnerPackagingInspectionItem,
+    clearInnerPackagingInspection: context.clearInnerPackagingInspection,
+    setPackagePopMarking: context.setPackagePopMarking,
+    updatePackagePopField: context.updatePackagePopField,
+    resetPackagePopMarking: context.resetPackagePopMarking,
+    setMLAnalysisResults: context.setMLAnalysisResults,
+    setInspector: context.setInspector,
+  };
+}
+
+/**
+ * Selector hook for frustrations data.
+ * Returns both SDDG frustrations and package frustrations.
+ */
+export function useInspectionFrustrations() {
+  const { inspection } = useInspectionForm();
+  return {
+    frustrations: inspection.frustrations,
+    packageFrustrations: inspection.packageFrustrations,
+  };
+}
+
+/**
+ * Selector hook for verification copy data.
+ */
+export function useVerificationCopy() {
+  const { inspection } = useInspectionForm();
+  return inspection.verificationCopy;
+}
+
+/**
+ * Selector hook for extracted SDDG content.
+ */
+export function useExtractedContent() {
+  const { inspection } = useInspectionForm();
+  return inspection.extractedContent;
+}
+
+/**
+ * Selector hook for inspector data.
+ */
+export function useInspectorData() {
+  const { inspection } = useInspectionForm();
+  return inspection.inspector;
+}
+
+/**
+ * Selector hook for workflow state.
+ */
+export function useWorkflowState() {
+  const { workflow } = useInspectionForm();
+  return workflow;
+}
+
+/**
+ * Selector hook for reinspection state.
+ */
+export function useReinspectionState() {
+  const { workflow } = useInspectionForm();
+  return workflow.reinspection;
+}
+
+/**
+ * Selector hook for ML analysis results.
+ */
+export function useMLAnalysisResults() {
+  const { inspection } = useInspectionForm();
+  return inspection.mlAnalysisResults;
+}
+
+/**
+ * Selector hook for package POP marking data.
+ */
+export function usePackagePopMarking() {
+  const { inspection } = useInspectionForm();
+  return inspection.packagePopMarking;
+}
+
+/**
+ * Selector hook for inspection ID.
+ */
+export function useInspectionId() {
+  const { inspectionId } = useInspectionForm();
+  return inspectionId;
 }

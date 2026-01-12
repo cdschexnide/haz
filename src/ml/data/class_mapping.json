@@ -550,5 +550,35 @@
     "name": "variousDangerousSubstancesHazmatClass9",
     "path": "primaryHazardLabels/hazardClass9/variousDangerousSubstancesHazmatClass9.png",
     "category": "hazardClass9"
+  },
+  {
+    "id": 92,
+    "name": "UN3090_lithiumMetalBatteries",
+    "path": "primaryHazardLabels/hazardClass9/UN3090_lithiumMetalBatteries.png",
+    "category": "hazardClass9"
+  },
+  {
+    "id": 93,
+    "name": "UN3481_lithiumIonBatteriesContainedInEquipment",
+    "path": "primaryHazardLabels/hazardClass9/UN3481_lithiumIonBatteriesContainedInEquipment.png",
+    "category": "hazardClass9"
+  },
+  {
+    "id": 94,
+    "name": "marinePollutant",
+    "path": "primaryHazardLabels/general_marking/marinePollutant.png",
+    "category": "general_marking"
+  },
+  {
+    "id": 95,
+    "name": "marinePollutantFishAndTree",
+    "path": "primaryHazardLabels/general_marking/marinePollutantFishAndTree.png",
+    "category": "general_marking"
+  },
+  {
+    "id": 96,
+    "name": "environmentallyHazardousSubstanceMark",
+    "path": "primaryHazardLabels/general_marking/environmentallyHazardousSubstanceMark.png",
+    "category": "general_marking"
   }
 ]

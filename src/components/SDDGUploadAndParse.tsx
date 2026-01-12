@@ -19,8 +19,9 @@ import DocumentScanner, {
 import { SafeAreaView } from "react-native-safe-area-context";
 import InteractiveSDDGComplianceScreen from "./Inspector/InteractiveSDDGComplianceScreen";
 // import SimplePdfToImageConverter from './SimplePdfToImageConverter';
-import { useInspectionForm } from "@/contexts/InspectionFormProvider";
+import { useInspectionFormActions } from "@/contexts/InspectionFormProvider";
 import { ExtractedSDDGContent } from "@/types/sddg";
+import { DevBenchmarkButton } from "./dev/DevBenchmarkButton";
 import { OLLAMA_BASE_URL } from "../config/ollama.config";
 
 interface SDDGFormData {
@@ -71,14 +72,12 @@ interface SDDGUploadAndParseProps {
 
 function SDDGUploadAndParse({ navigation }: SDDGUploadAndParseProps) {
   const {
-    inspection,
-    workflow,
     setCurrentChevron,
     setCurrentSDDGStep,
     setCurrentSDDGScreen,
     setExtractedSDDGContent,
     completeSDDGSubstep,
-  } = useInspectionForm();
+  } = useInspectionFormActions();
 
   const [isScanning, setIsScanning] = useState(false);
   const [showDocumentScanner, setShowDocumentScanner] = useState(false);
@@ -2532,6 +2531,9 @@ function SDDGUploadAndParse({ navigation }: SDDGUploadAndParseProps) {
           {/* Always attempt to render the debug overlay */}
           {/* {renderOcrBoundingBoxes()} */}
         </ScrollView>
+
+        {/* Dev Benchmark Button - only visible in __DEV__ */}
+        <DevBenchmarkButton position="bottom-right" />
       </SafeAreaView>
 
       {/* PDF converter removed - not supported in Expo managed workflow */}

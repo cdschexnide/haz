@@ -8,9 +8,16 @@ import {
   Alert,
 } from "react-native";
 import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { useInspectionForm } from "../../../src/contexts/InspectionFormProvider";
+import {
+  useInspectionFormActions,
+  useInspectionFrustrations,
+  useInspectorData,
+  useReinspectionState,
+  useInspectionId,
+} from "../../../src/contexts/InspectionFormProvider";
 import { PackageFrustrationRecord } from "../../../src/types/sddg";
-import { useHazProStore } from "../../../src/stores/useHazProStore";
+import { useHazProActions } from "../../../src/stores/useHazProStore";
+import { DevBenchmarkButton } from "../dev/DevBenchmarkButton";
 
 interface PackageFrustrationSummaryProps {
   navigation: any;
@@ -19,21 +26,24 @@ interface PackageFrustrationSummaryProps {
 export default function PackageFrustrationSummary({
   navigation,
 }: PackageFrustrationSummaryProps) {
+  // Selector hooks for specific data
+  const { packageFrustrations: pkgFrustrations } = useInspectionFrustrations();
+  const inspector = useInspectorData();
+  const reinspection = useReinspectionState();
+  const inspectionId = useInspectionId();
+
+  // Actions-only hook
   const {
-    inspection,
-    workflow,
-    inspectionId,
     startPackageReinspection,
     completeInspection,
     completeReinspection,
     updateReinspectedInspection,
-  } = useInspectionForm();
+  } = useInspectionFormActions();
 
-  const { actions } = useHazProStore();
+  const actions = useHazProActions();
 
   // Get package frustrations from inspection context
-  const packageFrustrations = inspection.packageFrustrations || [];
-  const sddgInspectionContext = inspection;
+  const packageFrustrations = pkgFrustrations || [];
 
   // Separate frustrations by category
   const markingFrustrations = packageFrustrations.filter(
@@ -154,7 +164,7 @@ export default function PackageFrustrationSummary({
   };
 
   const handleCompleteWithFrustration = async () => {
-    const isReinspectionMode = workflow.reinspection.mode === "package";
+    const isReinspectionMode = reinspection.mode === "package";
 
     if (isReinspectionMode) {
       // We're completing a package reinspection - update the existing inspection
@@ -183,7 +193,7 @@ export default function PackageFrustrationSummary({
         markingFrustrations: markingFrustrations.length,
         labelFrustrations: labelFrustrations.length,
         dryIceFrustrations: dryIceFrustrations.length,
-        inspector: sddgInspectionContext.inspector,
+        inspector: inspector,
         completionTime: new Date(),
       });
 
@@ -199,7 +209,7 @@ export default function PackageFrustrationSummary({
         markingFrustrations: markingFrustrations.length,
         labelFrustrations: labelFrustrations.length,
         dryIceFrustrations: dryIceFrustrations.length,
-        inspector: sddgInspectionContext.inspector,
+        inspector: inspector,
         completionTime: new Date(),
       });
 
@@ -371,6 +381,9 @@ export default function PackageFrustrationSummary({
           </Text>
         </TouchableOpacity>
       </View>
+
+      {/* Dev Benchmark Button - only visible in __DEV__ */}
+      <DevBenchmarkButton position="bottom-right" />
     </View>
   );
 }

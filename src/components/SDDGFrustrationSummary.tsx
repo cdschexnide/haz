@@ -12,7 +12,8 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useInspectionForm } from "@/contexts/InspectionFormProvider";
 import { useDatabase } from "@/contexts/DataProvider";
 import { FrustrationRecord, InspectorShipment } from "@/types/sddg";
-import { useHazProStore } from "@/stores/useHazProStore";
+import { useHazProActions } from "@/stores/useHazProStore";
+import { DevBenchmarkButton } from "./dev/DevBenchmarkButton";
 
 interface SDDGFrustrationSummaryProps {
   navigation: any;
@@ -36,7 +37,7 @@ export default function SDDGFrustrationSummary({
     updateReinspectedInspection,
     startNewInspection,
   } = useInspectionForm();
-  const { actions } = useHazProStore();
+  const actions = useHazProActions();
   const database = useDatabase();
   const [isSaving, setIsSaving] = useState(false);
 
@@ -360,6 +361,9 @@ export default function SDDGFrustrationSummary({
           <Text style={styles.completeButtonText}>Continue</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Dev Benchmark Button - only visible in __DEV__ */}
+      <DevBenchmarkButton position="bottom-right" />
     </View>
   );
 }

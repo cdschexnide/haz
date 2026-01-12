@@ -108,6 +108,27 @@ export async function initializeDatabase(db: SQLite.SQLiteDatabase): Promise<voi
   try {
     console.log('📊 [Database] Initializing schema...');
 
+    // CRITICAL: Set PRAGMA settings for performance
+    // These must be set BEFORE any other operations
+    console.log('📊 [Database] Setting PRAGMA optimizations...');
+    const pragmaStart = performance.now();
+
+    // WAL mode: Write-Ahead Logging for faster writes and concurrent reads
+    await db.execAsync('PRAGMA journal_mode=WAL;');
+
+    // NORMAL sync: Safe for mobile (only syncs at critical moments, not every write)
+    // FULL = sync after every write (2+ seconds), NORMAL = sync at checkpoints (~50ms)
+    await db.execAsync('PRAGMA synchronous=NORMAL;');
+
+    // Increase cache size to 2MB (default is often tiny)
+    await db.execAsync('PRAGMA cache_size=-2000;');
+
+    // Store temp tables in memory
+    await db.execAsync('PRAGMA temp_store=MEMORY;');
+
+    const pragmaTime = performance.now() - pragmaStart;
+    console.log(`📊 [Database] PRAGMA settings applied in ${pragmaTime.toFixed(1)}ms`);
+
     // Create migrations table first if it doesn't exist
     await db.execAsync(`
       CREATE TABLE IF NOT EXISTS migrations (

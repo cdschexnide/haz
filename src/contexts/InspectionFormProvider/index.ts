@@ -3,7 +3,21 @@
  * React Context for managing current inspection workflow state
  */
 
-export { InspectionFormProvider, useInspectionForm } from './InspectionFormProvider';
+export {
+  InspectionFormProvider,
+  useInspectionForm,
+  // Selector hooks for performance optimization
+  useInspectionFormActions,
+  useInspectionFrustrations,
+  useVerificationCopy,
+  useExtractedContent,
+  useInspectorData,
+  useWorkflowState,
+  useReinspectionState,
+  useMLAnalysisResults,
+  usePackagePopMarking,
+  useInspectionId,
+} from './InspectionFormProvider';
 export type {
   ChevronType,
   SDDGStepType,

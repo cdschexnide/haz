@@ -9,7 +9,8 @@ import {
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useInspectionForm } from "../../../src/contexts/InspectionFormProvider";
-import { useHazProStore } from "../../../src/stores/useHazProStore";
+import { useHazProActions } from "../../../src/stores/useHazProStore";
+import { DevBenchmarkButton } from "../dev/DevBenchmarkButton";
 
 interface PackageInspectionCompleteScreenProps {
   navigation: any;
@@ -28,7 +29,7 @@ export default function PackageInspectionCompleteScreen({
 
   const isReinspectionMode = workflow.reinspection.mode === "package";
 
-  const { actions } = useHazProStore();
+  const actions = useHazProActions();
   const [isSaving, setIsSaving] = useState(false);
 
   // Set active chevron when component mounts
@@ -252,6 +253,9 @@ export default function PackageInspectionCompleteScreen({
           <MaterialIcons name="arrow-forward" size={20} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
+
+      {/* Dev Benchmark Button - only visible in __DEV__ */}
+      <DevBenchmarkButton position="bottom-right" />
     </View>
   );
 }
