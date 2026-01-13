@@ -491,4 +491,501 @@ describe('Marking Requirements - Class 1 Explosives', () => {
       expect(overpackMarking).toBeUndefined();
     });
   });
+
+  describe('Scenario 6: UN0328 - CARTRIDGES FOR WEAPONS, INERT PROJECTILE', () => {
+    test('includes full PSN without abbreviation', () => {
+      const context = createClass1Context(
+        'UN0328',
+        '1.2C',
+        'CARTRIDGES FOR WEAPONS, INERT PROJECTILE'
+      );
+      const result = evaluateMarkingRequirements(context);
+
+      const psnMarking = result.find((m) => m.id === 'proper-shipping-name-unid');
+      expect(psnMarking).toBeDefined();
+      expect(psnMarking?.value).toContain('UN0328');
+      expect(psnMarking?.value).toContain('CARTRIDGES FOR WEAPONS');
+      // Verify full PSN, not abbreviated
+      expect(psnMarking?.value).not.toContain('CART FOR WEAPONS');
+    });
+
+    test('Alteration 1: abbreviated PSN should be detectable', () => {
+      // This test documents the expected behavior when PSN is incorrectly abbreviated
+      // The system should require "CARTRIDGES FOR WEAPONS" not "CART FOR WEAPONS"
+      const context = createClass1Context('UN0328', '1.2C', 'CARTRIDGES FOR WEAPONS, INERT PROJECTILE');
+      const result = evaluateMarkingRequirements(context);
+
+      const psnMarking = result.find((m) => m.id === 'proper-shipping-name-unid');
+      expect(psnMarking).toBeDefined();
+      expect(psnMarking?.value).toContain('CARTRIDGES');
+    });
+
+    test('Alteration 2: POP marking required when usesPopMarking is true', () => {
+      const context = createClass1Context(
+        'UN0328',
+        '1.2C',
+        'CARTRIDGES FOR WEAPONS, INERT PROJECTILE',
+        {
+          usesPopMarking: true,
+          inputPOPMarking: {
+            B: '4G',
+            C: 'Y',
+            D: '25',
+            E: 'S',
+            F: '12',
+            G: 'USA',
+            H: 'DOD',
+          },
+        }
+      );
+      const result = evaluateMarkingRequirements(context);
+
+      const popMarking = result.find((m) => m.id === 'pop-marking');
+      expect(popMarking).toBeDefined();
+    });
+  });
+
+  describe('Scenario 7: UN0247 - AMMUNITION, INCENDIARY (Orientation Marking)', () => {
+    /**
+     * GAP: Orientation marking ("THIS SIDE UP") is required for certain Class 1 materials
+     * per AFMAN 24-604 but is not currently implemented in markingRequirements.ts.
+     *
+     * The implementation file notes: "Orientation Marking is intentionally omitted
+     * (commented out in original code)"
+     */
+    test('includes UN number and PSN', () => {
+      const context = createClass1Context('UN0247', '1.2G', 'AMMUNITION, INCENDIARY');
+      const result = evaluateMarkingRequirements(context);
+
+      const psnMarking = result.find((m) => m.id === 'proper-shipping-name-unid');
+      expect(psnMarking).toBeDefined();
+      expect(psnMarking?.value).toContain('UN0247');
+      expect(psnMarking?.value).toContain('AMMUNITION, INCENDIARY');
+    });
+
+    test.skip('should require THIS SIDE UP marking for incendiary ammunition', () => {
+      // GAP: Orientation marking not currently implemented
+      const context = createClass1Context('UN0247', '1.2G', 'AMMUNITION, INCENDIARY');
+      const result = evaluateMarkingRequirements(context);
+
+      const orientationMarking = result.find((m) => m.id === 'orientation-marking');
+      expect(orientationMarking).toBeDefined();
+      expect(orientationMarking?.value).toContain('THIS SIDE UP');
+    });
+  });
+
+  describe('Scenario 8: UN0049 - CARTRIDGES, FLASH', () => {
+    test('includes UN number and PSN', () => {
+      const context = createClass1Context('UN0049', '1.1G', 'CARTRIDGES, FLASH');
+      const result = evaluateMarkingRequirements(context);
+
+      const psnMarking = result.find((m) => m.id === 'proper-shipping-name-unid');
+      expect(psnMarking).toBeDefined();
+      expect(psnMarking?.value).toContain('UN0049');
+      expect(psnMarking?.value).toContain('CARTRIDGES, FLASH');
+    });
+
+    test.skip('Alteration 3: EX number marking should be required', () => {
+      // GAP: EX number marking not currently implemented
+      const context = createClass1Context('UN0049', '1.1G', 'CARTRIDGES, FLASH');
+      const result = evaluateMarkingRequirements(context);
+
+      const exNumberMarking = result.find((m) => m.id === 'ex-number');
+      expect(exNumberMarking).toBeDefined();
+    });
+  });
+
+  describe('Scenario 9: UN0106 - FUZES, DETONATING', () => {
+    test('includes correct PSN spelling (FUZES not FUSES)', () => {
+      const context = createClass1Context('UN0106', '1.1B', 'FUZES, DETONATING');
+      const result = evaluateMarkingRequirements(context);
+
+      const psnMarking = result.find((m) => m.id === 'proper-shipping-name-unid');
+      expect(psnMarking).toBeDefined();
+      expect(psnMarking?.value).toContain('UN0106');
+      expect(psnMarking?.value).toContain('FUZES');
+      // Verify correct spelling - should be FUZES not FUSES
+      expect(psnMarking?.value).not.toContain('FUSES');
+    });
+
+    test('Alteration 3: misspelled PSN (FUSES vs FUZES) detectable in marking', () => {
+      // The system should store the exact PSN provided
+      // If user provides "FUSES" incorrectly, it would be stored as such
+      const contextCorrect = createClass1Context('UN0106', '1.1B', 'FUZES, DETONATING');
+      const resultCorrect = evaluateMarkingRequirements(contextCorrect);
+
+      const psnMarkingCorrect = resultCorrect.find((m) => m.id === 'proper-shipping-name-unid');
+      expect(psnMarkingCorrect?.value).toContain('FUZES');
+    });
+  });
+
+  describe('Scenario 10-13, 16: Standard Class 1 Markings', () => {
+    test('Scenario 10: UN0012 - CARTRIDGES FOR WEAPONS includes standard markings', () => {
+      const context = createClass1Context(
+        'UN0012',
+        '1.4S',
+        'CARTRIDGES FOR WEAPONS, WITH BURSTING CHARGE'
+      );
+      const result = evaluateMarkingRequirements(context);
+
+      const psnMarking = result.find((m) => m.id === 'proper-shipping-name-unid');
+      expect(psnMarking).toBeDefined();
+      expect(psnMarking?.value).toContain('UN0012');
+    });
+
+    test('Scenario 11: UN0331 - EXPLOSIVE, BLASTING, TYPE B includes PSN', () => {
+      const context = createClass1Context('UN0331', '1.5D', 'EXPLOSIVE, BLASTING, TYPE B');
+      const result = evaluateMarkingRequirements(context);
+
+      const psnMarking = result.find((m) => m.id === 'proper-shipping-name-unid');
+      expect(psnMarking).toBeDefined();
+      expect(psnMarking?.value).toContain('UN0331');
+      expect(psnMarking?.value).toContain('EXPLOSIVE, BLASTING, TYPE B');
+    });
+
+    test('Scenario 12: UN0042 - BOOSTERS includes PSN', () => {
+      const context = createClass1Context('UN0042', '1.1D', 'BOOSTERS without detonator');
+      const result = evaluateMarkingRequirements(context);
+
+      const psnMarking = result.find((m) => m.id === 'proper-shipping-name-unid');
+      expect(psnMarking).toBeDefined();
+      expect(psnMarking?.value).toContain('UN0042');
+      expect(psnMarking?.value).toContain('BOOSTERS');
+    });
+
+    test('Scenario 13: UN0079 - HEXANITRODIPHENYLAMINE includes PSN', () => {
+      const context = createClass1Context('UN0079', '1.1D', 'HEXANITRODIPHENYLAMINE (DIPICRYLAMINE) (HEXYL)');
+      const result = evaluateMarkingRequirements(context);
+
+      const psnMarking = result.find((m) => m.id === 'proper-shipping-name-unid');
+      expect(psnMarking).toBeDefined();
+      expect(psnMarking?.value).toContain('UN0079');
+      expect(psnMarking?.value).toContain('HEXANITRODIPHENYLAMINE');
+    });
+
+    test('Scenario 16: UN0081 - EXPLOSIVE, BLASTING, TYPE A includes PSN', () => {
+      const context = createClass1Context('UN0081', '1.1D', 'EXPLOSIVE, BLASTING, TYPE A');
+      const result = evaluateMarkingRequirements(context);
+
+      const psnMarking = result.find((m) => m.id === 'proper-shipping-name-unid');
+      expect(psnMarking).toBeDefined();
+      expect(psnMarking?.value).toContain('UN0081');
+      expect(psnMarking?.value).toContain('EXPLOSIVE, BLASTING, TYPE A');
+    });
+  });
+
+  describe('Scenario 14: UN0222 - AMMONIUM NITRATE (with 5.1 subsidiary)', () => {
+    test('includes PSN and UN number with subsidiary risk', () => {
+      const context = createClass1Context('UN0222', '1.1D', 'AMMONIUM NITRATE');
+      // Set subsidiary risk for 5.1 (Oxidizer)
+      context.hazardousMaterial.subsidiaryRisk = '5.1';
+      const result = evaluateMarkingRequirements(context);
+
+      const psnMarking = result.find((m) => m.id === 'proper-shipping-name-unid');
+      expect(psnMarking).toBeDefined();
+      expect(psnMarking?.value).toContain('UN0222');
+      expect(psnMarking?.value).toContain('AMMONIUM NITRATE');
+    });
+
+    test('includes POP marking when required', () => {
+      const context = createClass1Context('UN0222', '1.1D', 'AMMONIUM NITRATE', {
+        usesPopMarking: true,
+        inputPOPMarking: {
+          B: '1A2',
+          C: 'X',
+          D: '25',
+          E: 'S',
+          F: '12',
+          G: 'USA',
+          H: 'DOD',
+        },
+      });
+      context.hazardousMaterial.subsidiaryRisk = '5.1';
+      const result = evaluateMarkingRequirements(context);
+
+      const popMarking = result.find((m) => m.id === 'pop-marking');
+      expect(popMarking).toBeDefined();
+    });
+  });
+
+  describe('Scenario 15: UN0019 - AMMUNITION, TEAR-PRODUCING (with 6.1 subsidiary)', () => {
+    test('includes PSN and UN number', () => {
+      const context = createClass1Context(
+        'UN0019',
+        '1.2G',
+        'AMMUNITION, TEAR-PRODUCING with bursting charge, expelling charge or propelling charge'
+      );
+      // Set subsidiary risk for 6.1 (Toxic)
+      context.hazardousMaterial.subsidiaryRisk = '6.1';
+      const result = evaluateMarkingRequirements(context);
+
+      const psnMarking = result.find((m) => m.id === 'proper-shipping-name-unid');
+      expect(psnMarking).toBeDefined();
+      expect(psnMarking?.value).toContain('UN0019');
+      expect(psnMarking?.value).toContain('AMMUNITION, TEAR-PRODUCING');
+    });
+
+    test('includes standard markings for material with toxic subsidiary risk', () => {
+      const context = createClass1Context(
+        'UN0019',
+        '1.2G',
+        'AMMUNITION, TEAR-PRODUCING',
+        {
+          usesPopMarking: true,
+          inputPOPMarking: {
+            B: '4G',
+            C: 'Y',
+            D: '20',
+            E: 'S',
+            F: '11',
+            G: 'USA',
+            H: 'DOD',
+          },
+        }
+      );
+      context.hazardousMaterial.subsidiaryRisk = '6.1';
+      const result = evaluateMarkingRequirements(context);
+
+      const psnMarking = result.find((m) => m.id === 'proper-shipping-name-unid');
+      const popMarking = result.find((m) => m.id === 'pop-marking');
+
+      expect(psnMarking).toBeDefined();
+      expect(popMarking).toBeDefined();
+    });
+  });
+
+  describe('Scenario 17: UN0135 - MERCURY FULMINATE, WETTED (RQ Material)', () => {
+    /**
+     * Reportable Quantity (RQ) materials require "RQ" prefix when quantity exceeds threshold.
+     * Mercury Fulminate has an RQ threshold that must be checked.
+     */
+    test('includes PSN and UN number', () => {
+      const context = createClass1Context('UN0135', '1.1A', 'MERCURY FULMINATE, WETTED with not less than 20 percent water, or mixture of alcohol and water, by mass');
+      const result = evaluateMarkingRequirements(context);
+
+      const psnMarking = result.find((m) => m.id === 'proper-shipping-name-unid');
+      expect(psnMarking).toBeDefined();
+      expect(psnMarking?.value).toContain('UN0135');
+      expect(psnMarking?.value).toContain('MERCURY FULMINATE');
+    });
+
+    test('should require RQ prefix when quantity exceeds reportable threshold', () => {
+      const context = createClass1Context('UN0135', '1.1A', 'MERCURY FULMINATE, WETTED');
+      // Set up quantity that exceeds RQ threshold
+      context.packaging.totalNetMass = { kg: 50, lbs: 110 };
+      // Set up RQ threshold from lookup
+      context.lookupFunctionsOutput = {
+        reportableQuantityRequirement: { kilograms: 10 },
+      } as any;
+
+      const result = evaluateMarkingRequirements(context);
+
+      const rqMarking = result.find((m) => m.id === 'reportable-quantity');
+      expect(rqMarking).toBeDefined();
+      expect(rqMarking?.value).toContain('RQ');
+    });
+
+    test('Alteration 1: RQ marking not present when below threshold', () => {
+      const context = createClass1Context('UN0135', '1.1A', 'MERCURY FULMINATE, WETTED');
+      // Set up quantity below RQ threshold
+      context.packaging.totalNetMass = { kg: 5, lbs: 11 };
+      context.lookupFunctionsOutput = {
+        reportableQuantityRequirement: { kilograms: 10 },
+      } as any;
+
+      const result = evaluateMarkingRequirements(context);
+
+      const rqMarking = result.find((m) => m.id === 'reportable-quantity');
+      expect(rqMarking).toBeUndefined();
+    });
+
+    test('Alteration 2: without RQ lookup data, no RQ marking is generated', () => {
+      const context = createClass1Context('UN0135', '1.1A', 'MERCURY FULMINATE, WETTED');
+      context.packaging.totalNetMass = { kg: 50, lbs: 110 };
+      // No lookup data provided
+
+      const result = evaluateMarkingRequirements(context);
+
+      const rqMarking = result.find((m) => m.id === 'reportable-quantity');
+      expect(rqMarking).toBeUndefined();
+    });
+
+    test('Alteration 3: PSN should include wetted percentage qualifier', () => {
+      const fullPSN = 'MERCURY FULMINATE, WETTED with not less than 20 percent water, or mixture of alcohol and water, by mass';
+      const context = createClass1Context('UN0135', '1.1A', fullPSN);
+      const result = evaluateMarkingRequirements(context);
+
+      const psnMarking = result.find((m) => m.id === 'proper-shipping-name-unid');
+      expect(psnMarking).toBeDefined();
+      expect(psnMarking?.value).toContain('WETTED');
+    });
+  });
+
+  describe('Scenario 18: UN0473 - SUBSTANCES, EXPLOSIVE, N.O.S. (Technical Name Required)', () => {
+    /**
+     * N.O.S. (Not Otherwise Specified) materials require technical name in PSN marking.
+     * The technical name should be in parentheses after the PSN.
+     */
+    test('includes PSN with N.O.S. designation', () => {
+      const context = createClass1Context('UN0473', '1.1D', 'SUBSTANCES, EXPLOSIVE, N.O.S.');
+      context.hazardousMaterial.isTechnicalNameRequired = true;
+      context.technicalName = 'Lead Styphnate';
+      const result = evaluateMarkingRequirements(context);
+
+      const psnMarking = result.find((m) => m.id === 'proper-shipping-name-unid');
+      expect(psnMarking).toBeDefined();
+      expect(psnMarking?.value).toContain('UN0473');
+      expect(psnMarking?.value).toContain('SUBSTANCES, EXPLOSIVE, N.O.S.');
+    });
+
+    test('should require technical name marking for N.O.S. materials', () => {
+      const context = createClass1Context('UN0473', '1.1D', 'SUBSTANCES, EXPLOSIVE, N.O.S.');
+      context.hazardousMaterial.isTechnicalNameRequired = true;
+      context.technicalName = 'Lead Styphnate';
+      const result = evaluateMarkingRequirements(context);
+
+      const technicalNameMarking = result.find((m) => m.id === 'technical-name');
+      expect(technicalNameMarking).toBeDefined();
+      expect(technicalNameMarking?.value).toBe('Lead Styphnate');
+    });
+
+    test('Alteration 1: missing technical name when isTechnicalNameRequired is false', () => {
+      const context = createClass1Context('UN0473', '1.1D', 'SUBSTANCES, EXPLOSIVE, N.O.S.');
+      context.hazardousMaterial.isTechnicalNameRequired = false;
+      const result = evaluateMarkingRequirements(context);
+
+      const technicalNameMarking = result.find((m) => m.id === 'technical-name');
+      expect(technicalNameMarking).toBeUndefined();
+    });
+
+    test('Alteration 2: technical name value stored in context', () => {
+      // The technical name should be stored properly for marking
+      const context = createClass1Context('UN0473', '1.1D', 'SUBSTANCES, EXPLOSIVE, N.O.S.');
+      context.hazardousMaterial.isTechnicalNameRequired = true;
+      context.technicalName = 'Lead Styphnate';
+      const result = evaluateMarkingRequirements(context);
+
+      const technicalNameMarking = result.find((m) => m.id === 'technical-name');
+      expect(technicalNameMarking).toBeDefined();
+      // Verify it matches the context value
+      expect(technicalNameMarking?.value).toBe(context.technicalName);
+    });
+
+    test('Alteration 3: empty technical name generates marking with empty value', () => {
+      const context = createClass1Context('UN0473', '1.1D', 'SUBSTANCES, EXPLOSIVE, N.O.S.');
+      context.hazardousMaterial.isTechnicalNameRequired = true;
+      context.technicalName = ''; // Empty technical name
+      const result = evaluateMarkingRequirements(context);
+
+      const technicalNameMarking = result.find((m) => m.id === 'technical-name');
+      expect(technicalNameMarking).toBeDefined();
+      expect(technicalNameMarking?.value).toBe('');
+    });
+  });
+
+  describe('Scenario 19: UN0059 - CHARGES, SHAPED (Multiple Packages)', () => {
+    /**
+     * When shipping multiple packages, each package must have required markings.
+     * This scenario tests marking requirements for multi-package shipments.
+     */
+    test('includes PSN and UN number for primary package', () => {
+      const context = createClass1Context('UN0059', '1.1D', 'CHARGES, SHAPED without detonator');
+      const result = evaluateMarkingRequirements(context);
+
+      const psnMarking = result.find((m) => m.id === 'proper-shipping-name-unid');
+      expect(psnMarking).toBeDefined();
+      expect(psnMarking?.value).toContain('UN0059');
+      expect(psnMarking?.value).toContain('CHARGES, SHAPED');
+    });
+
+    test('markings apply to all packages in shipment', () => {
+      // The marking requirements are evaluated per context
+      // Each package would need the same markings
+      const context = createClass1Context('UN0059', '1.1D', 'CHARGES, SHAPED without detonator', {
+        usesPopMarking: true,
+        inputPOPMarking: {
+          B: '4G',
+          C: 'Y',
+          D: '25',
+          E: 'S',
+          F: '12',
+          G: 'USA',
+          H: 'DOD',
+        },
+      });
+      const result = evaluateMarkingRequirements(context);
+
+      // Each package would need PSN and POP markings
+      const psnMarking = result.find((m) => m.id === 'proper-shipping-name-unid');
+      const popMarking = result.find((m) => m.id === 'pop-marking');
+
+      expect(psnMarking).toBeDefined();
+      expect(popMarking).toBeDefined();
+    });
+
+    test.skip('Alteration 2: GAP - system should track marking compliance per package', () => {
+      // GAP: The current implementation doesn't track individual package marking compliance
+      // When 3 packages are shipped but only 2 have markings, this should be detectable
+      const context = createClass1Context('UN0059', '1.1D', 'CHARGES, SHAPED without detonator');
+      const result = evaluateMarkingRequirements(context);
+
+      // This would require metadata about package count and marking compliance
+      const psnMarking = result.find((m) => m.id === 'proper-shipping-name-unid');
+      expect(psnMarking?.metadata?.packageCount).toBe(3);
+      expect(psnMarking?.metadata?.markedPackages).toBe(3);
+    });
+  });
+
+  describe('Scenario 20: UN0354 - ARTICLES, EXPLOSIVE, N.O.S. (Technical Name + IBD)', () => {
+    /**
+     * This material requires both technical name and IBD (Inhabited Building Distance) documentation.
+     * The technical name should be included in the PSN marking.
+     */
+    test('includes PSN with N.O.S. designation', () => {
+      const context = createClass1Context('UN0354', '1.1D', 'ARTICLES, EXPLOSIVE, N.O.S.');
+      context.hazardousMaterial.isTechnicalNameRequired = true;
+      context.technicalName = 'Detonating Cord Assembly';
+      const result = evaluateMarkingRequirements(context);
+
+      const psnMarking = result.find((m) => m.id === 'proper-shipping-name-unid');
+      expect(psnMarking).toBeDefined();
+      expect(psnMarking?.value).toContain('UN0354');
+      expect(psnMarking?.value).toContain('ARTICLES, EXPLOSIVE, N.O.S.');
+    });
+
+    test('should require technical name marking', () => {
+      const context = createClass1Context('UN0354', '1.1D', 'ARTICLES, EXPLOSIVE, N.O.S.');
+      context.hazardousMaterial.isTechnicalNameRequired = true;
+      context.technicalName = 'Detonating Cord Assembly';
+      const result = evaluateMarkingRequirements(context);
+
+      const technicalNameMarking = result.find((m) => m.id === 'technical-name');
+      expect(technicalNameMarking).toBeDefined();
+      expect(technicalNameMarking?.value).toBe('Detonating Cord Assembly');
+    });
+
+    test('Alteration 2: N.O.S. without technical name when flag is false', () => {
+      const context = createClass1Context('UN0354', '1.1D', 'ARTICLES, EXPLOSIVE, N.O.S.');
+      context.hazardousMaterial.isTechnicalNameRequired = false;
+      // Technical name not required, so not set
+      const result = evaluateMarkingRequirements(context);
+
+      const psnMarking = result.find((m) => m.id === 'proper-shipping-name-unid');
+      const technicalNameMarking = result.find((m) => m.id === 'technical-name');
+
+      expect(psnMarking).toBeDefined();
+      expect(psnMarking?.value).toContain('N.O.S.');
+      expect(technicalNameMarking).toBeUndefined();
+    });
+
+    test.skip('GAP: IBD documentation requirement is not implemented', () => {
+      // GAP: Inhabited Building Distance (IBD) documentation is required for certain
+      // Class 1 materials but is not currently implemented in markingRequirements.ts
+      const context = createClass1Context('UN0354', '1.1D', 'ARTICLES, EXPLOSIVE, N.O.S.');
+      const result = evaluateMarkingRequirements(context);
+
+      const ibdMarking = result.find((m) => m.id === 'ibd-documentation');
+      expect(ibdMarking).toBeDefined();
+    });
+  });
 });

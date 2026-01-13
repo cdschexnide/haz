@@ -93,7 +93,7 @@ These scenarios are designed for manual testing by physically running through th
 | # | Alteration | Tests |
 |---|------------|-------|
 | 1 | POP marking shows packing group "Z" | PG validation (Class 1 requires X or Y) |
-| 2 | Missing EX number marking | EX Number validation |
+| 2 | Missing EX number marking |
 | 3 | Key 13 shows "1.1" without compatibility group "A" | Hazard class completeness validation |
 
 ---
@@ -222,7 +222,7 @@ These scenarios are designed for manual testing by physically running through th
 | Key 13 | "1.1C" |
 | Key 14 | Empty |
 | Key 15 | Empty |
-| Key 16 | Net quantity + packaging |
+| Key 16 | NEW quantity in KG + valid packaging type |
 | Key 17 | "A5.21" |
 
 ### Expected Package Inspection (Successful)
@@ -246,7 +246,8 @@ These scenarios are designed for manual testing by physically running through th
 |---|------------|-------|
 | 1 | Key 17 shows "A5.2" instead of "A5.21" | Packaging instruction validation |
 | 2 | Label shows compatibility group "D" instead of "C" | Compatibility group validation |
-| 3 | EX number format incorrect (missing required digits) | EX number format validation |
+| 3 | Invalid package type
+| 4 | PG III package
 
 ---
 

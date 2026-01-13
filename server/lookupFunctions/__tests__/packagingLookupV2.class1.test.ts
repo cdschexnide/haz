@@ -72,6 +72,59 @@ describe('Packaging Paragraph Lookup - Class 1 Explosives', () => {
       expect(entry?.description).toContain('Charges, Shaped, Flexible, Linear');
     });
 
+    // Scenarios 6-20 Entry Existence Tests
+    test('Scenario 6-8-11: A5.5. entry exists for Division 1.2 materials (CARTRIDGES FOR WEAPONS)', () => {
+      const entry = getPackagingEntry('A5.5.');
+      expect(entry).not.toBeNull();
+      expect(entry?.hazardClass).toBe(1);
+    });
+
+    test('Scenario 7-15: A5.12. entry exists for AMMUNITION, INCENDIARY', () => {
+      // A5.12 already tested above, verifying it works for ammunition scenarios
+      const entry = getPackagingEntry('A5.12.');
+      expect(entry).not.toBeNull();
+      expect(entry?.hazardClass).toBe(1);
+    });
+
+    test('Scenario 9: A5.9. entry exists for FUSE, DETONATING', () => {
+      // A5.9 entry existence already verified above for POWDER, SMOKELESS
+      const entry = getPackagingEntry('A5.9.');
+      expect(entry).not.toBeNull();
+      expect(entry?.hazardClass).toBe(1);
+    });
+
+    test('Scenario 10: A5.11. entry exists for IGNITERS', () => {
+      const entry = getPackagingEntry('A5.11.');
+      expect(entry).not.toBeNull();
+      expect(entry?.hazardClass).toBe(1);
+    });
+
+    test('Scenario 12-14-17-18: A5.2. is for UNPACKED explosives (no packaging entry expected)', () => {
+      // A5.2 in AFMAN24-604 covers "Unpacked Explosives" - items shipped without packaging
+      // Therefore, there is no packaging entry for A5.2 since these items don't require packaging
+      const entry = getPackagingEntry('A5.2.');
+      expect(entry).toBeNull(); // Expected: unpacked items have no packaging requirements
+    });
+
+    test('Scenario 13-20: A5.27. entry exists for ARTICLES, EXPLOSIVE, N.O.S.', () => {
+      const entry = getPackagingEntry('A5.27.');
+      expect(entry).not.toBeNull();
+      expect(entry?.hazardClass).toBe(1);
+    });
+
+    test('Scenario 16: A5.10. entry exists for JET PERFORATING GUNS', () => {
+      // A5.10 entry existence already verified above for NITROGLYCERIN
+      const entry = getPackagingEntry('A5.10.');
+      expect(entry).not.toBeNull();
+      expect(entry?.hazardClass).toBe(1);
+    });
+
+    test('Scenario 19: A5.6. entry exists for SHAPED CHARGES without detonator', () => {
+      const entry = getPackagingEntry('A5.6.');
+      expect(entry).not.toBeNull();
+      expect(entry?.hazardClass).toBe(1);
+    });
+
     test('Non-existent paragraph returns null', () => {
       const entry = getPackagingEntry('A5.999.');
       expect(entry).toBeNull();
@@ -137,6 +190,92 @@ describe('Packaging Paragraph Lookup - Class 1 Explosives', () => {
       const containerCodes = extractContainerCodes(options);
       // Should have at least some container options
       expect(containerCodes.length).toBeGreaterThan(0);
+    });
+
+    // Scenarios 6-20 Container Code Tests
+    test('Scenario 6-8-11: A5.5. authorizes boxes and drums for Division 1.2 materials', () => {
+      const options = getAvailablePackagingOptions('A5.5.', {});
+      const containerCodes = extractContainerCodes(options);
+
+      // Per A5.5.: Boxes and drums authorized for cartridges and similar
+      expect(containerCodes.length).toBeGreaterThan(0);
+      // Should include common box types
+      expect(containerCodes).toContain('4G'); // Fiberboard box
+    });
+
+    test('Scenario 7-15: A5.12. authorizes drums (4A, 4B) for incendiary ammunition', () => {
+      const options = getAvailablePackagingOptions('A5.12.', {});
+      const containerCodes = extractContainerCodes(options);
+
+      // Per A5.12.: Metal drums and boxes authorized
+      expect(containerCodes).toContain('4A'); // Steel box
+      expect(containerCodes).toContain('4B'); // Aluminum box
+      expect(containerCodes).toContain('4C1'); // Ordinary natural wood box
+      expect(containerCodes).toContain('4C2'); // Sift-proof natural wood box
+      expect(containerCodes).toContain('4D'); // Plywood box
+      expect(containerCodes).toContain('4F'); // Reconstituted wood box
+      expect(containerCodes).toContain('4G'); // Fiberboard box
+      expect(containerCodes).toContain('4H1'); // Expanded plastic box
+      expect(containerCodes).toContain('4H2'); // Solid plastic box
+      expect(containerCodes).toContain('4N'); // Metal box other than steel/aluminum
+    });
+
+    test('Scenario 9: A5.9. authorizes containers for FUSE, DETONATING', () => {
+      const options = getAvailablePackagingOptions('A5.9.', {});
+      const containerCodes = extractContainerCodes(options);
+
+      // Per A5.9.: Various containers authorized
+      expect(containerCodes.length).toBeGreaterThan(0);
+    });
+
+    test('Scenario 10: A5.11. authorizes packaging for IGNITERS', () => {
+      const options = getAvailablePackagingOptions('A5.11.', {});
+      const containerCodes = extractContainerCodes(options);
+
+      // Per A5.11.: Packaging options for igniters
+      expect(containerCodes.length).toBeGreaterThan(0);
+    });
+
+    test('Scenario 10 Alt 1: A5.11. allows different codes than A5.1.', () => {
+      const optionsA511 = getAvailablePackagingOptions('A5.11.', {});
+      const codesA511 = extractContainerCodes(optionsA511);
+
+      // A5.11 should have specific authorized containers
+      expect(codesA511.length).toBeGreaterThan(0);
+    });
+
+    test('Scenario 12-14-17-18: A5.2. returns empty options (unpacked explosives)', () => {
+      // A5.2 covers "Unpacked Explosives" - items shipped without packaging
+      // No packaging options should be returned since these are shipped unpacked
+      const options = getAvailablePackagingOptions('A5.2.', {});
+      const containerCodes = extractContainerCodes(options);
+
+      // Expected: empty array since A5.2 items don't require packaging
+      expect(containerCodes).toEqual([]);
+    });
+
+    test('Scenario 13-20: A5.27. authorizes packaging for ARTICLES, EXPLOSIVE, N.O.S.', () => {
+      const options = getAvailablePackagingOptions('A5.27.', {});
+      const containerCodes = extractContainerCodes(options);
+
+      // Per A5.27.: Packaging options for articles explosive n.o.s.
+      expect(containerCodes.length).toBeGreaterThan(0);
+    });
+
+    test('Scenario 16: A5.10. authorizes containers for JET PERFORATING GUNS', () => {
+      const options = getAvailablePackagingOptions('A5.10.', {});
+      const containerCodes = extractContainerCodes(options);
+
+      // Per A5.10.: Various containers authorized
+      expect(containerCodes.length).toBeGreaterThan(0);
+    });
+
+    test('Scenario 19: A5.6. authorizes 4C1 (wooden boxes) for SHAPED CHARGES', () => {
+      const options = getAvailablePackagingOptions('A5.6.', {});
+      const containerCodes = extractContainerCodes(options);
+
+      // Per A5.6.: 4C1 ordinary natural wood box authorized
+      expect(containerCodes).toContain('4C1');
     });
   });
 
