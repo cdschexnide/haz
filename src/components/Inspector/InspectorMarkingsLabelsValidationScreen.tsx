@@ -21,6 +21,16 @@ import {
   getUnmatchedDetections,
 } from "../../utils/labelMatchingTable";
 import { AggregatedLabel } from "../../ml/types/ocr";
+import {
+  ScreenHeader,
+  ActionFooter,
+  StatusBadge,
+  SectionHeader,
+  colors,
+  spacing,
+  borderRadius,
+  shadows,
+} from "../ui";
 
 // ============ TYPES ============
 
@@ -412,26 +422,26 @@ function InspectorMarkingsLabelsValidationScreenComponent({
     const isFrustrated = item.validationStatus === "frustrated";
 
     // Determine card styling based on state
-    let borderColor = "#E5E5EA";
-    let backgroundColor = "#FFFFFF";
-    let leftBorderColor = item.category === "marking" ? "#FF9500" : "#007AFF";
+    let borderColor = colors.border;
+    let backgroundColor = colors.surface;
+    let leftBorderColor = item.category === "marking" ? colors.warning : colors.primary;
 
     if (isValidated) {
-      borderColor = "#34C759";
-      backgroundColor = "#F0FFF4";
-      leftBorderColor = "#34C759";
+      borderColor = colors.success;
+      backgroundColor = colors.successLight;
+      leftBorderColor = colors.success;
     } else if (isFrustrated) {
-      borderColor = "#FF3B30";
-      backgroundColor = "#FFF5F5";
-      leftBorderColor = "#FF3B30";
+      borderColor = colors.error;
+      backgroundColor = colors.errorLight;
+      leftBorderColor = colors.error;
     } else if (isMatched) {
-      borderColor = "#34C759";
-      leftBorderColor = "#34C759";
-      backgroundColor = "#FFFFFF";
+      borderColor = colors.success;
+      leftBorderColor = colors.success;
+      backgroundColor = colors.surface;
     } else {
       // Unmatched - needs attention
-      backgroundColor = "#FFF8E1";
-      borderColor = "#FF9500";
+      backgroundColor = colors.warningLight;
+      borderColor = colors.warning;
     }
 
     return (
@@ -488,7 +498,7 @@ function InspectorMarkingsLabelsValidationScreenComponent({
             <MaterialIcons
               name="check"
               size={24}
-              color={isValidated ? "#FFFFFF" : "#34C759"}
+              color={isValidated ? colors.white : colors.success}
             />
           </TouchableOpacity>
 
@@ -503,7 +513,7 @@ function InspectorMarkingsLabelsValidationScreenComponent({
             <MaterialIcons
               name="close"
               size={24}
-              color={isFrustrated ? "#FFFFFF" : "#FF3B30"}
+              color={isFrustrated ? colors.white : colors.error}
             />
           </TouchableOpacity>
         </View>
@@ -513,38 +523,18 @@ function InspectorMarkingsLabelsValidationScreenComponent({
 
   const renderStatusBadge = (item: ValidationItem) => {
     if (item.validationStatus === "validated") {
-      return (
-        <View style={[styles.badge, styles.badgeValidated]}>
-          <MaterialIcons name="check-circle" size={14} color="#FFFFFF" />
-          <Text style={styles.badgeText}>Verified</Text>
-        </View>
-      );
+      return <StatusBadge status="verified" />;
     }
 
     if (item.validationStatus === "frustrated") {
-      return (
-        <View style={[styles.badge, styles.badgeFrustrated]}>
-          <MaterialIcons name="cancel" size={14} color="#FFFFFF" />
-          <Text style={styles.badgeText}>Frustration</Text>
-        </View>
-      );
+      return <StatusBadge status="frustrated" label="Frustration" />;
     }
 
     if (item.matchStatus === "matched") {
-      return (
-        <View style={[styles.badge, styles.badgeMatched]}>
-          <MaterialIcons name="check-circle" size={14} color="#FFFFFF" />
-          <Text style={styles.badgeText}>Detected</Text>
-        </View>
-      );
+      return <StatusBadge status="detected" />;
     }
 
-    return (
-      <View style={[styles.badge, styles.badgeUnmatched]}>
-        <MaterialIcons name="search-off" size={14} color="#FFFFFF" />
-        <Text style={styles.badgeText}>Not Detected</Text>
-      </View>
-    );
+    return <StatusBadge status="not-detected" />;
   };
 
   const renderSectionHeader = ({ section }: { section: ValidationSection }) => {
@@ -554,21 +544,11 @@ function InspectorMarkingsLabelsValidationScreenComponent({
     const totalCount = section.data.length;
 
     return (
-      <View style={styles.sectionHeader}>
-        <View style={styles.sectionHeaderLeft}>
-          <MaterialIcons
-            name={section.icon as any}
-            size={20}
-            color="#1D1D1F"
-          />
-          <Text style={styles.sectionHeaderTitle}>{section.title}</Text>
-        </View>
-        <View style={styles.sectionHeaderBadge}>
-          <Text style={styles.sectionHeaderBadgeText}>
-            {completedCount}/{totalCount}
-          </Text>
-        </View>
-      </View>
+      <SectionHeader
+        title={section.title}
+        icon={section.icon as any}
+        count={{ completed: completedCount, total: totalCount }}
+      />
     );
   };
 
@@ -585,7 +565,7 @@ function InspectorMarkingsLabelsValidationScreenComponent({
             <MaterialIcons
               name={showAdditionalDetections ? "expand-less" : "expand-more"}
               size={24}
-              color="#8E8E93"
+              color={colors.textSecondary}
             />
             <Text style={styles.additionalHeaderText}>
               Additional Detections ({additionalDetections.length})
@@ -600,7 +580,7 @@ function InspectorMarkingsLabelsValidationScreenComponent({
           <View style={styles.additionalContent}>
             {additionalDetections.map((detection, index) => (
               <View key={index} style={styles.additionalItem}>
-                <MaterialIcons name="label" size={16} color="#8E8E93" />
+                <MaterialIcons name="label" size={16} color={colors.textSecondary} />
                 <Text style={styles.additionalItemText}>
                   {detection.className}
                 </Text>
@@ -686,15 +666,12 @@ function InspectorMarkingsLabelsValidationScreenComponent({
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <MaterialIcons name="arrow-back" size={24} color="#007AFF" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Markings & Labels Validation</Text>
-        <TouchableOpacity>
-          <MaterialIcons name="help-outline" size={24} color="#007AFF" />
-        </TouchableOpacity>
-      </View>
+      <ScreenHeader
+        title="Markings & Labels Validation"
+        onBack={() => navigation.goBack()}
+        rightIcon="help-outline"
+        onRightPress={() => {}}
+      />
 
       {/* Main Content */}
       <SectionList
@@ -710,48 +687,31 @@ function InspectorMarkingsLabelsValidationScreenComponent({
       />
 
       {/* Footer */}
-      <View style={styles.footer}>
-        <TouchableOpacity
-          style={styles.cancelButton}
-          onPress={() => navigation.goBack()}
-        >
-          <MaterialIcons name="arrow-back" size={18} color="#007AFF" />
-          <Text style={styles.cancelButtonText}>Cancel</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.saveExitButton}
-          onPress={() =>
-            Alert.alert("Save Progress", "Your verification progress has been saved.")
-          }
-        >
-          <MaterialIcons name="save" size={18} color="#FFFFFF" />
-          <Text style={styles.buttonText}>Save & Exit</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
-            styles.continueButton,
-            !allItemsAddressed && styles.disabledButton,
-          ]}
-          onPress={allItemsAddressed ? navigateToNextScreen : undefined}
-          disabled={!allItemsAddressed}
-        >
-          <Text
-            style={[
-              styles.buttonText,
-              !allItemsAddressed && styles.disabledButtonText,
-            ]}
-          >
-            Continue
-          </Text>
-          <MaterialIcons
-            name="arrow-forward"
-            size={18}
-            color={allItemsAddressed ? "#FFFFFF" : "#8E8E93"}
-          />
-        </TouchableOpacity>
-      </View>
+      <ActionFooter
+        buttons={[
+          {
+            label: "Cancel",
+            onPress: () => navigation.goBack(),
+            variant: "outline",
+            icon: "arrow-back",
+          },
+          {
+            label: "Save & Exit",
+            onPress: () =>
+              Alert.alert("Save Progress", "Your verification progress has been saved."),
+            variant: "secondary",
+            icon: "save",
+          },
+          {
+            label: "Continue",
+            onPress: navigateToNextScreen,
+            variant: "primary",
+            icon: "arrow-forward",
+            iconPosition: "right",
+            disabled: !allItemsAddressed,
+          },
+        ]}
+      />
 
       {/* Dev Benchmark Button - only visible in __DEV__ */}
       <DevBenchmarkButton position="bottom-right" />
@@ -764,276 +724,143 @@ function InspectorMarkingsLabelsValidationScreenComponent({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8F9FA",
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: "#FFFFFF",
-    borderBottomWidth: 1,
-    borderBottomColor: "#E5E5EA",
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#1D1D1F",
+    backgroundColor: colors.background,
   },
   list: {
     flex: 1,
   },
   listContent: {
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    paddingBottom: 24,
-  },
-  sectionHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: "#F8F9FA",
-    paddingVertical: 12,
-    marginBottom: 8,
-    marginTop: 8,
-  },
-  sectionHeaderLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  sectionHeaderTitle: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: "#1D1D1F",
-    letterSpacing: 0.5,
-  },
-  sectionHeaderBadge: {
-    backgroundColor: "#E5E5EA",
-    borderRadius: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-  },
-  sectionHeaderBadgeText: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#3C3C43",
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.xxl,
   },
   card: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    marginBottom: 12,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.lg,
+    marginBottom: spacing.md,
     borderLeftWidth: 4,
     borderWidth: 1,
-    borderColor: "#E5E5EA",
-    padding: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
+    borderColor: colors.border,
+    padding: spacing.lg,
+    ...shadows.light,
   },
   cardHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   cardTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#1D1D1F",
+    color: colors.textPrimary,
     flex: 1,
-    marginRight: 8,
-  },
-  badge: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    gap: 4,
-  },
-  badgeMatched: {
-    backgroundColor: "#34C759",
-  },
-  badgeUnmatched: {
-    backgroundColor: "#FF9500",
-  },
-  badgeValidated: {
-    backgroundColor: "#34C759",
-  },
-  badgeFrustrated: {
-    backgroundColor: "#FF3B30",
-  },
-  badgeText: {
-    fontSize: 11,
-    fontWeight: "600",
-    color: "#FFFFFF",
+    marginRight: spacing.sm,
   },
   expectedValuesContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8,
-    marginBottom: 12,
+    gap: spacing.sm,
+    marginBottom: spacing.md,
   },
   expectedValueChip: {
-    backgroundColor: "#F2F2F7",
-    borderRadius: 6,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+    backgroundColor: colors.background,
+    borderRadius: borderRadius.sm,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
     borderWidth: 1,
-    borderColor: "#D1D1D6",
+    borderColor: colors.border,
   },
   expectedValueText: {
     fontSize: 13,
     fontWeight: "500",
-    color: "#3C3C43",
+    color: colors.textPrimary,
   },
   matchInfoText: {
     fontSize: 13,
-    color: "#007AFF",
-    marginBottom: 12,
+    color: colors.primary,
+    marginBottom: spacing.md,
     fontStyle: "italic",
   },
   cardActions: {
     flexDirection: "row",
     justifyContent: "flex-end",
-    gap: 12,
+    gap: spacing.md,
   },
   actionButton: {
     width: 48,
     height: 48,
-    borderRadius: 10,
+    borderRadius: borderRadius.md,
     borderWidth: 2,
     justifyContent: "center",
     alignItems: "center",
   },
   validateButton: {
-    backgroundColor: "#FFFFFF",
-    borderColor: "#34C759",
+    backgroundColor: colors.surface,
+    borderColor: colors.success,
   },
   validateButtonActive: {
-    backgroundColor: "#34C759",
-    borderColor: "#34C759",
+    backgroundColor: colors.success,
+    borderColor: colors.success,
   },
   frustrateButton: {
-    backgroundColor: "#FFFFFF",
-    borderColor: "#FF3B30",
+    backgroundColor: colors.surface,
+    borderColor: colors.error,
   },
   frustrateButtonActive: {
-    backgroundColor: "#FF3B30",
-    borderColor: "#FF3B30",
+    backgroundColor: colors.error,
+    borderColor: colors.error,
   },
   additionalSection: {
-    marginTop: 16,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
+    marginTop: spacing.lg,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.lg,
     borderWidth: 1,
-    borderColor: "#E5E5EA",
+    borderColor: colors.border,
     overflow: "hidden",
   },
   additionalHeader: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: 16,
-    backgroundColor: "#F8F9FA",
+    padding: spacing.lg,
+    backgroundColor: colors.background,
   },
   additionalHeaderLeft: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: spacing.sm,
   },
   additionalHeaderText: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#3C3C43",
+    color: colors.textPrimary,
   },
   additionalHeaderSubtext: {
     fontSize: 12,
-    color: "#8E8E93",
+    color: colors.textSecondary,
   },
   additionalContent: {
-    padding: 16,
-    paddingTop: 8,
+    padding: spacing.lg,
+    paddingTop: spacing.sm,
   },
   additionalItem: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
-    paddingVertical: 8,
+    gap: spacing.sm,
+    paddingVertical: spacing.sm,
     borderBottomWidth: 1,
-    borderBottomColor: "#F2F2F7",
+    borderBottomColor: colors.borderLight,
   },
   additionalItemText: {
     flex: 1,
     fontSize: 14,
-    color: "#3C3C43",
+    color: colors.textPrimary,
   },
   additionalItemConfidence: {
     fontSize: 12,
-    color: "#8E8E93",
+    color: colors.textSecondary,
     fontWeight: "500",
-  },
-  footer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    padding: 16,
-    borderTopWidth: 1,
-    borderTopColor: "#E5E5EA",
-    backgroundColor: "#FFFFFF",
-  },
-  cancelButton: {
-    flex: 1,
-    height: 48,
-    borderWidth: 1,
-    borderColor: "#007AFF",
-    borderRadius: 8,
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 8,
-    gap: 4,
-  },
-  cancelButtonText: {
-    color: "#007AFF",
-    fontSize: 15,
-    fontWeight: "600",
-  },
-  saveExitButton: {
-    flex: 1,
-    height: 48,
-    backgroundColor: "#6C757D",
-    borderRadius: 8,
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    marginHorizontal: 8,
-    gap: 6,
-  },
-  continueButton: {
-    flex: 1,
-    height: 48,
-    backgroundColor: "#007AFF",
-    borderRadius: 8,
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    marginLeft: 8,
-    gap: 6,
-  },
-  disabledButton: {
-    backgroundColor: "#E5E5EA",
-  },
-  buttonText: {
-    color: "#FFFFFF",
-    fontSize: 15,
-    fontWeight: "600",
-  },
-  disabledButtonText: {
-    color: "#8E8E93",
   },
 });
 
