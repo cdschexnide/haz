@@ -2,12 +2,11 @@ import React from "react";
 import {
   View,
   Text,
-  TouchableOpacity,
   StyleSheet,
   ScrollView,
   Alert,
 } from "react-native";
-import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
 import {
   useInspectionFormActions,
   useInspectionFrustrations,
@@ -18,6 +17,14 @@ import {
 import { PackageFrustrationRecord } from "../../../src/types/sddg";
 import { useHazProActions } from "../../../src/stores/useHazProStore";
 import { DevBenchmarkButton } from "../dev/DevBenchmarkButton";
+import {
+  ScreenHeader,
+  ActionFooter,
+  colors,
+  spacing,
+  borderRadius,
+  shadows,
+} from "../ui";
 
 interface PackageFrustrationSummaryProps {
   navigation: any;
@@ -241,9 +248,9 @@ export default function PackageFrustrationSummary({
 
     // Determine colors based on verification status
     const iconColor =
-      frustration.verificationStatus === "missing" ? "#FF3B30" : "#FF9500";
+      frustration.verificationStatus === "missing" ? colors.error : colors.warning;
     const borderColor =
-      frustration.verificationStatus === "missing" ? "#FFE5E5" : "#FFE5CC";
+      frustration.verificationStatus === "missing" ? colors.errorLight : "#FFE5CC";
 
     return (
       <View
@@ -306,17 +313,12 @@ export default function PackageFrustrationSummary({
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={handleCancel}>
-          <MaterialIcons name="close" size={24} color="#007AFF" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Package Frustration Summary</Text>
-        <View style={styles.frustrationCountBadge}>
-          <Text style={styles.frustrationCountText}>
-            {packageFrustrations.length}
-          </Text>
-        </View>
-      </View>
+      <ScreenHeader
+        title="Package Frustration Summary"
+        onClose={handleCancel}
+        rightIcon="error"
+        rightBadgeCount={packageFrustrations.length}
+      />
 
       <View style={styles.mainContent}>
         <ScrollView
@@ -326,7 +328,7 @@ export default function PackageFrustrationSummary({
         >
           {packageFrustrations.length === 0 ? (
             <View style={styles.emptyState}>
-              <MaterialIcons name="check-circle" size={64} color="#34C759" />
+              <MaterialIcons name="check-circle" size={64} color={colors.success} />
               <Text style={styles.emptyStateTitle}>
                 No Package Issues Found
               </Text>
@@ -343,44 +345,26 @@ export default function PackageFrustrationSummary({
       </View>
 
       {/* Action Buttons */}
-      <View style={styles.footer}>
-        <TouchableOpacity style={styles.cancelButton} onPress={handleCancel}>
-          <Text style={styles.cancelButtonText}>Cancel</Text>
-        </TouchableOpacity>
-
-        {/* <TouchableOpacity
-          style={styles.reinspectionButton}
-          onPress={() => {
-            // Placeholder for reinspection frustrations functionality
-            console.log('Package reinspection frustrations button pressed');
-            Alert.alert(
-              'Reinspection Required',
-              'These items must be corrected and re-inspected before shipment can proceed.',
-              [{ text: 'OK' }]
-            );
-          }}
-        >
-          <Text style={styles.reinspectionButtonText}>Reinspect Frustrations</Text>
-        </TouchableOpacity> */}
-        <TouchableOpacity
-          style={styles.reinspectionButton}
-          onPress={handleReinspectFrustrations}
-        >
-          <MaterialIcons name="refresh" size={20} color="#007AFF" />
-          <Text style={styles.reinspectionButtonText}>
-            Reinspect
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.completeButton}
-          onPress={handleCompleteWithFrustration}
-        >
-          <Text style={styles.completeButtonText}>
-            Complete with Frustration & Continue
-          </Text>
-        </TouchableOpacity>
-      </View>
+      <ActionFooter
+        buttons={[
+          {
+            label: "Cancel",
+            onPress: handleCancel,
+            variant: "outline",
+          },
+          {
+            label: "Reinspect",
+            onPress: handleReinspectFrustrations,
+            variant: "secondary",
+            icon: "refresh",
+          },
+          {
+            label: "Complete with Frustration & Continue",
+            onPress: handleCompleteWithFrustration,
+            variant: "destructive",
+          },
+        ]}
+      />
 
       {/* Dev Benchmark Button - only visible in __DEV__ */}
       <DevBenchmarkButton position="bottom-right" />
@@ -393,37 +377,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 0,
     marginTop: 0,
-    backgroundColor: "#F8F9FA",
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: "#FFFFFF",
-    borderBottomWidth: 1,
-    borderBottomColor: "#E5E5EA",
-  },
-  headerTitle: {
-    flex: 1,
-    fontSize: 18,
-    fontWeight: "600",
-    textAlign: "center",
-    color: "#1D1D1F",
-    marginHorizontal: 8,
-  },
-  frustrationCountBadge: {
-    backgroundColor: "#FF3B30",
-    borderRadius: 12,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    minWidth: 24,
-    alignItems: "center",
-  },
-  frustrationCountText: {
-    color: "#FFFFFF",
-    fontSize: 14,
-    fontWeight: "600",
+    backgroundColor: colors.background,
   },
   mainContent: {
     flex: 1,
@@ -432,8 +386,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    padding: 16,
-    paddingBottom: 24,
+    padding: spacing.lg,
+    paddingBottom: spacing.xxl,
   },
   emptyState: {
     alignItems: "center",
@@ -443,39 +397,35 @@ const styles = StyleSheet.create({
   emptyStateTitle: {
     fontSize: 20,
     fontWeight: "600",
-    color: "#1D1D1F",
-    marginTop: 16,
-    marginBottom: 8,
+    color: colors.textPrimary,
+    marginTop: spacing.lg,
+    marginBottom: spacing.sm,
   },
   emptyStateSubtitle: {
     fontSize: 16,
-    color: "#8E8E93",
+    color: colors.textSecondary,
     textAlign: "center",
     paddingHorizontal: 32,
   },
   frustrationCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.lg,
+    padding: spacing.lg,
+    marginBottom: spacing.md,
+    ...shadows.light,
     borderWidth: 1,
-    borderColor: "#FFE5E5",
+    borderColor: colors.errorLight,
   },
   frustrationHeader: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   frustrationFieldLabel: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#1D1D1F",
-    marginLeft: 8,
+    color: colors.textPrimary,
+    marginLeft: spacing.sm,
     flex: 1,
   },
   frustrationDetails: {
@@ -483,102 +433,44 @@ const styles = StyleSheet.create({
   },
   detailRow: {
     flexDirection: "row",
-    marginBottom: 8,
+    marginBottom: spacing.sm,
     alignItems: "flex-start",
   },
   detailLabel: {
     fontSize: 14,
-    color: "#8E8E93",
+    color: colors.textSecondary,
     fontWeight: "500",
     width: 100,
   },
   detailValue: {
     fontSize: 14,
-    color: "#1D1D1F",
+    color: colors.textPrimary,
     flex: 1,
   },
   fieldValueText: {
     fontWeight: "600",
-    color: "#007AFF",
+    color: colors.primary,
   },
   messageContainer: {
-    marginTop: 8,
+    marginTop: spacing.sm,
   },
   frustrationMessage: {
     fontSize: 14,
-    color: "#1D1D1F",
-    marginTop: 4,
+    color: colors.textPrimary,
+    marginTop: spacing.xs,
     lineHeight: 20,
-    backgroundColor: "#F8F9FA",
-    padding: 12,
-    borderRadius: 8,
+    backgroundColor: colors.background,
+    padding: spacing.md,
+    borderRadius: borderRadius.md,
   },
   additionalComments: {
     fontSize: 14,
-    color: "#1D1D1F",
-    marginTop: 4,
+    color: colors.textPrimary,
+    marginTop: spacing.xs,
     lineHeight: 20,
-    backgroundColor: "#F8F9FA",
-    padding: 12,
-    borderRadius: 8,
+    backgroundColor: colors.background,
+    padding: spacing.md,
+    borderRadius: borderRadius.md,
     fontStyle: "italic",
-  },
-  footer: {
-    backgroundColor: "#FFFFFF",
-    borderTopWidth: 1,
-    borderTopColor: "#E5E5EA",
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 16,
-    flexDirection: "row",
-    gap: 8,
-  },
-  cancelButton: {
-    flex: 1,
-    backgroundColor: "#FFFFFF",
-    borderWidth: 2,
-    borderColor: "#8E8E93",
-    paddingVertical: 16,
-    borderRadius: 12,
-    alignItems: "center",
-  },
-  cancelButtonText: {
-    color: "#8E8E93",
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  reinspectionButton: {
-    flex: 1,
-    backgroundColor: "#FFFFFF",
-    borderWidth: 2,
-    borderColor: "#007AFF",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 16,
-    paddingHorizontal: 8,
-    borderRadius: 12,
-  },
-  reinspectionButtonText: {
-    color: "#007AFF",
-    fontSize: 14,
-    fontWeight: "600",
-    marginLeft: 4,
-  },
-  completeButton: {
-    flex: 1,
-    backgroundColor: "#FF3B30",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 16,
-    paddingHorizontal: 8,
-    borderRadius: 12,
-  },
-  completeButtonText: {
-    color: "#FFFFFF",
-    fontSize: 14,
-    fontWeight: "600",
-    marginLeft: 4,
   },
 });
