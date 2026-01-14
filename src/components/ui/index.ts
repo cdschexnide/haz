@@ -16,3 +16,4 @@ export * from './InfoBox';
 export * from './FormField';
 export * from './FormInput';
 export * from './FormRow';
+export * from './RadioGroup';
