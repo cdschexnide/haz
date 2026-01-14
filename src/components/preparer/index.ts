@@ -2,3 +2,5 @@
 
 // Preparer-specific shared components
 // Components will be added as they are created
+
+export * from './CountryAutocomplete';
