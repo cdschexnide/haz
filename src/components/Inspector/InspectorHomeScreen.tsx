@@ -30,7 +30,7 @@ import TopNavBar from "../TopNavBar";
 import { useNavigationRef } from "../../../src/contexts/NavigationRefProvider/useNavigationRef";
 import { HazProInspectorContext } from "../../../src/contexts/HazProInspectorProvider/HazProInspectorContext";
 import { BottomSheet } from "@rneui/themed";
-import colors from "../../../src/theming/colors";
+import legacyColors from "../../../src/theming/colors";
 import GasCalculatorTool from "../GasCalculatorTool";
 import DryIceCalculator from "../DryIceCalculator";
 import UnitConversionTool from "../UnitConversionTool";
@@ -44,6 +44,12 @@ import { MLDetectionScreen } from "./MLDetectionScreen";
 import { DevBenchmarkButton } from "../dev/DevBenchmarkButton";
 import { useRenderTracker, useContextRenderTracker } from "@/hooks/useRenderTracker";
 import { hazardousMaterialsList } from "@/hazardousMaterials/hazardousMaterialsList";
+import {
+  colors,
+  spacing,
+  borderRadius,
+  shadows,
+} from "../ui";
 
 console.warn = () => {};
 
@@ -521,7 +527,7 @@ function InspectorHomeScreenComponent({
               <MaterialCommunityIcons
                 name="calculator"
                 size={20}
-                color={colors.blue}
+                color={legacyColors.blue}
               />
               <Text style={styles.calcTextSoft}>Gas Calculator</Text>
             </TouchableOpacity>
@@ -532,7 +538,7 @@ function InspectorHomeScreenComponent({
               <MaterialCommunityIcons
                 name="calculator"
                 size={20}
-                color={colors.blue}
+                color={legacyColors.blue}
               />
               <Text style={styles.calcTextSoft}>Dry Ice Calculator</Text>
             </TouchableOpacity>
@@ -543,7 +549,7 @@ function InspectorHomeScreenComponent({
               <MaterialCommunityIcons
                 name="swap-horizontal"
                 size={20}
-                color={colors.blue}
+                color={legacyColors.blue}
               />
               <Text style={styles.calcTextSoft}>Unit Converter</Text>
             </TouchableOpacity>
@@ -554,7 +560,7 @@ function InspectorHomeScreenComponent({
               <MaterialCommunityIcons
                 name="sign-direction"
                 size={20}
-                color={colors.blue}
+                color={legacyColors.blue}
               />
               <Text style={styles.calcTextSoft}>Placarding Tool</Text>
             </TouchableOpacity>
@@ -565,7 +571,7 @@ function InspectorHomeScreenComponent({
               <MaterialCommunityIcons
                 name="shield-check"
                 size={20}
-                color={colors.blue}
+                color={legacyColors.blue}
               />
               <Text style={styles.calcTextSoft}>
                 Compatibility/Segregation Tool
@@ -879,7 +885,7 @@ function InspectorHomeScreenComponent({
                 <MaterialCommunityIcons
                   name="close"
                   size={28}
-                  color={colors.black}
+                  color={legacyColors.black}
                 />
               </TouchableOpacity>
             </View>
@@ -911,14 +917,14 @@ function InspectorHomeScreenComponent({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: colors.surface,
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: 16,
-    backgroundColor: "#fff",
+    padding: spacing.lg,
+    backgroundColor: colors.surface,
     elevation: 3,
   },
   title: {
@@ -927,79 +933,75 @@ const styles = StyleSheet.create({
   },
   grayBackground: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: colors.surface,
     alignItems: "center",
   },
   whiteContainer: {
     width: "100%",
-    backgroundColor: "#fff",
-    padding: 10,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
+    backgroundColor: colors.surface,
+    padding: spacing.sm,
+    ...shadows.light,
   },
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 10,
+    marginBottom: spacing.sm,
   },
   sectionTitle: {
     fontSize: 28,
     fontWeight: "bold",
     flex: 1,
-    marginLeft: 10,
-    color: "black",
+    marginLeft: spacing.sm,
+    color: colors.textPrimary,
   },
   searchInput: {
     flex: 1,
-    padding: 8,
+    padding: spacing.sm,
     borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 5,
-    marginHorizontal: 10,
+    borderColor: colors.border,
+    borderRadius: borderRadius.sm,
+    marginHorizontal: spacing.sm,
     height: 50,
     fontSize: 16,
   },
   createButton: {
-    backgroundColor: "#007bff",
-    paddingVertical: 10,
-    paddingHorizontal: 18,
-    borderRadius: 5,
-    marginHorizontal: 5,
+    backgroundColor: colors.primary,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    borderRadius: borderRadius.sm,
+    marginHorizontal: spacing.xs,
   },
   createButtonText: {
-    color: "#fff",
+    color: colors.white,
     fontSize: 20,
     fontWeight: "bold",
   },
   tableHeader: {
     flexDirection: "row",
-    backgroundColor: "#f4f4f4",
-    padding: 10,
+    backgroundColor: colors.background,
+    padding: spacing.sm,
     borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
+    borderBottomColor: colors.border,
     alignItems: "center",
     zIndex: 2,
-    color: "black",
   },
   headerText: {
     fontWeight: "bold",
     fontSize: 17,
     textAlign: "center",
-    color: "black",
+    color: colors.textPrimary,
   },
   tableRow: {
     flexDirection: "row",
-    padding: 10,
+    padding: spacing.sm,
     borderBottomWidth: 1,
-    borderBottomColor: "#ddd",
+    borderBottomColor: colors.border,
     alignItems: "center",
-    color: "black",
   },
   rowText: {
     fontSize: 15,
     textAlign: "center",
-    color: "black",
+    color: colors.textPrimary,
   },
   checkboxContainer: {
     width: 40,
@@ -1011,15 +1013,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   columnIcon: {
-    marginRight: 5,
-    marginLeft: 5,
+    marginRight: spacing.xs,
+    marginLeft: spacing.xs,
   },
   rowIcon: {
-    marginRight: 5,
-    marginLeft: 5,
+    marginRight: spacing.xs,
+    marginLeft: spacing.xs,
   },
   listItem: {
-    paddingVertical: 10,
+    paddingVertical: spacing.sm,
     justifyContent: "center",
     height: 60,
   },
@@ -1028,35 +1030,35 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 10,
+    paddingHorizontal: spacing.sm,
   },
   columnText: {
     fontSize: 15,
     flex: 1,
     textAlign: "center",
-    color: "black",
+    color: colors.textPrimary,
   },
   statusText: {
     fontSize: 14,
     fontWeight: "600",
-    borderRadius: 12,
-    paddingVertical: 4,
-    paddingHorizontal: 8,
+    borderRadius: borderRadius.lg,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.sm,
     overflow: "hidden",
     textAlign: "center",
     minWidth: 80,
   },
   verifiedStatus: {
-    backgroundColor: "#E8F5E8",
-    color: "#2D7D32",
+    backgroundColor: colors.successLight,
+    color: colors.success,
   },
   frustratedStatus: {
-    backgroundColor: "#FFEBEE",
-    color: "#D32F2F",
+    backgroundColor: colors.errorLight,
+    color: colors.error,
   },
   naStatus: {
-    backgroundColor: "#F5F5F5",
-    color: "#8E8E93",
+    backgroundColor: colors.background,
+    color: colors.textSecondary,
   },
   backdropStyle: {
     position: "absolute",
@@ -1071,20 +1073,20 @@ const styles = StyleSheet.create({
   },
   bottomSheetContent: {
     height: "100%",
-    backgroundColor: "white",
-    padding: 20,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    backgroundColor: colors.surface,
+    padding: spacing.xl,
+    borderTopLeftRadius: borderRadius.lg,
+    borderTopRightRadius: borderRadius.lg,
     alignItems: "center",
   },
-  bottomSheetTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 10 },
-  bottomSheetOption: { padding: 10, width: "100%", alignItems: "center" },
+  bottomSheetTitle: { fontSize: 18, fontWeight: "bold", marginBottom: spacing.sm },
+  bottomSheetOption: { padding: spacing.sm, width: "100%", alignItems: "center" },
   bottomSheetOptionText: { fontSize: 16 },
   bottomSheetCancel: {
-    marginTop: 10,
-    padding: 10,
-    backgroundColor: "#ddd",
-    borderRadius: 5,
+    marginTop: spacing.sm,
+    padding: spacing.sm,
+    backgroundColor: colors.border,
+    borderRadius: borderRadius.sm,
     width: "100%",
     alignItems: "center",
   },
@@ -1093,40 +1095,40 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 8,
-    marginBottom: 8,
-    marginTop: 4,
+    gap: spacing.sm,
+    marginBottom: spacing.sm,
+    marginTop: spacing.xs,
   },
   calcSoft: {
-    backgroundColor: "#E6F4FF",
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-    borderRadius: 5,
+    backgroundColor: colors.infoLight,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.md,
+    borderRadius: borderRadius.sm,
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    gap: 6,
+    gap: spacing.xs,
     minWidth: 220,
   },
   calcTextSoft: {
-    color: "#006DCC",
+    color: colors.primary,
     fontSize: 20,
     fontWeight: "600",
   },
   disabledToolButton: {
-    backgroundColor: "#f2f2f2",
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-    borderRadius: 5,
+    backgroundColor: colors.background,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.md,
+    borderRadius: borderRadius.sm,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 6,
+    gap: spacing.xs,
     width: 350,
     opacity: 0.6,
   },
   disabledToolButtonText: {
-    color: "#b0b0b0",
+    color: colors.textSecondary,
     fontSize: 20,
     fontWeight: "600",
   },
@@ -1135,20 +1137,20 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 8,
+    paddingVertical: spacing.sm,
   },
   pressed: {
     opacity: 0.5,
   },
   listItemContainer: {
-    paddingVertical: 15,
+    paddingVertical: spacing.lg,
     paddingHorizontal: 0,
     margin: 0,
     borderBottomWidth: 1,
-    borderColor: "#ddd",
+    borderColor: colors.border,
     width: "100%",
     borderRadius: 0,
-    backgroundColor: "#fff",
+    backgroundColor: colors.surface,
   },
   swipeAction: {
     justifyContent: "center",
@@ -1156,47 +1158,47 @@ const styles = StyleSheet.create({
     width: 120,
   },
   swipeActionLeft: {
-    backgroundColor: "#007AFF",
+    backgroundColor: colors.primary,
   },
   swipeActionRight: {
-    backgroundColor: "red",
+    backgroundColor: colors.error,
   },
   swipeButton: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     width: "100%",
-    backgroundColor: "#007AFF",
+    backgroundColor: colors.primary,
     flexDirection: "row",
   },
   swipeButtonText: {
-    color: "white",
+    color: colors.white,
     fontWeight: "600",
     fontSize: 16,
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
   },
   modalHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.lg,
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E5EA",
-    backgroundColor: colors.white,
+    borderBottomColor: colors.border,
+    backgroundColor: colors.surface,
   },
   modalTitle: {
     fontSize: 20,
     fontWeight: "700",
-    color: colors.black,
+    color: colors.textPrimary,
     flex: 1,
   },
   modalCloseButton: {
-    padding: 8,
-    marginLeft: 16,
+    padding: spacing.sm,
+    marginLeft: spacing.lg,
   },
   modalFormContainer: {
     flex: 1,
