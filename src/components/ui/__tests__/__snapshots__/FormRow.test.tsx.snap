@@ -1,0 +1,24 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`FormRow matches snapshot 1`] = `
+<View
+  style={
+    [
+      {
+        "flexDirection": "row",
+        "gap": 12,
+        "marginBottom": 12,
+      },
+      false,
+      undefined,
+    ]
+  }
+>
+  <Text>
+    Field 1
+  </Text>
+  <Text>
+    Field 2
+  </Text>
+</View>
+`;
