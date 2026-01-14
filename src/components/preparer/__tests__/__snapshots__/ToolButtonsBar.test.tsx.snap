@@ -1,0 +1,261 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ToolButtonsBar matches snapshot 1`] = `
+<View
+  style={
+    {
+      "flexDirection": "row",
+      "gap": 8,
+      "justifyContent": "space-between",
+      "paddingHorizontal": 12,
+      "paddingVertical": 12,
+    }
+  }
+>
+  <View
+    accessibilityState={
+      {
+        "busy": undefined,
+        "checked": undefined,
+        "disabled": undefined,
+        "expanded": undefined,
+        "selected": undefined,
+      }
+    }
+    accessibilityValue={
+      {
+        "max": undefined,
+        "min": undefined,
+        "now": undefined,
+        "text": undefined,
+      }
+    }
+    accessible={true}
+    collapsable={false}
+    focusable={true}
+    onClick={[Function]}
+    onResponderGrant={[Function]}
+    onResponderMove={[Function]}
+    onResponderRelease={[Function]}
+    onResponderTerminate={[Function]}
+    onResponderTerminationRequest={[Function]}
+    onStartShouldSetResponder={[Function]}
+    style={
+      {
+        "alignItems": "center",
+        "backgroundColor": "#E3F2FD",
+        "borderRadius": 8,
+        "flex": 1,
+        "justifyContent": "center",
+        "minHeight": 80,
+        "opacity": 1,
+        "paddingHorizontal": 8,
+        "paddingVertical": 12,
+      }
+    }
+  >
+    <Text
+      allowFontScaling={false}
+      selectable={false}
+      style={
+        [
+          {
+            "color": "#007AFF",
+            "fontSize": 24,
+          },
+          undefined,
+          {
+            "fontFamily": "material",
+            "fontStyle": "normal",
+            "fontWeight": "normal",
+          },
+          {},
+        ]
+      }
+    >
+      
+    </Text>
+    <Text
+      numberOfLines={2}
+      style={
+        [
+          {
+            "color": "#007AFF",
+            "fontSize": 12,
+            "fontWeight": "500",
+            "marginTop": 4,
+            "textAlign": "center",
+          },
+          undefined,
+        ]
+      }
+    >
+      Gas Calculator
+    </Text>
+  </View>
+  <View
+    accessibilityState={
+      {
+        "busy": undefined,
+        "checked": undefined,
+        "disabled": undefined,
+        "expanded": undefined,
+        "selected": undefined,
+      }
+    }
+    accessibilityValue={
+      {
+        "max": undefined,
+        "min": undefined,
+        "now": undefined,
+        "text": undefined,
+      }
+    }
+    accessible={true}
+    collapsable={false}
+    focusable={true}
+    onClick={[Function]}
+    onResponderGrant={[Function]}
+    onResponderMove={[Function]}
+    onResponderRelease={[Function]}
+    onResponderTerminate={[Function]}
+    onResponderTerminationRequest={[Function]}
+    onStartShouldSetResponder={[Function]}
+    style={
+      {
+        "alignItems": "center",
+        "backgroundColor": "#E3F2FD",
+        "borderRadius": 8,
+        "flex": 1,
+        "justifyContent": "center",
+        "minHeight": 80,
+        "opacity": 1,
+        "paddingHorizontal": 8,
+        "paddingVertical": 12,
+      }
+    }
+  >
+    <Text
+      allowFontScaling={false}
+      selectable={false}
+      style={
+        [
+          {
+            "color": "#007AFF",
+            "fontSize": 24,
+          },
+          undefined,
+          {
+            "fontFamily": "material",
+            "fontStyle": "normal",
+            "fontWeight": "normal",
+          },
+          {},
+        ]
+      }
+    >
+      
+    </Text>
+    <Text
+      numberOfLines={2}
+      style={
+        [
+          {
+            "color": "#007AFF",
+            "fontSize": 12,
+            "fontWeight": "500",
+            "marginTop": 4,
+            "textAlign": "center",
+          },
+          undefined,
+        ]
+      }
+    >
+      Dry Ice
+    </Text>
+  </View>
+  <View
+    accessibilityState={
+      {
+        "busy": undefined,
+        "checked": undefined,
+        "disabled": true,
+        "expanded": undefined,
+        "selected": undefined,
+      }
+    }
+    accessibilityValue={
+      {
+        "max": undefined,
+        "min": undefined,
+        "now": undefined,
+        "text": undefined,
+      }
+    }
+    accessible={true}
+    collapsable={false}
+    focusable={false}
+    onClick={[Function]}
+    onResponderGrant={[Function]}
+    onResponderMove={[Function]}
+    onResponderRelease={[Function]}
+    onResponderTerminate={[Function]}
+    onResponderTerminationRequest={[Function]}
+    onStartShouldSetResponder={[Function]}
+    style={
+      {
+        "alignItems": "center",
+        "backgroundColor": "#F2F2F7",
+        "borderRadius": 8,
+        "flex": 1,
+        "justifyContent": "center",
+        "minHeight": 80,
+        "opacity": 1,
+        "paddingHorizontal": 8,
+        "paddingVertical": 12,
+      }
+    }
+  >
+    <Text
+      allowFontScaling={false}
+      selectable={false}
+      style={
+        [
+          {
+            "color": "#8E8E93",
+            "fontSize": 24,
+          },
+          undefined,
+          {
+            "fontFamily": "material",
+            "fontStyle": "normal",
+            "fontWeight": "normal",
+          },
+          {},
+        ]
+      }
+    >
+      
+    </Text>
+    <Text
+      numberOfLines={2}
+      style={
+        [
+          {
+            "color": "#007AFF",
+            "fontSize": 12,
+            "fontWeight": "500",
+            "marginTop": 4,
+            "textAlign": "center",
+          },
+          {
+            "color": "#8E8E93",
+          },
+        ]
+      }
+    >
+      Unit Converter
+    </Text>
+  </View>
+</View>
+`;
