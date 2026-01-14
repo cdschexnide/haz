@@ -15,6 +15,14 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useInspectionForm } from "../../../src/contexts/InspectionFormProvider";
 import { PackageFrustrationRecord } from "../../../src/types/sddg";
 import { useHazProStore } from "../../../src/stores/useHazProStore";
+import {
+  ScreenHeader,
+  InfoBox,
+  colors,
+  spacing,
+  borderRadius,
+  shadows,
+} from "../ui";
 
 interface InspectorLithiumBatteriesScreenProps {
   navigation: any;
@@ -342,17 +350,15 @@ export default function InspectorLithiumBatteriesScreen({
         style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <MaterialIcons name="close" size={24} color="#007AFF" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>
-            {unId} {getBatteryTypeDisplay()}
-          </Text>
-          <Text style={styles.stepIndicator}>
-            {currentStep + 1}/{totalSteps}
-          </Text>
-        </View>
+        <ScreenHeader
+          title={`${unId} ${getBatteryTypeDisplay()}`}
+          onBack={() => navigation.goBack()}
+          rightContent={
+            <Text style={styles.stepIndicator}>
+              {currentStep + 1}/{totalSteps}
+            </Text>
+          }
+        />
 
         {/* Progress Bar */}
         <View style={styles.progressBarContainer}>
@@ -414,19 +420,17 @@ export default function InspectorLithiumBatteriesScreen({
                     </View>
 
                     <View style={styles.afmanReference}>
-                      <MaterialIcons name="book" size={16} color="#007AFF" />
+                      <MaterialIcons name="book" size={16} color={colors.primary} />
                       <Text style={styles.afmanReferenceText}>
                         {currentCondition.afmanRef}
                       </Text>
                     </View>
 
                     {currentFrustration && (
-                      <View style={styles.frustrationIndicator}>
-                        <MaterialIcons name="error" size={20} color="#FF3B30" />
-                        <Text style={styles.frustrationText}>
-                          Previously Frustrated
-                        </Text>
-                      </View>
+                      <InfoBox
+                        variant="error"
+                        message="Previously Frustrated"
+                      />
                     )}
                   </View>
 
@@ -438,7 +442,7 @@ export default function InspectorLithiumBatteriesScreen({
                       <MaterialIcons
                         name="check-circle"
                         size={24}
-                        color="#FFFFFF"
+                        color={colors.surface}
                       />
                       <Text style={styles.validateButtonText}>Validate</Text>
                     </TouchableOpacity>
@@ -447,7 +451,7 @@ export default function InspectorLithiumBatteriesScreen({
                       style={styles.frustrateButton}
                       onPress={handleFrustrate}
                     >
-                      <MaterialIcons name="cancel" size={24} color="#FFFFFF" />
+                      <MaterialIcons name="cancel" size={24} color={colors.surface} />
                       <Text style={styles.frustrateButtonText}>Frustrate</Text>
                     </TouchableOpacity>
                   </View>
@@ -460,7 +464,7 @@ export default function InspectorLithiumBatteriesScreen({
                       <Text style={styles.fieldLabel}>
                         {currentCondition.label}
                       </Text>
-                      <MaterialIcons name="error" size={24} color="#FF3B30" />
+                      <MaterialIcons name="error" size={24} color={colors.error} />
                     </View>
 
                     <Text style={styles.frustrationLabel}>
@@ -504,7 +508,7 @@ export default function InspectorLithiumBatteriesScreen({
                       style={styles.saveButton}
                       onPress={handleSaveFrustration}
                     >
-                      <MaterialIcons name="save" size={20} color="#FFFFFF" />
+                      <MaterialIcons name="save" size={20} color={colors.surface} />
                       <Text style={styles.saveButtonText}>
                         Save Frustration
                       </Text>
@@ -530,7 +534,7 @@ export default function InspectorLithiumBatteriesScreen({
               <MaterialIcons
                 name="chevron-left"
                 size={24}
-                color={currentStep === 0 ? "#C7C7CC" : "#007AFF"}
+                color={currentStep === 0 ? "#C7C7CC" : colors.primary}
               />
               <Text
                 style={[
@@ -551,63 +555,46 @@ export default function InspectorLithiumBatteriesScreen({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8F9FA",
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: "#FFFFFF",
-    borderBottomWidth: 1,
-    borderBottomColor: "#E5E5EA",
-  },
-  headerTitle: {
-    flex: 1,
-    fontSize: 18,
-    fontWeight: "600",
-    textAlign: "center",
-    color: "#1D1D1F",
-    marginHorizontal: 8,
+    backgroundColor: colors.background,
   },
   stepIndicator: {
     fontSize: 16,
     fontWeight: "500",
-    color: "#007AFF",
+    color: colors.primary,
   },
   materialInfoSection: {
-    backgroundColor: "#FFF8DC",
-    borderRadius: 8,
-    padding: 12,
-    margin: 16,
+    backgroundColor: colors.warningLight,
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
+    margin: spacing.lg,
     borderWidth: 1,
-    borderColor: "#FFB000",
+    borderColor: colors.warning,
   },
   materialInfoLabel: {
     fontSize: 12,
     fontWeight: "600",
-    color: "#FFB000",
+    color: colors.warning,
     marginBottom: 6,
   },
   materialInfoText: {
     fontSize: 13,
-    color: "#1D1D1F",
+    color: colors.textPrimary,
     marginBottom: 2,
   },
   progressBarContainer: {
-    paddingHorizontal: 16,
-    paddingBottom: 12,
-    backgroundColor: "#FFFFFF",
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.md,
+    backgroundColor: colors.surface,
   },
   progressBarBackground: {
     height: 4,
-    backgroundColor: "#E5E5EA",
+    backgroundColor: colors.border,
     borderRadius: 2,
     overflow: "hidden",
   },
   progressBarFill: {
     height: "100%",
-    backgroundColor: "#007AFF",
+    backgroundColor: colors.primary,
     borderRadius: 2,
   },
   mainContent: {
@@ -619,18 +606,14 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    padding: 16,
-    paddingBottom: 20,
+    padding: spacing.lg,
+    paddingBottom: spacing.xl,
   },
   fieldCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    padding: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.lg,
+    padding: spacing.xl,
+    ...shadows.medium,
     minHeight: "70%",
     flex: 1,
     justifyContent: "space-between",
@@ -641,158 +624,137 @@ const styles = StyleSheet.create({
   fieldHeader: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: spacing.lg,
   },
   fieldLabel: {
     fontSize: 20,
     fontWeight: "600",
-    color: "#1D1D1F",
+    color: colors.textPrimary,
     flex: 1,
   },
   conditionalBadge: {
-    backgroundColor: "#FFB000",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    marginLeft: 8,
+    backgroundColor: colors.warning,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: borderRadius.lg,
+    marginLeft: spacing.sm,
   },
   conditionalBadgeText: {
     fontSize: 10,
     fontWeight: "600",
-    color: "#FFFFFF",
+    color: colors.surface,
   },
   descriptionLabel: {
     fontSize: 14,
     fontWeight: "500",
-    color: "#8E8E93",
-    marginBottom: 8,
+    color: colors.textSecondary,
+    marginBottom: spacing.sm,
   },
   previewContainer: {
-    backgroundColor: "#F8F9FA",
+    backgroundColor: colors.background,
     borderWidth: 1,
-    borderColor: "#E5E5EA",
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 20,
+    borderColor: colors.border,
+    borderRadius: borderRadius.md,
+    padding: spacing.lg,
+    marginBottom: spacing.xl,
     minHeight: 60,
   },
   previewText: {
     fontSize: 16,
-    color: "#1D1D1F",
+    color: colors.textPrimary,
     lineHeight: 22,
   },
   afmanReference: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#F0F8FF",
+    backgroundColor: colors.infoLight,
     padding: 10,
     borderRadius: 6,
-    marginBottom: 16,
+    marginBottom: spacing.lg,
   },
   afmanReferenceText: {
     marginLeft: 6,
     fontSize: 13,
-    color: "#007AFF",
-    fontWeight: "500",
-  },
-  frustrationIndicator: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#FFF5F5",
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 16,
-  },
-  frustrationText: {
-    marginLeft: 8,
-    color: "#FF3B30",
+    color: colors.primary,
     fontWeight: "500",
   },
   complianceButtons: {
     flexDirection: "row",
-    gap: 12,
+    gap: spacing.md,
   },
   validateButton: {
     flex: 1,
-    backgroundColor: "#34C759",
+    backgroundColor: colors.success,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    borderRadius: 12,
-    shadowColor: "#34C759",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.xl,
+    borderRadius: borderRadius.lg,
+    ...shadows.light,
   },
   validateButtonText: {
-    color: "#FFFFFF",
+    color: colors.surface,
     fontSize: 16,
     fontWeight: "600",
-    marginLeft: 8,
+    marginLeft: spacing.sm,
   },
   frustrateButton: {
     flex: 1,
-    backgroundColor: "#FF3B30",
+    backgroundColor: colors.error,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    borderRadius: 12,
-    shadowColor: "#FF3B30",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.xl,
+    borderRadius: borderRadius.lg,
+    ...shadows.light,
   },
   frustrateButtonText: {
-    color: "#FFFFFF",
+    color: colors.surface,
     fontSize: 16,
     fontWeight: "600",
-    marginLeft: 8,
+    marginLeft: spacing.sm,
   },
   frustrationLabel: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#1D1D1F",
-    marginBottom: 16,
+    color: colors.textPrimary,
+    marginBottom: spacing.lg,
   },
   defaultMessageContainer: {
-    backgroundColor: "#FFF5F5",
-    padding: 16,
-    borderRadius: 8,
-    marginBottom: 20,
+    backgroundColor: colors.errorLight,
+    padding: spacing.lg,
+    borderRadius: borderRadius.md,
+    marginBottom: spacing.xl,
     borderWidth: 1,
-    borderColor: "#FF3B30",
+    borderColor: colors.error,
   },
   defaultMessageLabel: {
     fontSize: 12,
     fontWeight: "600",
-    color: "#FF3B30",
-    marginBottom: 4,
+    color: colors.error,
+    marginBottom: spacing.xs,
   },
   defaultMessage: {
     fontSize: 16,
-    color: "#1D1D1F",
+    color: colors.textPrimary,
     lineHeight: 22,
   },
   commentsLabel: {
     fontSize: 14,
     fontWeight: "500",
-    color: "#8E8E93",
-    marginBottom: 8,
+    color: colors.textSecondary,
+    marginBottom: spacing.sm,
   },
   inputContainer: {
     borderWidth: 2,
-    borderRadius: 8,
-    backgroundColor: "#F8F9FA",
-    borderColor: "#FF3B30",
+    borderRadius: borderRadius.md,
+    backgroundColor: colors.background,
+    borderColor: colors.error,
   },
   textInput: {
-    padding: 16,
+    padding: spacing.lg,
     fontSize: 16,
     minHeight: 120,
     textAlignVertical: "top",
@@ -800,45 +762,45 @@ const styles = StyleSheet.create({
   editModeButtons: {
     flexDirection: "row",
     justifyContent: "space-between",
-    gap: 12,
-    marginTop: 16,
+    gap: spacing.md,
+    marginTop: spacing.lg,
   },
   cancelButton: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.surface,
     borderWidth: 2,
-    borderColor: "#8E8E93",
-    paddingVertical: 12,
-    borderRadius: 8,
+    borderColor: colors.textSecondary,
+    paddingVertical: spacing.md,
+    borderRadius: borderRadius.md,
     alignItems: "center",
   },
   cancelButtonText: {
-    color: "#8E8E93",
+    color: colors.textSecondary,
     fontSize: 16,
     fontWeight: "600",
   },
   saveButton: {
     flex: 1,
-    backgroundColor: "#FF3B30",
+    backgroundColor: colors.error,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 12,
-    borderRadius: 8,
+    paddingVertical: spacing.md,
+    borderRadius: borderRadius.md,
   },
   saveButtonText: {
-    color: "#FFFFFF",
+    color: colors.surface,
     fontSize: 16,
     fontWeight: "600",
-    marginLeft: 4,
+    marginLeft: spacing.xs,
   },
   footer: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.surface,
     borderTopWidth: 1,
-    borderTopColor: "#E5E5EA",
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 16,
+    borderTopColor: colors.border,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.lg,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
@@ -846,16 +808,16 @@ const styles = StyleSheet.create({
   navButton: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
   },
   navButtonDisabled: {
     opacity: 0.5,
   },
   navButtonText: {
     fontSize: 16,
-    color: "#007AFF",
-    marginLeft: 4,
+    color: colors.primary,
+    marginLeft: spacing.xs,
   },
   navButtonTextDisabled: {
     color: "#C7C7CC",
@@ -864,28 +826,28 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
+    padding: spacing.xl,
   },
   errorText: {
     fontSize: 18,
-    color: "#8E8E93",
-    marginBottom: 8,
+    color: colors.textSecondary,
+    marginBottom: spacing.sm,
     textAlign: "center",
   },
   errorSubText: {
     fontSize: 14,
-    color: "#8E8E93",
-    marginBottom: 20,
+    color: colors.textSecondary,
+    marginBottom: spacing.xl,
     textAlign: "center",
   },
   backButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    backgroundColor: "#007AFF",
-    borderRadius: 8,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.xxl,
+    backgroundColor: colors.primary,
+    borderRadius: borderRadius.md,
   },
   backButtonText: {
-    color: "#FFFFFF",
+    color: colors.surface,
     fontSize: 16,
     fontWeight: "600",
   },
