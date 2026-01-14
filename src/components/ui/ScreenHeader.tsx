@@ -12,6 +12,7 @@ export interface ScreenHeaderProps {
   rightIcon?: keyof typeof MaterialIcons.glyphMap;
   onRightPress?: () => void;
   rightBadgeCount?: number;
+  rightContent?: React.ReactNode;
 }
 
 export const ScreenHeader: React.FC<ScreenHeaderProps> = ({
@@ -21,6 +22,7 @@ export const ScreenHeader: React.FC<ScreenHeaderProps> = ({
   rightIcon,
   onRightPress,
   rightBadgeCount,
+  rightContent,
 }) => {
   const leftAction = onClose || onBack;
   const leftIconName = onClose ? 'close' : 'arrow-back';
@@ -41,24 +43,28 @@ export const ScreenHeader: React.FC<ScreenHeaderProps> = ({
         {title}
       </Text>
 
-      <TouchableOpacity
-        style={styles.iconButton}
-        onPress={onRightPress}
-        disabled={!onRightPress}
-      >
-        {rightIcon && (
-          <View>
-            <MaterialIcons name={rightIcon} size={24} color={colors.primary} />
-            {rightBadgeCount !== undefined && rightBadgeCount > 0 && (
-              <View style={styles.badge}>
-                <Text style={styles.badgeText}>
-                  {rightBadgeCount > 99 ? '99+' : rightBadgeCount}
-                </Text>
-              </View>
-            )}
-          </View>
-        )}
-      </TouchableOpacity>
+      {rightContent ? (
+        <View style={styles.iconButton}>{rightContent}</View>
+      ) : (
+        <TouchableOpacity
+          style={styles.iconButton}
+          onPress={onRightPress}
+          disabled={!onRightPress}
+        >
+          {rightIcon && (
+            <View>
+              <MaterialIcons name={rightIcon} size={24} color={colors.primary} />
+              {rightBadgeCount !== undefined && rightBadgeCount > 0 && (
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>
+                    {rightBadgeCount > 99 ? '99+' : rightBadgeCount}
+                  </Text>
+                </View>
+              )}
+            </View>
+          )}
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
