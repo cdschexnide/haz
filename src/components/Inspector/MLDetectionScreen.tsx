@@ -29,6 +29,7 @@ import { LabelPickerModal } from "../../ml/components";
 import { useInspectionFormActions, useInspectionForm } from "../../contexts/InspectionFormProvider";
 import { useHazProActions } from "../../stores/useHazProStore";
 import { DevBenchmarkButton } from "../dev/DevBenchmarkButton";
+import { ScreenHeader, ActionFooter, InfoBox, colors, spacing, borderRadius } from "../ui";
 import {
   CapturedImage,
   ImageDetectionResult,
@@ -119,10 +120,10 @@ export function MLDetectionScreen({
   // Get model status
   const getModelStatus = () => {
     if (!isRuntimeAvailable)
-      return { text: "Runtime Unavailable", color: "#FF3B30", ready: false };
+      return { text: "Runtime Unavailable", color: colors.error, ready: false };
     if (!modelLoaded)
-      return { text: "Loading...", color: "#FF9500", ready: false };
-    return { text: "Ready", color: "#34C759", ready: true };
+      return { text: "Loading...", color: colors.warning, ready: false };
+    return { text: "Ready", color: colors.success, ready: true };
   };
 
   const modelStatus = getModelStatus();
@@ -454,15 +455,10 @@ export function MLDetectionScreen({
     return (
       <SafeAreaView style={styles.container} edges={[]}>
         {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={handleGoBack}>
-            <MaterialIcons name="arrow-back" size={24} color="#007AFF" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Hazmat Marking & Label Detection</Text>
-          <TouchableOpacity onPress={handleSkip}>
-            <Text style={styles.skipText}></Text>
-          </TouchableOpacity>
-        </View>
+        <ScreenHeader
+          title="Hazmat Marking & Label Detection"
+          onBack={handleGoBack}
+        />
 
         <ScrollView
           style={styles.content}
@@ -484,7 +480,7 @@ export function MLDetectionScreen({
               <MaterialIcons
                 name="camera-alt"
                 size={36}
-                color={modelStatus.ready ? "#007AFF" : "#C7C7CC"}
+                color={modelStatus.ready ? colors.primary : colors.border}
               />
             </View>
             <View style={styles.optionTextContainer}>
@@ -500,7 +496,7 @@ export function MLDetectionScreen({
                 Take photos of the package to detect hazmat labels
               </Text>
             </View>
-            <MaterialIcons name="chevron-right" size={28} color="#C7C7CC" />
+            <MaterialIcons name="chevron-right" size={28} color={colors.border} />
           </TouchableOpacity>
 
           {/* Gallery Option */}
@@ -517,7 +513,7 @@ export function MLDetectionScreen({
               <MaterialIcons
                 name="photo-library"
                 size={36}
-                color={modelStatus.ready ? "#007AFF" : "#C7C7CC"}
+                color={modelStatus.ready ? colors.primary : colors.border}
               />
             </View>
             <View style={styles.optionTextContainer}>
@@ -533,40 +529,36 @@ export function MLDetectionScreen({
                 Select existing photos to analyze (up to 6 images)
               </Text>
             </View>
-            <MaterialIcons name="chevron-right" size={28} color="#C7C7CC" />
+            <MaterialIcons name="chevron-right" size={28} color={colors.border} />
           </TouchableOpacity>
 
           {!isRuntimeAvailable && (
-            <View style={styles.warningBox}>
-              <MaterialIcons name="warning" size={20} color="#FF9500" />
-              <Text style={styles.warningText}>
-                ML runtime not available. Run: npx expo run:android
-              </Text>
-            </View>
+            <InfoBox
+              variant="warning"
+              message="ML runtime not available. Run: npx expo run:android"
+            />
           )}
         </ScrollView>
 
         {/* Footer */}
-        <View style={styles.footer}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={handleGoBack}
-          >
-            <MaterialIcons name="arrow-back" size={20} color="#007AFF" />
-            <Text style={styles.backButtonText}>Back</Text>
-          </TouchableOpacity>
-          {/* <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
-            <Text style={styles.skipButtonText}>Skip Detection</Text>
-            <MaterialIcons name="arrow-forward" size={20} color="#8E8E93" />
-          </TouchableOpacity> */}
-        </View>
+        <ActionFooter
+          buttons={[
+            {
+              label: "Back",
+              onPress: handleGoBack,
+              variant: "outline",
+              icon: "arrow-back",
+              iconPosition: "left",
+            },
+          ]}
+        />
 
         {/* Camera Modal */}
         <Modal visible={cameraModalVisible} animationType="slide">
           <SafeAreaView style={styles.cameraContainer}>
             <View style={styles.cameraHeader}>
               <TouchableOpacity onPress={() => setCameraModalVisible(false)}>
-                <MaterialIcons name="close" size={28} color="#FFFFFF" />
+                <MaterialIcons name="close" size={28} color={colors.white} />
               </TouchableOpacity>
               <Text style={styles.cameraHeaderTitle}>Capture Label</Text>
               <TouchableOpacity
@@ -577,7 +569,7 @@ export function MLDetectionScreen({
                 <MaterialIcons
                   name="flip-camera-ios"
                   size={28}
-                  color="#FFFFFF"
+                  color={colors.white}
                 />
               </TouchableOpacity>
             </View>
@@ -604,7 +596,7 @@ export function MLDetectionScreen({
                   handlePickFromGallery();
                 }}
               >
-                <MaterialIcons name="photo-library" size={28} color="#FFFFFF" />
+                <MaterialIcons name="photo-library" size={28} color={colors.white} />
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.captureButton}
@@ -637,13 +629,10 @@ export function MLDetectionScreen({
   if (screenState === "preview") {
     return (
       <SafeAreaView style={styles.container} edges={[]}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => setScreenState("home")}>
-            <MaterialIcons name="arrow-back" size={24} color="#007AFF" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Review Images</Text>
-          <View style={{ width: 24 }} />
-        </View>
+        <ScreenHeader
+          title="Review Images"
+          onBack={() => setScreenState("home")}
+        />
 
         <ScrollView
           style={styles.content}
@@ -679,33 +668,32 @@ export function MLDetectionScreen({
                 style={styles.addMoreButton}
                 onPress={handleOpenCamera}
               >
-                <MaterialIcons name="add-a-photo" size={28} color="#007AFF" />
+                <MaterialIcons name="add-a-photo" size={28} color={colors.primary} />
                 <Text style={styles.addMoreText}>Add</Text>
               </TouchableOpacity>
             )}
           </View>
         </ScrollView>
 
-        <View style={styles.footer}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => setScreenState("home")}
-          >
-            <MaterialIcons name="arrow-back" size={20} color="#007AFF" />
-            <Text style={styles.backButtonText}>Back</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.analyzeButton,
-              !modelLoaded && styles.analyzeButtonDisabled,
-            ]}
-            onPress={handleAnalyze}
-            disabled={!modelLoaded}
-          >
-            <MaterialIcons name="search" size={20} color="#FFFFFF" />
-            <Text style={styles.analyzeButtonText}>Analyze Images</Text>
-          </TouchableOpacity>
-        </View>
+        <ActionFooter
+          buttons={[
+            {
+              label: "Back",
+              onPress: () => setScreenState("home"),
+              variant: "outline",
+              icon: "arrow-back",
+              iconPosition: "left",
+            },
+            {
+              label: "Analyze Images",
+              onPress: handleAnalyze,
+              variant: "primary",
+              icon: "search",
+              iconPosition: "left",
+              disabled: !modelLoaded,
+            },
+          ]}
+        />
       </SafeAreaView>
     );
   }
@@ -714,14 +702,10 @@ export function MLDetectionScreen({
   if (screenState === "processing") {
     return (
       <SafeAreaView style={styles.container} edges={[]}>
-        <View style={styles.header}>
-          <View style={{ width: 24 }} />
-          <Text style={styles.headerTitle}>Analyzing...</Text>
-          <View style={{ width: 24 }} />
-        </View>
+        <ScreenHeader title="Analyzing..." />
 
         <View style={styles.processingContent}>
-          <ActivityIndicator size="large" color="#007AFF" />
+          <ActivityIndicator size="large" color={colors.primary} />
           <Text style={styles.processingTitle}>Analyzing Images</Text>
           <Text style={styles.processingSubtitle}>
             {processingStatus || `Processing ${capturedImages.length} image${capturedImages.length !== 1 ? "s" : ""}`}
@@ -751,32 +735,29 @@ export function MLDetectionScreen({
 
     return (
       <SafeAreaView style={styles.container} edges={[]}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => setScreenState("preview")}>
-            <MaterialIcons name="arrow-back" size={24} color="#007AFF" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Analysis Results</Text>
-          <View style={{ width: 24 }} />
-        </View>
+        <ScreenHeader
+          title="Analysis Results"
+          onBack={() => setScreenState("preview")}
+        />
 
         {/* Summary Banner with Add Label Action */}
         <View
           style={[
             styles.summaryBanner,
-            { backgroundColor: totalDetections > 0 || hasOCRData ? "#E8F5E9" : "#FFF3E0" },
+            { backgroundColor: totalDetections > 0 || hasOCRData ? colors.successLight : colors.warningLight },
           ]}
         >
           <View style={styles.summaryLeft}>
             <MaterialIcons
               name={totalDetections > 0 || hasOCRData ? "check-circle" : "info"}
               size={24}
-              color={totalDetections > 0 || hasOCRData ? "#4CAF50" : "#FF9800"}
+              color={totalDetections > 0 || hasOCRData ? colors.success : colors.warning}
             />
             <View style={styles.summaryTextContainer}>
               <Text
                 style={[
                   styles.summaryText,
-                  { color: totalDetections > 0 || hasOCRData ? "#2E7D32" : "#E65100" },
+                  { color: totalDetections > 0 || hasOCRData ? colors.success : colors.warning },
                 ]}
               >
                 {totalDetections > 0
@@ -849,7 +830,7 @@ export function MLDetectionScreen({
                             </Text>
                           )}
                           {/* Edit icon */}
-                          <MaterialIcons name="edit" size={18} color="#8E8E93" style={styles.editIcon} />
+                          <MaterialIcons name="edit" size={18} color={colors.textSecondary} style={styles.editIcon} />
                         </TouchableOpacity>
                         {/* Delete icon */}
                         <TouchableOpacity
@@ -858,7 +839,7 @@ export function MLDetectionScreen({
                           activeOpacity={0.7}
                           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                         >
-                          <MaterialIcons name="close" size={20} color="#FF3B30" />
+                          <MaterialIcons name="close" size={20} color={colors.error} />
                         </TouchableOpacity>
                       </View>
                     );
@@ -873,7 +854,7 @@ export function MLDetectionScreen({
                   onPress={() => handleAddLabelPress(index)}
                   activeOpacity={0.7}
                 >
-                  <MaterialIcons name="add-circle-outline" size={22} color="#007AFF" />
+                  <MaterialIcons name="add-circle-outline" size={22} color={colors.primary} />
                   <Text style={styles.addMissingLabelText}>Add Missing Label</Text>
                 </TouchableOpacity>
               </View>
@@ -882,26 +863,28 @@ export function MLDetectionScreen({
           ))}
         </ScrollView>
 
-        <View style={styles.footer}>
-          <TouchableOpacity
-            style={styles.retakeButton}
-            onPress={() => {
-              setCapturedImages([]);
-              clearResults();
-              setScreenState("home");
-            }}
-          >
-            <MaterialIcons name="refresh" size={20} color="#007AFF" />
-            <Text style={styles.retakeButtonText}>Retake</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.continueButton}
-            onPress={navigateToNextScreen}
-          >
-            <Text style={styles.continueButtonText}>Continue</Text>
-            <MaterialIcons name="arrow-forward" size={20} color="#FFFFFF" />
-          </TouchableOpacity>
-        </View>
+        <ActionFooter
+          buttons={[
+            {
+              label: "Retake",
+              onPress: () => {
+                setCapturedImages([]);
+                clearResults();
+                setScreenState("home");
+              },
+              variant: "outline",
+              icon: "refresh",
+              iconPosition: "left",
+            },
+            {
+              label: "Continue",
+              onPress: navigateToNextScreen,
+              variant: "primary",
+              icon: "arrow-forward",
+              iconPosition: "right",
+            },
+          ]}
+        />
 
         {/* Label Picker Modal */}
         <LabelPickerModal
@@ -933,79 +916,59 @@ function formatClassName(name: string): string {
 }
 
 function getCategoryColor(category: string): string {
-  const colors: Record<string, string> = {
-    general_marking: "#007AFF",
-    hazardClass1: "#FF3B30",
-    hazardClass2: "#34C759",
-    hazardClass3: "#FF9500",
+  const categoryColors: Record<string, string> = {
+    general_marking: colors.primary,
+    hazardClass1: colors.error,
+    hazardClass2: colors.success,
+    hazardClass3: colors.warning,
     hazardClass4: "#FF2D55",
     hazardClass5: "#FFCC00",
     hazardClass6: "#AF52DE",
     hazardClass8: "#5856D6",
-    hazardClass9: "#8E8E93",
+    hazardClass9: colors.textSecondary,
   };
-  return colors[category] || "#007AFF";
+  return categoryColors[category] || colors.primary;
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8F9FA",
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: "#FFFFFF",
-    borderBottomWidth: 1,
-    borderBottomColor: "#E5E5EA",
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#1D1D1F",
-  },
-  skipText: {
-    fontSize: 16,
-    color: "#007AFF",
-    fontWeight: "500",
+    backgroundColor: colors.background,
   },
   content: {
     flex: 1,
   },
   contentContainer: {
-    padding: 16,
+    padding: spacing.lg,
   },
   instructionText: {
     fontSize: 20,
     fontWeight: "600",
-    color: "#1D1D1F",
-    marginBottom: 20,
+    color: colors.textPrimary,
+    marginBottom: spacing.xl,
     textAlign: "center",
   },
   card: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.lg,
+    padding: spacing.lg,
+    marginBottom: spacing.lg,
     borderWidth: 1,
-    borderColor: "#E5E5EA",
+    borderColor: colors.border,
   },
   cardHeader: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: spacing.lg,
   },
   modelIconContainer: {
     width: 48,
     height: 48,
-    borderRadius: 12,
-    backgroundColor: "#F0F8FF",
+    borderRadius: borderRadius.lg,
+    backgroundColor: colors.infoLight,
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 12,
+    marginRight: spacing.md,
   },
   cardTitleContainer: {
     flex: 1,
@@ -1013,11 +976,11 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#1D1D1F",
+    color: colors.textPrimary,
   },
   cardSubtitle: {
     fontSize: 13,
-    color: "#8E8E93",
+    color: colors.textSecondary,
     marginTop: 2,
   },
   statusBadge: {
@@ -1025,7 +988,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 12,
+    borderRadius: borderRadius.lg,
   },
   statusDot: {
     width: 6,
@@ -1040,8 +1003,8 @@ const styles = StyleSheet.create({
   statsRow: {
     flexDirection: "row",
     borderTopWidth: 1,
-    borderTopColor: "#E5E5EA",
-    paddingTop: 12,
+    borderTopColor: colors.border,
+    paddingTop: spacing.md,
   },
   statItem: {
     flex: 1,
@@ -1050,26 +1013,26 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#007AFF",
+    color: colors.primary,
   },
   statLabel: {
     fontSize: 11,
-    color: "#8E8E93",
+    color: colors.textSecondary,
     marginTop: 2,
   },
   statDivider: {
     width: 1,
-    backgroundColor: "#E5E5EA",
+    backgroundColor: colors.border,
   },
   optionCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.lg,
+    padding: spacing.lg,
+    marginBottom: spacing.md,
     borderWidth: 1,
-    borderColor: "#E5E5EA",
+    borderColor: colors.border,
   },
   optionCardDisabled: {
     opacity: 0.5,
@@ -1078,10 +1041,10 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: "#F0F8FF",
+    backgroundColor: colors.infoLight,
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 14,
+    marginRight: spacing.md,
   },
   optionTextContainer: {
     flex: 1,
@@ -1089,86 +1052,16 @@ const styles = StyleSheet.create({
   optionTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#1D1D1F",
-    marginBottom: 4,
+    color: colors.textPrimary,
+    marginBottom: spacing.xs,
   },
   optionTitleDisabled: {
-    color: "#C7C7CC",
+    color: colors.border,
   },
   optionDescription: {
     fontSize: 13,
-    color: "#8E8E93",
+    color: colors.textSecondary,
     lineHeight: 18,
-  },
-  infoBox: {
-    flexDirection: "row",
-    backgroundColor: "#F0F8FF",
-    borderRadius: 8,
-    padding: 14,
-    marginTop: 8,
-    borderWidth: 1,
-    borderColor: "#007AFF20",
-  },
-  infoText: {
-    flex: 1,
-    fontSize: 13,
-    color: "#3C3C43",
-    lineHeight: 18,
-    marginLeft: 10,
-  },
-  warningBox: {
-    flexDirection: "row",
-    backgroundColor: "#FFF8E1",
-    borderRadius: 8,
-    padding: 14,
-    marginTop: 12,
-    borderWidth: 1,
-    borderColor: "#FF950020",
-  },
-  warningText: {
-    flex: 1,
-    fontSize: 13,
-    color: "#E65100",
-    marginLeft: 10,
-  },
-  footer: {
-    flexDirection: "row",
-    padding: 16,
-    backgroundColor: "#FFFFFF",
-    borderTopWidth: 1,
-    borderTopColor: "#E5E5EA",
-    gap: 12,
-  },
-  backButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#007AFF",
-  },
-  backButtonText: {
-    color: "#007AFF",
-    fontSize: 16,
-    fontWeight: "600",
-    marginLeft: 6,
-  },
-  skipButton: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 12,
-    borderRadius: 8,
-    backgroundColor: "#E5E5EA",
-  },
-  skipButtonText: {
-    color: "#8E8E93",
-    fontSize: 16,
-    fontWeight: "600",
-    marginRight: 6,
   },
 
   // Camera styles
@@ -1180,13 +1073,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
   },
   cameraHeaderTitle: {
     fontSize: 17,
     fontWeight: "600",
-    color: "#FFFFFF",
+    color: colors.white,
   },
   camera: {
     flex: 1,
@@ -1205,22 +1098,22 @@ const styles = StyleSheet.create({
     position: "absolute",
     width: 32,
     height: 32,
-    borderColor: "#FFFFFF",
+    borderColor: colors.white,
   },
   cornerTL: { top: 0, left: 0, borderTopWidth: 3, borderLeftWidth: 3 },
   cornerTR: { top: 0, right: 0, borderTopWidth: 3, borderRightWidth: 3 },
   cornerBL: { bottom: 0, left: 0, borderBottomWidth: 3, borderLeftWidth: 3 },
   cornerBR: { bottom: 0, right: 0, borderBottomWidth: 3, borderRightWidth: 3 },
   scanHint: {
-    color: "#FFFFFF",
+    color: colors.white,
     fontSize: 14,
-    marginTop: 20,
+    marginTop: spacing.xl,
   },
   cameraControls: {
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",
-    paddingVertical: 24,
+    paddingVertical: spacing.xxl,
   },
   cameraGalleryButton: {
     width: 56,
@@ -1234,7 +1127,7 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.white,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -1242,7 +1135,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.white,
     borderWidth: 3,
     borderColor: "#000",
   },
@@ -1250,8 +1143,8 @@ const styles = StyleSheet.create({
   // Preview styles
   previewSubtitle: {
     fontSize: 14,
-    color: "#8E8E93",
-    marginBottom: 16,
+    color: colors.textSecondary,
+    marginBottom: spacing.lg,
   },
   imageGrid: {
     flexDirection: "row",
@@ -1262,7 +1155,7 @@ const styles = StyleSheet.create({
     width: (SCREEN_WIDTH - 56) / 3,
     height: (SCREEN_WIDTH - 56) / 3,
     margin: 6,
-    borderRadius: 8,
+    borderRadius: borderRadius.md,
     overflow: "hidden",
   },
   gridImage: {
@@ -1274,7 +1167,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 4,
     right: 4,
-    backgroundColor: "#FF3B30",
+    backgroundColor: colors.error,
     borderRadius: 10,
     width: 20,
     height: 20,
@@ -1285,7 +1178,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 4,
     right: 4,
-    backgroundColor: "#007AFF",
+    backgroundColor: colors.primary,
     borderRadius: 10,
     width: 24,
     height: 24,
@@ -1296,37 +1189,19 @@ const styles = StyleSheet.create({
     width: (SCREEN_WIDTH - 56) / 3,
     height: (SCREEN_WIDTH - 56) / 3,
     margin: 6,
-    borderRadius: 8,
+    borderRadius: borderRadius.md,
     borderWidth: 2,
-    borderColor: "#007AFF",
+    borderColor: colors.primary,
     borderStyle: "dashed",
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#F0F8FF",
+    backgroundColor: colors.infoLight,
   },
   addMoreText: {
-    color: "#007AFF",
+    color: colors.primary,
     fontSize: 12,
     fontWeight: "600",
-    marginTop: 4,
-  },
-  analyzeButton: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#007AFF",
-    paddingVertical: 14,
-    borderRadius: 8,
-  },
-  analyzeButtonDisabled: {
-    backgroundColor: "#C7C7CC",
-  },
-  analyzeButtonText: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "600",
-    marginLeft: 8,
+    marginTop: spacing.xs,
   },
 
   // Processing styles
@@ -1339,23 +1214,23 @@ const styles = StyleSheet.create({
   processingTitle: {
     fontSize: 20,
     fontWeight: "600",
-    color: "#1D1D1F",
-    marginTop: 20,
+    color: colors.textPrimary,
+    marginTop: spacing.xl,
   },
   processingSubtitle: {
     fontSize: 14,
-    color: "#8E8E93",
-    marginTop: 8,
+    color: colors.textSecondary,
+    marginTop: spacing.sm,
   },
   processingHint: {
     fontSize: 12,
-    color: "#007AFF",
-    marginTop: 4,
+    color: colors.primary,
+    marginTop: spacing.xs,
   },
   errorText: {
-    color: "#FF3B30",
+    color: colors.error,
     fontSize: 14,
-    marginTop: 16,
+    marginTop: spacing.lg,
   },
 
   // Results styles
@@ -1363,8 +1238,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
   },
   summaryLeft: {
     flexDirection: "row",
@@ -1381,34 +1256,34 @@ const styles = StyleSheet.create({
   },
   summarySubtext: {
     fontSize: 12,
-    color: "#8E8E93",
+    color: colors.textSecondary,
     marginTop: 2,
   },
   resultCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 14,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.lg,
+    padding: spacing.md,
+    marginBottom: spacing.md,
     borderWidth: 1,
-    borderColor: "#E5E5EA",
+    borderColor: colors.border,
   },
   resultCardTitle: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#1D1D1F",
+    color: colors.textPrimary,
     marginBottom: 10,
   },
   detectionsList: {
-    marginTop: 12,
-    paddingTop: 12,
+    marginTop: spacing.md,
+    paddingTop: spacing.md,
     borderTopWidth: 1,
-    borderTopColor: "#E5E5EA",
+    borderTopColor: colors.border,
   },
   detectionsListHeader: {
     fontSize: 12,
     fontWeight: "600",
-    color: "#8E8E93",
-    marginBottom: 8,
+    color: colors.textSecondary,
+    marginBottom: spacing.sm,
     textTransform: "uppercase",
     letterSpacing: 0.5,
   },
@@ -1421,10 +1296,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 10,
-    paddingHorizontal: 12,
+    paddingHorizontal: spacing.md,
     marginHorizontal: -12,
-    borderRadius: 8,
-    backgroundColor: "#FAFAFA",
+    borderRadius: borderRadius.md,
+    backgroundColor: colors.background,
     marginBottom: 6,
   },
   detectionItemContent: {
@@ -1433,8 +1308,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   deleteIconButton: {
-    padding: 4,
-    marginLeft: 8,
+    padding: spacing.xs,
+    marginLeft: spacing.sm,
   },
   detectionDot: {
     width: 10,
@@ -1445,71 +1320,40 @@ const styles = StyleSheet.create({
   detectionName: {
     flex: 1,
     fontSize: 15,
-    color: "#1D1D1F",
+    color: colors.textPrimary,
   },
   detectionConfidence: {
     fontSize: 14,
-    color: "#8E8E93",
+    color: colors.textSecondary,
     fontWeight: "500",
-    marginRight: 8,
+    marginRight: spacing.sm,
   },
   editIcon: {
-    marginLeft: 4,
+    marginLeft: spacing.xs,
   },
   noDetectionsText: {
     fontSize: 14,
-    color: "#8E8E93",
+    color: colors.textSecondary,
     fontStyle: "italic",
-    paddingVertical: 8,
+    paddingVertical: spacing.sm,
   },
   addMissingLabelButton: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 14,
-    marginTop: 8,
+    paddingVertical: spacing.md,
+    marginTop: spacing.sm,
     borderRadius: 10,
     borderWidth: 2,
-    borderColor: "#007AFF",
+    borderColor: colors.primary,
     borderStyle: "dashed",
-    backgroundColor: "#F0F8FF",
-    gap: 8,
+    backgroundColor: colors.infoLight,
+    gap: spacing.sm,
   },
   addMissingLabelText: {
     fontSize: 15,
     fontWeight: "600",
-    color: "#007AFF",
-  },
-  retakeButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#007AFF",
-  },
-  retakeButtonText: {
-    color: "#007AFF",
-    fontSize: 16,
-    fontWeight: "600",
-    marginLeft: 6,
-  },
-  continueButton: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#007AFF",
-    paddingVertical: 14,
-    borderRadius: 8,
-  },
-  continueButtonText: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "600",
-    marginRight: 6,
+    color: colors.primary,
   },
 
   // Manual correction styles
@@ -1517,23 +1361,23 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   detectionNameManual: {
-    color: "#007AFF",
+    color: colors.primary,
   },
   originalClassName: {
     fontSize: 11,
-    color: "#8E8E93",
+    color: colors.textSecondary,
     marginTop: 2,
   },
   manualBadge: {
-    paddingHorizontal: 8,
+    paddingHorizontal: spacing.sm,
     paddingVertical: 3,
-    backgroundColor: "#E8F5E9",
-    borderRadius: 4,
-    marginRight: 8,
+    backgroundColor: colors.successLight,
+    borderRadius: borderRadius.sm,
+    marginRight: spacing.sm,
   },
   manualBadgeText: {
     fontSize: 11,
-    color: "#4CAF50",
+    color: colors.success,
     fontWeight: "600",
   },
 });
