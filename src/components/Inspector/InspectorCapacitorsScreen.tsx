@@ -14,6 +14,14 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useInspectionForm } from "../../../src/contexts/InspectionFormProvider";
 import { useHazProStore } from "../../../src/stores/useHazProStore";
+import {
+  ScreenHeader,
+  InfoBox,
+  colors,
+  spacing,
+  borderRadius,
+  shadows,
+} from "../ui";
 
 interface InspectorCapacitorsScreenProps {
   navigation: any;
@@ -285,6 +293,16 @@ export default function InspectorCapacitorsScreen({
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardContainer}
       >
+        <ScreenHeader
+          title="UN3508 Capacitors"
+          onBack={() => navigation.goBack()}
+          rightContent={
+            <Text style={styles.stepIndicator}>
+              {currentStep + 1}/{totalSteps}
+            </Text>
+          }
+        />
+
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
@@ -297,7 +315,7 @@ export default function InspectorCapacitorsScreen({
                   <View style={styles.fieldHeader}>
                     <Text style={styles.fieldLabel}>{currentField.label}</Text>
                     {currentFrustration && (
-                      <MaterialIcons name="error" size={24} color="#FF3B30" />
+                      <MaterialIcons name="error" size={24} color={colors.error} />
                     )}
                   </View>
 
@@ -325,7 +343,7 @@ export default function InspectorCapacitorsScreen({
                     <MaterialIcons
                       name="check-circle"
                       size={24}
-                      color="#FFFFFF"
+                      color={colors.surface}
                     />
                     <Text style={styles.validateButtonText}>Validate</Text>
                   </TouchableOpacity>
@@ -334,7 +352,7 @@ export default function InspectorCapacitorsScreen({
                     style={styles.frustrateButton}
                     onPress={handleFrustrate}
                   >
-                    <MaterialIcons name="cancel" size={24} color="#FFFFFF" />
+                    <MaterialIcons name="cancel" size={24} color={colors.surface} />
                     <Text style={styles.frustrateButtonText}>Frustrate</Text>
                   </TouchableOpacity>
                 </View>
@@ -345,7 +363,7 @@ export default function InspectorCapacitorsScreen({
                 <View style={styles.fieldContent}>
                   <View style={styles.fieldHeader}>
                     <Text style={styles.fieldLabel}>{currentField.label}</Text>
-                    <MaterialIcons name="error" size={24} color="#FF3B30" />
+                    <MaterialIcons name="error" size={24} color={colors.error} />
                   </View>
 
                   <Text style={styles.frustrationLabel}>
@@ -389,7 +407,7 @@ export default function InspectorCapacitorsScreen({
                     style={styles.saveFrustrationButton}
                     onPress={handleSaveFrustration}
                   >
-                    <MaterialIcons name="save" size={20} color="#FFFFFF" />
+                    <MaterialIcons name="save" size={20} color={colors.surface} />
                     <Text style={styles.saveFrustrationButtonText}>
                       Save Frustration
                     </Text>
@@ -414,7 +432,7 @@ export default function InspectorCapacitorsScreen({
               <MaterialIcons
                 name="chevron-left"
                 size={24}
-                color={currentStep === 0 ? "#C7C7CC" : "#007AFF"}
+                color={currentStep === 0 ? "#C7C7CC" : colors.primary}
               />
               <Text
                 style={[
@@ -435,86 +453,87 @@ export default function InspectorCapacitorsScreen({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F2F2F7",
+    backgroundColor: colors.borderLight,
   },
   keyboardContainer: {
     flex: 1,
+  },
+  stepIndicator: {
+    fontSize: 16,
+    fontWeight: "500",
+    color: colors.primary,
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
     flexGrow: 1,
-    padding: 16,
+    padding: spacing.lg,
   },
   content: {
     flex: 1,
     justifyContent: "space-between",
   },
   fieldContent: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.lg,
+    padding: spacing.xl,
+    marginBottom: spacing.lg,
+    ...shadows.light,
   },
   fieldHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   fieldLabel: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#000000",
+    color: colors.textPrimary,
     flex: 1,
-    marginRight: 8,
+    marginRight: spacing.sm,
   },
   fieldDescription: {
     fontSize: 14,
-    color: "#666666",
-    marginBottom: 16,
+    color: colors.textSecondary,
+    marginBottom: spacing.lg,
     lineHeight: 20,
   },
   scannedValueLabel: {
     fontSize: 14,
     fontWeight: "500",
-    color: "#8E8E93",
-    marginBottom: 8,
+    color: colors.textSecondary,
+    marginBottom: spacing.sm,
   },
   scannedValueContainer: {
-    backgroundColor: "#F2F2F7",
-    borderRadius: 8,
-    padding: 12,
+    backgroundColor: colors.borderLight,
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
     minHeight: 60,
   },
   criteriaText: {
     fontSize: 14,
-    color: "#333333",
+    color: colors.textPrimary,
     lineHeight: 18,
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   complianceButtons: {
     flexDirection: "row",
-    gap: 12,
+    gap: spacing.md,
   },
   validateButton: {
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#34C759",
-    borderRadius: 8,
+    backgroundColor: colors.success,
+    borderRadius: borderRadius.md,
     paddingVertical: 14,
-    gap: 8,
+    gap: spacing.sm,
   },
   validateButtonText: {
-    color: "#FFFFFF",
+    color: colors.surface,
     fontSize: 16,
     fontWeight: "600",
   },
@@ -523,77 +542,77 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#FF3B30",
-    borderRadius: 8,
+    backgroundColor: colors.error,
+    borderRadius: borderRadius.md,
     paddingVertical: 14,
-    gap: 8,
+    gap: spacing.sm,
   },
   frustrateButtonText: {
-    color: "#FFFFFF",
+    color: colors.surface,
     fontSize: 16,
     fontWeight: "600",
   },
   frustrationLabel: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#000000",
-    marginBottom: 16,
+    color: colors.textPrimary,
+    marginBottom: spacing.lg,
   },
   defaultMessageContainer: {
-    backgroundColor: "#FFEBEE",
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 16,
+    backgroundColor: colors.errorLight,
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
+    marginBottom: spacing.lg,
     borderLeftWidth: 4,
-    borderLeftColor: "#FF3B30",
+    borderLeftColor: colors.error,
   },
   defaultMessageLabel: {
     fontSize: 12,
     fontWeight: "500",
-    color: "#FF3B30",
-    marginBottom: 4,
+    color: colors.error,
+    marginBottom: spacing.xs,
   },
   defaultMessage: {
     fontSize: 14,
-    color: "#333333",
+    color: colors.textPrimary,
     lineHeight: 18,
   },
   commentsLabel: {
     fontSize: 14,
     fontWeight: "500",
-    color: "#8E8E93",
-    marginBottom: 8,
+    color: colors.textSecondary,
+    marginBottom: spacing.sm,
   },
   inputContainer: {
-    backgroundColor: "#F2F2F7",
-    borderRadius: 8,
+    backgroundColor: colors.borderLight,
+    borderRadius: borderRadius.md,
     padding: 1,
   },
   textInput: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.surface,
     borderRadius: 7,
-    padding: 12,
+    padding: spacing.md,
     fontSize: 16,
-    color: "#000000",
+    color: colors.textPrimary,
     minHeight: 100,
     borderWidth: 1,
-    borderColor: "#E5E5EA",
+    borderColor: colors.border,
   },
   editModeButtons: {
     flexDirection: "row",
-    gap: 12,
+    gap: spacing.md,
   },
   cancelButton: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
-    borderColor: "#8E8E93",
-    borderRadius: 8,
+    borderColor: colors.textSecondary,
+    borderRadius: borderRadius.md,
     paddingVertical: 14,
   },
   cancelButtonText: {
-    color: "#8E8E93",
+    color: colors.textSecondary,
     fontSize: 16,
     fontWeight: "600",
   },
@@ -602,13 +621,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#FF3B30",
-    borderRadius: 8,
+    backgroundColor: colors.error,
+    borderRadius: borderRadius.md,
     paddingVertical: 14,
-    gap: 8,
+    gap: spacing.sm,
   },
   saveFrustrationButtonText: {
-    color: "#FFFFFF",
+    color: colors.surface,
     fontSize: 16,
     fontWeight: "600",
   },
@@ -616,32 +635,32 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
+    padding: spacing.xl,
   },
   errorText: {
     fontSize: 18,
-    color: "#666666",
-    marginBottom: 20,
+    color: colors.textSecondary,
+    marginBottom: spacing.xl,
     textAlign: "center",
   },
   backButton: {
-    backgroundColor: "#007AFF",
-    borderRadius: 8,
-    paddingHorizontal: 20,
-    paddingVertical: 12,
+    backgroundColor: colors.primary,
+    borderRadius: borderRadius.md,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.md,
   },
   backButtonText: {
-    color: "#FFFFFF",
+    color: colors.surface,
     fontSize: 16,
     fontWeight: "600",
   },
   footer: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.surface,
     borderTopWidth: 1,
-    borderTopColor: "#E5E5EA",
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 16,
+    borderTopColor: colors.border,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.lg,
     flexDirection: "row",
     justifyContent: "flex-start",
     alignItems: "center",
@@ -649,16 +668,16 @@ const styles = StyleSheet.create({
   navButton: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
   },
   navButtonDisabled: {
     opacity: 0.5,
   },
   navButtonText: {
     fontSize: 16,
-    color: "#007AFF",
-    marginLeft: 4,
+    color: colors.primary,
+    marginLeft: spacing.xs,
   },
   navButtonTextDisabled: {
     color: "#C7C7CC",
