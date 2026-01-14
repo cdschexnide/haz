@@ -29,9 +29,9 @@ export interface ButtonProps {
 }
 
 const variantStyles: Record<ButtonVariant, { bg: string; text: string; border: string }> = {
-  primary: { bg: colors.primary, text: '#FFFFFF', border: colors.primary },
+  primary: { bg: colors.primary, text: colors.white, border: colors.primary },
   secondary: { bg: colors.surface, text: colors.primary, border: colors.primary },
-  destructive: { bg: colors.error, text: '#FFFFFF', border: colors.error },
+  destructive: { bg: colors.error, text: colors.white, border: colors.error },
   outline: { bg: colors.surface, text: colors.textSecondary, border: colors.border },
   ghost: { bg: 'transparent', text: colors.primary, border: 'transparent' },
 };

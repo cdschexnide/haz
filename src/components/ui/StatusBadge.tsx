@@ -32,37 +32,37 @@ interface BadgeConfig {
 const badgeConfig: Record<BadgeStatus, BadgeConfig> = {
   verified: {
     bg: colors.success,
-    text: '#FFFFFF',
+    text: colors.white,
     icon: 'check-circle',
     defaultLabel: 'Verified',
   },
   frustrated: {
     bg: colors.error,
-    text: '#FFFFFF',
+    text: colors.white,
     icon: 'cancel',
     defaultLabel: 'Frustrated',
   },
   detected: {
     bg: colors.success,
-    text: '#FFFFFF',
+    text: colors.white,
     icon: 'check-circle',
     defaultLabel: 'Detected',
   },
   'not-detected': {
     bg: colors.warning,
-    text: '#FFFFFF',
+    text: colors.white,
     icon: 'search-off',
     defaultLabel: 'Not Detected',
   },
   matched: {
     bg: colors.success,
-    text: '#FFFFFF',
+    text: colors.white,
     icon: 'check-circle',
     defaultLabel: 'Matched',
   },
   unmatched: {
     bg: colors.warning,
-    text: '#FFFFFF',
+    text: colors.white,
     icon: 'help-outline',
     defaultLabel: 'Unmatched',
   },
@@ -80,7 +80,7 @@ const badgeConfig: Record<BadgeStatus, BadgeConfig> = {
   },
   'in-progress': {
     bg: colors.primary,
-    text: '#FFFFFF',
+    text: colors.white,
     icon: 'autorenew',
     defaultLabel: 'In Progress',
   },

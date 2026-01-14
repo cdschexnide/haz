@@ -22,7 +22,7 @@ interface VariantConfig {
 
 const variantConfig: Record<InfoBoxVariant, VariantConfig> = {
   info: {
-    bg: '#E3F2FD',
+    bg: colors.infoLight,
     border: colors.primary,
     icon: 'info',
     iconColor: colors.primary,

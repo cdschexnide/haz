@@ -17,11 +17,13 @@ export const colors = {
   borderLight: '#F2F2F7',
   background: '#F8F9FA',
   surface: '#FFFFFF',
+  white: '#FFFFFF',
 
   // Status backgrounds
   successLight: '#F0FFF4',
   errorLight: '#FFF5F5',
   warningLight: '#FFF9E6',
+  infoLight: '#E3F2FD',
 };
 
 export const spacing = {
@@ -43,7 +45,7 @@ export const typography = {
   headerTitle: { fontSize: 18, fontWeight: '600' as const },
   cardTitle: { fontSize: 16, fontWeight: '600' as const },
   body: { fontSize: 14, fontWeight: '400' as const },
-  caption: { fontSize: 12, color: '#8E8E93' },
+  caption: { fontSize: 12, color: colors.textSecondary },
   label: { fontSize: 11, fontWeight: '600' as const, textTransform: 'uppercase' as const },
 };
 
