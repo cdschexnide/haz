@@ -18,3 +18,4 @@ export * from './FormInput';
 export * from './FormRow';
 export * from './RadioGroup';
 export * from './DatePickerField';
+export * from './ConfirmationCard';
