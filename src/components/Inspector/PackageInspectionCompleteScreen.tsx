@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import {
   View,
   Text,
-  TouchableOpacity,
   StyleSheet,
   ScrollView,
   Alert,
@@ -11,6 +10,15 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useInspectionForm } from "../../../src/contexts/InspectionFormProvider";
 import { useHazProActions } from "../../../src/stores/useHazProStore";
 import { DevBenchmarkButton } from "../dev/DevBenchmarkButton";
+import {
+  ScreenHeader,
+  ActionFooter,
+  DetailCard,
+  StatusBadge,
+  InfoBox,
+  colors,
+  spacing,
+} from "../ui";
 
 interface PackageInspectionCompleteScreenProps {
   navigation: any;
@@ -36,18 +44,6 @@ export default function PackageInspectionCompleteScreen({
   React.useEffect(() => {
     actions.setCurrentChevron("package");
   }, []);
-
-  // Format date for display
-  const formatDate = (date: Date | null): string => {
-    if (!date) return "N/A";
-    return new Intl.DateTimeFormat("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(new Date(date));
-  };
 
   // Get SDDG data from verification copy (source of truth)
   const sddgData = inspection.verificationCopy;
@@ -121,13 +117,10 @@ export default function PackageInspectionCompleteScreen({
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <MaterialIcons name="close" size={24} color="#007AFF" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Package Inspection Complete</Text>
-        <View style={{ width: 24 }} />
-      </View>
+      <ScreenHeader
+        title="Package Inspection Complete"
+        onClose={() => navigation.goBack()}
+      />
 
       <ScrollView
         style={styles.content}
@@ -135,7 +128,7 @@ export default function PackageInspectionCompleteScreen({
       >
         {/* Success Header */}
         <View style={styles.successHeader}>
-          <MaterialIcons name="check-circle" size={48} color="#34C759" />
+          <MaterialIcons name="check-circle" size={48} color={colors.success} />
           <Text style={styles.successTitle}>Package Verified</Text>
           <Text style={styles.successSubtitle}>
             All markings and labels validated with no compliance issues
@@ -143,116 +136,79 @@ export default function PackageInspectionCompleteScreen({
         </View>
 
         {/* Inspection Summary Card */}
-        <View style={styles.summaryCard}>
-          <Text style={styles.summaryCardTitle}>Inspection Summary</Text>
-
-          {/* TCN - Critical field with accent */}
-          <View style={styles.summaryFieldTCN}>
-            <Text style={styles.summaryLabel}>
-              TRANSPORTATION CONTROL NUMBER
-            </Text>
-            <Text style={styles.summaryValue}>
-              {sddgData?.shippersReferenceNumber || "N/A"}
-            </Text>
-          </View>
-
-          {/* UN# */}
-          <View style={styles.summaryField}>
-            <Text style={styles.summaryLabel}>UN/NA/ID NUMBER</Text>
-            <Text style={styles.summaryValue}>{sddgData?.unIdNo || "N/A"}</Text>
-          </View>
-
-          {/* PSN */}
-          <View style={styles.summaryField}>
-            <Text style={styles.summaryLabel}>PROPER SHIPPING NAME</Text>
-            <Text style={styles.summaryValue}>
-              {sddgData?.properShippingName || "N/A"}
-            </Text>
-          </View>
-
-          {/* SDDG Status */}
-          <View style={styles.summaryField}>
-            <Text style={styles.summaryLabel}>SDDG STATUS</Text>
-            <View style={styles.statusRow}>
-              <MaterialIcons
-                name={sddgStatus === "verified" ? "check-circle" : "error"}
-                size={18}
-                color={sddgStatus === "verified" ? "#34C759" : "#FF9500"}
-              />
-              <Text
-                style={[
-                  styles.summaryValue,
-                  { marginLeft: 8 },
-                  sddgStatus === "verified"
-                    ? styles.statusVerified
-                    : styles.statusFrustrated,
-                ]}
-              >
-                {sddgStatus === "verified"
-                  ? "Verified"
-                  : `Frustrated (${sddgFrustrations.length})`}
-              </Text>
-            </View>
-          </View>
-
-          {/* Package Status */}
-          <View style={styles.summaryField}>
-            <Text style={styles.summaryLabel}>PACKAGE STATUS</Text>
-            <View style={styles.statusRow}>
-              <MaterialIcons name="check-circle" size={18} color="#34C759" />
-              <Text
-                style={[
-                  styles.summaryValue,
-                  styles.statusVerified,
-                  { marginLeft: 8 },
-                ]}
-              >
-                Verified
-              </Text>
-            </View>
-          </View>
-
-          {/* Inspector */}
-          <View style={styles.summaryFieldLast}>
-            <Text style={styles.summaryLabel}>INSPECTOR</Text>
-            <Text style={styles.summaryValue}>
-              {inspection.inspector.inspectorName}
-            </Text>
-          </View>
-        </View>
+        <DetailCard
+          title="Inspection Summary"
+          fields={[
+            {
+              label: "TRANSPORTATION CONTROL NUMBER",
+              value: sddgData?.shippersReferenceNumber || "N/A",
+              accent: true,
+            },
+            {
+              label: "UN/NA/ID NUMBER",
+              value: sddgData?.unIdNo || "N/A",
+            },
+            {
+              label: "PROPER SHIPPING NAME",
+              value: sddgData?.properShippingName || "N/A",
+            },
+            {
+              label: "SDDG STATUS",
+              value: (
+                <StatusBadge
+                  status={sddgStatus}
+                  label={
+                    sddgStatus === "verified"
+                      ? "Verified"
+                      : `Frustrated (${sddgFrustrations.length})`
+                  }
+                />
+              ),
+            },
+            {
+              label: "PACKAGE STATUS",
+              value: <StatusBadge status="verified" label="Verified" />,
+            },
+            {
+              label: "INSPECTOR",
+              value: inspection.inspector.inspectorName,
+            },
+          ]}
+        />
 
         {/* Additional Info if SDDG has frustrations */}
         {sddgFrustrations.length > 0 && (
-          <View style={styles.infoCard}>
-            <MaterialIcons name="info" size={20} color="#007AFF" />
-            <Text style={styles.infoText}>
-              SDDG has {sddgFrustrations.length} frustration
-              {sddgFrustrations.length !== 1 ? "s" : ""}. Package inspection
-              passed with no issues.
-            </Text>
+          <View style={styles.infoBoxContainer}>
+            <InfoBox
+              variant="info"
+              message={`SDDG has ${sddgFrustrations.length} frustration${
+                sddgFrustrations.length !== 1 ? "s" : ""
+              }. Package inspection passed with no issues.`}
+            />
           </View>
         )}
       </ScrollView>
 
       {/* Action Buttons */}
-      <View style={styles.footer}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <MaterialIcons name="arrow-back" size={20} color="#007AFF" />
-          <Text style={styles.backButtonText}>Back</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.continueButton}
-          onPress={handleContinueToForm1015}
-          disabled={isSaving}
-        >
-          <Text style={styles.continueButtonText}>Continue to Form 1015</Text>
-          <MaterialIcons name="arrow-forward" size={20} color="#FFFFFF" />
-        </TouchableOpacity>
-      </View>
+      <ActionFooter
+        buttons={[
+          {
+            label: "Back",
+            onPress: () => navigation.goBack(),
+            variant: "secondary",
+            icon: "arrow-back",
+          },
+          {
+            label: "Continue to Form 1015",
+            onPress: handleContinueToForm1015,
+            variant: "primary",
+            icon: "arrow-forward",
+            iconPosition: "right",
+            loading: isSaving,
+            disabled: isSaving,
+          },
+        ]}
+      />
 
       {/* Dev Benchmark Button - only visible in __DEV__ */}
       <DevBenchmarkButton position="bottom-right" />
@@ -263,172 +219,34 @@ export default function PackageInspectionCompleteScreen({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8F9FA",
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: "#FFFFFF",
-    borderBottomWidth: 1,
-    borderBottomColor: "#E5E5EA",
-  },
-  headerTitle: {
-    flex: 1,
-    fontSize: 18,
-    fontWeight: "600",
-    textAlign: "center",
-    color: "#1D1D1F",
+    backgroundColor: colors.background,
   },
   content: {
     flex: 1,
   },
   scrollContent: {
-    padding: 12,
-    paddingBottom: 24,
+    padding: spacing.md,
+    paddingBottom: spacing.xxl,
   },
   successHeader: {
     alignItems: "center",
-    marginBottom: 16,
-    paddingVertical: 8,
-    gap: 8,
+    marginBottom: spacing.lg,
+    paddingVertical: spacing.sm,
+    gap: spacing.sm,
   },
   successTitle: {
     fontSize: 20,
     fontWeight: "700",
-    color: "#34C759",
+    color: colors.success,
   },
   successSubtitle: {
     fontSize: 14,
-    color: "#8E8E93",
+    color: colors.textSecondary,
     textAlign: "center",
-    paddingHorizontal: 24,
+    paddingHorizontal: spacing.xxl,
     lineHeight: 20,
   },
-  summaryCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: "#E5E5EA",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  summaryCardTitle: {
-    fontSize: 17,
-    fontWeight: "700",
-    color: "#1D1D1F",
-    marginBottom: 16,
-    paddingBottom: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F2F2F7",
-  },
-  summaryFieldTCN: {
-    paddingVertical: 12,
-    paddingLeft: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F2F2F7",
-    borderLeftWidth: 3,
-    borderLeftColor: "#007AFF",
-  },
-  summaryField: {
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F2F2F7",
-  },
-  summaryFieldLast: {
-    paddingVertical: 12,
-  },
-  summaryLabel: {
-    fontSize: 11,
-    fontWeight: "600",
-    color: "#8E8E93",
-    letterSpacing: 0.5,
-    marginBottom: 6,
-    textTransform: "uppercase",
-  },
-  summaryValue: {
-    fontSize: 15,
-    fontWeight: "600",
-    color: "#1D1D1F",
-    lineHeight: 20,
-  },
-  statusRow: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  statusVerified: {
-    color: "#34C759",
-  },
-  statusFrustrated: {
-    color: "#FF9500",
-  },
-  infoCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#E3F2FD",
-    borderRadius: 12,
-    padding: 16,
-    marginTop: 12,
-    borderWidth: 1,
-    borderColor: "#BBDEFB",
-  },
-  infoText: {
-    flex: 1,
-    fontSize: 14,
-    color: "#1D1D1F",
-    marginLeft: 12,
-    lineHeight: 20,
-  },
-  footer: {
-    backgroundColor: "#FFFFFF",
-    borderTopWidth: 1,
-    borderTopColor: "#E5E5EA",
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 16,
-    flexDirection: "row",
-    gap: 12,
-  },
-  backButton: {
-    flex: 1,
-    backgroundColor: "#FFFFFF",
-    borderWidth: 2,
-    borderColor: "#007AFF",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 14,
-    borderRadius: 12,
-  },
-  backButtonText: {
-    color: "#007AFF",
-    fontSize: 16,
-    fontWeight: "600",
-    marginLeft: 8,
-  },
-  continueButton: {
-    flex: 1,
-    backgroundColor: "#34C759",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 14,
-    borderRadius: 12,
-    shadowColor: "#34C759",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  continueButtonText: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "600",
-    marginRight: 8,
+  infoBoxContainer: {
+    marginTop: spacing.md,
   },
 });
