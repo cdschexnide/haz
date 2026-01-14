@@ -2,11 +2,9 @@ import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
-  TouchableOpacity,
   StyleSheet,
   ScrollView,
   Alert,
-  ActivityIndicator,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useInspectionForm } from "@/contexts/InspectionFormProvider";
@@ -14,6 +12,14 @@ import { useDatabase } from "@/contexts/DataProvider";
 import { FrustrationRecord, InspectorShipment } from "@/types/sddg";
 import { useHazProActions } from "@/stores/useHazProStore";
 import { DevBenchmarkButton } from "./dev/DevBenchmarkButton";
+import {
+  ScreenHeader,
+  ActionFooter,
+  colors,
+  spacing,
+  borderRadius,
+  shadows,
+} from "./ui";
 
 interface SDDGFrustrationSummaryProps {
   navigation: any;
@@ -245,7 +251,7 @@ export default function SDDGFrustrationSummary({
   ) => (
     <View key={`${frustration.key}-${index}`} style={styles.frustrationCard}>
       <View style={styles.frustrationHeader}>
-        <MaterialIcons name="error" size={24} color="#FF3B30" />
+        <MaterialIcons name="error" size={24} color={colors.error} />
         <Text style={styles.frustrationFieldLabel}>
           {frustration.fieldLabel}
         </Text>
@@ -254,7 +260,7 @@ export default function SDDGFrustrationSummary({
       <View style={styles.frustrationDetails}>
         <View style={styles.valueComparisonContainer}>
           <View style={styles.detailRow}>
-            <MaterialIcons name="close" size={16} color="#FF3B30" />
+            <MaterialIcons name="close" size={16} color={colors.error} />
             <Text style={styles.detailLabel}>Incorrect Value:</Text>
             <Text style={[styles.detailValue, styles.incorrectValueText]}>
               {frustration.fieldValue || "No data"}
@@ -263,7 +269,7 @@ export default function SDDGFrustrationSummary({
 
           {frustration.correctValue && (
             <View style={[styles.detailRow, styles.correctValueRow]}>
-              <MaterialIcons name="check" size={16} color="#34C759" />
+              <MaterialIcons name="check" size={16} color={colors.success} />
               <Text style={styles.detailLabel}>Should be:</Text>
               <Text style={[styles.detailValue, styles.correctValueText]}>
                 {frustration.correctValue}
@@ -309,6 +315,13 @@ export default function SDDGFrustrationSummary({
 
   return (
     <View style={styles.container}>
+      <ScreenHeader
+        title="SDDG Frustration Summary"
+        onClose={handleCancel}
+        rightIcon="error"
+        rightBadgeCount={frustrations.length}
+      />
+
       <ScrollView
         style={styles.content}
         contentContainerStyle={styles.scrollContent}
@@ -320,47 +333,37 @@ export default function SDDGFrustrationSummary({
       </ScrollView>
 
       {/* Action Buttons */}
-      <View style={styles.footer}>
-        <TouchableOpacity
-          style={styles.cancelButton}
-          onPress={handleCancel}
-          disabled={isSaving}
-        >
-          <Text style={styles.cancelButtonText}>Cancel</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.saveExitButton}
-          onPress={handleSaveAndExit}
-          disabled={isSaving}
-        >
-          {isSaving ? (
-            <ActivityIndicator color="#FFFFFF" size="small" />
-          ) : (
-            <>
-              <MaterialIcons name="save" size={18} color="#FFFFFF" />
-              <Text style={styles.saveExitButtonText}>Save & Exit</Text>
-            </>
-          )}
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.reinspectionButton}
-          onPress={handleReinspectFrustrations}
-          disabled={isSaving}
-        >
-          <MaterialIcons name="refresh" size={20} color="#007AFF" />
-          <Text style={styles.reinspectionButtonText}>Reinspect</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.completeButton}
-          onPress={handleCompleteWithFrustration}
-          disabled={isSaving}
-        >
-          <Text style={styles.completeButtonText}>Continue</Text>
-        </TouchableOpacity>
-      </View>
+      <ActionFooter
+        buttons={[
+          {
+            label: "Cancel",
+            onPress: handleCancel,
+            variant: "outline",
+            disabled: isSaving,
+          },
+          {
+            label: "Save & Exit",
+            onPress: handleSaveAndExit,
+            variant: "secondary",
+            icon: "save",
+            loading: isSaving,
+            disabled: isSaving,
+          },
+          {
+            label: "Reinspect",
+            onPress: handleReinspectFrustrations,
+            variant: "secondary",
+            icon: "refresh",
+            disabled: isSaving,
+          },
+          {
+            label: "Continue",
+            onPress: handleCompleteWithFrustration,
+            variant: "destructive",
+            disabled: isSaving,
+          },
+        ]}
+      />
 
       {/* Dev Benchmark Button - only visible in __DEV__ */}
       <DevBenchmarkButton position="bottom-right" />
@@ -371,38 +374,34 @@ export default function SDDGFrustrationSummary({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8F9FA",
+    backgroundColor: colors.background,
   },
   content: {
     flex: 1,
   },
   scrollContent: {
-    padding: 16,
-    paddingBottom: 24,
+    padding: spacing.lg,
+    paddingBottom: spacing.xxl,
   },
   frustrationCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.lg,
+    padding: spacing.lg,
+    marginBottom: spacing.md,
+    ...shadows.light,
     borderWidth: 1,
-    borderColor: "#FFE5E5",
+    borderColor: colors.errorLight,
   },
   frustrationHeader: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   frustrationFieldLabel: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#1D1D1F",
-    marginLeft: 8,
+    color: colors.textPrimary,
+    marginLeft: spacing.sm,
     flex: 1,
   },
   frustrationDetails: {
@@ -411,138 +410,64 @@ const styles = StyleSheet.create({
   detailRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 8,
+    marginBottom: spacing.sm,
     gap: 6,
   },
   detailLabel: {
     fontSize: 14,
-    color: "#8E8E93",
+    color: colors.textSecondary,
     fontWeight: "500",
     minWidth: 90,
   },
   detailValue: {
     fontSize: 14,
-    color: "#1D1D1F",
+    color: colors.textPrimary,
     flex: 1,
   },
   valueComparisonContainer: {
-    backgroundColor: "#F8F9FA",
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 12,
+    backgroundColor: colors.background,
+    padding: spacing.md,
+    borderRadius: borderRadius.md,
+    marginBottom: spacing.md,
     borderLeftWidth: 3,
-    borderLeftColor: "#FF3B30",
+    borderLeftColor: colors.error,
   },
   incorrectValueText: {
     fontWeight: "600",
-    color: "#FF3B30",
+    color: colors.error,
     textDecorationLine: "line-through",
   },
   correctValueRow: {
-    marginTop: 8,
-    paddingTop: 8,
+    marginTop: spacing.sm,
+    paddingTop: spacing.sm,
     borderTopWidth: 1,
-    borderTopColor: "#E5E5EA",
+    borderTopColor: colors.border,
   },
   correctValueText: {
     fontWeight: "700",
-    color: "#34C759",
+    color: colors.success,
     fontSize: 15,
   },
   messageContainer: {
-    marginTop: 8,
+    marginTop: spacing.sm,
   },
   frustrationMessage: {
     fontSize: 14,
-    color: "#1D1D1F",
-    marginTop: 4,
+    color: colors.textPrimary,
+    marginTop: spacing.xs,
     lineHeight: 20,
-    backgroundColor: "#FFF5F5",
-    padding: 12,
-    borderRadius: 8,
+    backgroundColor: colors.errorLight,
+    padding: spacing.md,
+    borderRadius: borderRadius.md,
   },
   additionalComments: {
     fontSize: 14,
-    color: "#1D1D1F",
-    marginTop: 4,
+    color: colors.textPrimary,
+    marginTop: spacing.xs,
     lineHeight: 20,
-    backgroundColor: "#F8F9FA",
-    padding: 12,
-    borderRadius: 8,
+    backgroundColor: colors.background,
+    padding: spacing.md,
+    borderRadius: borderRadius.md,
     fontStyle: "italic",
-  },
-  footer: {
-    backgroundColor: "#FFFFFF",
-    borderTopWidth: 1,
-    borderTopColor: "#E5E5EA",
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 16,
-    flexDirection: "row",
-    gap: 8,
-  },
-  cancelButton: {
-    flex: 1,
-    backgroundColor: "#FFFFFF",
-    borderWidth: 2,
-    borderColor: "#8E8E93",
-    paddingVertical: 16,
-    borderRadius: 12,
-    alignItems: "center",
-  },
-  cancelButtonText: {
-    color: "#8E8E93",
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  reinspectionButton: {
-    flex: 1,
-    backgroundColor: "#FFFFFF",
-    borderWidth: 2,
-    borderColor: "#007AFF",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 16,
-    paddingHorizontal: 8,
-    borderRadius: 12,
-  },
-  reinspectionButtonText: {
-    color: "#007AFF",
-    fontSize: 14,
-    fontWeight: "600",
-    marginLeft: 4,
-  },
-  saveExitButton: {
-    flex: 1,
-    backgroundColor: "#6C757D",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 16,
-    paddingHorizontal: 8,
-    borderRadius: 12,
-    gap: 4,
-  },
-  saveExitButtonText: {
-    color: "#FFFFFF",
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  completeButton: {
-    flex: 1,
-    backgroundColor: "#FF3B30",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 16,
-    paddingHorizontal: 8,
-    borderRadius: 12,
-  },
-  completeButtonText: {
-    color: "#FFFFFF",
-    fontSize: 14,
-    fontWeight: "600",
-    marginLeft: 4,
   },
 });
