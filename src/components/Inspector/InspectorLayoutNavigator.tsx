@@ -34,6 +34,8 @@ import InspectorFirstAidChemicalKitScreen from "./InspectorFirstAidChemicalKitSc
 import InspectorDangerousGoodsInApparatusScreen from "./InspectorDangerousGoodsInApparatusScreen";
 import InspectorBatteryPoweredVehicleScreen from "./InspectorBatteryPoweredVehicleScreen";
 import InspectorLithiumBatteriesScreen from "./InspectorLithiumBatteriesScreen";
+import InspectorCompressedGasesScreen from "./InspectorCompressedGasesScreen";
+import InspectorCylinderTypeSelectionScreen from "./InspectorCylinderTypeSelectionScreen";
 import InnerPackagingConfirmation from "./InnerPackaging/InnerPackagingConfirmation";
 import OpeningProcedures from "./InnerPackaging/OpeningProcedures";
 import InnerPackagingInspection from "./InnerPackaging/InnerPackagingInspection";
@@ -194,6 +196,14 @@ const InspectorWrappedStack = ({ navigation }: { navigation: any }) => (
       <MainStack.Screen
         name="InspectorLithiumBatteriesScreen"
         component={InspectorLithiumBatteriesScreen}
+      />
+      <MainStack.Screen
+        name="InspectorCompressedGasesScreen"
+        component={InspectorCompressedGasesScreen}
+      />
+      <MainStack.Screen
+        name="InspectorCylinderTypeSelectionScreen"
+        component={InspectorCylinderTypeSelectionScreen}
       />
       <MainStack.Screen
         name="InnerPackagingConfirmation"

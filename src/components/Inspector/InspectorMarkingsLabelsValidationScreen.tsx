@@ -636,7 +636,11 @@ function InspectorMarkingsLabelsValidationScreenComponent({
       return;
     }
 
-    // First inspection: route based on UN number (same logic as POP validation screen)
+    // First inspection: route based on UN number for material-specific screens
+    // Note: Class 2 materials (A6.X packing instruction) have already been through
+    // cylinder type selection and compressed gases screens before reaching here
+
+    // Route based on UN number (same logic as POP validation screen)
     const unIdNo =
       inspection.verificationCopy?.unIdNo ||
       inspection.extractedContent?.unIdNo ||

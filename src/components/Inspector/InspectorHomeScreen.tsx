@@ -628,8 +628,8 @@ function InspectorHomeScreenComponent({
     </>
   );
 
-  const materialsWithoutPackingGroup = hazardousMaterialsList.filter((material) => material.packingGroup === "" && material.hazclassDiv !== "" && material.packagingParagraph !== "FORBIDDEN" && material.hazclassDiv !== "7" && material.hazclassDiv !== "5.2" && !material.hazclassDiv.startsWith("1") && material.hazclassDiv !== "9");
-  console.log("materialsWithoutPackingGroup: ", JSON.stringify(materialsWithoutPackingGroup, null, 2));
+  const class2Materials = hazardousMaterialsList.filter((material) => material.packagingParagraph.startsWith("A6") && material.packagingParagraph !== "FORBIDDEN");
+  console.log("class2Materials: ", JSON.stringify(class2Materials, null, 2));
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

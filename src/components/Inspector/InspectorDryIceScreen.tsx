@@ -21,6 +21,15 @@ import {
   getDefaultFrustrationMessage,
 } from "../../../src/utils/dryIceInspectionItems";
 import { useHazProStore } from "../../../src/stores/useHazProStore";
+import {
+  ScreenHeader,
+  StepIndicator,
+  InfoBox,
+  colors,
+  spacing,
+  borderRadius,
+  shadows,
+} from "../ui";
 
 interface InspectorDryIceScreenProps {
   navigation: any;
@@ -158,6 +167,13 @@ export default function InspectorDryIceScreen({
     setIsEditMode(false);
   };
 
+  // Map verification statuses to step statuses for StepIndicator
+  const stepStatuses = items.map(item => {
+    if (item.verificationStatus === "pass") return "pass" as const;
+    if (item.verificationStatus === "fail") return "fail" as const;
+    return "pending" as const;
+  });
+
   if (!currentItem) {
     return (
       <SafeAreaView style={styles.container}>
@@ -176,13 +192,10 @@ export default function InspectorDryIceScreen({
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <MaterialIcons name="arrow-back" size={24} color="#007AFF" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Dry Ice Inspection</Text>
-        <View style={styles.headerSpacer} />
-      </View>
+      <ScreenHeader
+        title="Dry Ice Inspection"
+        onBack={() => navigation.goBack()}
+      />
 
       <ScrollView
         style={styles.content}
@@ -207,12 +220,10 @@ export default function InspectorDryIceScreen({
               </Text>
 
               {currentFrustration && (
-                <View style={styles.frustrationIndicator}>
-                  <MaterialIcons name="error" size={20} color="#FF3B30" />
-                  <Text style={styles.frustrationText}>
-                    Previously Frustrated
-                  </Text>
-                </View>
+                <InfoBox
+                  variant="error"
+                  message="Previously Frustrated"
+                />
               )}
             </View>
 
@@ -221,7 +232,7 @@ export default function InspectorDryIceScreen({
                 style={styles.validateButton}
                 onPress={handleValidate}
               >
-                <MaterialIcons name="check-circle" size={24} color="#FFFFFF" />
+                <MaterialIcons name="check-circle" size={24} color={colors.surface} />
                 <Text style={styles.validateButtonText}>Validate</Text>
               </TouchableOpacity>
 
@@ -229,7 +240,7 @@ export default function InspectorDryIceScreen({
                 style={styles.frustrateButton}
                 onPress={handleFrustrate}
               >
-                <MaterialIcons name="cancel" size={24} color="#FFFFFF" />
+                <MaterialIcons name="cancel" size={24} color={colors.surface} />
                 <Text style={styles.frustrateButtonText}>Frustrate</Text>
               </TouchableOpacity>
             </View>
@@ -238,9 +249,9 @@ export default function InspectorDryIceScreen({
           /* Frustration Edit Mode UI */
           <>
             <View style={styles.fieldContent}>
-              <View style={styles.fieldHeader}>
+              <View style={styles.fieldHeaderWithIcon}>
                 <Text style={styles.fieldLabel}>{currentItem.label}</Text>
-                <MaterialIcons name="error" size={24} color="#FF3B30" />
+                <MaterialIcons name="error" size={24} color={colors.error} />
               </View>
 
               <Text style={styles.frustrationLabel}>Frustration Details:</Text>
@@ -299,7 +310,7 @@ export default function InspectorDryIceScreen({
           <MaterialIcons
             name="chevron-left"
             size={24}
-            color={currentStep === 0 ? "#C7C7CC" : "#007AFF"}
+            color={currentStep === 0 ? "#C7C7CC" : colors.primary}
           />
           <Text
             style={[
@@ -311,25 +322,16 @@ export default function InspectorDryIceScreen({
           </Text>
         </TouchableOpacity>
 
-        <View style={styles.stepIndicator}>
+        <View style={styles.stepIndicatorContainer}>
           <Text style={styles.stepText}>
             {currentStep + 1} of {totalSteps}
           </Text>
-          <View style={styles.stepDots}>
-            {Array.from({ length: totalSteps }, (_, index) => (
-              <View
-                key={index}
-                style={[
-                  styles.stepDot,
-                  index === currentStep && styles.stepDotActive,
-                  items[index]?.verificationStatus === "pass" &&
-                    styles.stepDotPass,
-                  items[index]?.verificationStatus === "fail" &&
-                    styles.stepDotFail,
-                ]}
-              />
-            ))}
-          </View>
+          <StepIndicator
+            totalSteps={totalSteps}
+            currentStep={currentStep}
+            stepStatuses={stepStatuses}
+            showLabel={false}
+          />
         </View>
 
         <TouchableOpacity
@@ -346,7 +348,7 @@ export default function InspectorDryIceScreen({
           <Text style={styles.navButtonText}>
             {currentStep < totalSteps - 1 ? "Next" : "Complete"}
           </Text>
-          <MaterialIcons name="chevron-right" size={24} color="#007AFF" />
+          <MaterialIcons name="chevron-right" size={24} color={colors.primary} />
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -356,191 +358,160 @@ export default function InspectorDryIceScreen({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8F9FA",
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: "#FFFFFF",
-    borderBottomWidth: 1,
-    borderBottomColor: "#E5E5EA",
-  },
-  headerTitle: {
-    flex: 1,
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#1D1D1F",
-    textAlign: "center",
-  },
-  headerSpacer: {
-    width: 24,
+    backgroundColor: colors.background,
   },
   content: {
     flex: 1,
   },
   scrollContent: {
-    padding: 16,
+    padding: spacing.lg,
   },
   fieldContent: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
-    shadowColor: "#000000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.lg,
+    padding: spacing.lg,
+    marginBottom: spacing.lg,
+    ...shadows.medium,
   },
   fieldHeader: {
-    marginBottom: 16,
+    marginBottom: spacing.lg,
+  },
+  fieldHeaderWithIcon: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: spacing.lg,
   },
   fieldLabel: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#1D1D1F",
+    color: colors.textPrimary,
   },
   extractedLabel: {
     fontSize: 14,
     fontWeight: "500",
-    color: "#8E8E93",
-    marginBottom: 8,
+    color: colors.textSecondary,
+    marginBottom: spacing.sm,
   },
   previewContainer: {
-    backgroundColor: "#F2F2F7",
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 12,
+    backgroundColor: colors.borderLight,
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
+    marginBottom: spacing.md,
   },
   previewText: {
     fontSize: 14,
-    color: "#3C3C43",
+    color: colors.textPrimary,
     lineHeight: 20,
   },
   requirementText: {
     fontSize: 12,
-    color: "#8E8E93",
+    color: colors.textSecondary,
     fontStyle: "italic",
-    marginBottom: 16,
-  },
-  frustrationIndicator: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#FFEBEE",
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 16,
-  },
-  frustrationText: {
-    color: "#FF3B30",
-    fontSize: 14,
-    fontWeight: "500",
-    marginLeft: 8,
+    marginBottom: spacing.lg,
   },
   complianceButtons: {
     flexDirection: "row",
-    gap: 12,
-    paddingHorizontal: 16,
+    gap: spacing.md,
+    paddingHorizontal: spacing.lg,
   },
   validateButton: {
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#4CAF50",
-    padding: 16,
-    borderRadius: 8,
+    backgroundColor: colors.success,
+    padding: spacing.lg,
+    borderRadius: borderRadius.md,
   },
   validateButtonText: {
-    color: "#FFFFFF",
+    color: colors.surface,
     fontSize: 16,
     fontWeight: "600",
-    marginLeft: 8,
+    marginLeft: spacing.sm,
   },
   frustrateButton: {
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#FF3B30",
-    padding: 16,
-    borderRadius: 8,
+    backgroundColor: colors.error,
+    padding: spacing.lg,
+    borderRadius: borderRadius.md,
   },
   frustrateButtonText: {
-    color: "#FFFFFF",
+    color: colors.surface,
     fontSize: 16,
     fontWeight: "600",
-    marginLeft: 8,
+    marginLeft: spacing.sm,
   },
   frustrationLabel: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#FF3B30",
-    marginBottom: 16,
+    color: colors.error,
+    marginBottom: spacing.lg,
   },
   defaultMessageContainer: {
-    backgroundColor: "#F2F2F7",
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 16,
+    backgroundColor: colors.borderLight,
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
+    marginBottom: spacing.lg,
   },
   defaultMessageLabel: {
     fontSize: 12,
     fontWeight: "600",
-    color: "#8E8E93",
-    marginBottom: 4,
+    color: colors.textSecondary,
+    marginBottom: spacing.xs,
   },
   defaultMessage: {
     fontSize: 14,
-    color: "#3C3C43",
+    color: colors.textPrimary,
     lineHeight: 20,
   },
   commentsLabel: {
     fontSize: 14,
     fontWeight: "500",
-    color: "#1D1D1F",
-    marginBottom: 8,
+    color: colors.textPrimary,
+    marginBottom: spacing.sm,
   },
   inputContainer: {
-    marginBottom: 16,
+    marginBottom: spacing.lg,
   },
   textInput: {
     borderWidth: 1,
-    borderColor: "#D1D1D6",
-    borderRadius: 8,
-    padding: 12,
+    borderColor: colors.border,
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
     fontSize: 14,
     minHeight: 100,
   },
   editButtons: {
     flexDirection: "row",
-    gap: 12,
-    paddingHorizontal: 16,
+    gap: spacing.md,
+    paddingHorizontal: spacing.lg,
   },
   cancelButton: {
     flex: 1,
-    padding: 16,
-    borderRadius: 8,
+    padding: spacing.lg,
+    borderRadius: borderRadius.md,
     borderWidth: 1,
-    borderColor: "#D1D1D6",
+    borderColor: colors.border,
     alignItems: "center",
   },
   cancelButtonText: {
-    color: "#3C3C43",
+    color: colors.textPrimary,
     fontSize: 16,
     fontWeight: "600",
   },
   saveButton: {
     flex: 1,
-    padding: 16,
-    borderRadius: 8,
-    backgroundColor: "#FF3B30",
+    padding: spacing.lg,
+    borderRadius: borderRadius.md,
+    backgroundColor: colors.error,
     alignItems: "center",
   },
   saveButtonText: {
-    color: "#FFFFFF",
+    color: colors.surface,
     fontSize: 16,
     fontWeight: "600",
   },
@@ -548,76 +519,57 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: "#FFFFFF",
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    backgroundColor: colors.surface,
     borderTopWidth: 1,
-    borderTopColor: "#E5E5EA",
+    borderTopColor: colors.border,
   },
   navButton: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
   },
   navButtonDisabled: {
     opacity: 0.5,
   },
   navButtonText: {
     fontSize: 16,
-    color: "#007AFF",
+    color: colors.primary,
     fontWeight: "500",
   },
   navButtonTextDisabled: {
     color: "#C7C7CC",
   },
-  stepIndicator: {
+  stepIndicatorContainer: {
     alignItems: "center",
   },
   stepText: {
     fontSize: 14,
-    color: "#8E8E93",
-    marginBottom: 4,
-  },
-  stepDots: {
-    flexDirection: "row",
-    gap: 4,
-  },
-  stepDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: "#C7C7CC",
-  },
-  stepDotActive: {
-    backgroundColor: "#007AFF",
-  },
-  stepDotPass: {
-    backgroundColor: "#4CAF50",
-  },
-  stepDotFail: {
-    backgroundColor: "#FF3B30",
+    color: colors.textSecondary,
+    marginBottom: spacing.xs,
   },
   errorContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 16,
+    padding: spacing.lg,
   },
   errorText: {
     fontSize: 16,
-    color: "#FF3B30",
+    color: colors.error,
     textAlign: "center",
-    marginBottom: 16,
+    marginBottom: spacing.lg,
   },
   backButton: {
-    backgroundColor: "#007AFF",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
+    backgroundColor: colors.primary,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    borderRadius: borderRadius.md,
   },
   backButtonText: {
-    color: "#FFFFFF",
+    color: colors.surface,
     fontSize: 16,
     fontWeight: "600",
   },

@@ -1,8 +1,4 @@
-# AFMAN 24-604 Attachment 6 (Class 2 – Compressed Gases)
-
-**Inspection checklist by packaging paragraph (A6.2–A6.28).**
-
-Use this as a shipment inspection aid: verify the shipment’s declared proper shipping name / UNID, hazard division, and the packaging paragraph it was prepared under before applying the checks below.
+# AFMAN 24-604 Attachment 6 Inspection Checklist (Class 2 – Compressed Gases)
 
 ## A6.2. Aerosols. Prepare aerosols meeting the definition of “Consumer Commodity” as
 

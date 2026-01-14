@@ -26,7 +26,7 @@ import { useDetection, aggregateResults } from "../../ml/hooks/useDetection";
 import { DetectionOverlay } from "../../ml/components/DetectionOverlay";
 import { ImageCropScreen } from "../../ml/components/ImageCropScreen";
 import { LabelPickerModal } from "../../ml/components";
-import { useInspectionFormActions } from "../../contexts/InspectionFormProvider";
+import { useInspectionFormActions, useInspectionForm } from "../../contexts/InspectionFormProvider";
 import { useHazProActions } from "../../stores/useHazProStore";
 import { DevBenchmarkButton } from "../dev/DevBenchmarkButton";
 import {
@@ -72,6 +72,7 @@ export function MLDetectionScreen({
     }
   }, [onClose, navigation]);
   const { setMLAnalysisResults } = useInspectionFormActions();
+  const { inspection } = useInspectionForm();
   const actions = useHazProActions();
   const [permission, requestPermission] = useCameraPermissions();
   const [screenState, setScreenState] = useState<ScreenState>("home");
@@ -148,12 +149,24 @@ export function MLDetectionScreen({
       onClose();
       return;
     }
-    // In navigation mode, navigate to the POP marking data entry screen
+    // In navigation mode, determine next screen based on material type
     if (!navigation) return;
 
-    // Navigate to POP marking data entry instead of validation screen
-    navigation.navigate("InspectorPOPMarkingDataEntry");
-  }, [navigation, onClose, correctedResults, analysisResults, setMLAnalysisResults]);
+    // Check if this is a Class 2 material (packing instruction starts with A6)
+    const packingInstruction =
+      inspection?.verificationCopy?.packingInstruction ||
+      inspection?.extractedContent?.packingInstruction ||
+      "";
+
+    if (packingInstruction.toUpperCase().startsWith("A6")) {
+      // Class 2 materials: go to cylinder type selection (skip POP marking)
+      console.log("[MLDetectionScreen] Class 2 material detected, navigating to cylinder type selection:", packingInstruction);
+      navigation.navigate("InspectorCylinderTypeSelectionScreen");
+    } else {
+      // Non-Class 2 materials: go to POP marking data entry
+      navigation.navigate("InspectorPOPMarkingDataEntry");
+    }
+  }, [navigation, onClose, correctedResults, analysisResults, setMLAnalysisResults, inspection]);
 
   // Handle skip
   const handleSkip = useCallback(() => {
