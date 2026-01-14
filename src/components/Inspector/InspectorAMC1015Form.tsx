@@ -12,7 +12,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import * as FileSystem from "expo-file-system";
 import * as Print from "expo-print";
 import * as Sharing from "expo-sharing";
-import colors from "../../../src/theming/colors";
+import legacyColors from "../../../src/theming/colors";
 import { useInspectionForm } from "../../../src/contexts/InspectionFormProvider";
 import {
   mapFrustrationsToForm1015WithResolved,
@@ -22,6 +22,7 @@ import {
 import { Form1015CheckBoxWithStatus } from "./Form1015CheckboxWithStatus";
 import { useHazProActions } from "../../../src/stores/useHazProStore";
 import { DevBenchmarkButton } from "../dev/DevBenchmarkButton";
+import { ActionFooter, colors, spacing, borderRadius } from "../ui";
 
 interface InspectorAMC1015FormProps {
   navigation?: any;
@@ -2716,43 +2717,29 @@ export const InspectorAMC1015Form = ({
       </ScrollView>
 
       {/* Action Buttons */}
-      <View style={styles.completionButtonContainer}>
-        <TouchableOpacity
-          style={styles.cancelButton}
-          onPress={() => navigation?.goBack()}
-          accessibilityLabel="Cancel button"
-          accessibilityRole="button"
-        >
-          <Text style={styles.cancelButtonText}>Cancel</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.shareButton}
-          onPress={generateAndSharePdf}
-          disabled={isGeneratingPdf}
-          accessibilityLabel="Share AMC Form 1015 button"
-          accessibilityRole="button"
-          accessibilityState={{ disabled: isGeneratingPdf }}
-        >
-          {isGeneratingPdf ? (
-            <ActivityIndicator size="small" color="#ffffff" />
-          ) : (
-            <>
-              <MaterialIcons name="share" size={24} color="#FFFFFF" />
-              <Text style={styles.buttonText}>Share</Text>
-            </>
-          )}
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.completeInspectionButton}
-          onPress={handleCompleteInspectionWithFrustration}
-          accessibilityLabel="Complete inspection button"
-          accessibilityRole="button"
-        >
-          <Text style={styles.buttonText}>Complete Inspection</Text>
-        </TouchableOpacity>
-      </View>
+      <ActionFooter
+        buttons={[
+          {
+            label: "Cancel",
+            onPress: () => navigation?.goBack(),
+            variant: "outline",
+          },
+          {
+            label: "Share",
+            onPress: generateAndSharePdf,
+            variant: "secondary",
+            icon: "share",
+            iconPosition: "left",
+            loading: isGeneratingPdf,
+            disabled: isGeneratingPdf,
+          },
+          {
+            label: "Complete Inspection",
+            onPress: handleCompleteInspectionWithFrustration,
+            variant: "primary",
+          },
+        ]}
+      />
 
       {/* Dev Benchmark Button - only visible in __DEV__ */}
       <DevBenchmarkButton position="bottom-right" />
@@ -2761,7 +2748,7 @@ export const InspectorAMC1015Form = ({
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.white },
+  container: { flex: 1, backgroundColor: colors.surface },
   scrollView: { flex: 1 },
   scrollContent: { flexGrow: 1 },
   formContainer: { padding: 10 },
@@ -2770,25 +2757,25 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     height: 28,
     fontSize: 15,
-    color: "#000000",
+    color: colors.textPrimary,
   },
   flex1: {
     flex: 1,
     padding: 6,
     borderRightWidth: 1,
-    borderColor: colors.black,
+    borderColor: legacyColors.black,
   },
   flex2: {
     flex: 2,
     padding: 6,
     borderRightWidth: 1,
-    borderColor: colors.black,
+    borderColor: legacyColors.black,
   },
   flex3: {
     flex: 3,
     padding: 6,
     borderRightWidth: 1,
-    borderColor: colors.black,
+    borderColor: legacyColors.black,
   },
   flex2Row: {
     flex: 2,
@@ -2796,7 +2783,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 6,
     borderRightWidth: 1,
-    borderColor: colors.black,
+    borderColor: legacyColors.black,
   },
   flex3Row: {
     flex: 3,
@@ -2818,19 +2805,19 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
   },
   gridContainer: {
-    borderColor: colors.black,
+    borderColor: legacyColors.black,
   },
   gridHeaderLeft: {
     width: "50.1%",
     padding: 6,
     borderRightWidth: 1,
-    borderColor: colors.black,
-    backgroundColor: colors.mediumGrey,
+    borderColor: legacyColors.black,
+    backgroundColor: legacyColors.mediumGrey,
   },
   gridHeaderRight: {
     width: "49.9%",
     padding: 6,
-    backgroundColor: colors.mediumGrey,
+    backgroundColor: legacyColors.mediumGrey,
     borderRightWidth: 1,
   },
   sectionHeader: {
@@ -2852,7 +2839,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     borderLeftWidth: 1,
-    borderColor: colors.black,
+    borderColor: legacyColors.black,
     paddingVertical: 4,
     paddingHorizontal: 6,
   },
@@ -2863,10 +2850,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderLeftWidth: 1,
     borderRightWidth: 1,
-    borderColor: colors.black,
+    borderColor: legacyColors.black,
     paddingVertical: 4,
     paddingHorizontal: 6,
-    backgroundColor: colors.mediumGrey,
+    backgroundColor: legacyColors.mediumGrey,
   },
   cell2: {
     width: "50%",
@@ -2889,7 +2876,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingVertical: 4,
     paddingHorizontal: 6,
-    backgroundColor: colors.mediumGrey,
+    backgroundColor: legacyColors.mediumGrey,
   },
   cellText: {
     fontSize: 13,
@@ -2912,7 +2899,7 @@ const styles = StyleSheet.create({
   },
   rightStacked: {
     width: "50%",
-    borderColor: colors.black,
+    borderColor: legacyColors.black,
     borderLeftWidth: 1,
   },
   subRow: {
@@ -2927,17 +2914,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 6,
     paddingHorizontal: 6,
-    backgroundColor: colors.mediumGrey,
+    backgroundColor: legacyColors.mediumGrey,
     justifyContent: "center",
     height: 55,
   },
   rowBorderTop: {
     borderTopWidth: 1,
-    borderColor: colors.black,
+    borderColor: legacyColors.black,
   },
   leftStacked: {
     width: "50%",
-    borderColor: colors.black,
+    borderColor: legacyColors.black,
     height: 110,
   },
   rightSpanCell: {
@@ -2945,7 +2932,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    borderColor: colors.black,
+    borderColor: legacyColors.black,
     borderLeftWidth: 1,
     paddingVertical: 6,
     paddingHorizontal: 6,
@@ -2958,7 +2945,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderRightWidth: 1,
     borderLeftWidth: 1,
-    borderColor: colors.black,
+    borderColor: legacyColors.black,
     paddingVertical: 6,
     paddingHorizontal: 8,
     height: 50,
@@ -2970,10 +2957,10 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderRightWidth: 1,
     borderLeftWidth: 1,
-    borderColor: colors.black,
+    borderColor: legacyColors.black,
     paddingVertical: 6,
     paddingHorizontal: 8,
-    backgroundColor: colors.mediumGrey,
+    backgroundColor: legacyColors.mediumGrey,
     height: 45,
   },
   fullRow2: {
@@ -2983,7 +2970,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderRightWidth: 1,
     borderLeftWidth: 1,
-    borderColor: colors.black,
+    borderColor: legacyColors.black,
     paddingVertical: 9,
     paddingHorizontal: 12,
   },
@@ -2991,24 +2978,24 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderRightWidth: 1,
     borderLeftWidth: 1,
-    borderColor: colors.black,
+    borderColor: legacyColors.black,
     paddingVertical: 6,
     paddingHorizontal: 8,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: colors.mediumGrey,
+    backgroundColor: legacyColors.mediumGrey,
     height: 70,
   },
   commentsContainer: {
     borderWidth: 1,
-    borderColor: colors.black,
+    borderColor: legacyColors.black,
     marginTop: -1,
   },
   commentsHeader: {
     paddingVertical: 4,
     paddingHorizontal: 6,
     borderBottomWidth: 1,
-    borderColor: colors.black,
+    borderColor: legacyColors.black,
     height: 50,
     flexDirection: "row",
     alignItems: "center",
@@ -3020,23 +3007,23 @@ const styles = StyleSheet.create({
   commentsPlaceholder: {
     padding: 6,
     fontSize: 12,
-    color: colors.black,
+    color: legacyColors.black,
   },
   commentsText: {
     padding: 15,
     fontSize: 15,
-    color: colors.black,
+    color: legacyColors.black,
   },
   finalRow: {
     flexDirection: "row",
     borderWidth: 1,
-    borderColor: colors.black,
+    borderColor: legacyColors.black,
   },
   inspectionStatus: {
     flex: 3,
     padding: 6,
     borderRightWidth: 1,
-    borderColor: colors.black,
+    borderColor: legacyColors.black,
   },
   inlineCheckboxGroup: {
     flexDirection: "row",
@@ -3046,12 +3033,12 @@ const styles = StyleSheet.create({
   optionalUse: {
     flex: 1,
     borderLeftWidth: 1,
-    borderColor: colors.black,
+    borderColor: legacyColors.black,
   },
   optionalHeader: {
     padding: 4,
     borderBottomWidth: 1,
-    borderColor: colors.black,
+    borderColor: legacyColors.black,
     alignItems: "center",
   },
   optionalHeaderText: {
@@ -3059,7 +3046,7 @@ const styles = StyleSheet.create({
   },
   optionalDataRow: {
     borderTopWidth: 1,
-    borderColor: colors.black,
+    borderColor: legacyColors.black,
     padding: 4,
   },
   optionalDataValue: {
@@ -3083,7 +3070,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 9.5,
     borderLeftWidth: 1,
-    borderColor: colors.black,
+    borderColor: legacyColors.black,
     flexDirection: "row",
     alignItems: "center",
   },
@@ -3100,11 +3087,11 @@ const styles = StyleSheet.create({
   validationBanner: {
     borderLeftWidth: 1,
     borderRightWidth: 1,
-    borderColor: colors.black,
+    borderColor: legacyColors.black,
     paddingVertical: 4,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: colors.mediumGrey,
+    backgroundColor: legacyColors.mediumGrey,
   },
   validationBannerText: {
     fontWeight: "bold",
@@ -3115,7 +3102,7 @@ const styles = StyleSheet.create({
     width: 18,
     height: 18,
     borderWidth: 1,
-    borderColor: colors.black,
+    borderColor: legacyColors.black,
     marginRight: 6,
     alignItems: "center",
     justifyContent: "center",
@@ -3144,14 +3131,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "flex-start",
     borderWidth: 1,
-    borderColor: colors.black,
+    borderColor: legacyColors.black,
   },
   row2: {
     flexDirection: "row",
     borderTopWidth: 1,
     borderLeftWidth: 1,
     borderRightWidth: 1,
-    borderColor: colors.black,
+    borderColor: legacyColors.black,
   },
   row3: {
     flexDirection: "row",
@@ -3159,7 +3146,7 @@ const styles = StyleSheet.create({
     borderLeftWidth: 1,
     borderRightWidth: 1,
     borderBottomWidth: 1,
-    borderColor: colors.black,
+    borderColor: legacyColors.black,
     height: 60,
   },
   row4: {
@@ -3167,7 +3154,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderLeftWidth: 1,
     borderRightWidth: 1,
-    borderColor: colors.black,
+    borderColor: legacyColors.black,
     height: 100,
   },
   row5: {
@@ -3175,7 +3162,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderLeftWidth: 1,
     borderRightWidth: 1,
-    borderColor: colors.black,
+    borderColor: legacyColors.black,
     height: 60,
   },
   row6: {
@@ -3183,20 +3170,20 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderLeftWidth: 1,
     borderRightWidth: 1,
-    borderColor: colors.black,
+    borderColor: legacyColors.black,
     height: 80,
   },
   flex20: {
     width: "20%",
     padding: 6,
     borderRightWidth: 1,
-    borderColor: colors.black,
+    borderColor: legacyColors.black,
   },
   flex30: {
     width: "30%",
     padding: 6,
     borderRightWidth: 1,
-    borderColor: colors.black,
+    borderColor: legacyColors.black,
   },
   flex40Row: {
     flex: 4,
@@ -3204,7 +3191,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 6,
     borderRightWidth: 1,
-    borderColor: colors.black,
+    borderColor: legacyColors.black,
   },
   flex50Row: {
     flex: 5,
@@ -3223,7 +3210,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderLeftWidth: 1,
     borderRightWidth: 1,
-    borderColor: colors.black,
+    borderColor: legacyColors.black,
     height: 100,
   },
   leftStacked42: {
@@ -3237,7 +3224,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderLeftWidth: 1,
-    borderColor: colors.black,
+    borderColor: legacyColors.black,
     paddingVertical: 6,
     paddingHorizontal: 6,
   },
@@ -3245,7 +3232,7 @@ const styles = StyleSheet.create({
     height: "50%",
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: colors.mediumGrey,
+    backgroundColor: legacyColors.mediumGrey,
     paddingHorizontal: 6,
   },
   subRow42: {
@@ -3256,12 +3243,12 @@ const styles = StyleSheet.create({
   },
   rowBorderTop42: {
     borderTopWidth: 1,
-    borderColor: colors.black,
+    borderColor: legacyColors.black,
   },
   checkboxMark: {
     fontSize: 14,
     fontWeight: "bold",
-    color: colors.black,
+    color: legacyColors.black,
     lineHeight: 18,
   },
   checkboxCircleWrapper: {
@@ -3269,7 +3256,7 @@ const styles = StyleSheet.create({
     height: 34,
     borderWidth: 1.5,
     borderRadius: 17,
-    borderColor: colors.black,
+    borderColor: legacyColors.black,
     marginRight: 6,
     paddingLeft: 5,
     alignItems: "center",
@@ -3277,58 +3264,9 @@ const styles = StyleSheet.create({
   },
   checkboxCorrected: {
     borderWidth: 2,
-    borderColor: colors.black,
+    borderColor: legacyColors.black,
     borderRadius: 12,
     justifyContent: "center",
     alignItems: "center",
-  },
-  completionButtonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    padding: 16,
-    borderTopWidth: 1,
-    borderTopColor: "#e9ecef",
-    backgroundColor: "#ffffff",
-  },
-  cancelButton: {
-    flex: 1,
-    height: 48,
-    borderWidth: 1,
-    borderColor: colors.blue,
-    borderRadius: 4,
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 8,
-  },
-  cancelButtonText: {
-    color: colors.blue,
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  shareButton: {
-    flex: 1,
-    height: 48,
-    backgroundColor: "#28a745",
-    borderRadius: 4,
-    justifyContent: "center",
-    alignItems: "center",
-    marginHorizontal: 8,
-    flexDirection: "row",
-  },
-  completeInspectionButton: {
-    flex: 1,
-    height: 48,
-    backgroundColor: colors.blue,
-    borderRadius: 4,
-    justifyContent: "center",
-    alignItems: "center",
-    marginLeft: 8,
-    flexDirection: "row",
-  },
-  buttonText: {
-    color: "#ffffff",
-    fontSize: 16,
-    fontWeight: "600",
-    marginLeft: 8,
   },
 });
