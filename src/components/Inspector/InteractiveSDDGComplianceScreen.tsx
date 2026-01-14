@@ -23,6 +23,14 @@ import { useDatabase } from "../../../src/contexts/DataProvider";
 import { useHazProActions } from "../../../src/stores/useHazProStore";
 import { DevBenchmarkButton } from "../dev/DevBenchmarkButton";
 import { useRenderTracker, useContextRenderTracker } from "@/hooks/useRenderTracker";
+import {
+  ScreenHeader,
+  ActionFooter,
+  InfoBox,
+  colors,
+  spacing,
+  borderRadius,
+} from "../ui";
 
 interface InteractiveSDDGComplianceScreenProps {
   navigation: any;
@@ -562,35 +570,26 @@ const InteractiveSDDGComplianceScreenComponent: React.FC<
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <MaterialIcons name="arrow-back" size={24} color="#007AFF" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>
-          Shipper's Declaration for Dangerous Goods
-        </Text>
-        <TouchableOpacity
-          onPress={() =>
-            Alert.alert(
-              "How to Use",
-              "Tap any field on the SDDG form to record a frustration. All untapped fields will be validated by default when you complete validation.",
-              [{ text: "OK" }]
-            )
-          }
-        >
-          <MaterialIcons name="help-outline" size={24} color="#007AFF" />
-        </TouchableOpacity>
-      </View>
+      <ScreenHeader
+        title="Shipper's Declaration for Dangerous Goods"
+        onBack={() => navigation.goBack()}
+        rightIcon="help-outline"
+        onRightPress={() =>
+          Alert.alert(
+            "How to Use",
+            "Tap any field on the SDDG form to record a frustration. All untapped fields will be validated by default when you complete validation.",
+            [{ text: "OK" }]
+          )
+        }
+      />
 
       {/* Reinspection Mode Banner */}
       {isReinspectionMode && (
-        <View style={styles.reinspectionBanner}>
-          <MaterialIcons name="refresh" size={20} color="#FF9500" />
-          <Text style={styles.reinspectionText}>
-            Reinspection Mode: Review{" "}
-            {workflow.reinspection.targetFrustrations.length} frustrated
-            field(s)
-          </Text>
+        <View style={styles.reinspectionBannerContainer}>
+          <InfoBox
+            variant="warning"
+            message={`Reinspection Mode: Review ${workflow.reinspection.targetFrustrations.length} frustrated field(s)`}
+          />
         </View>
       )}
 
@@ -630,35 +629,29 @@ const InteractiveSDDGComplianceScreenComponent: React.FC<
       </ScrollView>
 
       {/* Footer Actions */}
-      <View style={styles.footer}>
-        {/* Left: Back Button */}
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <MaterialIcons name="arrow-back" size={20} color="#007AFF" />
-          <Text style={styles.backButtonText}>Back</Text>
-        </TouchableOpacity>
-
-        {/* Center: Save & Exit Button */}
-        <TouchableOpacity
-          style={styles.saveExitButton}
-          onPress={handleSaveAndExit}
-        >
-          <MaterialIcons name="save" size={20} color="#ffffff" />
-          <Text style={styles.saveExitButtonText}>Save & Exit</Text>
-        </TouchableOpacity>
-
-        {/* Right: Continue Button */}
-        <TouchableOpacity style={styles.primaryButton} onPress={handleContinue}>
-          <Text style={styles.primaryButtonText}>
-            {frustratedFields.size > 0
-              ? "Review Frustrations"
-              : "Continue Inspection"}
-          </Text>
-          <MaterialIcons name="arrow-forward" size={20} color="#FFFFFF" />
-        </TouchableOpacity>
-      </View>
+      <ActionFooter
+        buttons={[
+          {
+            label: "Back",
+            onPress: () => navigation.goBack(),
+            variant: "outline",
+            icon: "arrow-back",
+          },
+          {
+            label: "Save & Exit",
+            onPress: handleSaveAndExit,
+            variant: "secondary",
+            icon: "save",
+          },
+          {
+            label: frustratedFields.size > 0 ? "Review Frustrations" : "Continue Inspection",
+            onPress: handleContinue,
+            variant: "primary",
+            icon: "arrow-forward",
+            iconPosition: "right",
+          },
+        ]}
+      />
 
       {/* Field Modal - Progressive Disclosure */}
       <SDDGFieldModal
@@ -696,48 +689,19 @@ export default InteractiveSDDGComplianceScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8F9FA",
+    backgroundColor: colors.background,
   },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: "#FFFFFF",
-    borderBottomWidth: 1,
-    borderBottomColor: "#E5E5EA",
-  },
-  headerTitle: {
-    flex: 1,
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#1D1D1F",
-    textAlign: "center",
-    marginHorizontal: 16,
-  },
-  reinspectionBanner: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#FFF9F0",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#FF9500",
-    gap: 8,
-  },
-  reinspectionText: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#FF9500",
+  reinspectionBannerContainer: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
   },
   progressBar: {
     flexDirection: "row",
-    backgroundColor: "#FFFFFF",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    backgroundColor: colors.surface,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E5EA",
+    borderBottomColor: colors.border,
   },
   progressItem: {
     flex: 1,
@@ -745,80 +709,23 @@ const styles = StyleSheet.create({
   },
   progressLabel: {
     fontSize: 12,
-    color: "#8E8E93",
-    marginBottom: 4,
+    color: colors.textSecondary,
+    marginBottom: spacing.xs,
   },
   progressValue: {
     fontSize: 20,
     fontWeight: "700",
-    color: "#34C759",
+    color: colors.success,
   },
   frustratedValue: {
-    color: "#FF3B30",
+    color: colors.error,
   },
   progressSeparator: {
     width: 1,
-    backgroundColor: "#E5E5EA",
-    marginHorizontal: 16,
+    backgroundColor: colors.border,
+    marginHorizontal: spacing.lg,
   },
   content: {
     flex: 1,
-  },
-  footer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    padding: 16,
-    borderTopWidth: 1,
-    borderTopColor: "#e9ecef",
-    backgroundColor: "#ffffff",
-  },
-  backButton: {
-    flex: 1,
-    height: 48,
-    borderWidth: 1,
-    borderColor: "#007AFF",
-    borderRadius: 4,
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 8,
-    flexDirection: "row",
-    gap: 4,
-  },
-  backButtonText: {
-    color: "#007AFF",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  saveExitButton: {
-    flex: 1,
-    height: 48,
-    backgroundColor: "#6C757D",
-    borderRadius: 4,
-    justifyContent: "center",
-    alignItems: "center",
-    marginHorizontal: 8,
-    flexDirection: "row",
-    gap: 6,
-  },
-  saveExitButtonText: {
-    color: "#ffffff",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  primaryButton: {
-    flex: 1,
-    height: 48,
-    backgroundColor: "#007AFF",
-    borderRadius: 4,
-    justifyContent: "center",
-    alignItems: "center",
-    marginLeft: 8,
-    flexDirection: "row",
-    gap: 6,
-  },
-  primaryButtonText: {
-    color: "#ffffff",
-    fontSize: 16,
-    fontWeight: "600",
   },
 });
