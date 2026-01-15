@@ -11,7 +11,7 @@ import CoeAndCaaDisclaimer from "./CoeAndCaaDisclaimer";
 import CoeAndCaaScreen from "./CoeAndCaaScreen";
 import CylinderEntryScreen from "./CylinderEntryScreen";
 import DangerousGoods from "./DangerousGoods";
-import DisclaimerScreen from "./DisclaimerScreen";
+import { DisclaimerScreen } from "@/screens/preparer";
 import DotSpScreen from "./DotSpScreen";
 import DryIcePreparationScreen from "./DryIcePreparationScreen";
 import DryIcePrepScreen from "./DryIcePrepScreen";
