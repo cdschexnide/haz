@@ -7,3 +7,4 @@ export * from './AddressFormSection';
 export * from './CountryAutocomplete';
 export * from './ToolButtonsBar';
 export * from './ShipmentContextMenu';
+export * from './ShipmentTable';

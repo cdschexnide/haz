@@ -16,6 +16,7 @@ export const colors = {
   border: '#E5E5EA',
   borderLight: '#F2F2F7',
   background: '#F8F9FA',
+  backgroundSecondary: '#F4F4F4',
   surface: '#FFFFFF',
   white: '#FFFFFF',
 
