@@ -5,3 +5,4 @@
 
 export * from './CountryAutocomplete';
 export * from './ToolButtonsBar';
+export * from './ShipmentContextMenu';
