@@ -4,13 +4,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { BottomSheet } from '@rneui/themed';
 import { MaterialIcons } from '@expo/vector-icons';
 import { colors, spacing, borderRadius, typography } from '@/components/ui/theme';
-
-interface SavedShipment {
-  id: string;
-  status: 'in-progress' | 'completed';
-  savedAt: Date;
-  hazProPreparerContext: any;
-}
+import { SavedShipment } from '@/contexts/HazProPreparerProvider/reducer';
 
 export interface ShipmentContextMenuProps {
   visible: boolean;

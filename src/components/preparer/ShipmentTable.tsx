@@ -11,26 +11,7 @@ import {
 import { ListItem, Button } from 'react-native-elements';
 import { Feather } from '@expo/vector-icons';
 import { colors, spacing, typography } from '@/components/ui/theme';
-
-interface SavedShipment {
-  id: string;
-  status: 'in-progress' | 'completed';
-  savedAt: Date;
-  hazProPreparerContext: {
-    shipment?: {
-      tcn?: string;
-      poe?: string;
-      pod?: string;
-    };
-    hazardousMaterial?: {
-      unid?: string;
-      hazclassDiv?: string;
-    };
-    preparer?: {
-      preparerName?: string;
-    };
-  };
-}
+import { SavedShipment } from '@/contexts/HazProPreparerProvider/reducer';
 
 export interface ShipmentTableProps {
   shipments: SavedShipment[];
