@@ -149,5 +149,10 @@ jest.mock('@react-navigation/drawer', () => ({
   })),
 }));
 
+// Mock react-native-webview
+jest.mock('react-native-webview', () => ({
+  WebView: 'WebView',
+}));
+
 // Global timeout for async tests
 jest.setTimeout(30000);
