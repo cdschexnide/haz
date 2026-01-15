@@ -1,4 +1,4 @@
-import { HazProInspectorContext } from "../../../src/contexts/HazProInspectorProvider/HazProInspectorContext";
+import { HazProInspectorContext } from "../../contexts/HazProInspectorProvider/HazProInspectorContext";
 import { Button } from "react-native-elements";
 import React, { useContext, useEffect } from "react";
 import {
@@ -11,7 +11,7 @@ import {
   Dimensions,
 } from "react-native";
 import { InspectorAMC1015Form } from "./InspectorAMC1015Form";
-import { useNavigationRef } from "../../../src/contexts/NavigationRefProvider/useNavigationRef";
+import { useNavigationRef } from "../../contexts/NavigationRefProvider/useNavigationRef";
 
 const { height } = Dimensions.get("window");
 

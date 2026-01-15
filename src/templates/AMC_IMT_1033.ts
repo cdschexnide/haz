@@ -53,27 +53,27 @@ export const AMC_IMT_1033_TEMPLATE: SDDGTemplate = {
   ],
   "regions": {
     "shipper": {
-      "x": 138,
-      "y": 173,
-      "w": 1308,
-      "h": 351,
+      "x": 255,
+      "y": 275,
+      "w": 1179,
+      "h": 301,
       "fieldType": "text",
       "validation": "shipper"
     },
     "air_waybill": {
       "awb_number": {
         "x": 1472,
-        "y": 179,
-        "w": 869,
-        "h": 69,
+        "y": 303,
+        "w": 799,
+        "h": 79,
         "fieldType": "alphanumeric",
         "validation": "awb_number"
       },
       "page_info": {
         "x": 1468,
-        "y": 257,
-        "w": 888,
-        "h": 91,
+        "y": 376,
+        "w": 822,
+        "h": 103,
         "fieldType": "text",
         "regex": "PAGE\\s+\\d+\\s+OF\\s+\\d+\\s+PAGES"
       }
@@ -81,53 +81,53 @@ export const AMC_IMT_1033_TEMPLATE: SDDGTemplate = {
     "shipper_reference": {
       "tcn": {
         "x": 1462,
-        "y": 371,
-        "w": 877,
-        "h": 142,
+        "y": 489,
+        "w": 812,
+        "h": 113,
         "fieldType": "alphanumeric",
         "validation": "tcn",
         "regex": "[A-Z0-9]{17}"
       }
     },
     "consignee": {
-      "x": 145,
-      "y": 534,
-      "w": 1320,
-      "h": 227,
+      "x": 254,
+      "y": 570,
+      "w": 1177,
+      "h": 202,
       "fieldType": "text",
       "validation": "consignee"
     },
     "inspector": {
       "x": 1491,
-      "y": 570,
-      "w": 848,
-      "h": 159,
+      "y": 628,
+      "w": 790,
+      "h": 152,
       "fieldType": "text",
       "validation": "inspector",
       "optional": true
     },
     "transportation_details": {
       "airport_departure": {
-        "x": 1070,
+        "x": 1109,
         "y": 931,
-        "w": 393,
-        "h": 245,
+        "w": 354,
+        "h": 204,
         "fieldType": "text",
         "validation": "airport_code",
         "regex": "[A-Z]{3}"
       },
       "cargo_aircraft_only": {
-        "x": 149,
-        "y": 931,
-        "w": 926,
-        "h": 258,
+        "x": 243,
+        "y": 907,
+        "w": 851,
+        "h": 232,
         "fieldType": "checkbox"
       },
       "airport_destination": {
-        "x": 145,
-        "y": 1204,
-        "w": 1280,
-        "h": 113,
+        "x": 229,
+        "y": 1136,
+        "w": 1211,
+        "h": 98,
         "fieldType": "text",
         "validation": "airport_code",
         "regex": "[A-Z]{3}"
@@ -135,120 +135,121 @@ export const AMC_IMT_1033_TEMPLATE: SDDGTemplate = {
     },
     "shipment_type": {
       "non_radioactive": {
-        "x": 1527,
-        "y": 1146,
-        "w": 320,
-        "h": 116,
+        "x": 1522,
+        "y": 1131,
+        "w": 285,
+        "h": 80,
         "fieldType": "checkbox"
       },
       "radioactive": {
-        "x": 1937,
-        "y": 1162,
-        "w": 250,
-        "h": 94,
+        "x": 1899,
+        "y": 1139,
+        "w": 215,
+        "h": 82,
         "fieldType": "checkbox"
       }
     },
     "dangerous_goods": {
       "un_number": {
-        "x": 143,
-        "y": 1525,
-        "w": 193,
-        "h": 744,
+        "x": 236,
+        "y": 1419,
+        "w": 190,
+        "h": 635,
         "fieldType": "alphanumeric",
         "validation": "un_number",
         "regex": "UN\\d{4}"
       },
       "proper_shipping_name": {
-        "x": 358,
-        "y": 1530,
-        "w": 582,
-        "h": 520,
+        "x": 434,
+        "y": 1417,
+        "w": 506,
+        "h": 633,
         "fieldType": "text"
       },
       "class_division": {
-        "x": 944,
-        "y": 1525,
-        "w": 284,
-        "h": 531,
+        "x": 1008,
+        "y": 1446,
+        "w": 220,
+        "h": 610,
         "fieldType": "alphanumeric"
       },
       "packing_group": {
-        "x": 1270,
-        "y": 1547,
-        "w": 128,
-        "h": 499,
+        "x": 1273,
+        "y": 1457,
+        "w": 125,
+        "h": 589,
         "fieldType": "alphanumeric",
         "regex": "I{1,3}",
         "optional": true
       },
       "quantity_packing": {
         "x": 1418,
-        "y": 1519,
-        "w": 426,
-        "h": 541,
+        "y": 1454,
+        "w": 344,
+        "h": 606,
         "fieldType": "text"
       },
       "packing_inst": {
-        "x": 1853,
-        "y": 1539,
-        "w": 235,
-        "h": 522,
+        "x": 1825,
+        "y": 1467,
+        "w": 198,
+        "h": 594,
         "fieldType": "alphanumeric",
         "optional": true
       },
       "authorization": {
-        "x": 2132,
-        "y": 1545,
-        "w": 248,
-        "h": 525,
+        "x": 2063,
+        "y": 1491,
+        "w": 208,
+        "h": 579,
         "fieldType": "text",
         "optional": true
       }
     },
     "additional_handling": {
-      "x": 147,
-      "y": 2277,
-      "w": 2232,
-      "h": 426,
+      "x": 205,
+      "y": 2066,
+      "w": 2073,
+      "h": 371,
       "fieldType": "text",
       "optional": true
     },
     "signature_block": {
       "name_title": {
-        "x": 1575,
-        "y": 2685,
-        "w": 802,
-        "h": 184,
+        "x": 1550,
+        "y": 2446,
+        "w": 765,
+        "h": 143,
         "fieldType": "text"
       },
       "place_date": {
-        "x": 1583,
-        "y": 2867,
-        "w": 406,
-        "h": 145,
+        "x": 1548,
+        "y": 2590,
+        "w": 312,
+        "h": 105,
         "fieldType": "text",
         "validation": "place_date"
       },
       "signature_date": {
-        "x": 2056,
-        "y": 2902,
-        "w": 327,
-        "h": 114,
+        "x": 2002,
+        "y": 2644,
+        "w": 300,
+        "h": 70,
         "fieldType": "text",
         "validation": "date",
         "regex": "\\w{3}\\s+\\d{1,2},\\s+\\d{4}"
       },
       "signature": {
-        "x": 1576,
-        "y": 3013,
-        "w": 817,
-        "h": 126,
+        "x": 1555,
+        "y": 2706,
+        "w": 763,
+        "h": 138,
         "fieldType": "signature"
       }
     }
   }
 };
+
 /**
  * Helper function to get a specific region by path
  * Example: getRegion('shipper.shipper_id')

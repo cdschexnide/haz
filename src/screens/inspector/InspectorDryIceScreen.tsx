@@ -10,17 +10,17 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
-import { useInspectionForm } from "../../../src/contexts/InspectionFormProvider";
+import { useInspectionForm } from "../../contexts/InspectionFormProvider";
 import {
   DryIceShipmentData,
   DryIceInspectionItem,
   VerificationStatus,
-} from "../../../src/types/dryIceInspection";
+} from "../../types/dryIceInspection";
 import {
   generateDryIceInspectionItems,
   getDefaultFrustrationMessage,
-} from "../../../src/utils/dryIceInspectionItems";
-import { useHazProStore } from "../../../src/stores/useHazProStore";
+} from "../../utils/dryIceInspectionItems";
+import { useHazProStore } from "../../stores/useHazProStore";
 import {
   ScreenHeader,
   StepIndicator,
@@ -29,7 +29,7 @@ import {
   spacing,
   borderRadius,
   shadows,
-} from "../ui";
+} from "../../components/ui";
 
 interface InspectorDryIceScreenProps {
   navigation: any;

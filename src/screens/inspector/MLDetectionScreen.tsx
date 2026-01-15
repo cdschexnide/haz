@@ -28,8 +28,8 @@ import { ImageCropScreen } from "../../ml/components/ImageCropScreen";
 import { LabelPickerModal } from "../../ml/components";
 import { useInspectionFormActions, useInspectionForm } from "../../contexts/InspectionFormProvider";
 import { useHazProActions } from "../../stores/useHazProStore";
-import { DevBenchmarkButton } from "../dev/DevBenchmarkButton";
-import { ScreenHeader, ActionFooter, InfoBox, colors, spacing, borderRadius } from "../ui";
+import { DevBenchmarkButton } from "../../components/dev/DevBenchmarkButton";
+import { ScreenHeader, ActionFooter, InfoBox, colors, spacing, borderRadius } from "../../components/ui";
 import {
   CapturedImage,
   ImageDetectionResult,

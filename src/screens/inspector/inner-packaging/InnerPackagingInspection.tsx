@@ -8,13 +8,13 @@
 import React, { useState, useMemo } from "react";
 import { StyleSheet, View, ScrollView, TextInput, Alert } from "react-native";
 import { Button, Text, Card } from "react-native-elements";
-import { useInspectionForm } from "../../../../src/contexts/InspectionFormProvider";
+import { useInspectionForm } from "../../../contexts/InspectionFormProvider";
 import {
   areAllInspectionItemsCompleted,
   createInnerPackagingFrustration,
   requiresLeakProofLiner,
   checkIfMaterialIsLiquid,
-} from "../../../../src/utils/innerPackagingInspection";
+} from "../../../utils/innerPackagingInspection";
 
 const InnerPackagingInspection = ({ navigation }: { navigation: any }) => {
   const {

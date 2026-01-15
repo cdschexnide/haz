@@ -8,9 +8,9 @@
 import React from "react";
 import { StyleSheet, View, ScrollView, TouchableOpacity } from "react-native";
 import { Text, Card } from "react-native-elements";
-import { useInspectionForm } from "../../../../src/contexts/InspectionFormProvider";
-import { OPENING_PROCEDURES } from "../../../../src/utils/innerPackagingProcedures";
-import { getContainerTypeLabel } from "../../../../src/utils/innerPackagingParser";
+import { useInspectionForm } from "../../../contexts/InspectionFormProvider";
+import { OPENING_PROCEDURES } from "../../../utils/innerPackagingProcedures";
+import { getContainerTypeLabel } from "../../../utils/innerPackagingParser";
 
 const OpeningProcedures = ({ navigation }: { navigation: any }) => {
   const { inspection, updateInnerPackagingField } = useInspectionForm();

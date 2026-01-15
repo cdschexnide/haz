@@ -12,8 +12,8 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
-import { useInspectionForm } from "../../../src/contexts/InspectionFormProvider";
-import { useHazProStore } from "../../../src/stores/useHazProStore";
+import { useInspectionForm } from "../../contexts/InspectionFormProvider";
+import { useHazProStore } from "../../stores/useHazProStore";
 import {
   ScreenHeader,
   InfoBox,
@@ -21,7 +21,7 @@ import {
   spacing,
   borderRadius,
   shadows,
-} from "../ui";
+} from "../../components/ui";
 
 interface InspectorCapacitorsScreenProps {
   navigation: any;

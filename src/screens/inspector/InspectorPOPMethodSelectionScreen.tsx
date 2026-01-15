@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
-import { useInspectionForm } from "../../../src/contexts/InspectionFormProvider";
+import { useInspectionForm } from "../../contexts/InspectionFormProvider";
 
 const { width } = Dimensions.get("window");
 

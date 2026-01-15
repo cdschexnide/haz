@@ -9,10 +9,10 @@ import {
   ScrollView,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import { HazProInspectorContext } from "../../../src/contexts/HazProInspectorProvider/HazProInspectorContext";
+import { HazProInspectorContext } from "../../contexts/HazProInspectorProvider/HazProInspectorContext";
 import { PhysicalState, unitOptions } from "../../../types";
-import colors from "../../../src/theming/colors";
-import { convertUnits } from "../../../src/utils/unitConversions";
+import colors from "../../theming/colors";
+import { convertUnits } from "../../utils/unitConversions";
 import { Button } from "react-native-elements";
 import { informativeSpecialProvisionsMap } from "../../../server/informativeStatements/informativeStatements";
 import { hazProContextLookup } from "../../../server/lookupFunctions/hazProContextLookup";

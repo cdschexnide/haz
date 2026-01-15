@@ -13,10 +13,10 @@ import {
   useInspectorData,
   useReinspectionState,
   useInspectionId,
-} from "../../../src/contexts/InspectionFormProvider";
-import { PackageFrustrationRecord } from "../../../src/types/sddg";
-import { useHazProActions } from "../../../src/stores/useHazProStore";
-import { DevBenchmarkButton } from "../dev/DevBenchmarkButton";
+} from "../../contexts/InspectionFormProvider";
+import { PackageFrustrationRecord } from "../../types/sddg";
+import { useHazProActions } from "../../stores/useHazProStore";
+import { DevBenchmarkButton } from "../../components/dev/DevBenchmarkButton";
 import {
   ScreenHeader,
   ActionFooter,
@@ -24,7 +24,7 @@ import {
   spacing,
   borderRadius,
   shadows,
-} from "../ui";
+} from "../../components/ui";
 
 interface PackageFrustrationSummaryProps {
   navigation: any;

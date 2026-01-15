@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { StyleSheet, View, TouchableOpacity } from "react-native";
 import { Text, Card } from "react-native-elements";
-import { useInspectionForm } from "../../../../src/contexts/InspectionFormProvider";
+import { useInspectionForm } from "../../../contexts/InspectionFormProvider";
 import {
   parseContainerTypeFromQuantityPacking,
   getContainerTypeLabel,
-} from "../../../../src/utils/innerPackagingParser";
-import { initializeInnerPackagingInspection } from "../../../../src/utils/innerPackagingInspection";
+} from "../../../utils/innerPackagingParser";
+import { initializeInnerPackagingInspection } from "../../../utils/innerPackagingInspection";
 
 const InnerPackagingConfirmation = ({ navigation }: { navigation: any }) => {
   const { inspection, setInnerPackagingInspection } = useInspectionForm();

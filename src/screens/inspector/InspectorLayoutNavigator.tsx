@@ -1,21 +1,16 @@
 import { createStackNavigator } from "@react-navigation/stack";
 import React from "react";
+
+// Screens in same folder (./*)
 import InspectorHomeScreen from "./InspectorHomeScreen";
-import ShippersDeclarationScreen from "../ShippersDeclarationScreen";
 import InspectorWorkflowSelection from "./InspectorWorkflowSelection";
 import InspectorDisclaimerScreen from "./InspectorDisclaimerScreen";
-import InspectorMainLayout from "./InspectorMainLayout";
 import ValidateInspection from "./ValidateInspectionScreen";
 import { InspectorHazmatQuantityEntryScreen } from "./InspectorHazmatQuantityEntry";
 import InspectorInitialQuestioningScreen from "./InspectorInitialQuestioningScreen";
 import { InspectorExceptedOrLimitedQuantities } from "./InspectorExceptedOrLimitedQuantities";
-import SDDGUploadAndParse from "../SDDGUploadAndParse";
-import SDDGVerificationScreen from "../SDDGVerificationScreen";
-import SDDGFrustrationSummary from "../SDDGFrustrationSummary";
-import SDDGComplianceValidation from "../SDDGComplianceValidation";
 import InteractiveSDDGComplianceScreen from "./InteractiveSDDGComplianceScreen";
 import SDDGManualEntryScreen from "./SDDGManualEntryScreen";
-import SDDGInspectionCompleteScreen from "../SDDGInspectionCompleteScreen";
 import InspectorShippersDeclarationScreen from "./InspectorShippersDeclarationScreen";
 import InspectorPackageVerificationScreen from "./InspectorPackageVerificationScreen";
 import InspectorPopMarking from "./InspectorPopMarking";
@@ -36,18 +31,31 @@ import InspectorBatteryPoweredVehicleScreen from "./InspectorBatteryPoweredVehic
 import InspectorLithiumBatteriesScreen from "./InspectorLithiumBatteriesScreen";
 import InspectorCompressedGasesScreen from "./InspectorCompressedGasesScreen";
 import InspectorCylinderTypeSelectionScreen from "./InspectorCylinderTypeSelectionScreen";
-import InnerPackagingConfirmation from "./InnerPackaging/InnerPackagingConfirmation";
-import OpeningProcedures from "./InnerPackaging/OpeningProcedures";
-import InnerPackagingInspection from "./InnerPackaging/InnerPackagingInspection";
-import ClosingProcedures from "./InnerPackaging/ClosingProcedures";
-import SDDGCameraScreen from "../../screens/SDDG/SDDGCameraScreen";
-import SDDGProcessingScreen from "../../screens/SDDG/SDDGProcessingScreen";
-import SDDGRegionAdjustmentScreen from "../../screens/SDDG/SDDGRegionAdjustmentScreen";
 import InspectorPOPScannerScreen from "./InspectorPOPScannerScreen";
 import InspectorPOPScanResultsScreen from "./InspectorPOPScanResultsScreen";
 import InspectorPOPMethodSelectionScreen from "./InspectorPOPMethodSelectionScreen";
 import MLDetectionScreen from "./MLDetectionScreen";
 import InspectorMarkingsLabelsValidationScreen from "./InspectorMarkingsLabelsValidationScreen";
+
+// Inner packaging screens (./inner-packaging/*)
+import InnerPackagingConfirmation from "./inner-packaging/InnerPackagingConfirmation";
+import OpeningProcedures from "./inner-packaging/OpeningProcedures";
+import InnerPackagingInspection from "./inner-packaging/InnerPackagingInspection";
+import ClosingProcedures from "./inner-packaging/ClosingProcedures";
+
+// Components that stayed in src/components/ (../../components/*)
+import InspectorMainLayout from "../../components/Inspector/InspectorMainLayout";
+import ShippersDeclarationScreen from "../../components/ShippersDeclarationScreen";
+import SDDGUploadAndParse from "../../components/SDDGUploadAndParse";
+import SDDGVerificationScreen from "../../components/SDDGVerificationScreen";
+import SDDGFrustrationSummary from "../../components/SDDGFrustrationSummary";
+import SDDGComplianceValidation from "../../components/SDDGComplianceValidation";
+import SDDGInspectionCompleteScreen from "../../components/SDDGInspectionCompleteScreen";
+
+// SDDG screens in src/screens/SDDG/ (../SDDG/*)
+import SDDGCameraScreen from "../SDDG/SDDGCameraScreen";
+import SDDGProcessingScreen from "../SDDG/SDDGProcessingScreen";
+import SDDGRegionAdjustmentScreen from "../SDDG/SDDGRegionAdjustmentScreen";
 
 const InspectorStack = createStackNavigator();
 

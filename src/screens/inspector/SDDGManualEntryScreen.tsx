@@ -12,9 +12,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useInspectionForm } from "../../contexts/InspectionFormProvider";
 import { ExtractedSDDGContent } from "../../types/sddg";
-import SimpleFieldEditModal from "./SimpleFieldEditModal";
-import TappableSDDGField from "./TappableSDDGField";
-import TappableTableCell from "./TappableTableCell";
+import SimpleFieldEditModal from "../../components/Inspector/SimpleFieldEditModal";
+import TappableSDDGField from "../../components/Inspector/TappableSDDGField";
+import TappableTableCell from "../../components/Inspector/TappableTableCell";
 import { useHazProStore } from "../../stores/useHazProStore";
 
 interface SDDGManualEntryScreenProps {

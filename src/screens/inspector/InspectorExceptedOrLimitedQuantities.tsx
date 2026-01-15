@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { Button } from "react-native-elements";
-import { HazProInspectorContext } from "../../../src/contexts/HazProInspectorProvider/HazProInspectorContext";
-import colors from "../../../src/theming/colors";
+import { HazProInspectorContext } from "../../contexts/HazProInspectorProvider/HazProInspectorContext";
+import colors from "../../theming/colors";
 
 export const InspectorExceptedOrLimitedQuantities = ({
   navigation,

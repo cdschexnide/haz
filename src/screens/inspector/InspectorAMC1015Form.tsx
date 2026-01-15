@@ -12,17 +12,17 @@ import { MaterialIcons } from "@expo/vector-icons";
 import * as FileSystem from "expo-file-system";
 import * as Print from "expo-print";
 import * as Sharing from "expo-sharing";
-import legacyColors from "../../../src/theming/colors";
-import { useInspectionForm } from "../../../src/contexts/InspectionFormProvider";
+import legacyColors from "../../theming/colors";
+import { useInspectionForm } from "../../contexts/InspectionFormProvider";
 import {
   mapFrustrationsToForm1015WithResolved,
   getForm1015FrustrationDescription,
   PACKAGE_TO_FORM1015_MAPPING,
-} from "../../../src/utils/sddgToForm1015Mapping";
-import { Form1015CheckBoxWithStatus } from "./Form1015CheckboxWithStatus";
-import { useHazProActions } from "../../../src/stores/useHazProStore";
-import { DevBenchmarkButton } from "../dev/DevBenchmarkButton";
-import { ActionFooter, colors, spacing, borderRadius } from "../ui";
+} from "../../utils/sddgToForm1015Mapping";
+import { Form1015CheckBoxWithStatus } from "../../components/Inspector/Form1015CheckboxWithStatus";
+import { useHazProActions } from "../../stores/useHazProStore";
+import { DevBenchmarkButton } from "../../components/dev/DevBenchmarkButton";
+import { ActionFooter, colors, spacing, borderRadius } from "../../components/ui";
 
 interface InspectorAMC1015FormProps {
   navigation?: any;

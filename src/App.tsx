@@ -10,7 +10,7 @@ import { HazProValtioProvider } from "./contexts/HazProPreparerProvider/HazProVa
 import { NavigationRefProvider } from "./contexts/NavigationRefProvider/NavigationRefProvider";
 import { useSetNavigationRef } from "./contexts/NavigationRefProvider/useSetNavigationRef";
 import { ShipmentsProvider } from "./contexts/ShipmentsProvider";
-import InspectorLayoutNavigator from "./components/Inspector/InspectorLayoutNavigator";
+import InspectorLayoutNavigator from "./screens/inspector/InspectorLayoutNavigator";
 import { HazProInspectorProvider } from "./contexts/HazProInspectorProvider/HazProInspectorProvider";
 import { AutocompleteDropdownContextProvider } from "react-native-autocomplete-dropdown";
 import { DataProvider } from "./contexts/DataProvider";

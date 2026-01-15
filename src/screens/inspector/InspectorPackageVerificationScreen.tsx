@@ -10,10 +10,10 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
-import { useInspectionForm } from "../../../src/contexts/InspectionFormProvider";
-import { evaluateMarkingRequirementsInspector } from "../../../src/utils/markingRequirementsInspector";
-import { evaluateLabelingRequirements } from "../../../src/utils/labelingRequirementsInspector";
-import { useHazProStore } from "../../../src/stores/useHazProStore";
+import { useInspectionForm } from "../../contexts/InspectionFormProvider";
+import { evaluateMarkingRequirementsInspector } from "../../utils/markingRequirementsInspector";
+import { evaluateLabelingRequirements } from "../../utils/labelingRequirementsInspector";
+import { useHazProStore } from "../../stores/useHazProStore";
 
 interface InspectorPackageVerificationScreenProps {
   navigation: any;

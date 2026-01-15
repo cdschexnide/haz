@@ -1,5 +1,5 @@
-import { useInspectionForm } from "../../../src/contexts/InspectionFormProvider";
-import { useHazProStore } from "../../../src/stores/useHazProStore";
+import { useInspectionForm } from "../../contexts/InspectionFormProvider";
+import { useHazProStore } from "../../stores/useHazProStore";
 import { MaterialIcons } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
 import {
@@ -21,7 +21,7 @@ import {
   spacing,
   borderRadius,
   shadows,
-} from "../ui";
+} from "../../components/ui";
 
 interface InspectorMagnetizedMaterialsScreenProps {
   navigation: any;

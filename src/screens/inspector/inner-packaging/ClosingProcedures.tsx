@@ -15,16 +15,16 @@ import {
   Alert,
 } from "react-native";
 import { Button, Text, Card, CheckBox } from "react-native-elements";
-import { useInspectionForm } from "../../../../src/contexts/InspectionFormProvider";
+import { useInspectionForm } from "../../../contexts/InspectionFormProvider";
 import {
   CLOSING_PROCEDURES,
   FIBERBOARD_RECLOSURE_METHODS,
-} from "../../../../src/utils/innerPackagingProcedures";
-import { getContainerTypeLabel } from "../../../../src/utils/innerPackagingParser";
+} from "../../../utils/innerPackagingProcedures";
+import { getContainerTypeLabel } from "../../../utils/innerPackagingParser";
 import {
   determineNewCertificationRequired,
   calculateOverallStatus,
-} from "../../../../src/utils/innerPackagingInspection";
+} from "../../../utils/innerPackagingInspection";
 
 const ClosingProcedures = ({ navigation }: { navigation: any }) => {
   const { inspection, updateInnerPackagingField } = useInspectionForm();

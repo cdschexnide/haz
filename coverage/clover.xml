@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1768427702969" clover="3.2.0">
+  <project timestamp="1768427702969" name="All files">
+    <metrics statements="5" coveredstatements="5" conditionals="8" coveredconditionals="6" methods="3" coveredmethods="3" elements="16" coveredelements="14" complexity="0" loc="5" ncloc="5" packages="1" files="1" classes="1"/>
+    <file name="RadioGroup.tsx" path="/Users/codyschexnider/Documents/Technergetics/refactor/haz/src/components/ui/RadioGroup.tsx">
+      <metrics statements="5" coveredstatements="5" conditionals="8" coveredconditionals="6" methods="3" coveredmethods="3"/>
+      <line num="21" count="1" type="stmt"/>
+      <line num="30" count="4" type="stmt"/>
+      <line num="38" count="12" type="stmt"/>
+      <line num="41" count="1" type="stmt"/>
+      <line num="55" count="1" type="stmt"/>
+    </file>
+  </project>
+</coverage>

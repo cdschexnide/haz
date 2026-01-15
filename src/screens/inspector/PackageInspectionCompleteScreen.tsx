@@ -7,9 +7,9 @@ import {
   Alert,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { useInspectionForm } from "../../../src/contexts/InspectionFormProvider";
-import { useHazProActions } from "../../../src/stores/useHazProStore";
-import { DevBenchmarkButton } from "../dev/DevBenchmarkButton";
+import { useInspectionForm } from "../../contexts/InspectionFormProvider";
+import { useHazProActions } from "../../stores/useHazProStore";
+import { DevBenchmarkButton } from "../../components/dev/DevBenchmarkButton";
 import {
   ScreenHeader,
   ActionFooter,
@@ -18,7 +18,7 @@ import {
   InfoBox,
   colors,
   spacing,
-} from "../ui";
+} from "../../components/ui";
 
 interface PackageInspectionCompleteScreenProps {
   navigation: any;

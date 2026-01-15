@@ -9,19 +9,19 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
-import { useInspectionForm } from "../../../src/contexts/InspectionFormProvider";
-import { FrustrationRecord, InspectorShipment } from "../../../src/types/sddg";
-import InteractiveSDDGForm from "./InteractiveSDDGForm";
-import SDDGFieldModal from "./SDDGFieldModal";
-import SDDGRecommendedFrustrationBanner from "./SDDGRecommendedFrustrationBanner";
+import { useInspectionForm } from "../../contexts/InspectionFormProvider";
+import { FrustrationRecord, InspectorShipment } from "../../types/sddg";
+import InteractiveSDDGForm from "../../components/Inspector/InteractiveSDDGForm";
+import SDDGFieldModal from "../../components/Inspector/SDDGFieldModal";
+import SDDGRecommendedFrustrationBanner from "../../components/Inspector/SDDGRecommendedFrustrationBanner";
 import {
   findHazMatByUnid,
   getAllRecommendedFrustrations,
-} from "./utils/sddgValidation";
-import { HazardousMaterialItem } from "../../../src/hazardousMaterials/hazardousMaterialsList";
-import { useDatabase } from "../../../src/contexts/DataProvider";
-import { useHazProActions } from "../../../src/stores/useHazProStore";
-import { DevBenchmarkButton } from "../dev/DevBenchmarkButton";
+} from "../../components/Inspector/utils/sddgValidation";
+import { HazardousMaterialItem } from "../../hazardousMaterials/hazardousMaterialsList";
+import { useDatabase } from "../../contexts/DataProvider";
+import { useHazProActions } from "../../stores/useHazProStore";
+import { DevBenchmarkButton } from "../../components/dev/DevBenchmarkButton";
 import { useRenderTracker, useContextRenderTracker } from "@/hooks/useRenderTracker";
 import {
   ScreenHeader,
@@ -30,7 +30,7 @@ import {
   colors,
   spacing,
   borderRadius,
-} from "../ui";
+} from "../../components/ui";
 
 interface InteractiveSDDGComplianceScreenProps {
   navigation: any;

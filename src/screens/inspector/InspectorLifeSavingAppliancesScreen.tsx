@@ -12,8 +12,8 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
-import { useHazProStore } from "../../../src/stores/useHazProStore";
-import { PackageFrustrationRecord } from "../../../src/types/sddg";
+import { useHazProStore } from "../../stores/useHazProStore";
+import { PackageFrustrationRecord } from "../../types/sddg";
 import {
   ScreenHeader,
   InfoBox,
@@ -21,7 +21,7 @@ import {
   spacing,
   borderRadius,
   shadows,
-} from "../ui";
+} from "../../components/ui";
 
 interface InspectorLifeSavingAppliancesScreenProps {
   navigation: any;

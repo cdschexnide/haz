@@ -11,7 +11,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useInspectionForm } from "../../contexts/InspectionFormProvider";
 import { useHazProActions } from "../../stores/useHazProStore";
-import { DevBenchmarkButton } from "../dev/DevBenchmarkButton";
+import { DevBenchmarkButton } from "../../components/dev/DevBenchmarkButton";
 import { useRenderTracker, useContextRenderTracker } from "@/hooks/useRenderTracker";
 import { evaluateMarkingRequirementsInspector } from "../../utils/markingRequirementsInspector";
 import { evaluateLabelingRequirements } from "../../utils/labelingRequirementsInspector";
@@ -30,7 +30,7 @@ import {
   spacing,
   borderRadius,
   shadows,
-} from "../ui";
+} from "../../components/ui";
 
 // ============ TYPES ============
 

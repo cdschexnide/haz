@@ -17,7 +17,7 @@ import DocumentScanner, {
   ResponseType,
 } from "react-native-document-scanner-plugin";
 import { SafeAreaView } from "react-native-safe-area-context";
-import InteractiveSDDGComplianceScreen from "./Inspector/InteractiveSDDGComplianceScreen";
+import InteractiveSDDGComplianceScreen from "../screens/inspector/InteractiveSDDGComplianceScreen";
 // import SimplePdfToImageConverter from './SimplePdfToImageConverter';
 import { useInspectionFormActions } from "@/contexts/InspectionFormProvider";
 import { ExtractedSDDGContent } from "@/types/sddg";

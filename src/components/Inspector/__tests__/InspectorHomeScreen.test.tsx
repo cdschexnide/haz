@@ -102,10 +102,10 @@ jest.mock('../../DryIceCalculator', () => 'DryIceCalculator');
 jest.mock('../../UnitConversionTool', () => 'UnitConversionTool');
 jest.mock('../../PlacardingTool', () => 'PlacardingTool');
 jest.mock('../../CompatibilitySegregationModal', () => 'CompatibilitySegregationModal');
-jest.mock('../InspectorAMC1015Form', () => ({
+jest.mock('../../../screens/inspector/InspectorAMC1015Form', () => ({
   InspectorAMC1015Form: 'InspectorAMC1015Form',
 }));
-jest.mock('../MLDetectionScreen', () => ({
+jest.mock('../../../screens/inspector/MLDetectionScreen', () => ({
   MLDetectionScreen: 'MLDetectionScreen',
 }));
 
@@ -121,7 +121,7 @@ jest.mock('../../../theming/colors', () => ({
 // Import React and testing utilities after all mocks are set up
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react-native';
-import InspectorHomeScreen from '../InspectorHomeScreen';
+import InspectorHomeScreen from '../../../screens/inspector/InspectorHomeScreen';
 
 // Helper function to safely serialize JSON while handling circular references
 function safeStringify(obj: any, space?: number): string {

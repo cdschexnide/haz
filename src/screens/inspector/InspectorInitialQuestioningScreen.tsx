@@ -1,8 +1,8 @@
 import React, { useContext, useEffect } from "react";
 import { View, StyleSheet } from "react-native";
-import { HazProInspectorContext } from "../../../src/contexts/HazProInspectorProvider/HazProInspectorContext";
+import { HazProInspectorContext } from "../../contexts/HazProInspectorProvider/HazProInspectorContext";
 import { Validation } from "../../../types";
-import InspectorInitialQuestioningChecklist from "./InspectorInitialQuestioningChecklist";
+import InspectorInitialQuestioningChecklist from "../../components/Inspector/InspectorInitialQuestioningChecklist";
 
 const InspectorInitialQuestioningScreen = ({
   navigation,

@@ -15,9 +15,9 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useInspectionForm } from "@/contexts/InspectionFormProvider";
 import { ExtractedSDDGContent } from "@/types/sddg";
 import SDDGComplianceValidation from "./SDDGComplianceValidation";
-import InteractiveSDDGComplianceScreen from "./Inspector/InteractiveSDDGComplianceScreen";
+import InteractiveSDDGComplianceScreen from "../screens/inspector/InteractiveSDDGComplianceScreen";
 import SDDGFormFieldVisual from "./SDDGFormFieldVisual";
-import InspectorShippersDeclarationScreen from "./Inspector/InspectorShippersDeclarationScreen";
+import InspectorShippersDeclarationScreen from "../screens/inspector/InspectorShippersDeclarationScreen";
 
 type VerificationStatus = "pending" | "accurate" | "corrected" | "skipped";
 

@@ -1,5 +1,5 @@
-import { useInspectionForm } from "../../../src/contexts/InspectionFormProvider";
-import colors from "../../../src/theming/colors";
+import { useInspectionForm } from "../../contexts/InspectionFormProvider";
+import colors from "../../theming/colors";
 import * as FileSystem from "expo-file-system";
 import * as Print from "expo-print";
 import * as Sharing from "expo-sharing";
@@ -15,7 +15,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import InspectorShippersDeclarationForm from "./InspectorShippersDeclarationForm";
+import InspectorShippersDeclarationForm from "../../components/Inspector/InspectorShippersDeclarationForm";
 
 interface InspectorShippersDeclarationScreenProps {
   navigation: any;

@@ -25,23 +25,23 @@ import {
   TapGestureHandler,
   State,
 } from "react-native-gesture-handler";
-import { HazProPreparerContext } from "../../../src/contexts/HazProPreparerProvider/HazProPreparerContext";
-import TopNavBar from "../TopNavBar";
-import { useNavigationRef } from "../../../src/contexts/NavigationRefProvider/useNavigationRef";
-import { HazProInspectorContext } from "../../../src/contexts/HazProInspectorProvider/HazProInspectorContext";
+import { HazProPreparerContext } from "../../contexts/HazProPreparerProvider/HazProPreparerContext";
+import TopNavBar from "../../components/TopNavBar";
+import { useNavigationRef } from "../../contexts/NavigationRefProvider/useNavigationRef";
+import { HazProInspectorContext } from "../../contexts/HazProInspectorProvider/HazProInspectorContext";
 import { BottomSheet } from "@rneui/themed";
-import legacyColors from "../../../src/theming/colors";
-import GasCalculatorTool from "../GasCalculatorTool";
-import DryIceCalculator from "../DryIceCalculator";
-import UnitConversionTool from "../UnitConversionTool";
-import PlacardingTool from "../PlacardingTool";
-import CompatibilitySegregationModal from "../CompatibilitySegregationModal";
-import { InspectorShipment } from "../../../src/types/sddg";
-import { useDatabase } from "../../../src/contexts/DataProvider";
-import { useInspectionFormActions } from "../../../src/contexts/InspectionFormProvider";
+import legacyColors from "../../theming/colors";
+import GasCalculatorTool from "../../components/GasCalculatorTool";
+import DryIceCalculator from "../../components/DryIceCalculator";
+import UnitConversionTool from "../../components/UnitConversionTool";
+import PlacardingTool from "../../components/PlacardingTool";
+import CompatibilitySegregationModal from "../../components/CompatibilitySegregationModal";
+import { InspectorShipment } from "../../types/sddg";
+import { useDatabase } from "../../contexts/DataProvider";
+import { useInspectionFormActions } from "../../contexts/InspectionFormProvider";
 import { InspectorAMC1015Form } from "./InspectorAMC1015Form";
 import { MLDetectionScreen } from "./MLDetectionScreen";
-import { DevBenchmarkButton } from "../dev/DevBenchmarkButton";
+import { DevBenchmarkButton } from "../../components/dev/DevBenchmarkButton";
 import { useRenderTracker, useContextRenderTracker } from "@/hooks/useRenderTracker";
 import { hazardousMaterialsList } from "@/hazardousMaterials/hazardousMaterialsList";
 import {
@@ -49,7 +49,7 @@ import {
   spacing,
   borderRadius,
   shadows,
-} from "../ui";
+} from "../../components/ui";
 
 console.warn = () => {};
 

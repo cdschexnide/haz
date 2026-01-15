@@ -1,4 +1,4 @@
-import { countries } from "../../../src/mock/countries";
+import { countries } from "../../mock/countries";
 import { packagingDatabaseV2 } from "../../../server/lookupFunctions/packagingLookupV2";
 import {
   useInspectionFormActions,
@@ -7,10 +7,10 @@ import {
   usePackagePopMarking,
   useInspectionFrustrations,
   useReinspectionState,
-} from "../../../src/contexts/InspectionFormProvider";
-import colors from "../../../src/theming/colors";
+} from "../../contexts/InspectionFormProvider";
+import colors from "../../theming/colors";
 import { PhysicalState } from "../../../types";
-import { validatePackagingCodeV2 } from "../../../src/utils/packagingWizardV2Helpers";
+import { validatePackagingCodeV2 } from "../../utils/packagingWizardV2Helpers";
 import { Picker } from "@react-native-picker/picker";
 import { MaterialIcons } from "@expo/vector-icons";
 import React, { useCallback, useEffect, useState } from "react";
@@ -29,11 +29,11 @@ import {
 } from "react-native";
 import { ButtonGroup } from "react-native-elements";
 import { TextInput as PaperInput } from "react-native-paper";
-import LiquidPopMarking from "../LiquidPopMarking";
-import SolidPopMarking from "../SolidPopMarking";
-import { hazardousMaterialsList } from "../../../src/hazardousMaterials/hazardousMaterialsList";
-import { useHazProActions } from "../../../src/stores/useHazProStore";
-import { DevBenchmarkButton } from "../dev/DevBenchmarkButton";
+import LiquidPopMarking from "../../components/LiquidPopMarking";
+import SolidPopMarking from "../../components/SolidPopMarking";
+import { hazardousMaterialsList } from "../../hazardousMaterials/hazardousMaterialsList";
+import { useHazProActions } from "../../stores/useHazProStore";
+import { DevBenchmarkButton } from "../../components/dev/DevBenchmarkButton";
 
 const { width } = Dimensions.get("window");
 const screenWidth = width;
