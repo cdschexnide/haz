@@ -1,6 +1,6 @@
 # Inspector Workflow and ML Detection System Architecture
 
-**Last Updated:** 2026-01-06
+**Last Updated:** 2026-01-15
 **Audience:** Future Claude Code instances, engineers, maintainers
 **Regulatory Basis:** AFMAN24-604 (Air Force Manual for Preparing Hazardous Materials for Military Air Shipments)
 
@@ -209,18 +209,18 @@ The core technical innovation is the dual-pipeline ML detection system that comb
 
 | Screen | File Path |
 |--------|-----------|
-| Inspector Home | `src/components/Inspector/InspectorHomeScreen.tsx` |
+| Inspector Home | `src/screens/inspector/InspectorHomeScreen.tsx` |
 | SDDG Upload | `src/components/SDDGUploadAndParse.tsx` |
 | Region Adjustment | `src/screens/SDDG/SDDGRegionAdjustmentScreen.tsx` |
 | SDDG Processing | `src/screens/SDDG/SDDGProcessingScreen.tsx` |
-| Interactive Compliance | `src/components/Inspector/InteractiveSDDGComplianceScreen.tsx` |
+| Interactive Compliance | `src/screens/inspector/InteractiveSDDGComplianceScreen.tsx` |
 | SDDG Frustration Summary | `src/components/SDDGFrustrationSummary.tsx` |
-| **ML Detection** | `src/components/Inspector/MLDetectionScreen.tsx` |
-| **POP Marking Validation** | `src/components/Inspector/InspectorPOPMarkingValidationScreen.tsx` |
-| **Markings & Labels Validation** | `src/components/Inspector/InspectorMarkingsLabelsValidationScreen.tsx` |
-| **Package Frustration Summary** | `src/components/Inspector/PackageFrustrationSummary.tsx` |
-| **Package Inspection Complete** | `src/components/Inspector/PackageInspectionCompleteScreen.tsx` |
-| **AMC Form 1015** | `src/components/Inspector/InspectorAMC1015Form.tsx` |
+| **ML Detection** | `src/screens/inspector/MLDetectionScreen.tsx` |
+| **POP Marking Validation** | `src/screens/inspector/InspectorPOPMarkingValidationScreen.tsx` |
+| **Markings & Labels Validation** | `src/screens/inspector/InspectorMarkingsLabelsValidationScreen.tsx` |
+| **Package Frustration Summary** | `src/screens/inspector/PackageFrustrationSummary.tsx` |
+| **Package Inspection Complete** | `src/screens/inspector/PackageInspectionCompleteScreen.tsx` |
+| **AMC Form 1015** | `src/screens/inspector/InspectorAMC1015Form.tsx` |
 | **SDDG Inspection Complete** | `src/components/SDDGInspectionCompleteScreen.tsx` |
 
 ---
@@ -2061,18 +2061,19 @@ try {
 ```
 src/
 ├── components/
-│   ├── Inspector/
+│   ├── SDDGUploadAndParse.tsx
+│   └── SDDGFrustrationSummary.tsx
+├── screens/
+│   ├── inspector/
 │   │   ├── InspectorHomeScreen.tsx
 │   │   ├── MLDetectionScreen.tsx              # ML detection + manual corrections
 │   │   ├── InspectorPOPMarkingValidationScreen.tsx  # POP marking validation
 │   │   ├── InspectorMarkingsLabelsValidationScreen.tsx  # Markings & labels
+│   │   ├── InteractiveSDDGComplianceScreen.tsx  # SDDG compliance validation
 │   │   ├── PackageFrustrationSummary.tsx      # Review package frustrations
 │   │   ├── PackageInspectionCompleteScreen.tsx  # No frustrations completion
 │   │   ├── InspectorAMC1015Form.tsx           # Form 1015 generation
 │   │   └── [Material-specific screens]
-│   ├── SDDGUploadAndParse.tsx
-│   └── SDDGFrustrationSummary.tsx
-├── screens/
 │   └── SDDG/
 │       ├── SDDGRegionAdjustmentScreen.tsx
 │       └── SDDGProcessingScreen.tsx
@@ -2115,3 +2116,4 @@ server/
 | 2026-01-05 | Claude | Initial comprehensive documentation |
 | 2026-01-05 | Claude | Added complete package inspection flow: MLDetection corrections saving, POP validation, Markings & Labels validation, PackageFrustrationSummary, PackageInspectionCompleteScreen, AMC Form 1015. Updated workflow diagram. Added label matching system documentation. |
 | 2026-01-06 | Claude | Added SDDG Save & Exit and Reinspection System documentation. Covers: Save & Exit from SDDGInspectionCompleteScreen and SDDGFrustrationSummary, InspectorHomeScreen table display with "N/A" for package status, reinspection navigation handlers for SDDG "Verified" and Package "N/A" clicks, InteractiveSDDGComplianceScreen button text changes, navigation flow diagrams, and critical implementation notes. Updated workflow diagram to show Save & Exit paths. |
+| 2026-01-15 | Claude | Updated file paths to reflect Inspector screen migration from `src/components/Inspector/` to `src/screens/inspector/`. Updated File Locations Summary table and Quick Reference: File Paths section. |
