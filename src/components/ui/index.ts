@@ -20,3 +20,4 @@ export * from './RadioGroup';
 export * from './DatePickerField';
 export * from './ConfirmationCard';
 export * from './KeyValueRow';
+export * from './ChecklistItem';
