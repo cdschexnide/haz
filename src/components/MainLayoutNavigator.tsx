@@ -6,7 +6,7 @@ import AccessorialHazardsScreen from "./AccessorialHazardsScreen";
 import AccessorialQuantityEntry from "./AccessorialQuantityEntry";
 import BatteryPoweredVehicle from "./BatteryPoweredVehicle";
 import Capacitors from "./Capacitors";
-import CertifyForm from "./CertifyForm";
+import { CertifyFormScreen } from "@/screens/preparer";
 import CoeAndCaaDisclaimer from "./CoeAndCaaDisclaimer";
 import CoeAndCaaScreen from "./CoeAndCaaScreen";
 import CylinderEntryScreen from "./CylinderEntryScreen";
@@ -25,7 +25,7 @@ import GrandfatheredWizard from "./GrandfatheredWizard";
 import InformativeAndWorkflowModifiersAcknowledgementScreen from "./InformativeAndWorkflowModifiersAcknowledgementScreen";
 import InnerPackagingWizard from "./InnerPackagingWizard";
 import KitPreparationScreen from "./KitPreparationScreen";
-import LabelingAndMarking from "./LabelingAndMarking";
+import { LabelingAndMarkingScreen } from "@/screens/preparer";
 import LifeSavingAppliances from "./LifeSavingAppliances";
 import LithiumBatteriesPrepScreen from "./LithiumBatteriesPrepScreen";
 import MagnetizedMaterialPrepScreen from "./MagnetizedMaterialsPrepScreen";
@@ -39,7 +39,7 @@ import { PreparerHomeScreen } from "@/screens/preparer";
 import SafetyDevicesPreparationScreen from "./SafetyDevices";
 import SDDGUploadAndParse from "./SDDGUploadAndParse";
 import { ShipmentCreationScreen } from "@/screens/preparer";
-import ShippersDeclarationScreen from "./ShippersDeclarationScreen";
+import { ShippersDeclarationScreen } from "@/screens/preparer";
 import UN3166FuelEntryScreen from "./UN3166FuelEntryScreen";
 import UnauthorizedCylinderSpecification from "./UnauthorizedCylinderSpecification";
 import UnauthorizedPopMarking from "./UnauthorizedPopMarking";
@@ -124,7 +124,7 @@ const WrappedStack = ({ navigation }: { navigation: any }) => (
       />
       <MainStack.Screen
         name="LabelingAndMarking"
-        component={LabelingAndMarking}
+        component={LabelingAndMarkingScreen}
       />
       <MainStack.Screen
         name="CylinderEntryScreen"
@@ -138,7 +138,7 @@ const WrappedStack = ({ navigation }: { navigation: any }) => (
         name="AbsorbentCushioningRequirements"
         component={AbsorbentCushioningRequirements}
       />
-      <MainStack.Screen name="Certify" component={CertifyForm} />
+      <MainStack.Screen name="Certify" component={CertifyFormScreen} />
       <MainStack.Screen
         name="AccessorialQuantityEntry"
         component={AccessorialQuantityEntry}
