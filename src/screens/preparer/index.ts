@@ -1,4 +1,5 @@
 // src/screens/preparer/index.ts
 
 // Preparer workflow screens
-// Screens will be added as they are migrated
+export * from './DisclaimerScreen';
+export { default as DisclaimerScreen } from './DisclaimerScreen';
