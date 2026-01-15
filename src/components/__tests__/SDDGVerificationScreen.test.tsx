@@ -66,7 +66,7 @@ jest.mock('../SDDGComplianceValidation', () => {
   };
 });
 
-jest.mock('../Inspector/InteractiveSDDGComplianceScreen', () => {
+jest.mock('../../screens/inspector/InteractiveSDDGComplianceScreen', () => {
   const { View } = require('react-native');
   return {
     __esModule: true,
@@ -82,7 +82,7 @@ jest.mock('../SDDGFormFieldVisual', () => {
   };
 });
 
-jest.mock('../Inspector/InspectorShippersDeclarationScreen', () => {
+jest.mock('../../screens/inspector/InspectorShippersDeclarationScreen', () => {
   const { View } = require('react-native');
   return {
     __esModule: true,

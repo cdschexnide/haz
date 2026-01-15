@@ -48,6 +48,9 @@ jest.mock('../../../contexts/InspectionFormProvider', () => ({
   useInspectionForm: () => ({
     loadInspectionForEdit: jest.fn().mockResolvedValue(undefined),
   }),
+  useInspectionFormActions: () => ({
+    loadInspectionForEdit: jest.fn().mockResolvedValue(undefined),
+  }),
 }));
 
 // Mock @expo/vector-icons
@@ -202,7 +205,7 @@ describe('InspectorHomeScreen', () => {
       expect(screen.getByText('Unit Converter')).toBeTruthy();
       expect(screen.getByText('Placarding Tool')).toBeTruthy();
       expect(screen.getByText('Compatibility/Segregation Tool')).toBeTruthy();
-      expect(screen.getByText('ML Label Test')).toBeTruthy();
+      // Note: ML Label Test button is currently commented out in the component
     });
   });
 
