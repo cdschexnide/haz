@@ -13,8 +13,8 @@ import { RequiredLabel } from '@/utils/labelingRequirements';
 import { RequiredMarking } from '@/utils/markingRequirements';
 
 export interface StandardLabelingContentProps {
-  requiredLabels: RequiredLabel[];
-  requiredMarkings: RequiredMarking[];
+  requiredLabels: readonly RequiredLabel[];
+  requiredMarkings: readonly RequiredMarking[];
   limitedQuantity: boolean;
   onInfoPress: (attachmentNumber: string) => void;
 }

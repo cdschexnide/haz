@@ -9,3 +9,6 @@ export { default as ShipmentCreationScreen } from './ShipmentCreationScreen';
 
 export * from './PreparerHomeScreen';
 export { default as PreparerHomeScreen } from './PreparerHomeScreen';
+
+export * from './LabelingAndMarkingScreen';
+export { default as LabelingAndMarkingScreen } from './LabelingAndMarkingScreen';
