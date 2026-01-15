@@ -1,0 +1,599 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CertifyFormScreen renders correctly 1`] = `
+<View
+  style={
+    {
+      "backgroundColor": "#FFFFFF",
+      "flex": 1,
+    }
+  }
+>
+  <RCTScrollView
+    contentContainerStyle={
+      {
+        "padding": 16,
+        "paddingBottom": 24,
+      }
+    }
+    style={
+      {
+        "flex": 1,
+      }
+    }
+  >
+    <View>
+      <Text
+        style={
+          {
+            "color": "#1D1D1F",
+            "fontSize": 24,
+            "fontWeight": "700",
+            "marginBottom": 20,
+            "textAlign": "center",
+          }
+        }
+      >
+        Certify Shipment
+      </Text>
+      <View
+        style={
+          {
+            "marginBottom": 16,
+          }
+        }
+      >
+        <View
+          style={
+            [
+              {
+                "backgroundColor": "#FFFFFF",
+                "borderRadius": 12,
+                "borderWidth": 1,
+                "elevation": 2,
+                "padding": 16,
+                "shadowColor": "#000",
+                "shadowOffset": {
+                  "height": 2,
+                  "width": 0,
+                },
+                "shadowOpacity": 0.1,
+                "shadowRadius": 4,
+              },
+              {
+                "borderColor": "#E5E5EA",
+              },
+            ]
+          }
+        >
+          <View
+            style={
+              {
+                "alignItems": "center",
+                "borderBottomColor": "#F2F2F7",
+                "borderBottomWidth": 1,
+                "flexDirection": "row",
+                "gap": 8,
+                "marginBottom": 12,
+                "paddingBottom": 12,
+              }
+            }
+          >
+            <Text />
+            <Text
+              style={
+                {
+                  "color": "#1D1D1F",
+                  "fontSize": 16,
+                  "fontWeight": "600",
+                }
+              }
+            >
+              Certification Information
+            </Text>
+          </View>
+          <View
+            style={
+              [
+                {
+                  "paddingVertical": 8,
+                },
+                undefined,
+                {
+                  "borderBottomColor": "#F2F2F7",
+                  "borderBottomWidth": 1,
+                },
+              ]
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#8E8E93",
+                  "fontSize": 11,
+                  "fontWeight": "600",
+                  "marginBottom": 4,
+                  "textTransform": "uppercase",
+                }
+              }
+            >
+              Name
+            </Text>
+            <Text
+              style={
+                {
+                  "color": "#1D1D1F",
+                  "fontSize": 14,
+                  "fontWeight": "600",
+                }
+              }
+            >
+              John Doe
+            </Text>
+          </View>
+          <View
+            style={
+              [
+                {
+                  "paddingVertical": 8,
+                },
+                undefined,
+                {
+                  "borderBottomColor": "#F2F2F7",
+                  "borderBottomWidth": 1,
+                },
+              ]
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#8E8E93",
+                  "fontSize": 11,
+                  "fontWeight": "600",
+                  "marginBottom": 4,
+                  "textTransform": "uppercase",
+                }
+              }
+            >
+              Rank
+            </Text>
+            <Text
+              style={
+                {
+                  "color": "#1D1D1F",
+                  "fontSize": 14,
+                  "fontWeight": "600",
+                }
+              }
+            >
+              SGT
+            </Text>
+          </View>
+          <View
+            style={
+              [
+                {
+                  "paddingVertical": 8,
+                },
+                undefined,
+                {
+                  "borderBottomColor": "#F2F2F7",
+                  "borderBottomWidth": 1,
+                },
+              ]
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#8E8E93",
+                  "fontSize": 11,
+                  "fontWeight": "600",
+                  "marginBottom": 4,
+                  "textTransform": "uppercase",
+                }
+              }
+            >
+              Title
+            </Text>
+            <Text
+              style={
+                {
+                  "color": "#1D1D1F",
+                  "fontSize": 14,
+                  "fontWeight": "600",
+                }
+              }
+            >
+              Hazmat Specialist
+            </Text>
+          </View>
+          <View
+            style={
+              [
+                {
+                  "paddingVertical": 8,
+                },
+                undefined,
+                false,
+              ]
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#8E8E93",
+                  "fontSize": 11,
+                  "fontWeight": "600",
+                  "marginBottom": 4,
+                  "textTransform": "uppercase",
+                }
+              }
+            >
+              Place
+            </Text>
+            <Text
+              style={
+                {
+                  "color": "#1D1D1F",
+                  "fontSize": 14,
+                  "fontWeight": "600",
+                }
+              }
+            >
+              Fort Bragg
+            </Text>
+          </View>
+        </View>
+      </View>
+      <View
+        style={
+          {
+            "marginBottom": 16,
+          }
+        }
+      >
+        <View
+          style={
+            {
+              "alignItems": "center",
+              "backgroundColor": "#F8F9FA",
+              "flexDirection": "row",
+              "justifyContent": "space-between",
+              "paddingHorizontal": 16,
+              "paddingVertical": 8,
+            }
+          }
+        >
+          <View
+            style={
+              {
+                "alignItems": "center",
+                "flexDirection": "row",
+                "gap": 8,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#8E8E93",
+                  "fontSize": 16,
+                  "fontWeight": "600",
+                }
+              }
+            >
+              Signature
+            </Text>
+          </View>
+        </View>
+        <View
+          style={
+            {
+              "marginBottom": 12,
+            }
+          }
+        >
+          <View
+            accessibilityState={
+              {
+                "busy": undefined,
+                "checked": undefined,
+                "disabled": undefined,
+                "expanded": undefined,
+                "selected": undefined,
+              }
+            }
+            accessibilityValue={
+              {
+                "max": undefined,
+                "min": undefined,
+                "now": undefined,
+                "text": undefined,
+              }
+            }
+            accessible={true}
+            collapsable={false}
+            focusable={true}
+            onClick={[Function]}
+            onResponderGrant={[Function]}
+            onResponderMove={[Function]}
+            onResponderRelease={[Function]}
+            onResponderTerminate={[Function]}
+            onResponderTerminationRequest={[Function]}
+            onStartShouldSetResponder={[Function]}
+            style={
+              {
+                "backgroundColor": "#FFFFFF",
+                "borderColor": "#E5E5EA",
+                "borderRadius": 8,
+                "borderWidth": 1,
+                "opacity": 1,
+                "overflow": "hidden",
+              }
+            }
+            testID="signature-pressable"
+          >
+            <View
+              style={
+                {
+                  "alignItems": "center",
+                  "backgroundColor": "#F4F4F4",
+                  "justifyContent": "center",
+                  "minHeight": 120,
+                }
+              }
+            >
+              <Text
+                style={
+                  {
+                    "color": "#8E8E93",
+                    "fontSize": 14,
+                    "fontStyle": "italic",
+                    "fontWeight": "400",
+                  }
+                }
+              >
+                Tap to sign
+              </Text>
+            </View>
+          </View>
+        </View>
+      </View>
+    </View>
+  </RCTScrollView>
+  <View
+    style={
+      [
+        {
+          "backgroundColor": "#FFFFFF",
+          "borderTopColor": "#E5E5EA",
+          "borderTopWidth": 1,
+          "flexDirection": "row",
+          "gap": 8,
+          "padding": 16,
+        },
+        undefined,
+      ]
+    }
+  >
+    <View
+      accessibilityState={
+        {
+          "busy": undefined,
+          "checked": undefined,
+          "disabled": false,
+          "expanded": undefined,
+          "selected": undefined,
+        }
+      }
+      accessibilityValue={
+        {
+          "max": undefined,
+          "min": undefined,
+          "now": undefined,
+          "text": undefined,
+        }
+      }
+      accessible={true}
+      collapsable={false}
+      focusable={true}
+      onClick={[Function]}
+      onResponderGrant={[Function]}
+      onResponderMove={[Function]}
+      onResponderRelease={[Function]}
+      onResponderTerminate={[Function]}
+      onResponderTerminationRequest={[Function]}
+      onStartShouldSetResponder={[Function]}
+      style={
+        {
+          "alignItems": "center",
+          "backgroundColor": "#FFFFFF",
+          "borderColor": "#E5E5EA",
+          "borderRadius": 4,
+          "borderWidth": 2,
+          "flex": 1,
+          "flexDirection": "row",
+          "justifyContent": "center",
+          "minHeight": 48,
+          "opacity": 1,
+          "paddingHorizontal": 16,
+          "paddingVertical": 12,
+        }
+      }
+    >
+      <View
+        style={
+          {
+            "alignItems": "center",
+            "flexDirection": "row",
+            "gap": 8,
+          }
+        }
+      >
+        <Text
+          style={
+            [
+              {
+                "fontSize": 14,
+                "fontWeight": "600",
+              },
+              {
+                "color": "#8E8E93",
+              },
+              undefined,
+            ]
+          }
+        >
+          Cancel
+        </Text>
+      </View>
+    </View>
+    <View
+      accessibilityState={
+        {
+          "busy": undefined,
+          "checked": undefined,
+          "disabled": false,
+          "expanded": undefined,
+          "selected": undefined,
+        }
+      }
+      accessibilityValue={
+        {
+          "max": undefined,
+          "min": undefined,
+          "now": undefined,
+          "text": undefined,
+        }
+      }
+      accessible={true}
+      collapsable={false}
+      focusable={true}
+      onClick={[Function]}
+      onResponderGrant={[Function]}
+      onResponderMove={[Function]}
+      onResponderRelease={[Function]}
+      onResponderTerminate={[Function]}
+      onResponderTerminationRequest={[Function]}
+      onStartShouldSetResponder={[Function]}
+      style={
+        {
+          "alignItems": "center",
+          "backgroundColor": "#FFFFFF",
+          "borderColor": "#007AFF",
+          "borderRadius": 4,
+          "borderWidth": 2,
+          "flex": 1,
+          "flexDirection": "row",
+          "justifyContent": "center",
+          "minHeight": 48,
+          "opacity": 1,
+          "paddingHorizontal": 16,
+          "paddingVertical": 12,
+        }
+      }
+    >
+      <View
+        style={
+          {
+            "alignItems": "center",
+            "flexDirection": "row",
+            "gap": 8,
+          }
+        }
+      >
+        <Text
+          style={
+            [
+              {
+                "fontSize": 14,
+                "fontWeight": "600",
+              },
+              {
+                "color": "#007AFF",
+              },
+              undefined,
+            ]
+          }
+        >
+          Save & Exit
+        </Text>
+      </View>
+    </View>
+    <View
+      accessibilityState={
+        {
+          "busy": undefined,
+          "checked": undefined,
+          "disabled": true,
+          "expanded": undefined,
+          "selected": undefined,
+        }
+      }
+      accessibilityValue={
+        {
+          "max": undefined,
+          "min": undefined,
+          "now": undefined,
+          "text": undefined,
+        }
+      }
+      accessible={true}
+      collapsable={false}
+      focusable={false}
+      onClick={[Function]}
+      onResponderGrant={[Function]}
+      onResponderMove={[Function]}
+      onResponderRelease={[Function]}
+      onResponderTerminate={[Function]}
+      onResponderTerminationRequest={[Function]}
+      onStartShouldSetResponder={[Function]}
+      style={
+        {
+          "alignItems": "center",
+          "backgroundColor": "#007AFF",
+          "borderColor": "#007AFF",
+          "borderRadius": 4,
+          "borderWidth": 2,
+          "flex": 1,
+          "flexDirection": "row",
+          "justifyContent": "center",
+          "minHeight": 48,
+          "opacity": 0.5,
+          "paddingHorizontal": 16,
+          "paddingVertical": 12,
+        }
+      }
+    >
+      <View
+        style={
+          {
+            "alignItems": "center",
+            "flexDirection": "row",
+            "gap": 8,
+          }
+        }
+      >
+        <Text
+          style={
+            [
+              {
+                "fontSize": 14,
+                "fontWeight": "600",
+              },
+              {
+                "color": "#FFFFFF",
+              },
+              undefined,
+            ]
+          }
+        >
+          Certify
+        </Text>
+      </View>
+    </View>
+  </View>
+</View>
+`;
