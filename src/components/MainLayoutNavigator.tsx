@@ -1,7 +1,7 @@
 import { createStackNavigator } from "@react-navigation/stack";
 import React from "react";
 import A85PackagingWizard from "./A8_5PackagingWizard";
-import AbsorbentCushioningRequirements from "./AbsorbentCushioningRequirements";
+import { AbsorbentCushioningRequirements } from "@/screens/preparer";
 import AccessorialHazardsScreen from "./AccessorialHazardsScreen";
 import AccessorialQuantityEntry from "./AccessorialQuantityEntry";
 import BatteryPoweredVehicle from "./BatteryPoweredVehicle";
