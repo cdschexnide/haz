@@ -1,5 +1,5 @@
 // src/screens/preparer/PreparerHomeScreen.tsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -13,7 +13,11 @@ import { RootStackParamList } from '@/contexts/NavigationRefProvider/NavigationR
 import { useNavigationRef } from '@/contexts/NavigationRefProvider/useNavigationRef';
 import ShipmentDatabase from '@/services/shipment/ShipmentDatabase';
 import { useHazProStore } from '@/stores/useHazProStore';
-import { colors, spacing, typography } from '@/components/ui/theme';
+import { colors, spacing, borderRadius, shadows } from '@/components/ui/theme';
+import {
+  convertShipmentFileToSavedShipment,
+  sortShipmentsByDate,
+} from '@/utils/shipment/shipmentLoader';
 import DatabaseErrorDisplay from '@/components/DatabaseErrorDisplay';
 import TopNavBar from '@/components/TopNavBar';
 import {
@@ -85,6 +89,25 @@ export const PreparerHomeScreen: React.FC<PreparerHomeScreenProps> = ({
     },
   ];
 
+  // Convert shipments index to SavedShipment array
+  const loadAndConvertShipments = useCallback(async (): Promise<SavedShipment[]> => {
+    const shipmentsMetadata = Object.values(state.shipmentsIndex);
+    const savedShipments: SavedShipment[] = [];
+
+    for (const metadata of shipmentsMetadata) {
+      try {
+        const fullShipment = await ShipmentDatabase.loadShipment(metadata.id);
+        if (fullShipment) {
+          savedShipments.push(convertShipmentFileToSavedShipment(fullShipment));
+        }
+      } catch (err) {
+        console.warn(`Failed to load shipment ${metadata.id}:`, err);
+      }
+    }
+
+    return sortShipmentsByDate(savedShipments);
+  }, [state.shipmentsIndex]);
+
   // Load shipments on mount
   useEffect(() => {
     loadShipmentsList();
@@ -92,35 +115,8 @@ export const PreparerHomeScreen: React.FC<PreparerHomeScreenProps> = ({
 
   // React to store changes
   useEffect(() => {
-    const convertToSavedShipments = async () => {
-      const shipmentsMetadata = Object.values(state.shipmentsIndex);
-      const savedShipments: SavedShipment[] = [];
-
-      for (const metadata of shipmentsMetadata) {
-        try {
-          const fullShipment = await ShipmentDatabase.loadShipment(metadata.id);
-          if (fullShipment) {
-            // Convert ShipmentFile to SavedShipment format
-            savedShipments.push({
-              id: fullShipment.id,
-              status: fullShipment.metadata.status,
-              savedAt: new Date(fullShipment.metadata.savedAt),
-              hazProPreparerContext: fullShipment.hazProPreparerContext,
-            });
-          }
-        } catch (err) {
-          console.warn(`Failed to load shipment ${metadata.id}:`, err);
-        }
-      }
-
-      const sorted = savedShipments.sort(
-        (a, b) =>
-          new Date(b.savedAt).getTime() - new Date(a.savedAt).getTime()
-      );
-      setShipmentsList(sorted);
-    };
-    convertToSavedShipments();
-  }, [state.shipmentsIndex]);
+    loadAndConvertShipments().then(setShipmentsList);
+  }, [loadAndConvertShipments]);
 
   const loadShipmentsList = async () => {
     try {
@@ -128,32 +124,8 @@ export const PreparerHomeScreen: React.FC<PreparerHomeScreenProps> = ({
       await initializeDatabase();
       await actions.refreshShipmentsIndex();
       await new Promise((resolve) => setTimeout(resolve, 100));
-
-      const shipmentsMetadata = Object.values(state.shipmentsIndex);
-      const savedShipments: SavedShipment[] = [];
-
-      for (const metadata of shipmentsMetadata) {
-        try {
-          const fullShipment = await ShipmentDatabase.loadShipment(metadata.id);
-          if (fullShipment) {
-            // Convert ShipmentFile to SavedShipment format
-            savedShipments.push({
-              id: fullShipment.id,
-              status: fullShipment.metadata.status,
-              savedAt: new Date(fullShipment.metadata.savedAt),
-              hazProPreparerContext: fullShipment.hazProPreparerContext,
-            });
-          }
-        } catch (err) {
-          console.warn(`Failed to load shipment ${metadata.id}:`, err);
-        }
-      }
-
-      const sorted = savedShipments.sort(
-        (a, b) =>
-          new Date(b.savedAt).getTime() - new Date(a.savedAt).getTime()
-      );
-      setShipmentsList(sorted);
+      const shipments = await loadAndConvertShipments();
+      setShipmentsList(shipments);
     } finally {
       setLocalLoading(false);
     }
@@ -375,9 +347,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     padding: spacing.md,
     paddingBottom: 0,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
+    ...shadows.light,
   },
   headerRow: {
     flexDirection: 'row',
@@ -403,7 +373,7 @@ const styles = StyleSheet.create({
     padding: spacing.sm,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: 5,
+    borderRadius: borderRadius.sm,
     marginHorizontal: spacing.md,
     height: 50,
   },
@@ -411,7 +381,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.lg,
-    borderRadius: 5,
+    borderRadius: borderRadius.sm,
   },
   createButtonText: {
     color: colors.surface,
