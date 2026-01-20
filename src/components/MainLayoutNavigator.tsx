@@ -19,7 +19,7 @@ import EnginesInternalCombustion from "./EnginesInternalCombustion";
 import ExplosiveDetailsWizard from "./ExplosiveDetailsWizardNew";
 import GeneralPackagingAcknowledgementScreen from "./GeneralPackagingAcknowledgementScreen";
 import GeneticallyModifiedOrganisms from "./GeneticallyModifiedOrganisms";
-import SpecialProvisionsAcknowledgementScreen from "./SpecialProvisionsAcknowledgementScreen";
+import { SpecialProvisionsAcknowledgementScreen } from "@/screens/preparer";
 import GrandfatheredPackagingReferenceScreen from "./GrandfatheredPackagingReferenceScreen";
 import GrandfatheredWizard from "./GrandfatheredWizard";
 import InformativeAndWorkflowModifiersAcknowledgementScreen from "./InformativeAndWorkflowModifiersAcknowledgementScreen";
@@ -47,7 +47,7 @@ import PackagingWizardV2 from "./PackagingWizardV2";
 import POPScannerScreen from "./POPScannerScreen";
 import POPScanResultsScreen from "./POPScanResultsScreen";
 // Excepted and Limited Quantities screens
-import QuantityEntryScreen from "./QuantityEntryScreen";
+import { QuantityEntryScreen } from "@/screens/preparer";
 import ExceptedQuantityPackagingGuidance from "./ExceptedQuantityPackagingGuidance";
 import ExceptedQuantityMarkingPreview from "./ExceptedQuantityMarkingPreview";
 import ExceptedQuantityConfirmationScreen from "./ExceptedQuantityConfirmationScreen";
