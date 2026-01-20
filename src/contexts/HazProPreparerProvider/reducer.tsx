@@ -3,7 +3,7 @@ import { PackagingReference } from "../../../server/data/grandfatheredPackagingP
 import { ExplosiveCrossReference } from "../../../server/data/tableA27_1";
 import { SpecialProvisionsMap } from "../../../server/informativeStatements/informativeStatements";
 import { HazProContextLookupOutput } from "../../../server/lookupFunctions/hazProContextLookup";
-import { BatteryDetails } from "../../../src/components/BatteryPoweredVehicle";
+import { BatteryDetails } from "@/screens/preparer/BatteryPoweredVehicleScreen";
 import { CapacitorData } from "../../../src/components/Capacitors";
 import { EngineOrMachineryPreparationData } from "../../../src/components/EnginesInternalCombustion";
 import { ExplosiveContainer } from "../../../src/components/ExplosiveDetailsWizardNew";
