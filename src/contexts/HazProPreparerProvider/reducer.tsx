@@ -5,7 +5,7 @@ import { SpecialProvisionsMap } from "../../../server/informativeStatements/info
 import { HazProContextLookupOutput } from "../../../server/lookupFunctions/hazProContextLookup";
 import { BatteryDetails } from "@/screens/preparer/BatteryPoweredVehicleScreen";
 import { CapacitorData } from "../../../src/components/Capacitors";
-import { EngineOrMachineryPreparationData } from "../../../src/components/EnginesInternalCombustion";
+import { EngineOrMachineryPreparationData } from "@/screens/preparer/EnginesInternalCombustion";
 import { ExplosiveContainer } from "../../../src/components/ExplosiveDetailsWizardNew";
 import { GMOShipmentData } from "../../../src/components/GeneticallyModifiedOrganisms";
 import { KitPreparationData } from "../../../src/components/KitPreparationScreen";
