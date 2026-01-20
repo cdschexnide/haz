@@ -8,7 +8,8 @@
  * The component has the following dependencies that need to be mocked:
  * - useHazProStore hook (state, store, saveCurrentShipment)
  * - @react-native-picker/picker (Picker)
- * - @/theming/colors
+ * - SpecialtyMaterialScreen wrapper
+ * - UI components from @/components/ui
  *
  * The component is a multi-step wizard (4 steps) for lithium battery preparation.
  */
@@ -27,6 +28,7 @@ jest.mock('@/stores/useHazProStore', () => ({
         hazardousMaterial: {
           unid: 'UN3480',
           properShippingName: 'LITHIUM ION BATTERIES',
+          hazardClass: '9',
           hazclassDiv: '9',
           subsidiaryRisk: '',
           packingGroup: '',
@@ -48,7 +50,7 @@ jest.mock('@/stores/useHazProStore', () => ({
         allowablePackingGroups: '',
         redirectUnid: null,
         lithiumBatteryData: null,
-        lithiumBatteryExceptionParams: null,
+        lithiumBatteryExceptionParameters: null,
         isLithiumBatteryExceptedQuantity: null,
       },
       isLoadingShipments: false,
@@ -64,7 +66,7 @@ jest.mock('@/stores/useHazProStore', () => ({
           properShippingName: 'LITHIUM ION BATTERIES',
         },
         lithiumBatteryData: null,
-        lithiumBatteryExceptionParams: null,
+        lithiumBatteryExceptionParameters: null,
         isLithiumBatteryExceptedQuantity: null,
       },
     },
@@ -74,17 +76,17 @@ jest.mock('@/stores/useHazProStore', () => ({
   }),
 }));
 
-// Mock colors
-jest.mock('@/theming/colors', () => ({
-  __esModule: true,
-  default: {
-    blue: '#0066cc',
-    green: '#28a745',
-    noRed: '#dc3545',
-    lightGray: '#f8f9fa',
-    darkGray: '#495057',
-  },
-}));
+// Mock @expo/vector-icons
+jest.mock('@expo/vector-icons', () => {
+  const { View, Text } = require('react-native');
+  return {
+    MaterialIcons: ({ name, size, color }: any) => (
+      <View testID={`icon-${name}`}>
+        <Text>{name}</Text>
+      </View>
+    ),
+  };
+});
 
 // Mock Picker
 jest.mock('@react-native-picker/picker', () => {
@@ -138,13 +140,10 @@ describe('LithiumBatteriesPrepScreen', () => {
     expect(screen.getByText('Step 1 of 4')).toBeTruthy();
   });
 
-  it('renders the briefing panel', () => {
+  it('renders the info banner', () => {
     render(<LithiumBatteriesPrepScreen navigation={mockNavigation} />);
 
-    // Check for briefing panel title
-    expect(screen.getByText('Lithium Battery Transport Requirements')).toBeTruthy();
-
-    // Check for briefing panel text content
+    // Check for info banner content (now in SpecialtyMaterialScreen wrapper)
     expect(
       screen.getByText(
         'Lithium cells and batteries must meet UN Manual of Tests and Criteria requirements. Batteries must have protection against short circuits and violent rupture.'
@@ -152,12 +151,12 @@ describe('LithiumBatteriesPrepScreen', () => {
     ).toBeTruthy();
   });
 
-  it('renders the step title for packaging method selection', () => {
+  it('renders the section header for packaging method selection', () => {
     render(<LithiumBatteriesPrepScreen navigation={mockNavigation} />);
 
-    // Check for step title (Lithium Ion since UN3480 is mocked)
+    // Check for section header (updated to match new component structure)
     expect(
-      screen.getByText('Select Packaging Method for Lithium Ion Batteries')
+      screen.getByText('Packaging for Lithium Ion Batteries')
     ).toBeTruthy();
   });
 
@@ -170,12 +169,21 @@ describe('LithiumBatteriesPrepScreen', () => {
     expect(screen.getByText('Batteries Exceeding 12kg')).toBeTruthy();
   });
 
-  it('renders the button container with all buttons', () => {
+  it('renders the footer buttons', () => {
     render(<LithiumBatteriesPrepScreen navigation={mockNavigation} />);
 
     // Check for Cancel, Save & Exit, and Next buttons
     expect(screen.getByText('Cancel')).toBeTruthy();
     expect(screen.getByText('Save & Exit')).toBeTruthy();
     expect(screen.getByText('Next')).toBeTruthy();
+  });
+
+  it('renders material information card', () => {
+    render(<LithiumBatteriesPrepScreen navigation={mockNavigation} />);
+
+    // Check for material info display (via SpecialtyMaterialScreen wrapper)
+    expect(screen.getByText('Material Information')).toBeTruthy();
+    expect(screen.getByText('UN3480')).toBeTruthy();
+    expect(screen.getByText('LITHIUM ION BATTERIES')).toBeTruthy();
   });
 });
