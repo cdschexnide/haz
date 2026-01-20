@@ -1,5 +1,5 @@
 // src/screens/preparer/ShipmentCreationScreen.tsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   View,
   ScrollView,
@@ -11,7 +11,6 @@ import {
 } from 'react-native';
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
 import {
   FormField,
   FormRow,
@@ -28,81 +27,13 @@ import { PhoneNumberInput } from '@/components/PhoneNumberInput';
 import { useHazProStore } from '@/stores/useHazProStore';
 import { useNavigationRef } from '@/contexts/NavigationRefProvider/useNavigationRef';
 import { useInputRefs } from '@/utils/hooks/useInputRefs';
-
-// Validation schema - same as original
-const schema = yup.object().shape({
-  tcn: yup
-    .string()
-    .length(17, 'TCN must be exactly 17 characters')
-    .required('TCN is required'),
-  poeOption: yup.string().required('POE option must be selected'),
-  podOption: yup.string().required('POD option must be selected'),
-  isChapter3: yup.string().required('Chapter 3 option must be selected'),
-  poe: yup.string().when('poeOption', {
-    is: 'Channel',
-    then: () => yup.string().required('POE is required'),
-    otherwise: () => yup.string().notRequired(),
-  }),
-  pod: yup.string().when('podOption', {
-    is: 'Channel',
-    then: () => yup.string().required('POD is required'),
-    otherwise: () => yup.string().notRequired(),
-  }),
-  shipperLocation: yup.string().when('poeOption', {
-    is: 'Channel',
-    then: () => yup.string().required('Shipper Location Name is required'),
-    otherwise: () => yup.string().notRequired(),
-  }),
-  shipperStreet: yup.string().when('poeOption', {
-    is: 'Channel',
-    then: () => yup.string().required('Shipper Street is required'),
-    otherwise: () => yup.string().notRequired(),
-  }),
-  shipperCity: yup.string().when('poeOption', {
-    is: 'Channel',
-    then: () => yup.string().required('Shipper City is required'),
-    otherwise: () => yup.string().notRequired(),
-  }),
-  shipperZipcode: yup.string().when('poeOption', {
-    is: 'Channel',
-    then: () => yup.string().required('Shipper Zip Code is required'),
-    otherwise: () => yup.string().notRequired(),
-  }),
-  shipperCountry: yup.string().when('poeOption', {
-    is: 'Channel',
-    then: () => yup.string().required('Shipper Country is required'),
-    otherwise: () => yup.string().notRequired(),
-  }),
-  consigneeDodaac: yup.string().when('podOption', {
-    is: 'Channel',
-    then: () =>
-      yup
-        .string()
-        .length(6, 'DODAAC must be 6 digits')
-        .required('Consignee DODAAC is required'),
-    otherwise: () => yup.string().notRequired(),
-  }),
-  consigneeCountry: yup.string().when('podOption', {
-    is: 'Channel',
-    then: () => yup.string().required('Consignee Country is required'),
-    otherwise: () => yup.string().notRequired(),
-  }),
-  preparerName: yup.string().required('Preparer Name is required'),
-  preparerRank: yup.string().notRequired(),
-  preparerTitle: yup.string().required('Preparer Title is required'),
-  certificationPlace: yup.string().required('Certification Place is required'),
-  certificationDate: yup.string().required('Certification Date is required'),
-});
-
-// Radio options
-const poeOptions = [
-  { label: 'Channel', value: 'Channel' },
-  { label: 'Worldwide Mobility', value: 'Worldwide Mobility' },
-];
-const yesNoOptions = [
-  { label: 'Yes', value: 'Yes' },
-  { label: 'No', value: 'No' },
-];
+import { shipmentCreationSchema } from '@/utils/validation/shipmentSchema';
+import {
+  createPOEChangeHandler,
+  createPODChangeHandler,
+  PORT_OPTIONS,
+  YES_NO_OPTIONS,
+} from '@/utils/shipment/portOptionHandlers';
 
 interface ShipmentCreationScreenProps {
   navigation: any;
@@ -126,7 +57,7 @@ export const ShipmentCreationScreen: React.FC<ShipmentCreationScreenProps> = ({
     formState: { errors },
   } = useForm({
     mode: 'onChange',
-    resolver: yupResolver(schema),
+    resolver: yupResolver(shipmentCreationSchema),
     defaultValues: {
       tcn: state.hazProPreparerContext.shipment?.tcn || '',
       poeOption: state.hazProPreparerContext.shipment?.poeOption || '',
@@ -186,51 +117,16 @@ export const ShipmentCreationScreen: React.FC<ShipmentCreationScreenProps> = ({
     };
   }, [navigation]);
 
-  // Handle POE option change with side effects
-  const handlePOEChange = (value: string) => {
-    if (store.hazProPreparerContext.shipment) {
-      store.hazProPreparerContext.shipment.poeOption = value;
-      store.hazProPreparerContext.shipment.poe =
-        value === 'Worldwide Mobility' ? 'WORLDWIDE MOBILITY' : '';
-    }
-    if (store.hazProPreparerContext.shipper) {
-      store.hazProPreparerContext.shipper.worldwideMobility =
-        value === 'Worldwide Mobility';
-      if (store.hazProPreparerContext.shipper.address) {
-        const resetValue = value === 'Worldwide Mobility' ? null : '';
-        store.hazProPreparerContext.shipper.address.shipperLocation = resetValue;
-        store.hazProPreparerContext.shipper.address.shipperStreet = resetValue;
-        store.hazProPreparerContext.shipper.address.shipperCity = resetValue;
-        store.hazProPreparerContext.shipper.address.shipperState = resetValue;
-        store.hazProPreparerContext.shipper.address.shipperZipcode = resetValue;
-        store.hazProPreparerContext.shipper.address.selectedShipperCountry = resetValue;
-      }
-      store.hazProPreparerContext.shipper.phoneNumber = null;
-    }
-  };
+  // Memoized handlers for POE/POD option changes
+  const handlePOEChange = useMemo(
+    () => createPOEChangeHandler(store.hazProPreparerContext),
+    [store.hazProPreparerContext]
+  );
 
-  // Handle POD option change with side effects
-  const handlePODChange = (value: string) => {
-    if (store.hazProPreparerContext.shipment) {
-      store.hazProPreparerContext.shipment.podOption = value;
-      store.hazProPreparerContext.shipment.pod =
-        value === 'Worldwide Mobility' ? 'WORLDWIDE MOBILITY' : '';
-    }
-    if (store.hazProPreparerContext.consignee) {
-      store.hazProPreparerContext.consignee.worldwideMobility =
-        value === 'Worldwide Mobility';
-      if (store.hazProPreparerContext.consignee.address) {
-        const resetValue = value === 'Worldwide Mobility' ? null : '';
-        store.hazProPreparerContext.consignee.address.consigneeDodaac = resetValue;
-        store.hazProPreparerContext.consignee.address.consigneeStreet = resetValue;
-        store.hazProPreparerContext.consignee.address.consigneeCity = resetValue;
-        store.hazProPreparerContext.consignee.address.consigneeState = resetValue;
-        store.hazProPreparerContext.consignee.address.consigneeZipcode = resetValue;
-        store.hazProPreparerContext.consignee.address.selectedConsigneeCountry = resetValue;
-      }
-      store.hazProPreparerContext.consignee.phoneNumber = null;
-    }
-  };
+  const handlePODChange = useMemo(
+    () => createPODChangeHandler(store.hazProPreparerContext),
+    [store.hazProPreparerContext]
+  );
 
   // Render Shipper section based on POE option
   const renderShipperSection = () => {
@@ -470,7 +366,7 @@ export const ShipmentCreationScreen: React.FC<ShipmentCreationScreenProps> = ({
             <View style={{ flex: 1 }}>
               <RadioGroup
                 label="Port of Embarkation (POE)"
-                options={poeOptions}
+                options={PORT_OPTIONS}
                 value={state.hazProPreparerContext.shipment?.poeOption || ''}
                 onChange={handlePOEChange}
                 required
@@ -480,7 +376,7 @@ export const ShipmentCreationScreen: React.FC<ShipmentCreationScreenProps> = ({
             <View style={{ flex: 1 }}>
               <RadioGroup
                 label="Port of Debarkation (POD)"
-                options={poeOptions}
+                options={PORT_OPTIONS}
                 value={state.hazProPreparerContext.shipment?.podOption || ''}
                 onChange={handlePODChange}
                 required
@@ -492,7 +388,7 @@ export const ShipmentCreationScreen: React.FC<ShipmentCreationScreenProps> = ({
           {/* Chapter 3 */}
           <RadioGroup
             label="Is this shipment moving under the authority of Chapter 3?"
-            options={yesNoOptions}
+            options={YES_NO_OPTIONS}
             value={state.hazProPreparerContext.shipment?.isChapter3 || ''}
             onChange={(value) => {
               if (store.hazProPreparerContext.shipment) {
