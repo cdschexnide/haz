@@ -12,3 +12,4 @@ export * from './ShipmentTable';
 export * from './StandardLabelingContent';
 export * from './ToolButtonsBar';
 export * from './VehicleLabelingNotice';
+export * from './SpecialtyMaterialScreen';
