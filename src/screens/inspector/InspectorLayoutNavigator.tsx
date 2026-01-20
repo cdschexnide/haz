@@ -45,7 +45,7 @@ import ClosingProcedures from "./inner-packaging/ClosingProcedures";
 
 // Components that stayed in src/components/ (../../components/*)
 import InspectorMainLayout from "../../components/Inspector/InspectorMainLayout";
-import ShippersDeclarationScreen from "../../components/ShippersDeclarationScreen";
+// import ShippersDeclarationScreen from "../../components/ShippersDeclarationScreen";
 import SDDGUploadAndParse from "../../components/SDDGUploadAndParse";
 import SDDGVerificationScreen from "../../components/SDDGVerificationScreen";
 import SDDGFrustrationSummary from "../../components/SDDGFrustrationSummary";
@@ -113,10 +113,10 @@ const InspectorWrappedStack = ({ navigation }: { navigation: any }) => (
         name="InspectorPOPMethodSelectionScreen"
         component={InspectorPOPMethodSelectionScreen}
       />
-      <MainStack.Screen
+      {/* <MainStack.Screen
         name="ShippersDeclarationScreen"
         component={ShippersDeclarationScreen}
-      />
+      /> */}
       <MainStack.Screen
         name="SDDGUploadAndParse"
         component={SDDGUploadAndParse}

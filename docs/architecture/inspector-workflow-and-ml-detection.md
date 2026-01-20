@@ -1,6 +1,6 @@
 # Inspector Workflow and ML Detection System Architecture
 
-**Last Updated:** 2026-01-15
+**Last Updated:** 2026-01-16
 **Audience:** Future Claude Code instances, engineers, maintainers
 **Regulatory Basis:** AFMAN24-604 (Air Force Manual for Preparing Hazardous Materials for Military Air Shipments)
 
@@ -15,7 +15,7 @@
 5. [ML Detection Screen Architecture](#ml-detection-screen-architecture)
 6. [OCR Extraction Pipeline](#ocr-extraction-pipeline)
 7. [UN Specification Package Marking System](#un-specification-package-marking-system)
-8. [POP Marking Validation Screen](#pop-marking-validation-screen)
+8. [POP Marking Data Entry & Validation](#pop-marking-data-entry--validation)
 9. [Markings & Labels Validation Screen](#markings--labels-validation-screen)
 10. [Material-Specific Verification Screens](#material-specific-verification-screens)
 11. [Package Frustration Summary Screen](#package-frustration-summary-screen)
@@ -119,17 +119,19 @@ The core technical innovation is the dual-pipeline ML detection system that comb
     │  • Display aggregated results       │
     │  • Save CORRECTED results to context│
     └──────────────────────────────────────┘
+      Note: If packingInstruction starts with "A6", route to
+      InspectorCylinderTypeSelectionScreen (Class 2 cylinders) and
+      skip POP marking data entry.
                     │
                     ▼
     ┌──────────────────────────────────────┐
-    │   InspectorPOPMarkingValidationScreen│
+    │   InspectorPOPMarkingDataEntry       │
     │                                      │
-    │  • Display detected POP marking     │
-    │  • Validate each field (A-H)        │
-    │  • Check packaging code vs allowed  │
-    │  • Validate packing group rating    │
-    │  • Can frustrate if non-compliant   │
-    │  • Manual entry if not detected     │
+    │  • Prefill from ML (if present)     │
+    │  • Validate field B (pkg code)      │
+    │  • Validate field C (packing group) │
+    │  • Add frustrations on invalid/miss │
+    │  • Continue to Markings/Labels      │
     └──────────────────────────────────────┘
                     │
                     ▼
@@ -144,7 +146,7 @@ The core technical innovation is the dual-pipeline ML detection system that comb
     │    - Cargo Aircraft Only            │
     │    - Subsidiary Hazard labels       │
     │  • Match ML detections to reqs      │
-    │  • Validate/Frustrate buttons       │
+    │  • Auto-frustrate missing items     │
     └──────────────────────────────────────┘
                     │
                     ▼
@@ -216,7 +218,8 @@ The core technical innovation is the dual-pipeline ML detection system that comb
 | Interactive Compliance | `src/screens/inspector/InteractiveSDDGComplianceScreen.tsx` |
 | SDDG Frustration Summary | `src/components/SDDGFrustrationSummary.tsx` |
 | **ML Detection** | `src/screens/inspector/MLDetectionScreen.tsx` |
-| **POP Marking Validation** | `src/screens/inspector/InspectorPOPMarkingValidationScreen.tsx` |
+| **POP Marking Data Entry** | `src/screens/inspector/InspectorPOPMarkingDataEntry.tsx` |
+| **POP Scan Results (optional)** | `src/screens/inspector/InspectorPOPScanResultsScreen.tsx` |
 | **Markings & Labels Validation** | `src/screens/inspector/InspectorMarkingsLabelsValidationScreen.tsx` |
 | **Package Frustration Summary** | `src/screens/inspector/PackageFrustrationSummary.tsx` |
 | **Package Inspection Complete** | `src/screens/inspector/PackageInspectionCompleteScreen.tsx` |
@@ -375,7 +378,7 @@ The inspection table shows saved inspections with appropriate status indicators:
 When `packageStatus === null`, the Package column displays "N/A" (not applicable yet) instead of "Not Started":
 
 ```typescript
-// src/components/Inspector/InspectorHomeScreen.tsx
+// src/screens/inspector/InspectorHomeScreen.tsx
 
 <Text style={[
   styles.columnText,
@@ -401,7 +404,7 @@ When `packageStatus === null`, the Package column displays "N/A" (not applicable
 When an inspector clicks on the SDDG status column:
 
 ```typescript
-// src/components/Inspector/InspectorHomeScreen.tsx
+// src/screens/inspector/InspectorHomeScreen.tsx
 
 const handleSDDGStatusClick = async (inspection: InspectorShipment) => {
   // Verified SDDG → Navigate to SDDGInspectionCompleteScreen for review/continue
@@ -436,7 +439,7 @@ const handleSDDGStatusClick = async (inspection: InspectorShipment) => {
 When an inspector clicks on the Package "N/A" status:
 
 ```typescript
-// src/components/Inspector/InspectorHomeScreen.tsx
+// src/screens/inspector/InspectorHomeScreen.tsx
 
 const handlePackageStatusClick = async (inspection: InspectorShipment) => {
   // Package not started yet (N/A) → Prompt to continue
@@ -517,7 +520,7 @@ const handlePackageStatusClick = async (inspection: InspectorShipment) => {
 The "Continue" button text changes based on frustration state:
 
 ```typescript
-// src/components/Inspector/InteractiveSDDGComplianceScreen.tsx
+// src/screens/inspector/InteractiveSDDGComplianceScreen.tsx
 
 <Text style={styles.buttonPrimaryText}>
   {frustratedFields.size > 0
@@ -531,7 +534,7 @@ The "Continue" button text changes based on frustration state:
 When InteractiveSDDGComplianceScreen has no frustrations, it routes directly to SDDGInspectionCompleteScreen:
 
 ```typescript
-// src/components/Inspector/InteractiveSDDGComplianceScreen.tsx
+// src/screens/inspector/InteractiveSDDGComplianceScreen.tsx
 
 const handleContinue = useCallback(() => {
   const frustratedCount = frustratedFields.size;
@@ -553,8 +556,8 @@ const handleContinue = useCallback(() => {
 |------|---------|
 | `src/components/SDDGInspectionCompleteScreen.tsx` | Added Back button, fixed Save & Exit navigation |
 | `src/components/SDDGFrustrationSummary.tsx` | Added Save & Exit button with database persistence |
-| `src/components/Inspector/InteractiveSDDGComplianceScreen.tsx` | Changed button text, updated zero-frustration navigation |
-| `src/components/Inspector/InspectorHomeScreen.tsx` | SDDG verified click handler, Package N/A display and click handler |
+| `src/screens/inspector/InteractiveSDDGComplianceScreen.tsx` | Changed button text, updated zero-frustration navigation |
+| `src/screens/inspector/InspectorHomeScreen.tsx` | SDDG verified click handler, Package N/A display and click handler |
 
 ### Critical Implementation Notes
 
@@ -662,7 +665,7 @@ interface ExtractedSDDGContent {
 
 ### Component Location
 
-`src/components/Inspector/MLDetectionScreen.tsx`
+`src/screens/inspector/MLDetectionScreen.tsx`
 
 ### Screen States
 
@@ -782,7 +785,7 @@ interface ManualCorrection {
 **IMPORTANT**: When navigating to the next screen, the `navigateToNextScreen` function MUST re-aggregate from `correctedResults`, not the original `aggregatedResults`.
 
 ```typescript
-// src/components/Inspector/MLDetectionScreen.tsx - navigateToNextScreen()
+// src/screens/inspector/MLDetectionScreen.tsx - navigateToNextScreen()
 
 import { aggregateResults } from "../../ml/hooks/useDetection";
 
@@ -804,7 +807,18 @@ const navigateToNextScreen = useCallback(() => {
     setMLAnalysisResults(finalAggregated);
   }
 
-  navigation.navigate("InspectorPOPMarkingValidationScreen");
+  const packingInstruction =
+    inspection?.verificationCopy?.packingInstruction ||
+    inspection?.extractedContent?.packingInstruction ||
+    "";
+
+  // Class 2 materials (packingInstruction starts with A6) skip POP marking
+  if (packingInstruction.toUpperCase().startsWith("A6")) {
+    navigation.navigate("InspectorCylinderTypeSelectionScreen");
+    return;
+  }
+
+  navigation.navigate("InspectorPOPMarkingDataEntry");
 }, [navigation, correctedResults, analysisResults, setMLAnalysisResults]);
 ```
 
@@ -817,7 +831,7 @@ const navigateToNextScreen = useCallback(() => {
 | `handleGallerySelect()` | Image picker integration |
 | `handleCropComplete()` | Cropping result handler |
 | `aggregateResults()` | Combine results from all images (exported from useDetection) |
-| `navigateToNextScreen()` | Save corrected results and route to POP validation |
+| `navigateToNextScreen()` | Save corrected results and route to POP data entry (or Class 2 cylinder selection) |
 
 ---
 
@@ -1005,85 +1019,57 @@ Location: `src/utils/popMarkingParser.ts`
 ```typescript
 interface ParsedPOPMarking {
   found: boolean;
-  fields: POPMarkingFields;
+  fields: POPMarkingFields | null;
   confidence: number;
   issues: string[];
   detectedType: POPMarkingType;
   sourceText: string;  // Used for exclusion from other extractors
 }
 
-interface POPMarkingFields {
-  fieldA_UNCode: string;        // e.g., "4G" (fiberboard box)
-  fieldB_PackingGroup: string;  // e.g., "X", "Y", "Z"
-  fieldC_GrossWeight: string;   // e.g., "25" (kg)
-  fieldD_SolidOrPressure: string; // "S" for solids
-  fieldE_ManufactureDate: string; // e.g., "22" (year)
-  fieldF_CountryCode: string;   // e.g., "USA"
-  fieldG_ManufacturerCode: string; // e.g., "DOD"
-  fieldH_Authority: string;     // e.g., "DOD" or "DOT"
+type POPMarkingFields =
+  | NonBulkSolidFields
+  | NonBulkLiquidFields
+  | LargePackagingFields;
+
+interface NonBulkSolidFields {
+  type: POPMarkingType.NON_BULK_SOLID;
+  A: string; // "UN"
+  B: string; // Packaging code (e.g., "4G")
+  C: string; // Packing group (X/Y/Z)
+  D: string; // Max gross mass (kg)
+  E: "S";    // Solids indicator
+  F: string; // Year
+  G: string; // Country
+  H: string; // Manufacturer
 }
+
+// NonBulkLiquidFields and LargePackagingFields use the same A-H keys
+// with type-specific meanings for D/E/F/G/H.
 ```
 
 ---
 
-## POP Marking Validation Screen
+## POP Marking Data Entry & Validation
 
 ### Component Location
 
-`src/components/Inspector/InspectorPOPMarkingValidationScreen.tsx`
+`src/screens/inspector/InspectorPOPMarkingDataEntry.tsx`
 
 ### Purpose
 
-Validates the UN specification package marking detected by ML/OCR against AFMAN 24-604 requirements.
+Validates the UN specification package marking using a single data-entry screen. Fields are prefilled from ML when available, with manual entry for missing or low-confidence data.
 
-### Screen States
+### Key Behaviors
 
-```typescript
-// Two possible render states based on ML detection
-if (!hasDetectedPOP) {
-  return <NotDetectedState navigation={navigation} />;
-}
-return <DetectedState navigation={navigation} />;
-```
+- Prefill fields B-H from `mlAnalysisResults.bestPopMarking` when present
+- Validate **Field B (packaging code)** against allowed codes from the packaging database
+- Validate **Field C (packing group)** against allowable packing groups for the material
+- Add package frustrations when required data is missing or invalid
+- Continue to `InspectorMarkingsLabelsValidationScreen`
 
-### Not Detected State
+### Optional Scan Review
 
-When no POP marking is detected:
-- User can **Enter Manually** → navigates to `InspectorPOPMarkingDataEntry`
-- User can **Mark as Missing** → adds frustration and continues
-
-```typescript
-const handleMarkAsMissing = () => {
-  addPackageFrustration({
-    category: "marking",
-    itemId: "pop-marking-missing",
-    itemLabel: "UN Specification Marking",
-    expectedValues: ["UN specification marking present"],
-    verificationStatus: "missing",
-    defaultMessage: "Required UN specification packaging marking not found on package",
-    afmanReference: "AFMAN 24-604 A14.2",
-  });
-  navigation.navigate("InspectorMarkingsLabelsValidationScreen");
-};
-```
-
-### Detected State
-
-When POP marking is detected:
-- Displays parsed fields (A through H) in a visual table
-- Shows detection confidence percentage
-- Validates each field against requirements:
-  - **Field B (Packaging Code)**: Must be in allowed list for the packaging paragraph
-  - **Field C (Packing Group)**: Must be compatible with material's packing group
-  - **Field E (Manufacture Date)**: Checks for expiration (5-year rule for some materials)
-- User can **Validate** (green checkmark) or **Frustrate** (red X) each field
-
-### Navigation
-
-After validation completes:
-```typescript
-navigation.navigate("InspectorMarkingsLabelsValidationScreen");
-```
+`src/screens/inspector/InspectorPOPScanResultsScreen.tsx` can be used to review raw OCR + parsed POP fields and then continue to data entry.
 
 ---
 
@@ -1091,11 +1077,11 @@ navigation.navigate("InspectorMarkingsLabelsValidationScreen");
 
 ### Component Location
 
-`src/components/Inspector/InspectorMarkingsLabelsValidationScreen.tsx`
+`src/screens/inspector/InspectorMarkingsLabelsValidationScreen.tsx`
 
 ### Purpose
 
-Validates required markings and labels against ML detections. This screen replaced the previous `InspectorPackageVerificationScreen` for the default (non-material-specific) flow.
+Validates required markings and labels against ML detections and OCR text. Missing items are auto-frustrated on first load to keep the package frustration list complete.
 
 ### Data Structure
 
@@ -1231,7 +1217,7 @@ Each material-specific screen:
 
 ### Component Location
 
-`src/components/Inspector/PackageFrustrationSummary.tsx`
+`src/screens/inspector/PackageFrustrationSummary.tsx`
 
 ### Purpose
 
@@ -1276,7 +1262,7 @@ const handleStartReinspection = () => {
 
 ### Component Location
 
-`src/components/Inspector/PackageInspectionCompleteScreen.tsx`
+`src/screens/inspector/PackageInspectionCompleteScreen.tsx`
 
 ### Purpose
 
@@ -1325,7 +1311,7 @@ const handleSaveAndExit = async () => {
 
 ### Component Location
 
-`src/components/Inspector/InspectorAMC1015Form.tsx`
+`src/screens/inspector/InspectorAMC1015Form.tsx`
 
 ### Purpose
 
@@ -1547,7 +1533,7 @@ The frustration system tracks non-compliance issues discovered during inspection
 | Type | Storage | Created By | Form 1015 Fields |
 |------|---------|------------|------------------|
 | **SDDG Frustrations** | `inspection.frustrations` | InteractiveSDDGComplianceScreen | Fields 2-23 (SDDG validation) |
-| **POP Marking Frustrations** | `inspection.packageFrustrations` | InspectorPOPMarkingValidationScreen | Field 54 |
+| **POP Marking Frustrations** | `inspection.packageFrustrations` | InspectorPOPMarkingDataEntry | Field 54 |
 | **Marking Frustrations** | `inspection.packageFrustrations` | InspectorMarkingsLabelsValidationScreen | Fields 53, 75, etc. |
 | **Label Frustrations** | `inspection.packageFrustrations` | InspectorMarkingsLabelsValidationScreen | Fields 69, 71, 72, 75 |
 
@@ -1555,7 +1541,7 @@ The frustration system tracks non-compliance issues discovered during inspection
 
 ### SDDG Frustrations
 
-**Source:** `src/components/Inspector/InteractiveSDDGComplianceScreen.tsx`
+**Source:** `src/screens/inspector/InteractiveSDDGComplianceScreen.tsx`
 
 Created when an inspector identifies an issue with a field on the SDDG form (Shipper's Declaration for Dangerous Goods).
 
@@ -1616,7 +1602,7 @@ addFrustration({
 
 ### POP Marking Frustrations (UN Specification Package Marking)
 
-**Source:** `src/components/Inspector/InspectorPOPMarkingValidationScreen.tsx`
+**Source:** `src/screens/inspector/InspectorPOPMarkingDataEntry.tsx`
 
 Created when the UN specification package marking is missing or has invalid fields.
 
@@ -1669,7 +1655,7 @@ addPackageFrustration({
 
 ### Marking Frustrations
 
-**Source:** `src/components/Inspector/InspectorMarkingsLabelsValidationScreen.tsx` (MARKINGS section)
+**Source:** `src/screens/inspector/InspectorMarkingsLabelsValidationScreen.tsx` (MARKINGS section)
 
 Created when required text markings on the package are missing or incorrect.
 
@@ -1719,7 +1705,7 @@ addPackageFrustration({
 
 ### Label Frustrations
 
-**Source:** `src/components/Inspector/InspectorMarkingsLabelsValidationScreen.tsx` (LABELS section)
+**Source:** `src/screens/inspector/InspectorMarkingsLabelsValidationScreen.tsx` (LABELS section)
 
 Created when required hazmat labels are missing or incorrect.
 
@@ -1824,7 +1810,7 @@ export const PACKAGE_TO_FORM1015_MAPPING: Record<string, string> = {
 
 ### Field 87 Annotation Format
 
-**Location:** `src/components/Inspector/InspectorAMC1015Form.tsx` - `formatFrustrationsForComments()`
+**Location:** `src/screens/inspector/InspectorAMC1015Form.tsx` - `formatFrustrationsForComments()`
 
 All frustrations are documented in Field 87 (COMMENTS/REASON(S) FOR FRUSTRATION) of the AMC Form 1015.
 
@@ -2067,7 +2053,8 @@ src/
 │   ├── inspector/
 │   │   ├── InspectorHomeScreen.tsx
 │   │   ├── MLDetectionScreen.tsx              # ML detection + manual corrections
-│   │   ├── InspectorPOPMarkingValidationScreen.tsx  # POP marking validation
+│   │   ├── InspectorPOPMarkingDataEntry.tsx    # POP marking data entry + validation
+│   │   ├── InspectorPOPScanResultsScreen.tsx   # Optional POP scan review
 │   │   ├── InspectorMarkingsLabelsValidationScreen.tsx  # Markings & labels
 │   │   ├── InteractiveSDDGComplianceScreen.tsx  # SDDG compliance validation
 │   │   ├── PackageFrustrationSummary.tsx      # Review package frustrations
@@ -2093,7 +2080,7 @@ src/
 ├── utils/
 │   ├── popMarkingParser.ts                    # POP marking parser
 │   ├── labelMatchingTable.ts                  # Label → requirement mapping
-│   ├── markingRequirementsInspector.ts        # Marking requirements evaluation
+│   ├── markingRequirementsInspector.tsx       # Marking requirements evaluation
 │   ├── labelingRequirementsInspector.tsx      # Label requirements evaluation
 │   └── sddgToForm1015Mapping.ts               # Frustration → Form 1015 mapping
 ├── contexts/
@@ -2117,3 +2104,4 @@ server/
 | 2026-01-05 | Claude | Added complete package inspection flow: MLDetection corrections saving, POP validation, Markings & Labels validation, PackageFrustrationSummary, PackageInspectionCompleteScreen, AMC Form 1015. Updated workflow diagram. Added label matching system documentation. |
 | 2026-01-06 | Claude | Added SDDG Save & Exit and Reinspection System documentation. Covers: Save & Exit from SDDGInspectionCompleteScreen and SDDGFrustrationSummary, InspectorHomeScreen table display with "N/A" for package status, reinspection navigation handlers for SDDG "Verified" and Package "N/A" clicks, InteractiveSDDGComplianceScreen button text changes, navigation flow diagrams, and critical implementation notes. Updated workflow diagram to show Save & Exit paths. |
 | 2026-01-15 | Claude | Updated file paths to reflect Inspector screen migration from `src/components/Inspector/` to `src/screens/inspector/`. Updated File Locations Summary table and Quick Reference: File Paths section. |
+| 2026-01-16 | Codex | Updated Inspector workflow to reflect POP data entry flow, Class 2 branch, auto-frustration behavior, and current file paths. |

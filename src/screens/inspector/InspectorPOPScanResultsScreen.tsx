@@ -44,10 +44,10 @@ interface POPScanResultsScreenProps {
   };
 }
 
-const InspectorPOPScanResultsScreen: React.FC<POPScanResultsScreenProps> = ({
+const InspectorPOPScanResultsScreen = ({
   // navigation,
   route,
-}) => {
+}: POPScanResultsScreenProps) => {
   const { resetPackagePopMarking } = useInspectionForm();
   const { navigate } = useNavigationRef();
   const {

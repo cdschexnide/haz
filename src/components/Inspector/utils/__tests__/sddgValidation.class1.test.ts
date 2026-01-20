@@ -1,10 +1,16 @@
 import {
+  validateAircraftType,
   validateHazardClass,
   validatePackingGroup,
   validatePackingInstruction,
+  validateProperShippingName,
   validateSubsidiaryRisk,
+  validateUnidNumber,
+  validateSDDGInspection,
+  SDDGValidationResult,
 } from '../sddgValidation';
 import { HazardousMaterialItem } from '@/hazardousMaterials/hazardousMaterialsList';
+import { ExtractedSDDGContent } from '@/types/sddg';
 
 // Helper to create minimal HazardousMaterialItem for testing
 function createClass1Material(
@@ -12,7 +18,8 @@ function createClass1Material(
   hazclassDiv: string,
   packagingParagraph: string,
   properShippingName: string,
-  subsidiaryRisk: string = ''
+  subsidiaryRisk: string = '',
+  specialProvision: string = ''
 ): HazardousMaterialItem {
   return {
     unid,
@@ -21,12 +28,291 @@ function createClass1Material(
     properShippingName,
     packingGroup: '', // Class 1 has no packing group
     subsidiaryRisk,
-    specialProvision: '',
+    specialProvision,
     isTechnicalNameRequired: false,
   } as HazardousMaterialItem;
 }
 
+// Helper to create ExtractedSDDGContent for unified validation testing
+function createSDDGContent(overrides: Partial<ExtractedSDDGContent>): ExtractedSDDGContent {
+  return {
+    shipper: '',
+    consignee: '',
+    airWaybillNumber: '',
+    pagination: '',
+    shippersReferenceNumber: '',
+    inspectionActivity: '',
+    aircraftType: '',
+    airportOfDeparture: '',
+    airportOfDestination: '',
+    shipmentType: '',
+    unIdNo: '',
+    properShippingName: '',
+    hazardClass: '',
+    subsidiaryRisk: '',
+    packingGroup: '',
+    quantityAndPacking: '',
+    packingInstruction: '',
+    authorization: '',
+    additionalHandlingInfo: '',
+    nameOfSignatory: '',
+    placeAndDate: '',
+    signature: '',
+    ...overrides,
+  };
+}
+
 describe('SDDG Validation - Class 1 Explosives', () => {
+  describe('Key 7: Aircraft Type Validation', () => {
+    describe('Positive Cases - Cargo Aircraft Only (P1-P4)', () => {
+      test('Scenario 7: UN0247 - validates CAO with P3 special provision', () => {
+        const material = createClass1Material(
+          'UN0247', '1.3J', 'A5.12',
+          'AMMUNITION, INCENDIARY with or without burster, expelling charge or propelling charge',
+          '', 'P3'
+        );
+        const result = validateAircraftType(material, 'CARGO AIRCRAFT ONLY');
+        expect(result.isValid).toBe(true);
+      });
+
+      test('Scenario 9: UN0106 - validates CAO with P1 special provision', () => {
+        const material = createClass1Material(
+          'UN0106', '1.4B', 'A5.9', 'FUZES, DETONATING', '', 'P1'
+        );
+        const result = validateAircraftType(material, 'CARGO AIRCRAFT ONLY');
+        expect(result.isValid).toBe(true);
+      });
+
+      test('Scenario 1: UN0224 - accepts CAO for 1.1A (default for Class 1)', () => {
+        const material = createClass1Material(
+          'UN0224', '1.1A', 'A5.2', 'BARIUM AZIDE, DRY', '', 'P4'
+        );
+        const result = validateAircraftType(material, 'CARGO AIRCRAFT ONLY');
+        expect(result.isValid).toBe(true);
+      });
+    });
+
+    describe('Positive Cases - Passenger and Cargo Aircraft (P5)', () => {
+      test('Scenario 11: UN0012 - validates Passenger and Cargo with P5 special provision', () => {
+        const material = createClass1Material(
+          'UN0012', '1.4S', 'A5.5', 'CARTRIDGES FOR WEAPONS, INERT PROJECTILE', '', 'P5'
+        );
+        const result = validateAircraftType(material, 'PASSENGER AND CARGO AIRCRAFT');
+        expect(result.isValid).toBe(true);
+      });
+    });
+
+    describe('Negative Cases - From Alterations', () => {
+      test('Scenario 7, Alteration 2: rejects Passenger and Cargo when P3 requires CAO', () => {
+        const material = createClass1Material(
+          'UN0247', '1.3J', 'A5.12',
+          'AMMUNITION, INCENDIARY with or without burster, expelling charge or propelling charge',
+          '', 'P3'
+        );
+        const result = validateAircraftType(material, 'PASSENGER AND CARGO AIRCRAFT');
+        expect(result.isValid).toBe(false);
+        expect(result.expected).toBe('CARGO AIRCRAFT ONLY');
+      });
+
+      test('Scenario 11, Alteration 1: rejects CAO when P5 allows passenger', () => {
+        const material = createClass1Material(
+          'UN0012', '1.4S', 'A5.5', 'CARTRIDGES FOR WEAPONS, INERT PROJECTILE', '', 'P5'
+        );
+        // Note: This is overly restrictive but technically acceptable - the validation
+        // checks if the stated type matches the expected type based on special provision
+        const result = validateAircraftType(material, 'CARGO AIRCRAFT ONLY');
+        expect(result.isValid).toBe(false);
+      });
+    });
+  });
+
+  describe('Key 11: UN/ID Number Validation', () => {
+    describe('Positive Cases - Matching UN Numbers', () => {
+      test('Scenario 1: UN0224 - validates UN number correctly', () => {
+        const material = createClass1Material('UN0224', '1.1A', 'A5.2', 'BARIUM AZIDE, DRY');
+        const result = validateUnidNumber(material, 'UN0224');
+        expect(result.isValid).toBe(true);
+      });
+
+      test('Scenario 2: UN0027 - validates UN number correctly', () => {
+        const material = createClass1Material('UN0027', '1.1D', 'A5.3', 'BLACK POWDER (GUNPOWDER)');
+        const result = validateUnidNumber(material, 'UN0027');
+        expect(result.isValid).toBe(true);
+      });
+
+      test('Scenario 11: UN0012 - validates UN number correctly', () => {
+        const material = createClass1Material('UN0012', '1.4S', 'A5.5', 'CARTRIDGES FOR WEAPONS, INERT PROJECTILE');
+        const result = validateUnidNumber(material, 'UN0012');
+        expect(result.isValid).toBe(true);
+      });
+
+      test('handles lowercase UN prefix', () => {
+        const material = createClass1Material('UN0224', '1.1A', 'A5.2', 'BARIUM AZIDE, DRY');
+        const result = validateUnidNumber(material, 'un0224');
+        expect(result.isValid).toBe(true);
+      });
+    });
+
+    describe('Negative Cases - From Alterations', () => {
+      test('Scenario 3, Alteration 2: rejects UN0005 when UN0004 expected (transposition)', () => {
+        const material = createClass1Material('UN0004', '1.1D', 'A5.2', 'AMMONIUM PICRATE');
+        const result = validateUnidNumber(material, 'UN0005');
+        expect(result.isValid).toBe(false);
+        expect(result.expected).toBe('UN0004');
+      });
+
+      test('Scenario 6, Alteration 3: rejects UN0329 when UN0328 expected (similar number)', () => {
+        const material = createClass1Material('UN0328', '1.2C', 'A5.5', 'CARTRIDGES FOR WEAPONS, INERT PROJECTILE');
+        const result = validateUnidNumber(material, 'UN0329');
+        expect(result.isValid).toBe(false);
+        expect(result.expected).toBe('UN0328');
+      });
+
+      test('rejects missing UN prefix', () => {
+        const material = createClass1Material('UN0224', '1.1A', 'A5.2', 'BARIUM AZIDE, DRY');
+        const result = validateUnidNumber(material, '0224');
+        expect(result.isValid).toBe(false);
+      });
+    });
+  });
+
+  describe('Key 12: Proper Shipping Name Validation', () => {
+    describe('Positive Cases - Matching PSN', () => {
+      test('Scenario 1: UN0224 - validates PSN correctly', () => {
+        const material = createClass1Material(
+          'UN0224', '1.1A', 'A5.2',
+          'BARIUM AZIDE, DRY or wetted with less than 50% water, by mass'
+        );
+        const result = validateProperShippingName(
+          material,
+          'BARIUM AZIDE, DRY or wetted with less than 50% water, by mass'
+        );
+        expect(result.isValid).toBe(true);
+      });
+
+      test('Scenario 2: UN0027 - validates PSN correctly', () => {
+        const material = createClass1Material(
+          'UN0027', '1.1D', 'A5.3',
+          'BLACK POWDER (GUNPOWDER), granular or as a meal'
+        );
+        const result = validateProperShippingName(
+          material,
+          'BLACK POWDER (GUNPOWDER), granular or as a meal'
+        );
+        expect(result.isValid).toBe(true);
+      });
+
+      test('Scenario 8: UN0049 - validates simple PSN correctly', () => {
+        const material = createClass1Material('UN0049', '1.3G', 'A5.5', 'CARTRIDGES, FLASH');
+        const result = validateProperShippingName(material, 'CARTRIDGES, FLASH');
+        expect(result.isValid).toBe(true);
+      });
+
+      test('handles case insensitivity', () => {
+        const material = createClass1Material('UN0049', '1.3G', 'A5.5', 'CARTRIDGES, FLASH');
+        const result = validateProperShippingName(material, 'Cartridges, Flash');
+        expect(result.isValid).toBe(true);
+      });
+    });
+
+    describe('Negative Cases - From Alterations', () => {
+      test('Scenario 2, Alteration 2: rejects PSN missing "(GUNPOWDER)" qualifier', () => {
+        const material = createClass1Material(
+          'UN0027', '1.1D', 'A5.3',
+          'BLACK POWDER (GUNPOWDER), granular or as a meal'
+        );
+        const result = validateProperShippingName(material, 'BLACK POWDER, granular or as a meal');
+        expect(result.isValid).toBe(false);
+        expect(result.recommendation).toContain('BLACK POWDER (GUNPOWDER)');
+      });
+
+      test('Scenario 6, Alteration 1: rejects abbreviated PSN', () => {
+        const material = createClass1Material(
+          'UN0328', '1.2C', 'A5.5',
+          'CARTRIDGES FOR WEAPONS, INERT PROJECTILE'
+        );
+        const result = validateProperShippingName(material, 'CART FOR WEAPONS');
+        expect(result.isValid).toBe(false);
+      });
+
+      test('Scenario 9, Alteration 3: rejects "FUSES" misspelling of "FUZES"', () => {
+        const material = createClass1Material('UN0106', '1.4B', 'A5.9', 'FUZES, DETONATING');
+        const result = validateProperShippingName(material, 'FUSES, DETONATING');
+        expect(result.isValid).toBe(false);
+        expect(result.expected).toBe('FUZES, DETONATING');
+      });
+
+      test('Scenario 12, Alteration 2: rejects TYPE A instead of TYPE B', () => {
+        const material = createClass1Material(
+          'UN0331', '1.5D', 'A5.2',
+          'EXPLOSIVE, BLASTING, TYPE B'
+        );
+        const result = validateProperShippingName(material, 'EXPLOSIVE, BLASTING, TYPE A');
+        expect(result.isValid).toBe(false);
+        expect(result.expected).toBe('EXPLOSIVE, BLASTING, TYPE B');
+      });
+
+      test('Scenario 16, Alteration 1: rejects PSN missing "without detonator" qualifier', () => {
+        const material = createClass1Material(
+          'UN0124', '1.1D', 'A5.10',
+          'JET PERFORATING GUNS, CHARGED, oil well, without detonator'
+        );
+        const result = validateProperShippingName(
+          material,
+          'JET PERFORATING GUNS, CHARGED, oil well'
+        );
+        expect(result.isValid).toBe(false);
+      });
+
+      test('Scenario 16, Alteration 3: rejects abbreviated "JET GUNS"', () => {
+        const material = createClass1Material(
+          'UN0124', '1.1D', 'A5.10',
+          'JET PERFORATING GUNS, CHARGED, oil well, without detonator'
+        );
+        const result = validateProperShippingName(material, 'JET GUNS');
+        expect(result.isValid).toBe(false);
+      });
+    });
+
+    describe('N.O.S. Technical Name Cases (Scenarios 18, 20)', () => {
+      test('Scenario 18: validates N.O.S. PSN with technical name', () => {
+        const material = createClass1Material(
+          'UN0473', '1.1A', 'A5.2',
+          'SUBSTANCES, EXPLOSIVE, N.O.S. (Lead Styphnate)'
+        );
+        const result = validateProperShippingName(
+          material,
+          'SUBSTANCES, EXPLOSIVE, N.O.S. (Lead Styphnate)'
+        );
+        expect(result.isValid).toBe(true);
+      });
+
+      test('Scenario 18, Alteration 1: rejects N.O.S. without technical name', () => {
+        const material = createClass1Material(
+          'UN0473', '1.1A', 'A5.2',
+          'SUBSTANCES, EXPLOSIVE, N.O.S. (Lead Styphnate)'
+        );
+        const result = validateProperShippingName(
+          material,
+          'SUBSTANCES, EXPLOSIVE, N.O.S.'
+        );
+        expect(result.isValid).toBe(false);
+      });
+
+      test('Scenario 20: validates N.O.S. article with technical name', () => {
+        const material = createClass1Material(
+          'UN0354', '1.4D', 'A5.27',
+          'ARTICLES, EXPLOSIVE, N.O.S. (Detonating Cord Assembly)'
+        );
+        const result = validateProperShippingName(
+          material,
+          'ARTICLES, EXPLOSIVE, N.O.S. (Detonating Cord Assembly)'
+        );
+        expect(result.isValid).toBe(true);
+      });
+    });
+  });
+
   describe('Key 13: Hazard Class Validation', () => {
     describe('Positive Cases - Valid Hazard Classes', () => {
       test('Scenario 1: UN0224 - validates 1.1A correctly', () => {
@@ -515,6 +801,311 @@ describe('SDDG Validation - Class 1 Explosives', () => {
         const result = validateSubsidiaryRisk(material, '6.2'); // Wrong subsidiary risk
         expect(result.isValid).toBe(false);
         expect(result.expected).toBe('6.1');
+      });
+    });
+  });
+
+  describe('Unified validateSDDGInspection() Function', () => {
+    describe('Scenario 1: UN0224 - Complete SDDG Validation', () => {
+      const material = createClass1Material(
+        'UN0224', '1.1A', 'A5.2',
+        'BARIUM AZIDE, DRY or wetted with less than 50% water, by mass',
+        '', 'P4'
+      );
+
+      test('validates successful SDDG with all correct values', () => {
+        const content = createSDDGContent({
+          aircraftType: 'CARGO AIRCRAFT ONLY',
+          shipmentType: 'NON-RADIOACTIVE',
+          unIdNo: 'UN0224',
+          properShippingName: 'BARIUM AZIDE, DRY or wetted with less than 50% water, by mass',
+          hazardClass: '1.1A',
+          subsidiaryRisk: '',
+          packingGroup: '',
+          packingInstruction: 'A5.2',
+        });
+
+        const results = validateSDDGInspection(content, material);
+        const failures = results.filter(r => !r.isValid);
+
+        expect(failures).toHaveLength(0);
+      });
+
+      test('Alteration 3: identifies Key 13 showing "1.1" without compatibility group "A"', () => {
+        const content = createSDDGContent({
+          aircraftType: 'CARGO AIRCRAFT ONLY',
+          unIdNo: 'UN0224',
+          properShippingName: 'BARIUM AZIDE, DRY or wetted with less than 50% water, by mass',
+          hazardClass: '1.1',  // Missing compatibility group
+          subsidiaryRisk: '',
+          packingGroup: '',
+          packingInstruction: 'A5.2',
+        });
+
+        const results = validateSDDGInspection(content, material);
+        const hazardClassResult = results.find(r => r.key === 'hazardClass');
+
+        expect(hazardClassResult?.isValid).toBe(false);
+        expect(hazardClassResult?.expectedValue).toBe('1.1A');
+      });
+    });
+
+    describe('Scenario 7: UN0247 - Aircraft Limitation with P3', () => {
+      const material = createClass1Material(
+        'UN0247', '1.3J', 'A5.12',
+        'AMMUNITION, INCENDIARY with or without burster, expelling charge or propelling charge',
+        '', 'P3'
+      );
+
+      test('validates successful SDDG with CAO aircraft type', () => {
+        const content = createSDDGContent({
+          aircraftType: 'CARGO AIRCRAFT ONLY',
+          shipmentType: 'NON-RADIOACTIVE',
+          unIdNo: 'UN0247',
+          properShippingName: 'AMMUNITION, INCENDIARY with or without burster, expelling charge or propelling charge',
+          hazardClass: '1.3J',
+          subsidiaryRisk: '',
+          packingGroup: '',
+          packingInstruction: 'A5.12',
+        });
+
+        const results = validateSDDGInspection(content, material);
+        const failures = results.filter(r => !r.isValid);
+
+        expect(failures).toHaveLength(0);
+      });
+
+      test('Alteration 2: identifies Key 7 showing "Passenger and Cargo" when P3 requires CAO', () => {
+        const content = createSDDGContent({
+          aircraftType: 'PASSENGER AND CARGO AIRCRAFT',  // Wrong - P3 requires CAO
+          unIdNo: 'UN0247',
+          properShippingName: 'AMMUNITION, INCENDIARY with or without burster, expelling charge or propelling charge',
+          hazardClass: '1.3J',
+          subsidiaryRisk: '',
+          packingGroup: '',
+          packingInstruction: 'A5.12',
+        });
+
+        const results = validateSDDGInspection(content, material);
+        const aircraftResult = results.find(r => r.key === 'aircraftType');
+
+        expect(aircraftResult?.isValid).toBe(false);
+        expect(aircraftResult?.expectedValue).toBe('CARGO AIRCRAFT ONLY');
+      });
+    });
+
+    describe('Scenario 11: UN0012 - P5 Allows Passenger Aircraft', () => {
+      const material = createClass1Material(
+        'UN0012', '1.4S', 'A5.5',
+        'CARTRIDGES FOR WEAPONS, INERT PROJECTILE',
+        '', 'P5'
+      );
+
+      test('validates successful SDDG with Passenger and Cargo aircraft type', () => {
+        const content = createSDDGContent({
+          aircraftType: 'PASSENGER AND CARGO AIRCRAFT',
+          shipmentType: 'NON-RADIOACTIVE',
+          unIdNo: 'UN0012',
+          properShippingName: 'CARTRIDGES FOR WEAPONS, INERT PROJECTILE',
+          hazardClass: '1.4S',
+          subsidiaryRisk: '',
+          packingGroup: '',
+          packingInstruction: 'A5.5',
+        });
+
+        const results = validateSDDGInspection(content, material);
+        const failures = results.filter(r => !r.isValid);
+
+        expect(failures).toHaveLength(0);
+      });
+
+      test('Alteration 2: identifies Key 13 showing 1.4G instead of 1.4S', () => {
+        const content = createSDDGContent({
+          aircraftType: 'PASSENGER AND CARGO AIRCRAFT',
+          unIdNo: 'UN0012',
+          properShippingName: 'CARTRIDGES FOR WEAPONS, INERT PROJECTILE',
+          hazardClass: '1.4G',  // Wrong compatibility group
+          subsidiaryRisk: '',
+          packingGroup: '',
+          packingInstruction: 'A5.5',
+        });
+
+        const results = validateSDDGInspection(content, material);
+        const hazardClassResult = results.find(r => r.key === 'hazardClass');
+
+        expect(hazardClassResult?.isValid).toBe(false);
+        expect(hazardClassResult?.expectedValue).toBe('1.4S');
+      });
+    });
+
+    describe('Scenario 14: UN0222 - With Subsidiary Risk 5.1', () => {
+      const material = createClass1Material(
+        'UN0222', '1.1D', 'A5.2',
+        'AMMONIUM NITRATE with more than 0.2% combustible substances',
+        '5.1'
+      );
+
+      test('validates successful SDDG with subsidiary risk', () => {
+        const content = createSDDGContent({
+          aircraftType: 'CARGO AIRCRAFT ONLY',
+          shipmentType: 'NON-RADIOACTIVE',
+          unIdNo: 'UN0222',
+          properShippingName: 'AMMONIUM NITRATE with more than 0.2% combustible substances',
+          hazardClass: '1.1D',
+          subsidiaryRisk: '5.1',
+          packingGroup: '',
+          packingInstruction: 'A5.2',
+        });
+
+        const results = validateSDDGInspection(content, material);
+        const failures = results.filter(r => !r.isValid);
+
+        expect(failures).toHaveLength(0);
+      });
+
+      test('Alteration 2: identifies Key 14 empty when 5.1 expected', () => {
+        const content = createSDDGContent({
+          aircraftType: 'CARGO AIRCRAFT ONLY',
+          unIdNo: 'UN0222',
+          properShippingName: 'AMMONIUM NITRATE with more than 0.2% combustible substances',
+          hazardClass: '1.1D',
+          subsidiaryRisk: '',  // Missing subsidiary risk
+          packingGroup: '',
+          packingInstruction: 'A5.2',
+        });
+
+        const results = validateSDDGInspection(content, material);
+        const subsidiaryResult = results.find(r => r.key === 'subsidiaryRisk');
+
+        expect(subsidiaryResult?.isValid).toBe(false);
+        expect(subsidiaryResult?.expectedValue).toBe('5.1');
+      });
+
+      test('Alteration 3: identifies Key 14 showing 4.1 instead of 5.1', () => {
+        const content = createSDDGContent({
+          aircraftType: 'CARGO AIRCRAFT ONLY',
+          unIdNo: 'UN0222',
+          properShippingName: 'AMMONIUM NITRATE with more than 0.2% combustible substances',
+          hazardClass: '1.1D',
+          subsidiaryRisk: '4.1',  // Wrong subsidiary risk
+          packingGroup: '',
+          packingInstruction: 'A5.2',
+        });
+
+        const results = validateSDDGInspection(content, material);
+        const subsidiaryResult = results.find(r => r.key === 'subsidiaryRisk');
+
+        expect(subsidiaryResult?.isValid).toBe(false);
+        expect(subsidiaryResult?.expectedValue).toBe('5.1');
+      });
+    });
+
+    describe('Scenario 4: UN0160 - Packaging Instruction Validation', () => {
+      const material = createClass1Material(
+        'UN0160', '1.1C', 'A5.21', 'POWDER, SMOKELESS'
+      );
+
+      test('validates successful SDDG with correct packaging instruction', () => {
+        const content = createSDDGContent({
+          aircraftType: 'CARGO AIRCRAFT ONLY',
+          shipmentType: 'NON-RADIOACTIVE',
+          unIdNo: 'UN0160',
+          properShippingName: 'POWDER, SMOKELESS',
+          hazardClass: '1.1C',
+          subsidiaryRisk: '',
+          packingGroup: '',
+          packingInstruction: 'A5.21',
+        });
+
+        const results = validateSDDGInspection(content, material);
+        const failures = results.filter(r => !r.isValid);
+
+        expect(failures).toHaveLength(0);
+      });
+
+      test('Alteration 1: identifies Key 17 showing A5.2 instead of A5.21', () => {
+        const content = createSDDGContent({
+          aircraftType: 'CARGO AIRCRAFT ONLY',
+          unIdNo: 'UN0160',
+          properShippingName: 'POWDER, SMOKELESS',
+          hazardClass: '1.1C',
+          subsidiaryRisk: '',
+          packingGroup: '',
+          packingInstruction: 'A5.2',  // Wrong - should be A5.21
+        });
+
+        const results = validateSDDGInspection(content, material);
+        const packingResult = results.find(r => r.key === 'packingInstruction');
+
+        expect(packingResult?.isValid).toBe(false);
+        expect(packingResult?.expectedValue).toBe('A5.21');
+      });
+
+      test('Alteration 2: identifies Key 13 showing compatibility group D instead of C', () => {
+        const content = createSDDGContent({
+          aircraftType: 'CARGO AIRCRAFT ONLY',
+          unIdNo: 'UN0160',
+          properShippingName: 'POWDER, SMOKELESS',
+          hazardClass: '1.1D',  // Wrong compatibility group
+          subsidiaryRisk: '',
+          packingGroup: '',
+          packingInstruction: 'A5.21',
+        });
+
+        const results = validateSDDGInspection(content, material);
+        const hazardClassResult = results.find(r => r.key === 'hazardClass');
+
+        expect(hazardClassResult?.isValid).toBe(false);
+        expect(hazardClassResult?.expectedValue).toBe('1.1C');
+      });
+    });
+
+    describe('Multiple Errors Detection', () => {
+      test('identifies multiple validation failures in single SDDG', () => {
+        const material = createClass1Material(
+          'UN0224', '1.1A', 'A5.2',
+          'BARIUM AZIDE, DRY or wetted with less than 50% water, by mass'
+        );
+
+        const content = createSDDGContent({
+          aircraftType: 'CARGO AIRCRAFT ONLY',
+          unIdNo: 'UN0225',  // Wrong UN number
+          properShippingName: 'BARIUM AZIDE',  // Incomplete PSN
+          hazardClass: '1.1',  // Missing compatibility group
+          subsidiaryRisk: '',
+          packingGroup: '',
+          packingInstruction: 'A5.3',  // Wrong instruction
+        });
+
+        const results = validateSDDGInspection(content, material);
+        const failures = results.filter(r => !r.isValid);
+
+        // Should catch multiple errors
+        expect(failures.length).toBeGreaterThanOrEqual(3);
+
+        // Verify specific failures are identified
+        const failedKeys = failures.map(f => f.key);
+        expect(failedKeys).toContain('unIdNo');
+        expect(failedKeys).toContain('hazardClass');
+        expect(failedKeys).toContain('packingInstruction');
+      });
+    });
+
+    describe('Edge Cases', () => {
+      test('returns empty array when material is null', () => {
+        const content = createSDDGContent({
+          unIdNo: 'UN0224',
+          hazardClass: '1.1A',
+        });
+
+        const results = validateSDDGInspection(content, null);
+        expect(results).toHaveLength(0);
+      });
+
+      test('returns empty array when content is null', () => {
+        const material = createClass1Material('UN0224', '1.1A', 'A5.2', 'BARIUM AZIDE');
+        const results = validateSDDGInspection(null, material);
+        expect(results).toHaveLength(0);
       });
     });
   });

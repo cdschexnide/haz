@@ -24,6 +24,11 @@ import { HazardousMaterialItem } from "@/hazardousMaterials/hazardousMaterialsLi
 import {
   findHazMatByUnid,
   getRecommendedFrustration,
+  validateSDDGInspection,
+  validateDryIcePackaging,
+  validateCapacitorWhRating,
+  validateMagnetizedMaterialHandling,
+  SDDGValidationResult,
 } from "./Inspector/utils/sddgValidation";
 
 interface SDDGComplianceValidationProps {
@@ -154,91 +159,31 @@ export default function SDDGComplianceValidation({
     !!transformedData
   );
 
-  // Helper functions for dry ice packaging verification
-  const isUN1845DryIce = (): boolean => {
-    const unId =
+  // Helper functions using the unified validators from sddgValidation.ts
+  const getUnid = (): string => {
+    return (
       inspection?.verificationCopy?.unIdNo ||
-      inspection?.extractedContent?.unIdNo;
-    return unId === "UN1845";
-  };
-
-  const hasApprovedDryIcePackaging = (packagingText: string): boolean => {
-    const approvedTypes = [
-      "fiberboard box",
-      "4g", // UN package code for fiberboard box
-      "polystyrene foam container",
-    ];
-
-    const lowerText = packagingText.toLowerCase();
-    return approvedTypes.some(type => lowerText.includes(type));
+      inspection?.extractedContent?.unIdNo ||
+      ""
+    );
   };
 
   const shouldShowDryIceWarning = (): boolean => {
-    return (
-      currentField?.key === "quantityAndPacking" &&
-      isUN1845DryIce() &&
-      !hasApprovedDryIcePackaging(currentFieldValue)
-    );
-  };
-
-  // Helper functions for UN3508 capacitor Wh rating verification
-  const isUN3508Capacitor = (): boolean => {
-    const unId =
-      inspection?.verificationCopy?.unIdNo ||
-      inspection?.extractedContent?.unIdNo;
-    return unId === "UN3508";
-  };
-
-  const hasWhRating = (packagingText: string): boolean => {
-    const lowerText = packagingText.toLowerCase();
-    // Check for various Wh patterns: "1.5wh", "1.5 wh", "15 watt-hours", "15watt-hours", etc.
-    const whPatterns = [
-      /\d+\.?\d*\s?wh\b/i, // Matches "1.5wh", "1.5 wh", "15wh", "15 wh"
-      /\d+\.?\d*\s?watt-?hours?\b/i, // Matches "1.5 watt-hours", "15 watthours", "15 watt-hour"
-      /\d+\.?\d*\s?w\.?h\.?\b/i, // Matches "1.5 W.H.", "15WH", "15 W.H"
-    ];
-
-    return whPatterns.some(pattern => pattern.test(lowerText));
+    if (currentField?.key !== "quantityAndPacking") return false;
+    const result = validateDryIcePackaging(getUnid(), currentFieldValue);
+    return result !== null; // Returns warning result if invalid
   };
 
   const shouldShowCapacitorWhWarning = (): boolean => {
-    return (
-      currentField?.key === "quantityAndPacking" &&
-      isUN3508Capacitor() &&
-      !hasWhRating(currentFieldValue)
-    );
-  };
-
-  // Helper functions for UN2807 magnetized material handling instruction verification
-  const isUN2807MagnetizedMaterial = (): boolean => {
-    const unId =
-      inspection?.verificationCopy?.unIdNo ||
-      inspection?.extractedContent?.unIdNo;
-    return unId === "UN2807";
-  };
-
-  const hasUN2807HandlingInstructions = (handlingText: string): boolean => {
-    const lowerText = handlingText.toLowerCase();
-    // Check for required handling instruction keywords
-    const requiredKeywords = [
-      "4.6", // Distance requirement
-      "15 feet", // Distance requirement
-      "compass", // Compass sensing devices
-      "magnetic", // Magnetic materials/fields
-      "sensing", // Sensing devices
-      "device", // Sensing devices
-    ];
-
-    // All required keywords must be present
-    return requiredKeywords.every(keyword => lowerText.includes(keyword));
+    if (currentField?.key !== "quantityAndPacking") return false;
+    const result = validateCapacitorWhRating(getUnid(), currentFieldValue);
+    return result !== null;
   };
 
   const shouldShowMagnetizedMaterialWarning = (): boolean => {
-    return (
-      currentField?.key === "additionalHandlingInfo" &&
-      isUN2807MagnetizedMaterial() &&
-      !hasUN2807HandlingInstructions(currentFieldValue)
-    );
+    if (currentField?.key !== "additionalHandlingInfo") return false;
+    const result = validateMagnetizedMaterialHandling(getUnid(), currentFieldValue);
+    return result !== null;
   };
 
   // Default frustration message
@@ -262,20 +207,28 @@ export default function SDDGComplianceValidation({
         ? editedValue
         : inspection.verificationCopy[currentField.key] || "";
 
-      // Check for UN3508 Wh rating missing in quantityAndPacking field
-      if (shouldShowCapacitorWhWarning()) {
-        setRecommendedFrustration(
-          "UN3508 capacitors require energy storage capacity in Watt-hours (Wh) to be specified in the quantity and packing field. Missing Wh rating detected."
-        );
-        return;
+      const unid = getUnid();
+
+      // Check for UN-specific validations using the utility functions
+      if (currentField.key === "quantityAndPacking") {
+        // Check UN3508 Capacitor Wh rating
+        const capacitorResult = validateCapacitorWhRating(unid, fieldValue);
+        if (capacitorResult) {
+          setRecommendedFrustration(capacitorResult.recommendation || null);
+          return;
+        }
+
+        // Check UN1845 Dry Ice packaging (note: this is handled separately with yes/no UI)
+        // We don't set recommendation here as dry ice has its own UI flow
       }
 
-      // Check for UN2807 magnetized material handling instructions missing
-      if (shouldShowMagnetizedMaterialWarning()) {
-        setRecommendedFrustration(
-          'UN2807 magnetized materials require specific handling instructions: "Do not store magnetic materials suitable for military airlift closer than 4.6 m (15 feet) to compass sensing devices or other devices unduly affected by magnetic fields". Missing required handling instructions detected.'
-        );
-        return;
+      // Check for UN2807 magnetized material handling instructions
+      if (currentField.key === "additionalHandlingInfo") {
+        const magnetizedResult = validateMagnetizedMaterialHandling(unid, fieldValue);
+        if (magnetizedResult) {
+          setRecommendedFrustration(magnetizedResult.recommendation || null);
+          return;
+        }
       }
 
       // Standard hazmat-based recommendations
