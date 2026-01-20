@@ -31,7 +31,7 @@ import { LithiumBatteriesPrepScreen } from "@/screens/preparer";
 import MagnetizedMaterialPrepScreen from "./MagnetizedMaterialsPrepScreen";
 import MainLayout from "./MainLayout";
 import ManualEntryPackagingTypeSelectionScreen from "./ManualEntryPackagingTypeSelection";
-import MaterialIDScreen from "./MaterialIDScreen";
+import { MaterialIDScreen } from "@/screens/preparer";
 import PackagingScreen from "./PackagingScreen";
 // import PackagingWizard from "./PackagingWizard";
 import POPMarkingDataEntry from "./POPMarkingDataEntry";
