@@ -1,7 +1,7 @@
 // src/screens/preparer/DisclaimerScreen.tsx
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { ConfirmationCard, colors } from '@/components/ui';
+import { ConfirmationCard, colors, spacing } from '@/components/ui';
 
 interface DisclaimerScreenProps {
   navigation: {
@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: colors.background,
-    padding: 16,
+    padding: spacing.lg,
   },
 });
 
