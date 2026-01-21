@@ -247,4 +247,5 @@ export interface PackageFrustrationRecord {
   inspector: Inspector;
   afmanReference?: string; // AFMAN reference if applicable
   reinspectionHistory?: ReinspectionAttempt[]; // Track all reinspection attempts
+  formField?: string;
 }
