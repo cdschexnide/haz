@@ -284,14 +284,14 @@ export default function InspectorEnginesInternalCombustionScreen({
             style: "default",
             onPress: () => {
               // Navigate to Package Markings Screen
-              navigation.navigate("InspectorPackageVerification");
+              navigation.navigate("InspectorAttachment28WizardScreen");
             },
           },
         ]
       );
     } else {
       // Has frustrations - navigate to package markings screen
-      navigation.navigate("InspectorPackageVerification");
+      navigation.navigate("InspectorAttachment28WizardScreen");
     }
   };
 

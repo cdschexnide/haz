@@ -114,7 +114,7 @@ export default function InspectorDryIceScreen({
       setCurrentStep(currentStep + 1);
     } else {
       // Last step validated - navigate to package markings
-      navigation.navigate("InspectorPackageVerification");
+      navigation.navigate("InspectorAttachment28WizardScreen");
     }
   };
 
@@ -159,7 +159,7 @@ export default function InspectorDryIceScreen({
       setCurrentStep(currentStep + 1);
     } else {
       // Last step frustrated - navigate to package markings
-      navigation.navigate("InspectorPackageVerification");
+      navigation.navigate("InspectorAttachment28WizardScreen");
     }
   };
 
@@ -341,7 +341,7 @@ export default function InspectorDryIceScreen({
               setCurrentStep(currentStep + 1);
             } else {
               // Navigate to package markings when manually completing
-              navigation.navigate("InspectorPackageVerification");
+              navigation.navigate("InspectorAttachment28WizardScreen");
             }
           }}
         >

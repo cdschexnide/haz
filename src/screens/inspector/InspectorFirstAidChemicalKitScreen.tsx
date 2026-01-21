@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   View,
   Text,
@@ -13,8 +13,12 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useInspectionForm } from "../../contexts/InspectionFormProvider";
-import { PackageFrustrationRecord } from "../../types/sddg";
+import { KitInspectionItem } from "../../types/sddg";
 import { useHazProStore } from "../../stores/useHazProStore";
+import {
+  hazardousMaterialsList,
+  HazardousMaterialItem,
+} from "../../hazardousMaterials/hazardousMaterialsList";
 
 interface InspectorFirstAidChemicalKitScreenProps {
   navigation: any;
@@ -80,20 +84,48 @@ const FIRST_AID_CHEMICAL_KIT_INSPECTION_CONDITIONS = [
   },
 ];
 
+const KIT_CONTENTS_STEP = {
+  id: "kit-contents",
+  type: "kit-contents" as const,
+  label: "Kit contents",
+  description:
+    "Add each hazardous material contained in the kit to derive required labels.",
+  afmanRef: "AFMAN 24-604 A15.4.7.2",
+};
+
 export default function InspectorFirstAidChemicalKitScreen({
   navigation,
 }: InspectorFirstAidChemicalKitScreenProps) {
-  const { inspection, addPackageFrustration, removePackageFrustration } =
-    useInspectionForm();
+  const {
+    inspection,
+    addPackageFrustration,
+    removePackageFrustration,
+    setKitInspectionData,
+  } = useInspectionForm();
   const { actions } = useHazProStore();
 
   const [currentStep, setCurrentStep] = useState(0);
   const [isEditMode, setIsEditMode] = useState(false);
   const [additionalComments, setAdditionalComments] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [kitContents, setKitContents] = useState<KitInspectionItem[]>(
+    inspection?.kitInspectionData?.contents || []
+  );
 
-  const currentCondition =
-    FIRST_AID_CHEMICAL_KIT_INSPECTION_CONDITIONS[currentStep];
-  const totalSteps = FIRST_AID_CHEMICAL_KIT_INSPECTION_CONDITIONS.length;
+  const inspectionSteps = useMemo(
+    () => [
+      KIT_CONTENTS_STEP,
+      ...FIRST_AID_CHEMICAL_KIT_INSPECTION_CONDITIONS.map(condition => ({
+        ...condition,
+        type: "condition" as const,
+      })),
+    ],
+    []
+  );
+  const totalSteps = inspectionSteps.length;
+  const currentStepItem = inspectionSteps[currentStep];
+  const isKitContentsStep = currentStepItem.type === "kit-contents";
+  const currentCondition = isKitContentsStep ? null : currentStepItem;
 
   // Get current UN ID for verification
   const unId =
@@ -109,7 +141,6 @@ export default function InspectorFirstAidChemicalKitScreen({
       f => f.category === "first-aid-chemical-kit"
     ) || [];
   const frustratedCount = existingFrustrations.length;
-  const validatedCount = totalSteps - frustratedCount;
 
   const currentFrustration = existingFrustrations.find(
     f => f.itemId === currentCondition?.id
@@ -139,7 +170,49 @@ export default function InspectorFirstAidChemicalKitScreen({
     setAdditionalComments("");
   }, [currentStep]);
 
+  useEffect(() => {
+    const incomingContents = inspection?.kitInspectionData?.contents;
+    if (!incomingContents) return;
+    const isSame =
+      incomingContents.length === kitContents.length &&
+      incomingContents.every(
+        (item, index) =>
+          item.unid === kitContents[index]?.unid &&
+          item.hazardClass === kitContents[index]?.hazardClass &&
+          item.subsidiaryRisk === kitContents[index]?.subsidiaryRisk
+      );
+    if (!isSame) {
+      setKitContents(incomingContents);
+    }
+  }, [inspection?.kitInspectionData?.contents, kitContents]);
+
+  useEffect(() => {
+    if (!properShippingName) return;
+    const kitType = properShippingName.toUpperCase().includes("FIRST AID")
+      ? "FIRST AID KIT"
+      : "CHEMICAL KIT";
+    const existing = inspection?.kitInspectionData;
+    const hasSameContents =
+      existing &&
+      existing.kitType === kitType &&
+      existing.contents.length === kitContents.length &&
+      existing.contents.every(
+        (item, index) =>
+          item.unid === kitContents[index]?.unid &&
+          item.hazardClass === kitContents[index]?.hazardClass &&
+          item.subsidiaryRisk === kitContents[index]?.subsidiaryRisk
+      );
+    if (!hasSameContents) {
+      setKitInspectionData({
+        kitType,
+        contents: kitContents,
+      });
+    }
+  }, [inspection?.kitInspectionData, kitContents, properShippingName, setKitInspectionData]);
+
   const handleValidate = () => {
+    if (isKitContentsStep || !currentCondition) return;
+
     // Remove any existing frustration for this condition
     removePackageFrustration(currentCondition.id);
 
@@ -152,12 +225,16 @@ export default function InspectorFirstAidChemicalKitScreen({
   };
 
   const handleFrustrate = () => {
+    if (isKitContentsStep) return;
+
     // Switch to edit mode to add comments
     setIsEditMode(true);
     setAdditionalComments(currentFrustration?.additionalComments || "");
   };
 
   const handleSaveFrustration = () => {
+    if (!currentCondition) return;
+
     // Save the frustration
     const frustrationData = {
       category: "first-aid-chemical-kit" as const,
@@ -195,6 +272,17 @@ export default function InspectorFirstAidChemicalKitScreen({
     }
   };
 
+  const handleKitContentsContinue = () => {
+    if (kitContents.length === 0) {
+      Alert.alert(
+        "Kit contents required",
+        "Add at least one hazardous material to continue."
+      );
+      return;
+    }
+    setCurrentStep(currentStep + 1);
+  };
+
   const handleFinalSubmit = () => {
     console.log("🚨 [InspectorFirstAidChemicalKit] handleFinalSubmit called");
 
@@ -220,15 +308,14 @@ export default function InspectorFirstAidChemicalKitScreen({
             text: "Continue",
             style: "default",
             onPress: () => {
-              // Navigate to Package Markings Screen
-              navigation.navigate("InspectorPackageVerification");
+              navigation.navigate("InspectorAttachment28WizardScreen");
             },
           },
         ]
       );
     } else {
       // Has frustrations - navigate to package markings screen
-      navigation.navigate("InspectorPackageVerification");
+      navigation.navigate("InspectorAttachment28WizardScreen");
     }
   };
 
@@ -254,7 +341,7 @@ export default function InspectorFirstAidChemicalKitScreen({
     );
   }
 
-  if (!currentCondition || !inspection) {
+  if (!inspection) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.errorContainer}>
@@ -277,6 +364,39 @@ export default function InspectorFirstAidChemicalKitScreen({
       return "UN3316 Chemical Kit";
     }
     return "UN3316 First Aid/Chemical Kit";
+  };
+
+  const filteredMaterials = useMemo(() => {
+    if (searchQuery.trim().length < 3) return [];
+    const query = searchQuery.toLowerCase();
+    return hazardousMaterialsList
+      .filter(material =>
+        material.unid.toLowerCase().includes(query) ||
+        material.properShippingName.toLowerCase().includes(query)
+      )
+      .slice(0, 20);
+  }, [searchQuery]);
+
+  const addKitItem = (material: HazardousMaterialItem) => {
+    setKitContents(prev => {
+      if (prev.some(item => item.unid === material.unid)) {
+        return prev;
+      }
+      return [
+        ...prev,
+        {
+          unid: material.unid,
+          properShippingName: material.properShippingName,
+          hazardClass: material.hazclassDiv,
+          subsidiaryRisk: material.subsidiaryRisk || "",
+        },
+      ];
+    });
+    setSearchQuery("");
+  };
+
+  const removeKitItem = (unidToRemove: string) => {
+    setKitContents(prev => prev.filter(item => item.unid !== unidToRemove));
   };
 
   return (
@@ -316,13 +436,12 @@ export default function InspectorFirstAidChemicalKitScreen({
           >
             {/* Current Condition */}
             <View style={styles.fieldCard}>
-              {!isEditMode ? (
-                /* Review Mode UI */
+              {isKitContentsStep ? (
                 <>
                   <View style={styles.fieldContent}>
                     <View style={styles.fieldHeader}>
                       <Text style={styles.fieldLabel}>
-                        {currentCondition.label}
+                        {KIT_CONTENTS_STEP.label}
                       </Text>
                     </View>
 
@@ -331,14 +450,129 @@ export default function InspectorFirstAidChemicalKitScreen({
                     </Text>
                     <View style={styles.previewContainer}>
                       <Text style={styles.previewText}>
-                        {currentCondition.description}
+                        {KIT_CONTENTS_STEP.description}
                       </Text>
                     </View>
 
                     <View style={styles.afmanReference}>
                       <MaterialIcons name="book" size={16} color="#007AFF" />
                       <Text style={styles.afmanReferenceText}>
-                        {currentCondition.afmanRef}
+                        {KIT_CONTENTS_STEP.afmanRef}
+                      </Text>
+                    </View>
+
+                    <View style={styles.searchContainer}>
+                      <MaterialIcons name="search" size={18} color="#8E8E93" />
+                      <TextInput
+                        style={styles.searchInput}
+                        value={searchQuery}
+                        onChangeText={setSearchQuery}
+                        placeholder="Search by UN or name (min 3 chars)"
+                        autoCapitalize="characters"
+                      />
+                    </View>
+
+                    {filteredMaterials.length > 0 && (
+                      <View style={styles.searchResults}>
+                        {filteredMaterials.map(material => (
+                          <TouchableOpacity
+                            key={material.unid}
+                            style={styles.searchResultItem}
+                            onPress={() => addKitItem(material)}
+                          >
+                            <Text style={styles.searchResultText}>
+                              {material.unid} - {material.properShippingName}
+                            </Text>
+                            <Text style={styles.searchResultSubtext}>
+                              Class {material.hazclassDiv}
+                              {material.subsidiaryRisk
+                                ? ` / Subsidiary ${material.subsidiaryRisk}`
+                                : ""}
+                            </Text>
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+                    )}
+
+                    <View style={styles.selectedList}>
+                      <Text style={styles.selectedListLabel}>
+                        Selected kit contents ({kitContents.length})
+                      </Text>
+                      {kitContents.length === 0 ? (
+                        <Text style={styles.selectedEmptyText}>
+                          No items added yet.
+                        </Text>
+                      ) : (
+                        kitContents.map(item => (
+                          <View key={item.unid} style={styles.selectedItem}>
+                            <View style={styles.selectedItemText}>
+                              <Text style={styles.selectedItemTitle}>
+                                {item.unid} - {item.properShippingName}
+                              </Text>
+                              <Text style={styles.selectedItemSubtitle}>
+                                Class {item.hazardClass}
+                                {item.subsidiaryRisk
+                                  ? ` / Subsidiary ${item.subsidiaryRisk}`
+                                  : ""}
+                              </Text>
+                            </View>
+                            <TouchableOpacity
+                              onPress={() => removeKitItem(item.unid)}
+                            >
+                              <MaterialIcons
+                                name="close"
+                                size={20}
+                                color="#FF3B30"
+                              />
+                            </TouchableOpacity>
+                          </View>
+                        ))
+                      )}
+                    </View>
+                  </View>
+
+                  <View style={styles.complianceButtons}>
+                    <TouchableOpacity
+                      style={[
+                        styles.validateButton,
+                        kitContents.length === 0 &&
+                          styles.validateButtonDisabled,
+                      ]}
+                      onPress={handleKitContentsContinue}
+                      disabled={kitContents.length === 0}
+                    >
+                      <MaterialIcons
+                        name="arrow-forward"
+                        size={24}
+                        color="#FFFFFF"
+                      />
+                      <Text style={styles.validateButtonText}>Continue</Text>
+                    </TouchableOpacity>
+                  </View>
+                </>
+              ) : !isEditMode ? (
+                /* Review Mode UI */
+                <>
+                  <View style={styles.fieldContent}>
+                    <View style={styles.fieldHeader}>
+                      <Text style={styles.fieldLabel}>
+                        {currentCondition?.label}
+                      </Text>
+                    </View>
+
+                    <Text style={styles.descriptionLabel}>
+                      Inspection Requirement:
+                    </Text>
+                    <View style={styles.previewContainer}>
+                      <Text style={styles.previewText}>
+                        {currentCondition?.description}
+                      </Text>
+                    </View>
+
+                    <View style={styles.afmanReference}>
+                      <MaterialIcons name="book" size={16} color="#007AFF" />
+                      <Text style={styles.afmanReferenceText}>
+                        {currentCondition?.afmanRef}
                       </Text>
                     </View>
 
@@ -380,7 +614,7 @@ export default function InspectorFirstAidChemicalKitScreen({
                   <View style={styles.fieldContent}>
                     <View style={styles.fieldHeader}>
                       <Text style={styles.fieldLabel}>
-                        {currentCondition.label}
+                        {currentCondition?.label}
                       </Text>
                       <MaterialIcons name="error" size={24} color="#FF3B30" />
                     </View>
@@ -618,6 +852,10 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
+  validateButtonDisabled: {
+    backgroundColor: "#B0B0B0",
+    shadowColor: "transparent",
+  },
   validateButtonText: {
     color: "#FFFFFF",
     fontSize: 16,
@@ -750,6 +988,85 @@ const styles = StyleSheet.create({
   },
   navButtonTextDisabled: {
     color: "#C7C7CC",
+  },
+  searchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderWidth: 1,
+    borderColor: "#E5E5EA",
+    borderRadius: 8,
+    backgroundColor: "#FFFFFF",
+    marginTop: 12,
+  },
+  searchInput: {
+    flex: 1,
+    marginLeft: 8,
+    fontSize: 14,
+    color: "#1D1D1F",
+  },
+  searchResults: {
+    marginTop: 12,
+    borderWidth: 1,
+    borderColor: "#E5E5EA",
+    borderRadius: 8,
+    backgroundColor: "#FFFFFF",
+  },
+  searchResultItem: {
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#E5E5EA",
+  },
+  searchResultText: {
+    fontSize: 14,
+    color: "#1D1D1F",
+    fontWeight: "500",
+  },
+  searchResultSubtext: {
+    fontSize: 12,
+    color: "#8E8E93",
+    marginTop: 2,
+  },
+  selectedList: {
+    marginTop: 16,
+  },
+  selectedListLabel: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#1D1D1F",
+    marginBottom: 8,
+  },
+  selectedEmptyText: {
+    fontSize: 13,
+    color: "#8E8E93",
+  },
+  selectedItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderWidth: 1,
+    borderColor: "#E5E5EA",
+    borderRadius: 8,
+    backgroundColor: "#FFFFFF",
+    marginBottom: 8,
+  },
+  selectedItemText: {
+    flex: 1,
+    marginRight: 8,
+  },
+  selectedItemTitle: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#1D1D1F",
+  },
+  selectedItemSubtitle: {
+    fontSize: 12,
+    color: "#8E8E93",
+    marginTop: 2,
   },
   errorContainer: {
     flex: 1,

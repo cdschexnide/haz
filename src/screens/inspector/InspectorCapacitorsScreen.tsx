@@ -244,7 +244,7 @@ export default function InspectorCapacitorsScreen({
             style: "default",
             onPress: () => {
               completeSDDGSubstep("InspectorCapacitorsScreen");
-              navigation.navigate("InspectorPackageVerification");
+              navigation.navigate("InspectorAttachment28WizardScreen");
             },
           },
         ]
@@ -263,7 +263,7 @@ export default function InspectorCapacitorsScreen({
             style: "default",
             onPress: () => {
               completeSDDGSubstep("InspectorCapacitorsScreen");
-              navigation.navigate("InspectorPackageVerification");
+              navigation.navigate("InspectorAttachment28WizardScreen");
             },
           },
         ]
