@@ -120,6 +120,16 @@ export const PACKAGE_TO_FORM1015_MAPPING: Record<string, string> = {
   "Orientation (This Side Up with Arrows)": "59", // Maps to 59. "ORIENTATION ARROWS" (UN0247 - Class 1 liquid requiring both THIS SIDE UP and orientation arrows)
   "Chemical Kit Primary Hazard": "69", // Maps to 69. PRIMARY RISK LABEL
   "Cylinder Type Not Authorized": "39", // Maps to 39. CYLINDER TYPE
+
+  // Attachment 28 Packaging Inspection criteria
+  "Drum Ullage": "41",
+  "Inner Receptacle Ullage": "41",
+  "External Visual Condition": "37",
+  "Inner Receptacle Orientation": "48",
+  "Inner Receptacle Secondary Closure": "49",
+  "Absorbent and Cushioning Material": "46",
+  "Leak-proof Liner": "47",
+  "Air-Eligible": "57",
 };
 
 /**
