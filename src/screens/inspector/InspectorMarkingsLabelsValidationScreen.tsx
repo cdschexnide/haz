@@ -98,6 +98,8 @@ function InspectorMarkingsLabelsValidationScreenComponent({
     mlResultsPresent: !!inspection?.mlAnalysisResults,
   });
 
+  const isExceptedQuantity = inspection.quantityType === "excepted";
+
   // Set chevron on mount
   useEffect(() => {
     actions.setCurrentChevron("package");
@@ -131,82 +133,143 @@ function InspectorMarkingsLabelsValidationScreenComponent({
         .map((result) => result.ocrResult?.fullText || "")
         .join(" ");
 
-      // Get required markings
-      const requiredMarkings = evaluateMarkingRequirementsInspector(inspection);
-      const markingItems: ValidationItem[] = Object.entries(requiredMarkings).map(
-        ([label, expectedValues], index) => {
-          // Special handling for PSN and UN Number - use structured data from ML analysis
-          let foundInOCR = false;
-          let matchConfidence: number | null = null;
-
-          if (label === "PSN and UN Number") {
-            // Check structured data - allUnWithPSN contains parsed UN+PSN pairs
-            const hasUnWithPSN = (mlResults?.allUnWithPSN?.length ?? 0) > 0;
-            foundInOCR = hasUnWithPSN;
-            matchConfidence = hasUnWithPSN ? 0.95 : null; // Higher confidence for structured data
-
-          } else if (label === "Military Shipping Label (MSL) or DD Form 1387") {
-            // Use MSL detection from OCR text analysis
-            const mslDetected = mlResults?.mslDetected ?? false;
-            const mslConfidence = mlResults?.mslConfidence;
-            foundInOCR = mslDetected;
-            // Map confidence level to numeric value
-            matchConfidence = mslDetected
-              ? mslConfidence === 'high' ? 0.95
-                : mslConfidence === 'medium' ? 0.8
-                : mslConfidence === 'low' ? 0.6
-                : 0.7
-              : null;
-
-          } else {
-            // Fall back to regex pattern matching for other markings
-            foundInOCR = findMatchingMarkingInOCR(label, allOCRText);
-            matchConfidence = foundInOCR ? 0.8 : null;
-          }
-
-          const itemId = `marking-${index}-${label.replace(/\s+/g, "-").toLowerCase()}`;
-
-          // Determine validation status:
-          // - Already frustrated: keep frustrated
-          // - Matched/detected: validated
-          // - Unmatched/not detected: frustrated (auto-frustrate missing items)
-          const isAlreadyFrustrated = existingFrustrationIds.has(itemId);
-          const validationStatus = isAlreadyFrustrated
-            ? "frustrated" as const
-            : foundInOCR
-              ? "validated" as const
-              : "frustrated" as const;
-
-          // Add frustration to context for unmatched items that aren't already frustrated
-          if (!foundInOCR && !isAlreadyFrustrated) {
-            addPackageFrustration({
-              category: "marking",
-              itemId,
-              itemLabel: label,
-              expectedValues,
-              verificationStatus: "missing",
-              defaultMessage: `Required marking "${label}" not found on package`,
-              afmanReference: "AFMAN 24-604",
-            });
-          }
-
-          return {
-            id: itemId,
-            category: "marking" as const,
-            label,
-            expectedValues,
-            matchStatus: foundInOCR ? "matched" : "unmatched",
-            matchedDetection: null,
-            matchConfidence,
-            validationStatus,
-            afmanReference: "AFMAN 24-604",
-          };
+      const markingItems: ValidationItem[] = [];
+      const matchedClassNames = new Set<string>();
+      if (isExceptedQuantity) {
+        const label = "Excepted Quantity Marking";
+        const expectedValues = ["Excepted Quantity"];
+        const matchedDetection = findMatchingDetection(
+          label,
+          expectedValues,
+          detectedLabels
+        );
+        if (matchedDetection) {
+          matchedClassNames.add(matchedDetection.className);
         }
-      );
+        const itemId = "marking-excepted-quantity";
+        const isAlreadyFrustrated = existingFrustrationIds.has(itemId);
+        const validationStatus = isAlreadyFrustrated
+          ? "frustrated" as const
+          : matchedDetection
+            ? "validated" as const
+            : "frustrated" as const;
+
+        if (!matchedDetection && !isAlreadyFrustrated) {
+          addPackageFrustration({
+            category: "marking",
+            itemId,
+            itemLabel: label,
+            expectedValues,
+            verificationStatus: "missing",
+            defaultMessage: `Required marking "${label}" not found on package`,
+            afmanReference: "AFMAN 24-604 A19.2.13",
+          });
+        }
+
+        markingItems.push({
+          id: itemId,
+          category: "marking" as const,
+          label,
+          expectedValues,
+          matchStatus: matchedDetection ? "matched" : "unmatched",
+          matchedDetection,
+          matchConfidence: matchedDetection?.maxConfidence || null,
+          validationStatus,
+          afmanReference: "AFMAN 24-604 A19.2.13",
+        });
+      } else {
+        // Get required markings
+        const requiredMarkings = evaluateMarkingRequirementsInspector(inspection);
+        markingItems.push(
+          ...Object.entries(requiredMarkings).map(
+            ([label, expectedValues], index) => {
+              // Special handling for PSN and UN Number - use structured data from ML analysis
+              let foundInOCR = false;
+              let matchConfidence: number | null = null;
+              let matchedDetection: AggregatedLabel | null = null;
+
+              if (label === "PSN and UN Number") {
+                // Check structured data - allUnWithPSN contains parsed UN+PSN pairs
+                const hasUnWithPSN = (mlResults?.allUnWithPSN?.length ?? 0) > 0;
+                foundInOCR = hasUnWithPSN;
+                matchConfidence = hasUnWithPSN ? 0.95 : null; // Higher confidence for structured data
+
+              } else if (label === "Military Shipping Label (MSL) or DD Form 1387") {
+                // Use MSL detection from OCR text analysis
+                const mslDetected = mlResults?.mslDetected ?? false;
+                const mslConfidence = mlResults?.mslConfidence;
+                foundInOCR = mslDetected;
+                // Map confidence level to numeric value
+                matchConfidence = mslDetected
+                  ? mslConfidence === 'high' ? 0.95
+                    : mslConfidence === 'medium' ? 0.8
+                    : mslConfidence === 'low' ? 0.6
+                    : 0.7
+                  : null;
+
+              } else if (label === "Limited Quantity Marking") {
+                matchedDetection = findMatchingDetection(
+                  label,
+                  expectedValues,
+                  detectedLabels
+                );
+                if (matchedDetection) {
+                  matchedClassNames.add(matchedDetection.className);
+                }
+                foundInOCR =
+                  Boolean(matchedDetection) ||
+                  findMatchingMarkingInOCR(label, allOCRText);
+                matchConfidence = matchedDetection ? matchedDetection.maxConfidence : foundInOCR ? 0.8 : null;
+              } else {
+                // Fall back to regex pattern matching for other markings
+                foundInOCR = findMatchingMarkingInOCR(label, allOCRText);
+                matchConfidence = foundInOCR ? 0.8 : null;
+              }
+
+              const itemId = `marking-${index}-${label.replace(/\s+/g, "-").toLowerCase()}`;
+
+              // Determine validation status:
+              // - Already frustrated: keep frustrated
+              // - Matched/detected: validated
+              // - Unmatched/not detected: frustrated (auto-frustrate missing items)
+              const isAlreadyFrustrated = existingFrustrationIds.has(itemId);
+              const validationStatus = isAlreadyFrustrated
+                ? "frustrated" as const
+                : foundInOCR
+                  ? "validated" as const
+                  : "frustrated" as const;
+
+              // Add frustration to context for unmatched items that aren't already frustrated
+              if (!foundInOCR && !isAlreadyFrustrated) {
+                addPackageFrustration({
+                  category: "marking",
+                  itemId,
+                  itemLabel: label,
+                  expectedValues,
+                  verificationStatus: "missing",
+                  defaultMessage: `Required marking "${label}" not found on package`,
+                  afmanReference: "AFMAN 24-604",
+                });
+              }
+
+              return {
+                id: itemId,
+                category: "marking" as const,
+                label,
+                expectedValues,
+                matchStatus: foundInOCR ? "matched" : "unmatched",
+                matchedDetection,
+                matchConfidence,
+                validationStatus,
+                afmanReference: "AFMAN 24-604",
+              };
+            }
+          )
+        );
+      }
 
       // Get required labels
-      const requiredLabels = evaluateLabelingRequirements(inspection);
-      const matchedClassNames = new Set<string>();
+      const requiredLabels = isExceptedQuantity ? {} : evaluateLabelingRequirements(inspection);
 
       const labelItems: ValidationItem[] = Object.entries(requiredLabels).map(
         ([label, expectedValues], index) => {
@@ -640,8 +703,6 @@ function InspectorMarkingsLabelsValidationScreenComponent({
       navigation.navigate("InspectorCapacitorsScreen");
     } else if (unIdNo === "UN3528" || unIdNo === "UN3529") {
       navigation.navigate("InspectorEnginesInternalCombustionScreen");
-    } else if (unIdNo === "UN3316") {
-      navigation.navigate("InspectorFirstAidChemicalKitScreen");
     } else if (unIdNo === "UN3363") {
       navigation.navigate("InspectorDangerousGoodsInApparatusScreen");
     } else if (unIdNo === "UN3171") {
@@ -649,17 +710,8 @@ function InspectorMarkingsLabelsValidationScreenComponent({
     } else if (unIdNo === "UN3480" || unIdNo === "UN3090") {
       navigation.navigate("InspectorLithiumBatteriesScreen");
     } else {
-      // No material-specific screen needed - go directly to summary or complete
-      // Check if there are any package frustrations from POP validation or markings/labels validation
-      const hasPackageFrustrations = inspection.packageFrustrations.length > 0;
-
-      if (hasPackageFrustrations) {
-        // Navigate to frustration summary to review package issues
-        navigation.navigate("PackageFrustrationSummary");
-      } else {
-        // No frustrations - inspection is complete
-        navigation.navigate("PackageInspectionCompleteScreen");
-      }
+      // No material-specific screen needed - go to A28 packaging inspection wizard
+      navigation.navigate("InspectorAttachment28WizardScreen");
     }
   }, [navigation, inspection, workflow.reinspection.mode, sections]);
 
@@ -667,13 +719,21 @@ function InspectorMarkingsLabelsValidationScreenComponent({
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <ScreenHeader
-        title="Markings & Labels Validation"
+        title={isExceptedQuantity ? "Excepted Quantity Marking" : "Markings & Labels Validation"}
         onBack={() => navigation.goBack()}
         rightIcon="help-outline"
         onRightPress={() => {}}
       />
 
       {/* Main Content */}
+      {isExceptedQuantity && (
+        <View style={styles.eqBanner}>
+          <MaterialIcons name="info" size={18} color={colors.primary} />
+          <Text style={styles.eqBannerText}>
+            Excepted Quantity shipments require the EQ marking only (A19.2.13). Other markings and labels do not apply.
+          </Text>
+        </View>
+      )}
       <SectionList
         sections={sections}
         keyExtractor={(item) => item.id}
@@ -861,6 +921,21 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.textSecondary,
     fontWeight: "500",
+  },
+  eqBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    backgroundColor: colors.infoLight,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  eqBannerText: {
+    flex: 1,
+    color: colors.textPrimary,
+    fontSize: 13,
   },
 });
 
