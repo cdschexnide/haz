@@ -1,4 +1,4 @@
-import { Inspector } from "../../types";
+import { Inspector, ExceptedQuantityData, LimitedQuantityData } from "../../types";
 import { InnerPackagingInspectionData } from "./innerPackaging";
 import type { AggregatedAnalysis } from "@/ml/types/ocr";
 
@@ -110,6 +110,10 @@ export interface SDDGInspectionContext {
   innerPackagingInspection: InnerPackagingInspectionData | null; // Combination packaging inner inspection
   packagePopMarking: PackagePopMarking | null; // POP marking data entry
   mlAnalysisResults: AggregatedAnalysis | null; // ML detection + OCR analysis results
+  quantityType?: "standard" | "excepted" | "limited";
+  exceptedQuantityData?: ExceptedQuantityData | null;
+  limitedQuantityData?: LimitedQuantityData | null;
+  packagePackagingType?: "single" | "combination" | "composite" | null;
   inspector: {
     inspectorName: string;
     inspectorRank: string | null;
@@ -218,6 +222,7 @@ export type PackageFrustrationCategory =
   | "label"
   | "dryice"
   | "magnetized"
+  | "cylinder-type"
   | "gmo"
   | "life-saving"
   | "safety-device"
