@@ -220,9 +220,11 @@ export const SDDG_FIELD_DEFINITIONS: SDDGFieldDefinition[] = [
 export type PackageFrustrationCategory =
   | "marking"
   | "label"
+  | "packaging"
   | "dryice"
   | "magnetized"
   | "cylinder-type"
+  | "class2"
   | "gmo"
   | "life-saving"
   | "safety-device"
