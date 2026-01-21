@@ -12,6 +12,7 @@ export interface InspectionCondition {
   label: string;
   description: string;
   afmanRef: string;
+  formField: "19" | "40";
 }
 
 export interface ChecklistSection {
