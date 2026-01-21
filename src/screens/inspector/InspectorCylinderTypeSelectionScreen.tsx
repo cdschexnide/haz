@@ -26,7 +26,7 @@ interface InspectorCylinderTypeSelectionScreenProps {
 export default function InspectorCylinderTypeSelectionScreen({
   navigation,
 }: InspectorCylinderTypeSelectionScreenProps) {
-  const { inspection } = useInspectionForm();
+  const { inspection, addPackageFrustration } = useInspectionForm();
   const actions = useHazProActions();
 
   // Local state for COE/CAA view toggle
@@ -84,6 +84,23 @@ export default function InspectorCylinderTypeSelectionScreen({
       `${type === "COE" ? "Certificate of Equivalency" : "Competent Authority Approval"} verification coming soon.`,
       [{ text: "OK" }]
     );
+  };
+
+  const handleFrustrateCylinderType = () => {
+    const validCylinderTypes = cylinderTypes.map(c => c.label);
+
+    addPackageFrustration({
+      category: "cylinder-type",
+      itemId: "cylinder-type-not-listed",
+      itemLabel: "Cylinder Type Not Authorized",
+      expectedValues: validCylinderTypes,
+      verificationStatus: "incorrect",
+      defaultMessage: `Cylinder type is not authorized for this material per AFMAN 24-604 ${baseParagraph || "A6"}`,
+      afmanReference: baseParagraph || "A6",
+    });
+
+    // Navigate to next screen immediately
+    navigation.navigate("InspectorCompressedGasesScreen");
   };
 
   const handleBackToCylinderTypes = () => {
@@ -168,7 +185,7 @@ export default function InspectorCylinderTypeSelectionScreen({
             <View style={styles.subtitleContainer}>
               <Text style={styles.subtitle}>Non-Standard Cylinder Authorization</Text>
               <Text style={styles.instruction}>
-                Select authorization type if applicable
+                Select authorization type if applicable, or frustrate the shipment
               </Text>
             </View>
 
@@ -200,6 +217,24 @@ export default function InspectorCylinderTypeSelectionScreen({
                     CAA (Competent Authority Approval)
                   </Text>
                   <Text style={styles.coeCaaSubtext}>Coming soon</Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+
+            {/* Frustrate Button */}
+            <TouchableOpacity
+              style={styles.frustrateButton}
+              onPress={handleFrustrateCylinderType}
+            >
+              <View style={styles.coeCaaButtonContent}>
+                <MaterialIcons name="cancel" size={24} color="#FF3B30" />
+                <View style={styles.coeCaaTextContainer}>
+                  <Text style={styles.frustrateButtonText}>
+                    Frustrate - Cylinder Type Not Authorized
+                  </Text>
+                  <Text style={styles.frustrateSubtext}>
+                    Mark shipment for non-compliance
+                  </Text>
                 </View>
               </View>
             </TouchableOpacity>
@@ -356,5 +391,24 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     color: "#007AFF",
     marginLeft: 8,
+  },
+  frustrateButton: {
+    backgroundColor: "#FFF5F5",
+    borderWidth: 2,
+    borderColor: "#FF3B30",
+    borderRadius: 10,
+    padding: 20,
+    marginBottom: 16,
+  },
+  frustrateButtonText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#FF3B30",
+  },
+  frustrateSubtext: {
+    fontSize: 13,
+    color: "#FF3B30",
+    marginTop: 4,
+    opacity: 0.8,
   },
 });
