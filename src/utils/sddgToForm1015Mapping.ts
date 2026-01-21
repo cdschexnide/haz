@@ -99,6 +99,10 @@ export const PACKAGE_TO_FORM1015_MAPPING: Record<string, string> = {
   "Chemical Kit": "53", // Maps to 53. PSN AND IDENTIFICATION NUMBER
   "First Aid Kit": "53", // Maps to 53. PSN AND IDENTIFICATION NUMBER
   "Machinery PSN UN": "53", // Maps to 53. PSN AND IDENTIFICATION NUMBER
+  "Limited Quantity Marking": "60", // Maps to 60. LIMITED QUANTITY IDENTIFIED
+  "Limited Quantity": "60", // Maps to 60. LIMITED QUANTITY IDENTIFIED
+  "Excepted Quantity Marking": "68", // Maps to 68. OTHER (Marking)
+  "Package does not match Key 16 of SDDG": "40", // Maps to 40. OTHER (Outer Packaging)
 
   // Package labels from evaluateLabelingRequirements
   "Primary Hazard": "69", // Maps to 69. PRIMARY RISK LABEL
@@ -115,7 +119,31 @@ export const PACKAGE_TO_FORM1015_MAPPING: Record<string, string> = {
   "Package Orientation Labels (applied to opposite vertical sides)": "59", // Maps to 59. "ORIENTATION ARROWS" (UN3363)
   "Orientation (This Side Up with Arrows)": "59", // Maps to 59. "ORIENTATION ARROWS" (UN0247 - Class 1 liquid requiring both THIS SIDE UP and orientation arrows)
   "Chemical Kit Primary Hazard": "69", // Maps to 69. PRIMARY RISK LABEL
+  "Cylinder Type Not Authorized": "39", // Maps to 39. CYLINDER TYPE
 };
+
+/**
+ * Gets the Form 1015 field for a package frustration.
+ * Handles explicit formField overrides for class2 wizard frustrations.
+ * @param frustration The package frustration record
+ * @returns The Form 1015 field ID or null if no mapping exists
+ */
+export function getPackageFrustrationField(
+  frustration: PackageFrustrationRecord
+): string | null {
+  // 1. Check for explicit formField (class2 wizard frustrations)
+  if (frustration.formField) {
+    return frustration.formField;
+  }
+
+  // 2. Check category-based mapping for cylinder-type
+  if (frustration.category === "cylinder-type") {
+    return "39";
+  }
+
+  // 3. Fall back to label-based mapping (existing behavior)
+  return PACKAGE_TO_FORM1015_MAPPING[frustration.itemLabel] || null;
+}
 
 /**
  * Maps SDDG and Package frustrations to Form 1015 line item identifiers
@@ -139,14 +167,14 @@ export function mapFrustrationsToForm1015(
     }
   });
 
-  // Map package frustrations (markings and labels)
+  // Map package frustrations (markings, labels, and class2)
   packageFrustrations.forEach(frustration => {
     // Only include frustrated items (missing or incorrect)
     if (
       frustration.verificationStatus === "missing" ||
       frustration.verificationStatus === "incorrect"
     ) {
-      const form1015Id = PACKAGE_TO_FORM1015_MAPPING[frustration.itemLabel];
+      const form1015Id = getPackageFrustrationField(frustration);
       if (form1015Id) {
         form1015Ids.add(form1015Id);
       }
@@ -206,9 +234,8 @@ export function mapFrustrationsToForm1015WithResolved(
       frustration.verificationStatus === "missing" ||
       frustration.verificationStatus === "incorrect"
     ) {
-      const form1015Id = PACKAGE_TO_FORM1015_MAPPING[frustration.itemLabel];
+      const form1015Id = getPackageFrustrationField(frustration);
       if (form1015Id && !currentlyFrustrated.has(form1015Id)) {
-        // Only add to resolved if not currently frustrated (current takes precedence)
         resolved.add(form1015Id);
       }
     }
