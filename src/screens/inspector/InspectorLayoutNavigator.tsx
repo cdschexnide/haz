@@ -11,6 +11,8 @@ import InspectorInitialQuestioningScreen from "./InspectorInitialQuestioningScre
 import { InspectorExceptedOrLimitedQuantities } from "./InspectorExceptedOrLimitedQuantities";
 import InteractiveSDDGComplianceScreen from "./InteractiveSDDGComplianceScreen";
 import SDDGManualEntryScreen from "./SDDGManualEntryScreen";
+import InspectorQuantityTypeSelectionScreen from "./InspectorQuantityTypeSelectionScreen";
+import InspectorPackagingTypeSelectionScreen from "./InspectorPackagingTypeSelectionScreen";
 import InspectorShippersDeclarationScreen from "./InspectorShippersDeclarationScreen";
 import InspectorPackageVerificationScreen from "./InspectorPackageVerificationScreen";
 import InspectorPopMarking from "./InspectorPopMarking";
@@ -35,7 +37,9 @@ import InspectorPOPScannerScreen from "./InspectorPOPScannerScreen";
 import InspectorPOPScanResultsScreen from "./InspectorPOPScanResultsScreen";
 import InspectorPOPMethodSelectionScreen from "./InspectorPOPMethodSelectionScreen";
 import MLDetectionScreen from "./MLDetectionScreen";
+import InspectorLabelingExceptionsScreen from "./InspectorLabelingExceptionsScreen";
 import InspectorMarkingsLabelsValidationScreen from "./InspectorMarkingsLabelsValidationScreen";
+import InspectorAttachment28WizardScreen from "./InspectorAttachment28WizardScreen";
 
 // Inner packaging screens (./inner-packaging/*)
 import InnerPackagingConfirmation from "./inner-packaging/InnerPackagingConfirmation";
@@ -132,6 +136,14 @@ const InspectorWrappedStack = ({ navigation }: { navigation: any }) => (
       <MainStack.Screen
         name="InteractiveSDDGComplianceScreen"
         component={InteractiveSDDGComplianceScreen}
+      />
+      <MainStack.Screen
+        name="InspectorQuantityTypeSelectionScreen"
+        component={InspectorQuantityTypeSelectionScreen}
+      />
+      <MainStack.Screen
+        name="InspectorPackagingTypeSelectionScreen"
+        component={InspectorPackagingTypeSelectionScreen}
       />
       <MainStack.Screen
         name="SDDGManualEntryScreen"
@@ -234,8 +246,16 @@ const InspectorWrappedStack = ({ navigation }: { navigation: any }) => (
         component={MLDetectionScreen}
       />
       <MainStack.Screen
+        name="InspectorLabelingExceptionsScreen"
+        component={InspectorLabelingExceptionsScreen}
+      />
+      <MainStack.Screen
         name="InspectorMarkingsLabelsValidationScreen"
         component={InspectorMarkingsLabelsValidationScreen}
+      />
+      <MainStack.Screen
+        name="InspectorAttachment28WizardScreen"
+        component={InspectorAttachment28WizardScreen}
       />
     </MainStack.Navigator>
   </InspectorMainLayout>
