@@ -142,11 +142,14 @@ export default function InspectorCompressedGasesScreen({
       defaultMessage: DEFAULT_FRUSTRATION_MESSAGE,
       additionalComments: additionalComments.trim() || undefined,
       afmanReference: currentCondition.afmanRef,
+      formField: currentCondition.formField,
     };
 
     console.log(
       "💾 [InspectorCompressedGasesScreen] Saving frustration for condition:",
-      currentCondition.id
+      currentCondition.id,
+      "formField:",
+      currentCondition.formField
     );
     addPackageFrustration(frustrationData);
 
