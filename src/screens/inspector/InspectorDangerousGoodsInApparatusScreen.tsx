@@ -1,110 +1,83 @@
-import React, { useState, useEffect } from "react";
+import { MaterialIcons } from "@expo/vector-icons";
+import React, { useEffect, useState } from "react";
 import {
-  View,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
-  Alert,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { MaterialIcons } from "@expo/vector-icons";
 import { useInspectionForm } from "../../contexts/InspectionFormProvider";
-import { PackageFrustrationRecord } from "../../types/sddg";
 import { useHazProStore } from "../../stores/useHazProStore";
+import {
+  ScreenHeader,
+  InfoBox,
+  colors,
+  spacing,
+  borderRadius,
+  shadows,
+} from "../../components/ui";
+import { navigateToPackageOutcome } from "../../utils/navigateToPackageOutcome";
 
 interface InspectorDangerousGoodsInApparatusScreenProps {
   navigation: any;
 }
 
-// AFMAN 24-604 A13.13 UN3363 Dangerous Goods in Apparatus Inspection Conditions
-const DANGEROUS_GOODS_APPARATUS_INSPECTION_CONDITIONS = [
+// AFMAN 24-604 A13.13 Dangerous Goods in Apparatus/Machinery Inspection Conditions
+const APPARATUS_INSPECTION_CONDITIONS = [
   {
-    id: "limited-quantities-only",
-    label: "Limited quantities or authorized materials only",
+    id: "authorized-contents",
+    label: "Contents limited to authorized types",
     description:
-      "Verify apparatus contains only limited quantities under A19.3, authorized magnetized materials, or Division 2.2 gases (excluding refrigerated liquefied gases)",
-    afmanRef: "AFMAN 24-604 A13.13.1",
+      "Only limited quantities per A19.3, authorized magnetized material, or Division 2.2 gases without subsidiary hazard (no refrigerated liquefied gases).",
+    afmanRef: "AFMAN 24-604 A13.13",
   },
   {
-    id: "no-dangerous-reactions",
-    label: "Multiple materials compatibility verified",
+    id: "compatibility",
+    label: "Contents compatible",
     description:
-      "If multiple hazardous materials are present, verify materials cannot react dangerously together",
-    afmanRef: "AFMAN 24-604 A13.13.2",
+      "Multiple materials do not react dangerously together.",
+    afmanRef: "AFMAN 24-604 A13.13",
   },
   {
-    id: "quantity-limits-solids",
-    label: "Solid quantity limits verified (≤1 kg)",
+    id: "quantity-limits",
+    label: "Quantity limits met",
     description:
-      "Verify total net quantity of solid hazardous materials does not exceed 1 kg (2.2 pounds) per package",
-    afmanRef: "AFMAN 24-604 A13.13.3.1",
-  },
-  {
-    id: "quantity-limits-liquids",
-    label: "Liquid quantity limits verified (≤500 ml)",
-    description:
-      "Verify total net quantity of liquid hazardous materials does not exceed 500 ml (17 ounces) per package",
-    afmanRef: "AFMAN 24-604 A13.13.3.2",
-  },
-  {
-    id: "quantity-limits-gases",
-    label: "Class 2.2 gas quantity limits verified (≤0.5 kg)",
-    description:
-      "Verify total net quantity of Class 2.2 gases does not exceed 0.5 kg (1.1 pounds) per package",
-    afmanRef: "AFMAN 24-604 A13.13.3.3",
+      "Per package max 1 kg solids, 500 mL liquids, 0.5 kg Class 2.2 gases.",
+    afmanRef: "AFMAN 24-604 A13.13",
   },
   {
     id: "receptacles-secured",
-    label: "Receptacles properly secured and cushioned",
+    label: "Receptacles secured and cushioned",
     description:
-      "Verify receptacles containing hazardous materials are secured/cushioned to prevent breakage, leakage, and movement during transport",
-    afmanRef: "AFMAN 24-604 A13.13.4",
+      "Receptacles are secured/cushioned to prevent breakage/leakage; cushioning does not react with contents.",
+    afmanRef: "AFMAN 24-604 A13.13",
   },
   {
-    id: "cushioning-compatibility",
-    label: "Cushioning material compatibility verified",
+    id: "leakage-control",
+    label: "Leakage control provided",
     description:
-      "Verify cushioning material will not react dangerously with contents or have protective properties adversely affected by leakage",
-    afmanRef: "AFMAN 24-604 A13.13.4",
+      "No leakage possible if receptacle fails; leak-proof liner for drained but not purged articles; seal/cap all openings and lines.",
+    afmanRef: "AFMAN 24-604 A13.13",
   },
   {
-    id: "no-external-leakage",
-    label: "No external leakage possible from apparatus",
-    description:
-      "Verify that damage to receptacles cannot cause leakage of hazardous material from the apparatus/machinery exterior",
-    afmanRef: "AFMAN 24-604 A13.13.5",
-  },
-  {
-    id: "leak-proof-liner",
-    label: "Leak-proof liner for drained articles (if applicable)",
-    description:
-      "Verify leak-proof liner is present for articles completely drained of liquid but not purged",
-    afmanRef: "AFMAN 24-604 A13.13.5",
-  },
-  {
-    id: "openings-sealed",
-    label: "All openings and lines properly sealed",
-    description:
-      "Verify all openings and lines are sealed or capped according to applicable technical directives",
-    afmanRef: "AFMAN 24-604 A13.13.5",
-  },
-  {
-    id: "authorized-gas-cylinders",
+    id: "gases-authorized",
     label: "Class 2.2 gases in authorized cylinders",
     description:
-      "Verify Class 2.2 gases are contained in cylinders authorized according to Attachment 6",
-    afmanRef: "AFMAN 24-604 A13.13.6",
+      "Class 2.2 gases shipped in authorized cylinders per Attachment 6.",
+    afmanRef: "AFMAN 24-604 A13.13",
   },
   {
-    id: "adequate-protection",
-    label: "Strong outer packaging or adequate apparatus protection",
+    id: "outer-packaging",
+    label: "Strong outer packaging or equivalent protection",
     description:
-      "Verify either strong outer packaging is used OR the apparatus/machinery construction adequately protects the hazardous material receptacles",
-    afmanRef: "AFMAN 24-604 A13.13.7",
+      "Use strong outer packaging unless item construction provides equivalent protection; UN specification packaging not required.",
+    afmanRef: "AFMAN 24-604 A13.13",
   },
 ];
 
@@ -119,19 +92,13 @@ export default function InspectorDangerousGoodsInApparatusScreen({
   const [isEditMode, setIsEditMode] = useState(false);
   const [additionalComments, setAdditionalComments] = useState("");
 
-  const currentCondition =
-    DANGEROUS_GOODS_APPARATUS_INSPECTION_CONDITIONS[currentStep];
-  const totalSteps = DANGEROUS_GOODS_APPARATUS_INSPECTION_CONDITIONS.length;
+  const currentCondition = APPARATUS_INSPECTION_CONDITIONS[currentStep];
+  const totalSteps = APPARATUS_INSPECTION_CONDITIONS.length;
 
-  // Get current UN ID for verification
   const unId =
     inspection?.verificationCopy?.unIdNo ||
     inspection?.extractedContent?.unIdNo;
-  const properShippingName =
-    inspection?.verificationCopy?.properShippingName ||
-    inspection?.extractedContent?.properShippingName;
 
-  // Get existing package frustrations for dangerous goods in apparatus
   const existingFrustrations =
     inspection?.packageFrustrations?.filter(
       f => f.category === "dangerous-goods-apparatus"
@@ -143,37 +110,21 @@ export default function InspectorDangerousGoodsInApparatusScreen({
     f => f.itemId === currentCondition?.id
   );
 
-  console.log("🏭 [InspectorDangerousGoodsInApparatus] Component rendered");
-  console.log("🏭 [InspectorDangerousGoodsInApparatus] UN ID:", unId);
-  console.log(
-    "🏭 [InspectorDangerousGoodsInApparatus] Current step:",
-    currentStep
-  );
-  console.log(
-    "🏭 [InspectorDangerousGoodsInApparatus] Existing frustrations:",
-    existingFrustrations.length
-  );
-
-  // Default frustration message
   const DEFAULT_FRUSTRATION_MESSAGE =
-    "This UN3363 dangerous goods in apparatus packaging requirement is not met. Requires re-inspection per AFMAN 24-604 A13.13.";
+    "This dangerous goods in apparatus inspection condition is not met. Requires re-inspection per AFMAN 24-604 A13.13.";
 
-  // Set active chevron when component mounts
   useEffect(() => {
     actions.setCurrentChevron("package");
   }, []);
 
   useEffect(() => {
-    // Reset edit mode when changing steps
     setIsEditMode(false);
     setAdditionalComments("");
   }, [currentStep]);
 
   const handleValidate = () => {
-    // Remove any existing frustration for this condition
     removePackageFrustration(currentCondition.id);
 
-    // Move to next step
     if (currentStep < totalSteps - 1) {
       setCurrentStep(currentStep + 1);
     } else {
@@ -182,13 +133,11 @@ export default function InspectorDangerousGoodsInApparatusScreen({
   };
 
   const handleFrustrate = () => {
-    // Switch to edit mode to add comments
     setIsEditMode(true);
     setAdditionalComments(currentFrustration?.additionalComments || "");
   };
 
   const handleSaveFrustration = () => {
-    // Save the frustration
     const frustrationData = {
       category: "dangerous-goods-apparatus" as const,
       itemId: currentCondition.id,
@@ -206,7 +155,6 @@ export default function InspectorDangerousGoodsInApparatusScreen({
     );
     addPackageFrustration(frustrationData);
 
-    // Move to next step
     if (currentStep < totalSteps - 1) {
       setCurrentStep(currentStep + 1);
     } else {
@@ -225,55 +173,43 @@ export default function InspectorDangerousGoodsInApparatusScreen({
     }
   };
 
-  const handleFinalSubmit = () => {
-    console.log(
-      "🚨 [InspectorDangerousGoodsInApparatus] handleFinalSubmit called"
-    );
+  const handleContinue = () => {
+    navigation.navigate("InspectorSpecialProvisionsScreen", {
+      continueRoute: "MLDetectionScreen",
+      continueParams: { unIdNo: unId || "" },
+    });
+  };
 
+  const handleFinalSubmit = () => {
     const currentFrustrations =
       inspection?.packageFrustrations?.filter(
         f => f.category === "dangerous-goods-apparatus"
       ) || [];
-    const currentFrustratedCount = currentFrustrations.length;
 
-    console.log(
-      "🚨 [InspectorDangerousGoodsInApparatus] frustratedCount:",
-      currentFrustratedCount
-    );
-
-    if (currentFrustratedCount === 0) {
-      // No frustrations - proceed to package markings
+    if (currentFrustrations.length === 0) {
       Alert.alert(
-        "UN3363 Dangerous Goods in Apparatus Inspection Complete",
-        "All packaging requirements have been validated successfully.\\n\\nNo compliance issues were found. Proceeding to package markings verification.",
+        "Dangerous Goods in Apparatus Inspection Complete",
+        "All A13.13 conditions have been validated successfully.\n\nNo compliance issues were found. Proceeding to package summary.",
         [
           { text: "Cancel", style: "cancel" },
           {
             text: "Continue",
             style: "default",
-            onPress: () => {
-              // Navigate to Package Markings Screen
-              navigation.navigate("InspectorAttachment28WizardScreen");
-            },
+            onPress: handleContinue,
           },
         ]
       );
     } else {
-      // Has frustrations - navigate to package markings screen
-      navigation.navigate("InspectorAttachment28WizardScreen");
+      handleContinue();
     }
   };
 
-  // Verify this is UN3363
   if (unId !== "UN3363") {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>
             Invalid material type for dangerous goods in apparatus inspection
-          </Text>
-          <Text style={styles.errorSubText}>
-            Expected UN3363, found: {unId || "Unknown"}
           </Text>
           <TouchableOpacity
             onPress={() => navigation.goBack()}
@@ -308,19 +244,16 @@ export default function InspectorDangerousGoodsInApparatusScreen({
         style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <MaterialIcons name="close" size={24} color="#007AFF" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>
-            UN3363 Dangerous Goods in Apparatus
-          </Text>
-          <Text style={styles.stepIndicator}>
-            {currentStep + 1}/{totalSteps}
-          </Text>
-        </View>
+        <ScreenHeader
+          title="UN3363 Dangerous Goods in Apparatus"
+          onBack={() => navigation.goBack()}
+          rightContent={
+            <Text style={styles.stepIndicator}>
+              {currentStep + 1}/{totalSteps}
+            </Text>
+          }
+        />
 
-        {/* Progress Bar */}
         <View style={styles.progressBarContainer}>
           <View style={styles.progressBarBackground}>
             <View
@@ -330,6 +263,9 @@ export default function InspectorDangerousGoodsInApparatusScreen({
               ]}
             />
           </View>
+          <Text style={styles.progressText}>
+            Validated: {validatedCount} | Frustrated: {frustratedCount}
+          </Text>
         </View>
 
         <View style={styles.mainContent}>
@@ -339,10 +275,8 @@ export default function InspectorDangerousGoodsInApparatusScreen({
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >
-            {/* Current Condition */}
             <View style={styles.fieldCard}>
               {!isEditMode ? (
-                /* Review Mode UI */
                 <>
                   <View style={styles.fieldContent}>
                     <View style={styles.fieldHeader}>
@@ -360,20 +294,11 @@ export default function InspectorDangerousGoodsInApparatusScreen({
                       </Text>
                     </View>
 
-                    <View style={styles.afmanReference}>
-                      <MaterialIcons name="book" size={16} color="#007AFF" />
-                      <Text style={styles.afmanReferenceText}>
-                        {currentCondition.afmanRef}
-                      </Text>
-                    </View>
-
                     {currentFrustration && (
-                      <View style={styles.frustrationIndicator}>
-                        <MaterialIcons name="error" size={20} color="#FF3B30" />
-                        <Text style={styles.frustrationText}>
-                          Previously Frustrated
-                        </Text>
-                      </View>
+                      <InfoBox
+                        variant="error"
+                        message="Previously Frustrated"
+                      />
                     )}
                   </View>
 
@@ -385,7 +310,7 @@ export default function InspectorDangerousGoodsInApparatusScreen({
                       <MaterialIcons
                         name="check-circle"
                         size={24}
-                        color="#FFFFFF"
+                        color={colors.surface}
                       />
                       <Text style={styles.validateButtonText}>Validate</Text>
                     </TouchableOpacity>
@@ -394,20 +319,27 @@ export default function InspectorDangerousGoodsInApparatusScreen({
                       style={styles.frustrateButton}
                       onPress={handleFrustrate}
                     >
-                      <MaterialIcons name="cancel" size={24} color="#FFFFFF" />
+                      <MaterialIcons
+                        name="cancel"
+                        size={24}
+                        color={colors.surface}
+                      />
                       <Text style={styles.frustrateButtonText}>Frustrate</Text>
                     </TouchableOpacity>
                   </View>
                 </>
               ) : (
-                /* Frustration Edit Mode UI */
                 <>
                   <View style={styles.fieldContent}>
                     <View style={styles.fieldHeader}>
                       <Text style={styles.fieldLabel}>
                         {currentCondition.label}
                       </Text>
-                      <MaterialIcons name="error" size={24} color="#FF3B30" />
+                      <MaterialIcons
+                        name="error"
+                        size={24}
+                        color={colors.error}
+                      />
                     </View>
 
                     <Text style={styles.frustrationLabel}>
@@ -451,7 +383,11 @@ export default function InspectorDangerousGoodsInApparatusScreen({
                       style={styles.saveButton}
                       onPress={handleSaveFrustration}
                     >
-                      <MaterialIcons name="save" size={20} color="#FFFFFF" />
+                      <MaterialIcons
+                        name="save"
+                        size={20}
+                        color={colors.surface}
+                      />
                       <Text style={styles.saveButtonText}>
                         Save Frustration
                       </Text>
@@ -463,7 +399,6 @@ export default function InspectorDangerousGoodsInApparatusScreen({
           </ScrollView>
         </View>
 
-        {/* Navigation Footer */}
         {!isEditMode && (
           <View style={styles.footer}>
             <TouchableOpacity
@@ -477,7 +412,7 @@ export default function InspectorDangerousGoodsInApparatusScreen({
               <MaterialIcons
                 name="chevron-left"
                 size={24}
-                color={currentStep === 0 ? "#C7C7CC" : "#007AFF"}
+                color={currentStep === 0 ? "#C7C7CC" : colors.primary}
               />
               <Text
                 style={[
@@ -498,45 +433,34 @@ export default function InspectorDangerousGoodsInApparatusScreen({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8F9FA",
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: "#FFFFFF",
-    borderBottomWidth: 1,
-    borderBottomColor: "#E5E5EA",
-  },
-  headerTitle: {
-    flex: 1,
-    fontSize: 18,
-    fontWeight: "600",
-    textAlign: "center",
-    color: "#1D1D1F",
-    marginHorizontal: 8,
+    backgroundColor: colors.background,
   },
   stepIndicator: {
     fontSize: 16,
     fontWeight: "500",
-    color: "#007AFF",
+    color: colors.primary,
   },
   progressBarContainer: {
-    paddingHorizontal: 16,
-    paddingBottom: 12,
-    backgroundColor: "#FFFFFF",
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    backgroundColor: colors.surface,
   },
   progressBarBackground: {
     height: 4,
-    backgroundColor: "#E5E5EA",
+    backgroundColor: colors.border,
     borderRadius: 2,
     overflow: "hidden",
   },
   progressBarFill: {
     height: "100%",
-    backgroundColor: "#007AFF",
+    backgroundColor: colors.primary,
     borderRadius: 2,
+  },
+  progressText: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    textAlign: "center",
+    marginTop: spacing.sm,
   },
   mainContent: {
     flex: 1,
@@ -547,18 +471,14 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    padding: 16,
-    paddingBottom: 20,
+    padding: spacing.lg,
+    paddingBottom: spacing.xl,
   },
   fieldCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    padding: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.lg,
+    padding: spacing.xl,
+    ...shadows.medium,
     minHeight: "70%",
     flex: 1,
     justifyContent: "space-between",
@@ -569,146 +489,111 @@ const styles = StyleSheet.create({
   fieldHeader: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: spacing.lg,
   },
   fieldLabel: {
     fontSize: 20,
     fontWeight: "600",
-    color: "#1D1D1F",
+    color: colors.textPrimary,
     flex: 1,
   },
   descriptionLabel: {
     fontSize: 14,
     fontWeight: "500",
-    color: "#8E8E93",
-    marginBottom: 8,
+    color: colors.textSecondary,
+    marginBottom: spacing.sm,
   },
   previewContainer: {
-    backgroundColor: "#F8F9FA",
+    backgroundColor: colors.background,
     borderWidth: 1,
-    borderColor: "#E5E5EA",
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 20,
+    borderColor: colors.border,
+    borderRadius: borderRadius.md,
+    padding: spacing.lg,
+    marginBottom: spacing.xl,
     minHeight: 60,
   },
   previewText: {
     fontSize: 16,
-    color: "#1D1D1F",
+    color: colors.textPrimary,
     lineHeight: 22,
-  },
-  afmanReference: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#F0F8FF",
-    padding: 10,
-    borderRadius: 6,
-    marginBottom: 16,
-  },
-  afmanReferenceText: {
-    marginLeft: 6,
-    fontSize: 13,
-    color: "#007AFF",
-    fontWeight: "500",
-  },
-  frustrationIndicator: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#FFF5F5",
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 16,
-  },
-  frustrationText: {
-    marginLeft: 8,
-    color: "#FF3B30",
-    fontWeight: "500",
   },
   complianceButtons: {
     flexDirection: "row",
-    gap: 12,
+    gap: spacing.md,
   },
   validateButton: {
     flex: 1,
-    backgroundColor: "#34C759",
+    backgroundColor: colors.success,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    borderRadius: 12,
-    shadowColor: "#34C759",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.xl,
+    borderRadius: borderRadius.lg,
+    ...shadows.light,
   },
   validateButtonText: {
-    color: "#FFFFFF",
+    color: colors.surface,
     fontSize: 16,
     fontWeight: "600",
-    marginLeft: 8,
+    marginLeft: spacing.sm,
   },
   frustrateButton: {
     flex: 1,
-    backgroundColor: "#FF3B30",
+    backgroundColor: colors.error,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    borderRadius: 12,
-    shadowColor: "#FF3B30",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.xl,
+    borderRadius: borderRadius.lg,
+    ...shadows.light,
   },
   frustrateButtonText: {
-    color: "#FFFFFF",
+    color: colors.surface,
     fontSize: 16,
     fontWeight: "600",
-    marginLeft: 8,
+    marginLeft: spacing.sm,
   },
   frustrationLabel: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#1D1D1F",
-    marginBottom: 16,
+    color: colors.textPrimary,
+    marginBottom: spacing.lg,
   },
   defaultMessageContainer: {
-    backgroundColor: "#FFF5F5",
-    padding: 16,
-    borderRadius: 8,
-    marginBottom: 20,
+    backgroundColor: colors.errorLight,
+    padding: spacing.lg,
+    borderRadius: borderRadius.md,
+    marginBottom: spacing.xl,
     borderWidth: 1,
-    borderColor: "#FF3B30",
+    borderColor: colors.error,
   },
   defaultMessageLabel: {
     fontSize: 12,
     fontWeight: "600",
-    color: "#FF3B30",
-    marginBottom: 4,
+    color: colors.error,
+    marginBottom: spacing.xs,
   },
   defaultMessage: {
     fontSize: 16,
-    color: "#1D1D1F",
+    color: colors.textPrimary,
     lineHeight: 22,
   },
   commentsLabel: {
     fontSize: 14,
     fontWeight: "500",
-    color: "#8E8E93",
-    marginBottom: 8,
+    color: colors.textSecondary,
+    marginBottom: spacing.sm,
   },
   inputContainer: {
     borderWidth: 2,
-    borderRadius: 8,
-    backgroundColor: "#F8F9FA",
-    borderColor: "#FF3B30",
+    borderRadius: borderRadius.md,
+    backgroundColor: colors.background,
+    borderColor: colors.error,
   },
   textInput: {
-    padding: 16,
+    padding: spacing.lg,
     fontSize: 16,
     minHeight: 120,
     textAlignVertical: "top",
@@ -716,45 +601,45 @@ const styles = StyleSheet.create({
   editModeButtons: {
     flexDirection: "row",
     justifyContent: "space-between",
-    gap: 12,
-    marginTop: 16,
+    gap: spacing.md,
+    marginTop: spacing.lg,
   },
   cancelButton: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.surface,
     borderWidth: 2,
-    borderColor: "#8E8E93",
-    paddingVertical: 12,
-    borderRadius: 8,
+    borderColor: colors.textSecondary,
+    paddingVertical: spacing.md,
+    borderRadius: borderRadius.md,
     alignItems: "center",
   },
   cancelButtonText: {
-    color: "#8E8E93",
+    color: colors.textSecondary,
     fontSize: 16,
     fontWeight: "600",
   },
   saveButton: {
     flex: 1,
-    backgroundColor: "#FF3B30",
+    backgroundColor: colors.error,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 12,
-    borderRadius: 8,
+    paddingVertical: spacing.md,
+    borderRadius: borderRadius.md,
   },
   saveButtonText: {
-    color: "#FFFFFF",
+    color: colors.surface,
     fontSize: 16,
     fontWeight: "600",
-    marginLeft: 4,
+    marginLeft: spacing.xs,
   },
   footer: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.surface,
     borderTopWidth: 1,
-    borderTopColor: "#E5E5EA",
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 16,
+    borderTopColor: colors.border,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.lg,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
@@ -762,16 +647,16 @@ const styles = StyleSheet.create({
   navButton: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
   },
   navButtonDisabled: {
     opacity: 0.5,
   },
   navButtonText: {
     fontSize: 16,
-    color: "#007AFF",
-    marginLeft: 4,
+    color: colors.primary,
+    marginLeft: spacing.xs,
   },
   navButtonTextDisabled: {
     color: "#C7C7CC",
@@ -780,28 +665,22 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
+    padding: spacing.xl,
   },
   errorText: {
     fontSize: 18,
-    color: "#8E8E93",
-    marginBottom: 8,
-    textAlign: "center",
-  },
-  errorSubText: {
-    fontSize: 14,
-    color: "#8E8E93",
-    marginBottom: 20,
+    color: colors.textSecondary,
+    marginBottom: spacing.xl,
     textAlign: "center",
   },
   backButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    backgroundColor: "#007AFF",
-    borderRadius: 8,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.xxl,
+    backgroundColor: colors.primary,
+    borderRadius: borderRadius.md,
   },
   backButtonText: {
-    color: "#FFFFFF",
+    color: colors.surface,
     fontSize: 16,
     fontWeight: "600",
   },

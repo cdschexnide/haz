@@ -23,6 +23,7 @@ import {
   borderRadius,
   shadows,
 } from "../../components/ui";
+import { navigateToPackageOutcome } from "../../utils/navigateToPackageOutcome";
 
 interface InspectorSafetyDevicesScreenProps {
   navigation: any;
@@ -173,6 +174,13 @@ export default function InspectorSafetyDevicesScreen({
     }
   };
 
+  const handleContinue = () => {
+    navigation.navigate("InspectorSpecialProvisionsScreen", {
+      continueRoute: "MLDetectionScreen",
+      continueParams: { unIdNo: unId || "" },
+    });
+  };
+
   const handleFinalSubmit = () => {
     console.log("🚨 [InspectorSafetyDevices] handleFinalSubmit called");
 
@@ -188,7 +196,6 @@ export default function InspectorSafetyDevicesScreen({
     );
 
     if (currentFrustratedCount === 0) {
-      // No frustrations - proceed to package frustration summary
       Alert.alert(
         "UN3268 Safety Devices Inspection Complete",
         "All conditions have been validated successfully.\n\nNo compliance issues were found. Proceeding to package summary.",
@@ -197,16 +204,12 @@ export default function InspectorSafetyDevicesScreen({
           {
             text: "Continue",
             style: "default",
-            onPress: () => {
-              // Navigate to Package Markings Screen
-              navigation.navigate("InspectorAttachment28WizardScreen");
-            },
+            onPress: handleContinue,
           },
         ]
       );
     } else {
-      // Has frustrations - navigate to package markings screen
-      navigation.navigate("InspectorAttachment28WizardScreen");
+      handleContinue();
     }
   };
 

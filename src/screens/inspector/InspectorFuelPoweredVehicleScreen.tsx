@@ -24,52 +24,66 @@ import {
 } from "../../components/ui";
 import { navigateToPackageOutcome } from "../../utils/navigateToPackageOutcome";
 
-interface InspectorMagnetizedMaterialsScreenProps {
+interface InspectorFuelPoweredVehicleScreenProps {
   navigation: any;
 }
 
-// AFMAN 24-604 A13.11 Magnetized Material Inspection Conditions
-const MAGNETIZED_INSPECTION_CONDITIONS = [
+// AFMAN 24-604 A13.4 UN3166 Fuel-Powered Vehicle Inspection Conditions
+const FUEL_VEHICLE_INSPECTION_CONDITIONS = [
   {
-    id: "handling-separation",
-    label: "Handling separation from sensitive equipment",
+    id: "technical-manuals",
+    label: "Vehicle prepared per service/technical manual",
     description:
-      "Maintain 4.6 m (15 ft) separation from compass sensing devices or sensitive equipment during storage.",
-    afmanRef: "AFMAN 24-604 A13.11",
+      "Verify preparation follows the vehicle service or technical manual.",
+    afmanRef: "AFMAN 24-604 A13.4.1",
   },
   {
-    id: "field-strength",
-    label: "Field strength within limits",
+    id: "fuel-limit-half-tank",
+    label: "Fuel tank not over 1/2 full (unless exception applies)",
     description:
-      "Verify shielding reduces field to 5.25 milligauss or less, or compass deviation is 2 degrees or less at 4.6 m; measure with operational meters (ideally two).",
-    afmanRef: "AFMAN 24-604 A13.11",
+      "Each liquid fuel tank is no more than half full unless a listed A13.4.2 exception applies and is documented.",
+    afmanRef: "AFMAN 24-604 A13.4.2",
   },
   {
-    id: "blocking-bracing",
-    label: "Blocking and bracing adequate",
+    id: "drain-purge-procedures",
+    label: "Drain/purge procedures followed (freight container/bulk fuel)",
     description:
-      "Provide blocking and bracing to prevent movement; package magnetic tubes individually per MIL-E-75 when applicable.",
-    afmanRef: "AFMAN 24-604 A13.11",
+      "Drain and purge per A13.4.2 procedures when required; if no procedures, drain fuel, run engine until stall, and leave tanks/lines open 24 hours.",
+    afmanRef: "AFMAN 24-604 A13.4.2",
   },
   {
-    id: "protective-distance",
-    label: "Protective distance from container exterior",
+    id: "gaseous-fuel-systems",
+    label: "Gaseous fuel systems secured or emptied",
     description:
-      "Ensure protective distance between magnetic surface and container outside is at least 102 mm (4 inches).",
-    afmanRef: "AFMAN 24-604 A13.11",
+      "Non-DOT pressurized vessels are emptied; DOT cylinders may remain if shutoff valves are closed and lines/regulators are emptied.",
+    afmanRef: "AFMAN 24-604 A13.4.2",
   },
   {
-    id: "air-eligibility",
-    label: "Air eligibility confirmed",
+    id: "fuel-cell-protection",
+    label: "Fuel cells protected; correct description used",
     description:
-      "Materials with field strength over 0.00525 gauss at 4.6 m are forbidden for air movement; confirm eligibility.",
-    afmanRef: "AFMAN 24-604 A13.11",
+      "Fuel cells are protected from damage and the proper shipping description reflects fuel cell configuration.",
+    afmanRef: "AFMAN 24-604 A13.4.3",
+  },
+  {
+    id: "battery-and-accessorial-hazards",
+    label: "Battery posts protected and batteries secured upright",
+    description:
+      "Batteries are secured upright, terminals protected, and acid/alkali batteries removed for freight container shipment per A12.4.",
+    afmanRef: "AFMAN 24-604 A13.4.2",
+  },
+  {
+    id: "secondary-loads",
+    label: "Secondary loads certified and authorized",
+    description:
+      "No loose hazardous materials stored in vehicle racks unless authorized; secondary loads are certified, packaged, and marked.",
+    afmanRef: "AFMAN 24-604 A13.4.2",
   },
 ];
 
-export default function InspectorMagnetizedMaterialsScreen({
+export default function InspectorFuelPoweredVehicleScreen({
   navigation,
-}: InspectorMagnetizedMaterialsScreenProps) {
+}: InspectorFuelPoweredVehicleScreenProps) {
   const { inspection, addPackageFrustration, removePackageFrustration } =
     useInspectionForm();
   const { actions } = useHazProStore();
@@ -78,16 +92,17 @@ export default function InspectorMagnetizedMaterialsScreen({
   const [isEditMode, setIsEditMode] = useState(false);
   const [additionalComments, setAdditionalComments] = useState("");
 
-  const currentCondition = MAGNETIZED_INSPECTION_CONDITIONS[currentStep];
-  const totalSteps = MAGNETIZED_INSPECTION_CONDITIONS.length;
+  const currentCondition = FUEL_VEHICLE_INSPECTION_CONDITIONS[currentStep];
+  const totalSteps = FUEL_VEHICLE_INSPECTION_CONDITIONS.length;
 
   const unId =
     inspection?.verificationCopy?.unIdNo ||
     inspection?.extractedContent?.unIdNo;
 
   const existingFrustrations =
-    inspection?.packageFrustrations?.filter(f => f.category === "magnetized") ||
-    [];
+    inspection?.packageFrustrations?.filter(
+      f => f.category === "fuel-powered-vehicle"
+    ) || [];
   const frustratedCount = existingFrustrations.length;
   const validatedCount = totalSteps - frustratedCount;
 
@@ -96,7 +111,7 @@ export default function InspectorMagnetizedMaterialsScreen({
   );
 
   const DEFAULT_FRUSTRATION_MESSAGE =
-    "This magnetized material inspection condition is not met. Requires re-inspection per AFMAN 24-604 A13.11.";
+    "This UN3166 fuel-powered vehicle inspection condition is not met. Requires re-inspection per AFMAN 24-604 A13.4.";
 
   useEffect(() => {
     actions.setCurrentChevron("package");
@@ -124,7 +139,7 @@ export default function InspectorMagnetizedMaterialsScreen({
 
   const handleSaveFrustration = () => {
     const frustrationData = {
-      category: "magnetized" as const,
+      category: "fuel-powered-vehicle" as const,
       itemId: currentCondition.id,
       itemLabel: currentCondition.label,
       expectedValues: ["Pass"],
@@ -135,7 +150,7 @@ export default function InspectorMagnetizedMaterialsScreen({
     };
 
     console.log(
-      "💾 [InspectorMagnetizedMaterials] Saving frustration for condition:",
+      "💾 [InspectorFuelPoweredVehicle] Saving frustration for condition:",
       currentCondition.id
     );
     addPackageFrustration(frustrationData);
@@ -167,13 +182,14 @@ export default function InspectorMagnetizedMaterialsScreen({
 
   const handleFinalSubmit = () => {
     const currentFrustrations =
-      inspection?.packageFrustrations?.filter(f => f.category === "magnetized") ||
-      [];
+      inspection?.packageFrustrations?.filter(
+        f => f.category === "fuel-powered-vehicle"
+      ) || [];
 
     if (currentFrustrations.length === 0) {
       Alert.alert(
-        "UN2807 Magnetized Material Inspection Complete",
-        "All A13.11 conditions have been validated successfully.\n\nNo compliance issues were found. Proceeding to package summary.",
+        "UN3166 Vehicle Inspection Complete",
+        "All A13.4 conditions have been validated successfully.\\n\\nNo compliance issues were found. Proceeding to package summary.",
         [
           { text: "Cancel", style: "cancel" },
           {
@@ -188,12 +204,12 @@ export default function InspectorMagnetizedMaterialsScreen({
     }
   };
 
-  if (unId !== "UN2807") {
+  if (unId !== "UN3166") {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>
-            Invalid material type for magnetized material inspection
+            Invalid material type for fuel-powered vehicle inspection
           </Text>
           <TouchableOpacity
             onPress={() => navigation.goBack()}
@@ -229,7 +245,7 @@ export default function InspectorMagnetizedMaterialsScreen({
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <ScreenHeader
-          title="UN2807 Magnetized Material"
+          title="UN3166 Fuel-Powered Vehicle"
           onBack={() => navigation.goBack()}
           rightContent={
             <Text style={styles.stepIndicator}>

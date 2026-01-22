@@ -24,52 +24,45 @@ import {
 } from "../../components/ui";
 import { navigateToPackageOutcome } from "../../utils/navigateToPackageOutcome";
 
-interface InspectorMagnetizedMaterialsScreenProps {
+interface InspectorAsbestosScreenProps {
   navigation: any;
 }
 
-// AFMAN 24-604 A13.11 Magnetized Material Inspection Conditions
-const MAGNETIZED_INSPECTION_CONDITIONS = [
+// AFMAN 24-604 A13.16 Asbestos Inspection Conditions
+const ASBESTOS_INSPECTION_CONDITIONS = [
   {
-    id: "handling-separation",
-    label: "Handling separation from sensitive equipment",
+    id: "exposure-control",
+    label: "Exposure control during loading/handling",
     description:
-      "Maintain 4.6 m (15 ft) separation from compass sensing devices or sensitive equipment during storage.",
-    afmanRef: "AFMAN 24-604 A13.11",
+      "Loading/handling minimizes airborne particle exposure; decontamination of aircraft if needed.",
+    afmanRef: "AFMAN 24-604 A13.16",
   },
   {
-    id: "field-strength",
-    label: "Field strength within limits",
+    id: "general-packaging",
+    label: "Packaging meets A3.1 general requirements",
     description:
-      "Verify shielding reduces field to 5.25 milligauss or less, or compass deviation is 2 degrees or less at 4.6 m; measure with operational meters (ideally two).",
-    afmanRef: "AFMAN 24-604 A13.11",
+      "Packaging meets A3.1 general requirements; UN specification packaging is not required.",
+    afmanRef: "AFMAN 24-604 A13.16",
   },
   {
-    id: "blocking-bracing",
-    label: "Blocking and bracing adequate",
+    id: "rigid-drums",
+    label: "Rigid leak-tight drums used (if applicable)",
     description:
-      "Provide blocking and bracing to prevent movement; package magnetic tubes individually per MIL-E-75 when applicable.",
-    afmanRef: "AFMAN 24-604 A13.11",
+      "Asbestos may be packed in rigid leak-tight drums.",
+    afmanRef: "AFMAN 24-604 A13.16",
   },
   {
-    id: "protective-distance",
-    label: "Protective distance from container exterior",
+    id: "dust-sift-proof-bags",
+    label: "Dust/sift-proof bags palletized or boxed",
     description:
-      "Ensure protective distance between magnetic surface and container outside is at least 102 mm (4 inches).",
-    afmanRef: "AFMAN 24-604 A13.11",
-  },
-  {
-    id: "air-eligibility",
-    label: "Air eligibility confirmed",
-    description:
-      "Materials with field strength over 0.00525 gauss at 4.6 m are forbidden for air movement; confirm eligibility.",
-    afmanRef: "AFMAN 24-604 A13.11",
+      "Dust/sift-proof bags are palletized and unitized or placed in strong outer fiberboard/wooden boxes.",
+    afmanRef: "AFMAN 24-604 A13.16",
   },
 ];
 
-export default function InspectorMagnetizedMaterialsScreen({
+export default function InspectorAsbestosScreen({
   navigation,
-}: InspectorMagnetizedMaterialsScreenProps) {
+}: InspectorAsbestosScreenProps) {
   const { inspection, addPackageFrustration, removePackageFrustration } =
     useInspectionForm();
   const { actions } = useHazProStore();
@@ -78,16 +71,17 @@ export default function InspectorMagnetizedMaterialsScreen({
   const [isEditMode, setIsEditMode] = useState(false);
   const [additionalComments, setAdditionalComments] = useState("");
 
-  const currentCondition = MAGNETIZED_INSPECTION_CONDITIONS[currentStep];
-  const totalSteps = MAGNETIZED_INSPECTION_CONDITIONS.length;
+  const currentCondition = ASBESTOS_INSPECTION_CONDITIONS[currentStep];
+  const totalSteps = ASBESTOS_INSPECTION_CONDITIONS.length;
 
   const unId =
     inspection?.verificationCopy?.unIdNo ||
     inspection?.extractedContent?.unIdNo;
 
   const existingFrustrations =
-    inspection?.packageFrustrations?.filter(f => f.category === "magnetized") ||
-    [];
+    inspection?.packageFrustrations?.filter(
+      f => f.category === "asbestos"
+    ) || [];
   const frustratedCount = existingFrustrations.length;
   const validatedCount = totalSteps - frustratedCount;
 
@@ -96,7 +90,7 @@ export default function InspectorMagnetizedMaterialsScreen({
   );
 
   const DEFAULT_FRUSTRATION_MESSAGE =
-    "This magnetized material inspection condition is not met. Requires re-inspection per AFMAN 24-604 A13.11.";
+    "This asbestos inspection condition is not met. Requires re-inspection per AFMAN 24-604 A13.16.";
 
   useEffect(() => {
     actions.setCurrentChevron("package");
@@ -124,7 +118,7 @@ export default function InspectorMagnetizedMaterialsScreen({
 
   const handleSaveFrustration = () => {
     const frustrationData = {
-      category: "magnetized" as const,
+      category: "asbestos" as const,
       itemId: currentCondition.id,
       itemLabel: currentCondition.label,
       expectedValues: ["Pass"],
@@ -135,7 +129,7 @@ export default function InspectorMagnetizedMaterialsScreen({
     };
 
     console.log(
-      "💾 [InspectorMagnetizedMaterials] Saving frustration for condition:",
+      "💾 [InspectorAsbestos] Saving frustration for condition:",
       currentCondition.id
     );
     addPackageFrustration(frustrationData);
@@ -167,13 +161,14 @@ export default function InspectorMagnetizedMaterialsScreen({
 
   const handleFinalSubmit = () => {
     const currentFrustrations =
-      inspection?.packageFrustrations?.filter(f => f.category === "magnetized") ||
-      [];
+      inspection?.packageFrustrations?.filter(
+        f => f.category === "asbestos"
+      ) || [];
 
     if (currentFrustrations.length === 0) {
       Alert.alert(
-        "UN2807 Magnetized Material Inspection Complete",
-        "All A13.11 conditions have been validated successfully.\n\nNo compliance issues were found. Proceeding to package summary.",
+        "Asbestos Inspection Complete",
+        "All A13.16 conditions have been validated successfully.\n\nNo compliance issues were found. Proceeding to package summary.",
         [
           { text: "Cancel", style: "cancel" },
           {
@@ -188,12 +183,16 @@ export default function InspectorMagnetizedMaterialsScreen({
     }
   };
 
-  if (unId !== "UN2807") {
+  if (
+    unId !== "NA2212" &&
+    unId !== "UN2212" &&
+    unId !== "UN2590"
+  ) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>
-            Invalid material type for magnetized material inspection
+            Invalid material type for asbestos inspection
           </Text>
           <TouchableOpacity
             onPress={() => navigation.goBack()}
@@ -229,7 +228,7 @@ export default function InspectorMagnetizedMaterialsScreen({
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <ScreenHeader
-          title="UN2807 Magnetized Material"
+          title="A13.16 Asbestos"
           onBack={() => navigation.goBack()}
           rightContent={
             <Text style={styles.stepIndicator}>

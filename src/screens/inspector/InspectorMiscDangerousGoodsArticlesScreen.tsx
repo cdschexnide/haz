@@ -24,52 +24,45 @@ import {
 } from "../../components/ui";
 import { navigateToPackageOutcome } from "../../utils/navigateToPackageOutcome";
 
-interface InspectorMagnetizedMaterialsScreenProps {
+interface InspectorMiscDangerousGoodsArticlesScreenProps {
   navigation: any;
 }
 
-// AFMAN 24-604 A13.11 Magnetized Material Inspection Conditions
-const MAGNETIZED_INSPECTION_CONDITIONS = [
+// AFMAN 24-604 A13.5 UN3548 Articles Containing Miscellaneous Dangerous Goods
+const A13_5_INSPECTION_CONDITIONS = [
   {
-    id: "handling-separation",
-    label: "Handling separation from sensitive equipment",
+    id: "classification-quantity",
+    label: "Classification and quantity limits verified",
     description:
-      "Maintain 4.6 m (15 ft) separation from compass sensing devices or sensitive equipment during storage.",
-    afmanRef: "AFMAN 24-604 A13.11",
+      "Confirm classification per A4.2.3 and max net quantity per package (60 L liquids, 100 kg solids).",
+    afmanRef: "AFMAN 24-604 A13.5",
   },
   {
-    id: "field-strength",
-    label: "Field strength within limits",
+    id: "packaged-articles",
+    label: "Packaged articles meet PG II performance",
     description:
-      "Verify shielding reduces field to 5.25 milligauss or less, or compass deviation is 2 degrees or less at 4.6 m; measure with operational meters (ideally two).",
-    afmanRef: "AFMAN 24-604 A13.11",
+      "Packaging meets Packing Group II performance; articles prevent movement and inadvertent operation; liquid closures oriented properly.",
+    afmanRef: "AFMAN 24-604 A13.5",
   },
   {
-    id: "blocking-bracing",
-    label: "Blocking and bracing adequate",
+    id: "no-inner-receptacles",
+    label: "Articles without inner receptacles secured",
     description:
-      "Provide blocking and bracing to prevent movement; package magnetic tubes individually per MIL-E-75 when applicable.",
-    afmanRef: "AFMAN 24-604 A13.11",
+      "Article fully encloses dangerous goods and prevents release; outer packaging matches allowed drum/box/jerrican types in A13.5.1.3.",
+    afmanRef: "AFMAN 24-604 A13.5",
   },
   {
-    id: "protective-distance",
-    label: "Protective distance from container exterior",
+    id: "robust-articles",
+    label: "Robust articles protected in transport",
     description:
-      "Ensure protective distance between magnetic surface and container outside is at least 102 mm (4 inches).",
-    afmanRef: "AFMAN 24-604 A13.11",
-  },
-  {
-    id: "air-eligibility",
-    label: "Air eligibility confirmed",
-    description:
-      "Materials with field strength over 0.00525 gauss at 4.6 m are forbidden for air movement; confirm eligibility.",
-    afmanRef: "AFMAN 24-604 A13.11",
+      "Robust articles placed in strong outer packaging or shipped unpackaged/on pallets with equivalent protection.",
+    afmanRef: "AFMAN 24-604 A13.5",
   },
 ];
 
-export default function InspectorMagnetizedMaterialsScreen({
+export default function InspectorMiscDangerousGoodsArticlesScreen({
   navigation,
-}: InspectorMagnetizedMaterialsScreenProps) {
+}: InspectorMiscDangerousGoodsArticlesScreenProps) {
   const { inspection, addPackageFrustration, removePackageFrustration } =
     useInspectionForm();
   const { actions } = useHazProStore();
@@ -78,16 +71,17 @@ export default function InspectorMagnetizedMaterialsScreen({
   const [isEditMode, setIsEditMode] = useState(false);
   const [additionalComments, setAdditionalComments] = useState("");
 
-  const currentCondition = MAGNETIZED_INSPECTION_CONDITIONS[currentStep];
-  const totalSteps = MAGNETIZED_INSPECTION_CONDITIONS.length;
+  const currentCondition = A13_5_INSPECTION_CONDITIONS[currentStep];
+  const totalSteps = A13_5_INSPECTION_CONDITIONS.length;
 
   const unId =
     inspection?.verificationCopy?.unIdNo ||
     inspection?.extractedContent?.unIdNo;
 
   const existingFrustrations =
-    inspection?.packageFrustrations?.filter(f => f.category === "magnetized") ||
-    [];
+    inspection?.packageFrustrations?.filter(
+      f => f.category === "misc-dangerous-goods-articles"
+    ) || [];
   const frustratedCount = existingFrustrations.length;
   const validatedCount = totalSteps - frustratedCount;
 
@@ -96,7 +90,7 @@ export default function InspectorMagnetizedMaterialsScreen({
   );
 
   const DEFAULT_FRUSTRATION_MESSAGE =
-    "This magnetized material inspection condition is not met. Requires re-inspection per AFMAN 24-604 A13.11.";
+    "This UN3548 inspection condition is not met. Requires re-inspection per AFMAN 24-604 A13.5.";
 
   useEffect(() => {
     actions.setCurrentChevron("package");
@@ -124,7 +118,7 @@ export default function InspectorMagnetizedMaterialsScreen({
 
   const handleSaveFrustration = () => {
     const frustrationData = {
-      category: "magnetized" as const,
+      category: "misc-dangerous-goods-articles" as const,
       itemId: currentCondition.id,
       itemLabel: currentCondition.label,
       expectedValues: ["Pass"],
@@ -135,7 +129,7 @@ export default function InspectorMagnetizedMaterialsScreen({
     };
 
     console.log(
-      "💾 [InspectorMagnetizedMaterials] Saving frustration for condition:",
+      "💾 [InspectorA13_5] Saving frustration for condition:",
       currentCondition.id
     );
     addPackageFrustration(frustrationData);
@@ -167,13 +161,14 @@ export default function InspectorMagnetizedMaterialsScreen({
 
   const handleFinalSubmit = () => {
     const currentFrustrations =
-      inspection?.packageFrustrations?.filter(f => f.category === "magnetized") ||
-      [];
+      inspection?.packageFrustrations?.filter(
+        f => f.category === "misc-dangerous-goods-articles"
+      ) || [];
 
     if (currentFrustrations.length === 0) {
       Alert.alert(
-        "UN2807 Magnetized Material Inspection Complete",
-        "All A13.11 conditions have been validated successfully.\n\nNo compliance issues were found. Proceeding to package summary.",
+        "UN3548 Inspection Complete",
+        "All A13.5 conditions have been validated successfully.\n\nNo compliance issues were found. Proceeding to package summary.",
         [
           { text: "Cancel", style: "cancel" },
           {
@@ -188,12 +183,12 @@ export default function InspectorMagnetizedMaterialsScreen({
     }
   };
 
-  if (unId !== "UN2807") {
+  if (unId !== "UN3548") {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>
-            Invalid material type for magnetized material inspection
+            Invalid material type for UN3548 inspection
           </Text>
           <TouchableOpacity
             onPress={() => navigation.goBack()}
@@ -229,7 +224,7 @@ export default function InspectorMagnetizedMaterialsScreen({
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <ScreenHeader
-          title="UN2807 Magnetized Material"
+          title="UN3548 Articles N.O.S."
           onBack={() => navigation.goBack()}
           rightContent={
             <Text style={styles.stepIndicator}>

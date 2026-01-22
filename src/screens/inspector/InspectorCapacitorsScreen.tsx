@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from "react";
+import { MaterialIcons } from "@expo/vector-icons";
+import React, { useEffect, useState } from "react";
 import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
   Alert,
-  TextInput,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { MaterialIcons } from "@expo/vector-icons";
 import { useInspectionForm } from "../../contexts/InspectionFormProvider";
 import { useHazProStore } from "../../stores/useHazProStore";
 import {
@@ -22,156 +22,102 @@ import {
   borderRadius,
   shadows,
 } from "../../components/ui";
+import { navigateToPackageOutcome } from "../../utils/navigateToPackageOutcome";
 
 interface InspectorCapacitorsScreenProps {
   navigation: any;
 }
 
-export interface CapacitorInspectionField {
-  key: string;
-  label: string;
-  description: string;
-  afmanReference: string;
-  isRequired: boolean;
-  validationCriteria: string[];
-}
-
-// NOTE: Energy Storage Capacity marking (A13.19.1.5) is handled in InspectorPackageVerification
-// as part of the UN3508 package markings requirements
-const CAPACITOR_INSPECTION_FIELDS: CapacitorInspectionField[] = [
+// AFMAN 24-604 A13.19 Capacitors Inspection Conditions
+const CAPACITOR_INSPECTION_CONDITIONS = [
   {
-    key: "installationStatus",
-    label: "INSTALLATION STATUS VERIFICATION (A13.19.1.1)",
+    id: "charge-state",
+    label: "Uninstalled capacitors shipped uncharged",
     description:
-      "Verify if capacitor is installed in equipment or shipped separately",
-    afmanReference: "AFMAN 24-604 A13.19.1.1",
-    isRequired: true,
-    validationCriteria: [
-      "Capacitor properly installed in equipment OR",
-      "Separate capacitor is in uncharged state",
-    ],
+      "Capacitors not installed in equipment are shipped uncharged.",
+    afmanRef: "AFMAN 24-604 A13.19",
   },
   {
-    key: "shortCircuitProtection",
-    label: "SHORT-CIRCUIT PROTECTION METHOD (A13.19.1.2)",
+    id: "short-circuit-protection",
+    label: "Short circuit protection applied",
     description:
-      "Verify appropriate protection based on energy storage capacity",
-    afmanReference: "AFMAN 24-604 A13.19.1.2",
-    isRequired: true,
-    validationCriteria: [
-      "≤10 Wh: Protected against short circuit OR metal strap",
-      ">10 Wh: Metal strap connecting terminals required",
-    ],
+      "Protect terminals; 10 Wh or less may use protection or metal strap; over 10 Wh requires metal strap.",
+    afmanRef: "AFMAN 24-604 A13.19",
   },
   {
-    key: "pressureDesignCompliance",
-    label: "PRESSURE DESIGN SPECIFICATIONS (A13.19.1.3)",
-    description: "Verify design withstands required pressure differential",
-    afmanReference: "AFMAN 24-604 A13.19.1.3",
-    isRequired: true,
-    validationCriteria: [
-      "Designed to withstand 95 kPa (0.95 bar, 14 psi) pressure differential",
-      "Design certification or documentation available",
-    ],
-  },
-  {
-    key: "pressureReliefSystem",
-    label: "PRESSURE RELIEF SYSTEM (A13.19.1.4)",
-    description: "Verify safe pressure relief through vent or weak point",
-    afmanReference: "AFMAN 24-604 A13.19.1.4",
-    isRequired: true,
-    validationCriteria: [
-      "Pressure relief through vent or weak point",
-      "Liquid containment by packaging or equipment",
-    ],
-  },
-  {
-    key: "outerPackaging",
-    label: "OUTER PACKAGING COMPLIANCE (A13.19.2)",
-    description: "Verify strong outer packaging with secure cushioning",
-    afmanReference: "AFMAN 24-604 A13.19.2",
-    isRequired: true,
-    validationCriteria: [
-      "Strong outer packaging present",
-      "Capacitor securely cushioned",
-      "Packaging prevents movement during transport",
-    ],
-  },
-  {
-    key: "electrolyteClassification",
-    label: "ELECTROLYTE HAZARD CLASSIFICATION (A13.19.3-A13.19.6)",
+    id: "pressure-venting",
+    label: "Pressure/venting requirements met",
     description:
-      "Verify electrolyte classification and compliance requirements",
-    afmanReference: "AFMAN 24-604 A13.19.3-A13.19.6",
-    isRequired: true,
-    validationCriteria: [
-      "Non-hazardous electrolyte confirmed OR",
-      "Hazardous electrolyte with proper certifications",
-      "≤10 Wh with hazardous electrolyte: 1.2m drop test certification",
-    ],
+      "Hazardous-electrolyte capacitors withstand 95 kPa differential, provide safe pressure relief, and contain released liquid.",
+    afmanRef: "AFMAN 24-604 A13.19",
+  },
+  {
+    id: "marking-wh",
+    label: "Energy storage capacity marked",
+    description:
+      "Capacitors are marked with energy storage capacity in Wh.",
+    afmanRef: "AFMAN 24-604 A13.19",
+  },
+  {
+    id: "packaging",
+    label: "Packaging protects capacitors",
+    description:
+      "Securely cushion and pack in strong outer packaging; equipment-installed capacitors may be shipped unpackaged if equipment protects them.",
+    afmanRef: "AFMAN 24-604 A13.19",
+  },
+  {
+    id: "exemptions",
+    label: "Exemptions evaluated (if applicable)",
+    description:
+      "Non-hazardous electrolyte only requires A13.19.1; hazardous electrolyte 10 Wh or less may be exempt if 1.2 m drop test passed; hazardous electrolyte over 10 Wh and not installed subject to full requirements.",
+    afmanRef: "AFMAN 24-604 A13.19",
   },
 ];
-
-const DEFAULT_FRUSTRATION_MESSAGE =
-  "This aspect of the UN3508 capacitor inspection is non-compliant. Requires re-inspection";
 
 export default function InspectorCapacitorsScreen({
   navigation,
 }: InspectorCapacitorsScreenProps) {
-  const {
-    inspection,
-    addPackageFrustration,
-    removePackageFrustration,
-    setCurrentSDDGStep,
-    setCurrentSDDGScreen,
-    completeSDDGSubstep,
-  } = useInspectionForm();
+  const { inspection, addPackageFrustration, removePackageFrustration } =
+    useInspectionForm();
   const { actions } = useHazProStore();
+
   const [currentStep, setCurrentStep] = useState(0);
   const [isEditMode, setIsEditMode] = useState(false);
   const [additionalComments, setAdditionalComments] = useState("");
 
-  // Get capacitor data and frustrations from store
-  const capacitorFrustrations =
-    inspection?.packageFrustrations?.filter(f => f.category === "capacitor") ||
-    [];
-  const frustratedCount = capacitorFrustrations.length;
+  const currentCondition = CAPACITOR_INSPECTION_CONDITIONS[currentStep];
+  const totalSteps = CAPACITOR_INSPECTION_CONDITIONS.length;
 
-  const currentField = CAPACITOR_INSPECTION_FIELDS[currentStep];
-  const totalSteps = CAPACITOR_INSPECTION_FIELDS.length;
-  const currentFrustration = capacitorFrustrations.find(
-    f => f.id === currentField?.key
+  const unId =
+    inspection?.verificationCopy?.unIdNo ||
+    inspection?.extractedContent?.unIdNo;
+
+  const existingFrustrations =
+    inspection?.packageFrustrations?.filter(
+      f => f.category === "capacitor"
+    ) || [];
+  const frustratedCount = existingFrustrations.length;
+  const validatedCount = totalSteps - frustratedCount;
+
+  const currentFrustration = existingFrustrations.find(
+    f => f.itemId === currentCondition?.id
   );
 
-  // Set active chevron when component mounts
+  const DEFAULT_FRUSTRATION_MESSAGE =
+    "This capacitor inspection condition is not met. Requires re-inspection per AFMAN 24-604 A13.19.";
+
   useEffect(() => {
     actions.setCurrentChevron("package");
   }, []);
 
   useEffect(() => {
-    // Update workflow step when component mounts
-    setCurrentSDDGStep("capacitor-inspection");
-    setCurrentSDDGScreen("InspectorCapacitorsScreen");
-  }, [setCurrentSDDGStep, setCurrentSDDGScreen]);
-
-  useEffect(() => {
-    // Reset edit mode when changing steps
     setIsEditMode(false);
     setAdditionalComments("");
   }, [currentStep]);
 
   const handleValidate = () => {
-    // Remove any existing frustration for this field using the key
-    // Note: The removePackageFrustration expects itemId, but capacitor frustrations use 'key' field
-    // We need to find the frustration id that matches this field's key
-    const existingFrustration = capacitorFrustrations.find(
-      f => f.id === currentField.key
-    );
-    if (existingFrustration?.id) {
-      removePackageFrustration(existingFrustration.id);
-    }
+    removePackageFrustration(currentCondition.id);
 
-    // Move to next step or complete
     if (currentStep < totalSteps - 1) {
       setCurrentStep(currentStep + 1);
     } else {
@@ -185,30 +131,23 @@ export default function InspectorCapacitorsScreen({
   };
 
   const handleSaveFrustration = () => {
-    // Remove existing frustration for this field first
-    const existingFrustration = capacitorFrustrations.find(
-      f => f.id === currentField.key
-    );
-    if (existingFrustration?.id) {
-      removePackageFrustration(existingFrustration.id);
-    }
-
-    // Add new frustration using the context function
     const frustrationData = {
       category: "capacitor" as const,
-      itemId: currentField.key,
-      itemLabel: currentField.label,
-      expectedValues: currentField.validationCriteria,
+      itemId: currentCondition.id,
+      itemLabel: currentCondition.label,
+      expectedValues: ["Pass"],
       verificationStatus: "incorrect" as const,
       defaultMessage: DEFAULT_FRUSTRATION_MESSAGE,
       additionalComments: additionalComments.trim() || undefined,
-      afmanReference: currentField.afmanReference,
-      // Note: addPackageFrustration will add id, frustrationDate, and inspector automatically
+      afmanReference: currentCondition.afmanRef,
     };
 
+    console.log(
+      "💾 [InspectorCapacitors] Saving frustration for condition:",
+      currentCondition.id
+    );
     addPackageFrustration(frustrationData);
 
-    // Move to next step or complete
     if (currentStep < totalSteps - 1) {
       setCurrentStep(currentStep + 1);
     } else {
@@ -227,51 +166,56 @@ export default function InspectorCapacitorsScreen({
     }
   };
 
-  const handleFinalSubmit = () => {
-    const finalFrustratedCount =
-      inspection?.packageFrustrations?.filter(f => f.category === "capacitor")
-        .length || 0;
+  const handleContinue = () => {
+    navigation.navigate("InspectorSpecialProvisionsScreen", {
+      continueRoute: "MLDetectionScreen",
+      continueParams: { unIdNo: unId || "" },
+    });
+  };
 
-    if (finalFrustratedCount === 0) {
-      // No frustrations - proceed to package markings verification
+  const handleFinalSubmit = () => {
+    const currentFrustrations =
+      inspection?.packageFrustrations?.filter(
+        f => f.category === "capacitor"
+      ) || [];
+
+    if (currentFrustrations.length === 0) {
       Alert.alert(
-        "UN3508 Capacitor Inspection Complete",
-        "All inspection criteria have been validated successfully.\n\nNo compliance issues were found. Proceeding to package markings verification.\n\nPackage markings for UN3508 will include:\n• PSN and UN Number\n• Military Shipping Label (MSL) or DD Form 1387\n• Energy Storage Capacity (for capacitors manufactured after December 31, 2015)",
+        "Capacitor Inspection Complete",
+        "All A13.19 conditions have been validated successfully.\n\nNo compliance issues were found. Proceeding to package summary.",
         [
           { text: "Cancel", style: "cancel" },
           {
-            text: "Continue to Package Markings",
+            text: "Continue",
             style: "default",
-            onPress: () => {
-              completeSDDGSubstep("InspectorCapacitorsScreen");
-              navigation.navigate("InspectorAttachment28WizardScreen");
-            },
+            onPress: handleContinue,
           },
         ]
       );
     } else {
-      // Has frustrations - proceed to package markings with frustrations
-      Alert.alert(
-        "UN3508 Capacitor Inspection Complete with Frustrations",
-        `${finalFrustratedCount} inspection ${
-          finalFrustratedCount === 1 ? "item has" : "items have"
-        } been frustrated.\n\nProceeding to package markings verification.\n\nPackage markings for UN3508 will include:\n• PSN and UN Number\n• Military Shipping Label (MSL) or DD Form 1387\n• Energy Storage Capacity (for capacitors manufactured after December 31, 2015)`,
-        [
-          { text: "Cancel", style: "cancel" },
-          {
-            text: "Continue to Package Markings",
-            style: "default",
-            onPress: () => {
-              completeSDDGSubstep("InspectorCapacitorsScreen");
-              navigation.navigate("InspectorAttachment28WizardScreen");
-            },
-          },
-        ]
-      );
+      handleContinue();
     }
   };
 
-  if (!currentField) {
+  if (unId !== "UN3499" && unId !== "UN3508") {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>
+            Invalid material type for capacitor inspection
+          </Text>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={styles.backButton}
+          >
+            <Text style={styles.backButtonText}>Go Back</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (!currentCondition || !inspection) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.errorContainer}>
@@ -290,11 +234,11 @@ export default function InspectorCapacitorsScreen({
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
+        style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.keyboardContainer}
       >
         <ScreenHeader
-          title="UN3508 Capacitors"
+          title="UN3499/UN3508 Capacitors"
           onBack={() => navigation.goBack()}
           rightContent={
             <Text style={styles.stepIndicator}>
@@ -303,122 +247,151 @@ export default function InspectorCapacitorsScreen({
           }
         />
 
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-        >
-          <View style={styles.content}>
-            {!isEditMode ? (
-              /* Normal Validation Mode */
-              <>
-                <View style={styles.fieldContent}>
-                  <View style={styles.fieldHeader}>
-                    <Text style={styles.fieldLabel}>{currentField.label}</Text>
+        <View style={styles.progressBarContainer}>
+          <View style={styles.progressBarBackground}>
+            <View
+              style={[
+                styles.progressBarFill,
+                { width: `${((currentStep + 1) / totalSteps) * 100}%` },
+              ]}
+            />
+          </View>
+          <Text style={styles.progressText}>
+            Validated: {validatedCount} | Frustrated: {frustratedCount}
+          </Text>
+        </View>
+
+        <View style={styles.mainContent}>
+          <ScrollView
+            style={styles.content}
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.fieldCard}>
+              {!isEditMode ? (
+                <>
+                  <View style={styles.fieldContent}>
+                    <View style={styles.fieldHeader}>
+                      <Text style={styles.fieldLabel}>
+                        {currentCondition.label}
+                      </Text>
+                    </View>
+
+                    <Text style={styles.descriptionLabel}>
+                      Inspection Requirement:
+                    </Text>
+                    <View style={styles.previewContainer}>
+                      <Text style={styles.previewText}>
+                        {currentCondition.description}
+                      </Text>
+                    </View>
+
                     {currentFrustration && (
-                      <MaterialIcons name="error" size={24} color={colors.error} />
+                      <InfoBox
+                        variant="error"
+                        message="Previously Frustrated"
+                      />
                     )}
                   </View>
 
-                  <Text style={styles.fieldDescription}>
-                    {currentField.description}
-                  </Text>
+                  <View style={styles.complianceButtons}>
+                    <TouchableOpacity
+                      style={styles.validateButton}
+                      onPress={handleValidate}
+                    >
+                      <MaterialIcons
+                        name="check-circle"
+                        size={24}
+                        color={colors.surface}
+                      />
+                      <Text style={styles.validateButtonText}>Validate</Text>
+                    </TouchableOpacity>
 
-                  <Text style={styles.scannedValueLabel}>
-                    Validation Criteria:
-                  </Text>
-                  <View style={styles.scannedValueContainer}>
-                    {currentField.validationCriteria.map((criteria, index) => (
-                      <Text key={index} style={styles.criteriaText}>
-                        • {criteria}
+                    <TouchableOpacity
+                      style={styles.frustrateButton}
+                      onPress={handleFrustrate}
+                    >
+                      <MaterialIcons
+                        name="cancel"
+                        size={24}
+                        color={colors.surface}
+                      />
+                      <Text style={styles.frustrateButtonText}>Frustrate</Text>
+                    </TouchableOpacity>
+                  </View>
+                </>
+              ) : (
+                <>
+                  <View style={styles.fieldContent}>
+                    <View style={styles.fieldHeader}>
+                      <Text style={styles.fieldLabel}>
+                        {currentCondition.label}
                       </Text>
-                    ))}
-                  </View>
-                </View>
+                      <MaterialIcons
+                        name="error"
+                        size={24}
+                        color={colors.error}
+                      />
+                    </View>
 
-                <View style={styles.complianceButtons}>
-                  <TouchableOpacity
-                    style={styles.validateButton}
-                    onPress={handleValidate}
-                  >
-                    <MaterialIcons
-                      name="check-circle"
-                      size={24}
-                      color={colors.surface}
-                    />
-                    <Text style={styles.validateButtonText}>Validate</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    style={styles.frustrateButton}
-                    onPress={handleFrustrate}
-                  >
-                    <MaterialIcons name="cancel" size={24} color={colors.surface} />
-                    <Text style={styles.frustrateButtonText}>Frustrate</Text>
-                  </TouchableOpacity>
-                </View>
-              </>
-            ) : (
-              /* Frustration Edit Mode UI */
-              <>
-                <View style={styles.fieldContent}>
-                  <View style={styles.fieldHeader}>
-                    <Text style={styles.fieldLabel}>{currentField.label}</Text>
-                    <MaterialIcons name="error" size={24} color={colors.error} />
-                  </View>
-
-                  <Text style={styles.frustrationLabel}>
-                    Frustration Details:
-                  </Text>
-
-                  <View style={styles.defaultMessageContainer}>
-                    <Text style={styles.defaultMessageLabel}>
-                      Default Message:
+                    <Text style={styles.frustrationLabel}>
+                      Frustration Details:
                     </Text>
-                    <Text style={styles.defaultMessage}>
-                      {DEFAULT_FRUSTRATION_MESSAGE}
+
+                    <View style={styles.defaultMessageContainer}>
+                      <Text style={styles.defaultMessageLabel}>
+                        Default Message:
+                      </Text>
+                      <Text style={styles.defaultMessage}>
+                        {DEFAULT_FRUSTRATION_MESSAGE}
+                      </Text>
+                    </View>
+
+                    <Text style={styles.commentsLabel}>
+                      Additional Comments (Optional):
                     </Text>
+                    <View style={styles.inputContainer}>
+                      <TextInput
+                        style={styles.textInput}
+                        value={additionalComments}
+                        onChangeText={setAdditionalComments}
+                        placeholder="Add specific compliance issues or notes..."
+                        multiline={true}
+                        numberOfLines={4}
+                        textAlignVertical="top"
+                      />
+                    </View>
                   </View>
 
-                  <Text style={styles.commentsLabel}>
-                    Additional Comments (Optional):
-                  </Text>
-                  <View style={styles.inputContainer}>
-                    <TextInput
-                      style={styles.textInput}
-                      value={additionalComments}
-                      onChangeText={setAdditionalComments}
-                      placeholder="Add specific compliance issues or notes..."
-                      multiline={true}
-                      numberOfLines={4}
-                      textAlignVertical="top"
-                    />
+                  <View style={styles.editModeButtons}>
+                    <TouchableOpacity
+                      style={styles.cancelButton}
+                      onPress={handleCancelFrustration}
+                    >
+                      <Text style={styles.cancelButtonText}>Cancel</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={styles.saveButton}
+                      onPress={handleSaveFrustration}
+                    >
+                      <MaterialIcons
+                        name="save"
+                        size={20}
+                        color={colors.surface}
+                      />
+                      <Text style={styles.saveButtonText}>
+                        Save Frustration
+                      </Text>
+                    </TouchableOpacity>
                   </View>
-                </View>
+                </>
+              )}
+            </View>
+          </ScrollView>
+        </View>
 
-                <View style={styles.editModeButtons}>
-                  <TouchableOpacity
-                    style={styles.cancelButton}
-                    onPress={handleCancelFrustration}
-                  >
-                    <Text style={styles.cancelButtonText}>Cancel</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    style={styles.saveFrustrationButton}
-                    onPress={handleSaveFrustration}
-                  >
-                    <MaterialIcons name="save" size={20} color={colors.surface} />
-                    <Text style={styles.saveFrustrationButtonText}>
-                      Save Frustration
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </>
-            )}
-          </View>
-        </ScrollView>
-
-        {/* Navigation Footer */}
         {!isEditMode && (
           <View style={styles.footer}>
             <TouchableOpacity
@@ -453,70 +426,89 @@ export default function InspectorCapacitorsScreen({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.borderLight,
-  },
-  keyboardContainer: {
-    flex: 1,
+    backgroundColor: colors.background,
   },
   stepIndicator: {
     fontSize: 16,
     fontWeight: "500",
     color: colors.primary,
   },
-  scrollView: {
+  progressBarContainer: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    backgroundColor: colors.surface,
+  },
+  progressBarBackground: {
+    height: 4,
+    backgroundColor: colors.border,
+    borderRadius: 2,
+    overflow: "hidden",
+  },
+  progressBarFill: {
+    height: "100%",
+    backgroundColor: colors.primary,
+    borderRadius: 2,
+  },
+  progressText: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    textAlign: "center",
+    marginTop: spacing.sm,
+  },
+  mainContent: {
+    flex: 1,
+    flexDirection: "row",
+  },
+  content: {
     flex: 1,
   },
   scrollContent: {
     flexGrow: 1,
     padding: spacing.lg,
+    paddingBottom: spacing.xl,
   },
-  content: {
+  fieldCard: {
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.lg,
+    padding: spacing.xl,
+    ...shadows.medium,
+    minHeight: "70%",
     flex: 1,
     justifyContent: "space-between",
   },
   fieldContent: {
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.lg,
-    padding: spacing.xl,
-    marginBottom: spacing.lg,
-    ...shadows.light,
+    flex: 1,
   },
   fieldHeader: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: spacing.md,
+    alignItems: "center",
+    marginBottom: spacing.lg,
   },
   fieldLabel: {
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: "600",
     color: colors.textPrimary,
     flex: 1,
-    marginRight: spacing.sm,
   },
-  fieldDescription: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    marginBottom: spacing.lg,
-    lineHeight: 20,
-  },
-  scannedValueLabel: {
+  descriptionLabel: {
     fontSize: 14,
     fontWeight: "500",
     color: colors.textSecondary,
     marginBottom: spacing.sm,
   },
-  scannedValueContainer: {
-    backgroundColor: colors.borderLight,
+  previewContainer: {
+    backgroundColor: colors.background,
+    borderWidth: 1,
+    borderColor: colors.border,
     borderRadius: borderRadius.md,
-    padding: spacing.md,
+    padding: spacing.lg,
+    marginBottom: spacing.xl,
     minHeight: 60,
   },
-  criteriaText: {
-    fontSize: 14,
+  previewText: {
+    fontSize: 16,
     color: colors.textPrimary,
-    lineHeight: 18,
-    marginBottom: spacing.xs,
+    lineHeight: 22,
   },
   complianceButtons: {
     flexDirection: "row",
@@ -524,58 +516,62 @@ const styles = StyleSheet.create({
   },
   validateButton: {
     flex: 1,
+    backgroundColor: colors.success,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: colors.success,
-    borderRadius: borderRadius.md,
-    paddingVertical: 14,
-    gap: spacing.sm,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.xl,
+    borderRadius: borderRadius.lg,
+    ...shadows.light,
   },
   validateButtonText: {
     color: colors.surface,
     fontSize: 16,
     fontWeight: "600",
+    marginLeft: spacing.sm,
   },
   frustrateButton: {
     flex: 1,
+    backgroundColor: colors.error,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: colors.error,
-    borderRadius: borderRadius.md,
-    paddingVertical: 14,
-    gap: spacing.sm,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.xl,
+    borderRadius: borderRadius.lg,
+    ...shadows.light,
   },
   frustrateButtonText: {
     color: colors.surface,
     fontSize: 16,
     fontWeight: "600",
+    marginLeft: spacing.sm,
   },
   frustrationLabel: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "600",
     color: colors.textPrimary,
     marginBottom: spacing.lg,
   },
   defaultMessageContainer: {
     backgroundColor: colors.errorLight,
+    padding: spacing.lg,
     borderRadius: borderRadius.md,
-    padding: spacing.md,
-    marginBottom: spacing.lg,
-    borderLeftWidth: 4,
-    borderLeftColor: colors.error,
+    marginBottom: spacing.xl,
+    borderWidth: 1,
+    borderColor: colors.error,
   },
   defaultMessageLabel: {
     fontSize: 12,
-    fontWeight: "500",
+    fontWeight: "600",
     color: colors.error,
     marginBottom: spacing.xs,
   },
   defaultMessage: {
-    fontSize: 14,
+    fontSize: 16,
     color: colors.textPrimary,
-    lineHeight: 18,
+    lineHeight: 22,
   },
   commentsLabel: {
     fontSize: 14,
@@ -584,75 +580,51 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   inputContainer: {
-    backgroundColor: colors.borderLight,
+    borderWidth: 2,
     borderRadius: borderRadius.md,
-    padding: 1,
+    backgroundColor: colors.background,
+    borderColor: colors.error,
   },
   textInput: {
-    backgroundColor: colors.surface,
-    borderRadius: 7,
-    padding: spacing.md,
+    padding: spacing.lg,
     fontSize: 16,
-    color: colors.textPrimary,
-    minHeight: 100,
-    borderWidth: 1,
-    borderColor: colors.border,
+    minHeight: 120,
+    textAlignVertical: "top",
   },
   editModeButtons: {
     flexDirection: "row",
+    justifyContent: "space-between",
     gap: spacing.md,
+    marginTop: spacing.lg,
   },
   cancelButton: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
+    backgroundColor: colors.surface,
+    borderWidth: 2,
     borderColor: colors.textSecondary,
+    paddingVertical: spacing.md,
     borderRadius: borderRadius.md,
-    paddingVertical: 14,
+    alignItems: "center",
   },
   cancelButtonText: {
     color: colors.textSecondary,
     fontSize: 16,
     fontWeight: "600",
   },
-  saveFrustrationButton: {
+  saveButton: {
     flex: 1,
+    backgroundColor: colors.error,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: colors.error,
-    borderRadius: borderRadius.md,
-    paddingVertical: 14,
-    gap: spacing.sm,
-  },
-  saveFrustrationButtonText: {
-    color: colors.surface,
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: spacing.xl,
-  },
-  errorText: {
-    fontSize: 18,
-    color: colors.textSecondary,
-    marginBottom: spacing.xl,
-    textAlign: "center",
-  },
-  backButton: {
-    backgroundColor: colors.primary,
-    borderRadius: borderRadius.md,
-    paddingHorizontal: spacing.xl,
     paddingVertical: spacing.md,
+    borderRadius: borderRadius.md,
   },
-  backButtonText: {
+  saveButtonText: {
     color: colors.surface,
     fontSize: 16,
     fontWeight: "600",
+    marginLeft: spacing.xs,
   },
   footer: {
     backgroundColor: colors.surface,
@@ -662,7 +634,7 @@ const styles = StyleSheet.create({
     paddingTop: spacing.md,
     paddingBottom: spacing.lg,
     flexDirection: "row",
-    justifyContent: "flex-start",
+    justifyContent: "space-between",
     alignItems: "center",
   },
   navButton: {
@@ -681,5 +653,28 @@ const styles = StyleSheet.create({
   },
   navButtonTextDisabled: {
     color: "#C7C7CC",
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: spacing.xl,
+  },
+  errorText: {
+    fontSize: 18,
+    color: colors.textSecondary,
+    marginBottom: spacing.xl,
+    textAlign: "center",
+  },
+  backButton: {
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.xxl,
+    backgroundColor: colors.primary,
+    borderRadius: borderRadius.md,
+  },
+  backButtonText: {
+    color: colors.surface,
+    fontSize: 16,
+    fontWeight: "600",
   },
 });

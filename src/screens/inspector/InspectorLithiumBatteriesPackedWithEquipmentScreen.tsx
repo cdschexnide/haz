@@ -24,52 +24,52 @@ import {
 } from "../../components/ui";
 import { navigateToPackageOutcome } from "../../utils/navigateToPackageOutcome";
 
-interface InspectorMagnetizedMaterialsScreenProps {
+interface InspectorLithiumBatteriesPackedWithEquipmentScreenProps {
   navigation: any;
 }
 
-// AFMAN 24-604 A13.11 Magnetized Material Inspection Conditions
-const MAGNETIZED_INSPECTION_CONDITIONS = [
+// AFMAN 24-604 A13.9 UN3091/UN3481 Lithium Batteries Packed with Equipment
+const LITHIUM_PACKED_INSPECTION_CONDITIONS = [
   {
-    id: "handling-separation",
-    label: "Handling separation from sensitive equipment",
+    id: "compliance-a3392",
+    label: "Compliance with A3.3.9.2 (except A3.3.9.2.3)",
     description:
-      "Maintain 4.6 m (15 ft) separation from compass sensing devices or sensitive equipment during storage.",
-    afmanRef: "AFMAN 24-604 A13.11",
+      "Verify shipment meets A3.3.9.2 requirements with the listed exception.",
+    afmanRef: "AFMAN 24-604 A13.9",
   },
   {
-    id: "field-strength",
-    label: "Field strength within limits",
+    id: "inner-packaging-fully-enclosed",
+    label: "Inner packaging fully encloses cells/batteries",
     description:
-      "Verify shielding reduces field to 5.25 milligauss or less, or compass deviation is 2 degrees or less at 4.6 m; measure with operational meters (ideally two).",
-    afmanRef: "AFMAN 24-604 A13.11",
+      "Inner packagings fully enclose cells/batteries and prevent short circuits.",
+    afmanRef: "AFMAN 24-604 A13.9.2",
   },
   {
-    id: "blocking-bracing",
-    label: "Blocking and bracing adequate",
+    id: "outer-packaging-pg2",
+    label: "Outer packaging meets PG II performance",
     description:
-      "Provide blocking and bracing to prevent movement; package magnetic tubes individually per MIL-E-75 when applicable.",
-    afmanRef: "AFMAN 24-604 A13.11",
+      "Outer packagings meet PG II performance per A13.7.2 requirements.",
+    afmanRef: "AFMAN 24-604 A13.9.2",
   },
   {
-    id: "protective-distance",
-    label: "Protective distance from container exterior",
+    id: "large-packaging-approved",
+    label: "Large packaging approved (if used)",
     description:
-      "Ensure protective distance between magnetic surface and container outside is at least 102 mm (4 inches).",
-    afmanRef: "AFMAN 24-604 A13.11",
+      "Large packagings used are authorized per A13.9.2.3.",
+    afmanRef: "AFMAN 24-604 A13.9.2.3",
   },
   {
-    id: "air-eligibility",
-    label: "Air eligibility confirmed",
+    id: "airdrop-allowance",
+    label: "Airdrop missions handled per A13.9 allowance",
     description:
-      "Materials with field strength over 0.00525 gauss at 4.6 m are forbidden for air movement; confirm eligibility.",
-    afmanRef: "AFMAN 24-604 A13.11",
+      "Equipment may be hand carried in rucksack, airdrop container, or door bundle; no Shipper's Declaration required (if applicable).",
+    afmanRef: "AFMAN 24-604 A13.9.3",
   },
 ];
 
-export default function InspectorMagnetizedMaterialsScreen({
+export default function InspectorLithiumBatteriesPackedWithEquipmentScreen({
   navigation,
-}: InspectorMagnetizedMaterialsScreenProps) {
+}: InspectorLithiumBatteriesPackedWithEquipmentScreenProps) {
   const { inspection, addPackageFrustration, removePackageFrustration } =
     useInspectionForm();
   const { actions } = useHazProStore();
@@ -78,16 +78,17 @@ export default function InspectorMagnetizedMaterialsScreen({
   const [isEditMode, setIsEditMode] = useState(false);
   const [additionalComments, setAdditionalComments] = useState("");
 
-  const currentCondition = MAGNETIZED_INSPECTION_CONDITIONS[currentStep];
-  const totalSteps = MAGNETIZED_INSPECTION_CONDITIONS.length;
+  const currentCondition = LITHIUM_PACKED_INSPECTION_CONDITIONS[currentStep];
+  const totalSteps = LITHIUM_PACKED_INSPECTION_CONDITIONS.length;
 
   const unId =
     inspection?.verificationCopy?.unIdNo ||
     inspection?.extractedContent?.unIdNo;
 
   const existingFrustrations =
-    inspection?.packageFrustrations?.filter(f => f.category === "magnetized") ||
-    [];
+    inspection?.packageFrustrations?.filter(
+      f => f.category === "lithium_battery_packed"
+    ) || [];
   const frustratedCount = existingFrustrations.length;
   const validatedCount = totalSteps - frustratedCount;
 
@@ -96,7 +97,7 @@ export default function InspectorMagnetizedMaterialsScreen({
   );
 
   const DEFAULT_FRUSTRATION_MESSAGE =
-    "This magnetized material inspection condition is not met. Requires re-inspection per AFMAN 24-604 A13.11.";
+    "This lithium batteries packed with equipment inspection condition is not met. Requires re-inspection per AFMAN 24-604 A13.9.";
 
   useEffect(() => {
     actions.setCurrentChevron("package");
@@ -124,7 +125,7 @@ export default function InspectorMagnetizedMaterialsScreen({
 
   const handleSaveFrustration = () => {
     const frustrationData = {
-      category: "magnetized" as const,
+      category: "lithium_battery_packed" as const,
       itemId: currentCondition.id,
       itemLabel: currentCondition.label,
       expectedValues: ["Pass"],
@@ -135,7 +136,7 @@ export default function InspectorMagnetizedMaterialsScreen({
     };
 
     console.log(
-      "💾 [InspectorMagnetizedMaterials] Saving frustration for condition:",
+      "💾 [InspectorLithiumPacked] Saving frustration for condition:",
       currentCondition.id
     );
     addPackageFrustration(frustrationData);
@@ -167,13 +168,14 @@ export default function InspectorMagnetizedMaterialsScreen({
 
   const handleFinalSubmit = () => {
     const currentFrustrations =
-      inspection?.packageFrustrations?.filter(f => f.category === "magnetized") ||
-      [];
+      inspection?.packageFrustrations?.filter(
+        f => f.category === "lithium_battery_packed"
+      ) || [];
 
     if (currentFrustrations.length === 0) {
       Alert.alert(
-        "UN2807 Magnetized Material Inspection Complete",
-        "All A13.11 conditions have been validated successfully.\n\nNo compliance issues were found. Proceeding to package summary.",
+        "Lithium Batteries Packed with Equipment Complete",
+        "All A13.9 conditions have been validated successfully.\n\nNo compliance issues were found. Proceeding to package summary.",
         [
           { text: "Cancel", style: "cancel" },
           {
@@ -188,12 +190,12 @@ export default function InspectorMagnetizedMaterialsScreen({
     }
   };
 
-  if (unId !== "UN2807") {
+  if (unId !== "UN3091" && unId !== "UN3481") {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>
-            Invalid material type for magnetized material inspection
+            Invalid material type for lithium batteries packed with equipment
           </Text>
           <TouchableOpacity
             onPress={() => navigation.goBack()}
@@ -229,7 +231,7 @@ export default function InspectorMagnetizedMaterialsScreen({
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <ScreenHeader
-          title="UN2807 Magnetized Material"
+          title="UN3091/UN3481 Packed with Equipment"
           onBack={() => navigation.goBack()}
           rightContent={
             <Text style={styles.stepIndicator}>

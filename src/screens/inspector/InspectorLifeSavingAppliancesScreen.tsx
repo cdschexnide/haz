@@ -1,19 +1,19 @@
-import React, { useState, useEffect } from "react";
+import { MaterialIcons } from "@expo/vector-icons";
+import React, { useEffect, useState } from "react";
 import {
-  View,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
-  Alert,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { MaterialIcons } from "@expo/vector-icons";
+import { useInspectionForm } from "../../contexts/InspectionFormProvider";
 import { useHazProStore } from "../../stores/useHazProStore";
-import { PackageFrustrationRecord } from "../../types/sddg";
 import {
   ScreenHeader,
   InfoBox,
@@ -22,6 +22,7 @@ import {
   borderRadius,
   shadows,
 } from "../../components/ui";
+import { navigateToPackageOutcome } from "../../utils/navigateToPackageOutcome";
 
 interface InspectorLifeSavingAppliancesScreenProps {
   navigation: any;
@@ -30,54 +31,48 @@ interface InspectorLifeSavingAppliancesScreenProps {
 // AFMAN 24-604 A13.12 Life-Saving Appliances Inspection Conditions
 const LIFE_SAVING_INSPECTION_CONDITIONS = [
   {
-    id: "storage-handling-compliance",
-    label: "Storage and handling compliance",
+    id: "handling-storage",
+    label: "Handling and storage precautions followed",
     description:
-      "Verify materials are stored in cool, well-ventilated areas away from fire hazards and sources of heat or ignition. Verify no rough handling or dropping has occurred.",
-    afmanRef: "AFMAN 24-604 A13.12.1",
-  },
-  {
-    id: "outer-container-integrity",
-    label: "Outer container integrity",
-    description:
-      "Verify weather-resistant fiberboard or other securely closed strong outer container is used and in good condition.",
-    afmanRef: "AFMAN 24-604 A13.12.2.1",
-  },
-  {
-    id: "inner-packaging-adequacy",
-    label: "Inner packaging adequacy",
-    description:
-      "Verify hazardous materials contained in the kit are packed in inner packaging that is adequate to prevent accidental activation.",
-    afmanRef: "AFMAN 24-604 A13.12.2.1",
-  },
-  {
-    id: "cushioning-adequacy",
-    label: "Cushioning adequacy",
-    description:
-      "Verify inner packagings are suitably cushioned to prevent movement during transport.",
-    afmanRef: "AFMAN 24-604 A13.12.2.1",
-  },
-  {
-    id: "component-documentation",
-    label: "Component documentation",
-    description:
-      "Verify all hazardous components contained within the life-saving appliance are properly documented and accounted for.",
+      "Store cool, well-ventilated, away from heat/ignition; no dropping or rough handling.",
     afmanRef: "AFMAN 24-604 A13.12",
   },
   {
-    id: "packaging-standard-compliance",
-    label: "General packaging requirements compliance",
+    id: "outer-packaging",
+    label: "Weather-resistant strong outer packaging",
     description:
-      "Verify packagings meet the general requirements of A3.1. UN specification packaging is not required for life-saving appliances.",
-    afmanRef: "AFMAN 24-604 A13.12.2.1",
+      "Use weather-resistant fiberboard or strong outer container; UN specification packaging not required.",
+    afmanRef: "AFMAN 24-604 A13.12",
+  },
+  {
+    id: "inner-packaging-prevents-activation",
+    label: "Inner packaging prevents accidental activation",
+    description:
+      "Inner packaging prevents accidental activation and equipment is cushioned to prevent movement.",
+    afmanRef: "AFMAN 24-604 A13.12",
+  },
+  {
+    id: "general-requirements",
+    label: "General packaging requirements met",
+    description:
+      "Packaging meets A3.1 general requirements for life-saving appliances.",
+    afmanRef: "AFMAN 24-604 A13.12",
+  },
+  {
+    id: "individually-assigned-kits",
+    label: "Individually assigned kits handled per exception (if applicable)",
+    description:
+      "If hand carried, use strong outer container or A-3 bag; crew informs ATOC and storage per aircraft commander; while in possession, no other requirements apply.",
+    afmanRef: "AFMAN 24-604 A13.12",
   },
 ];
 
 export default function InspectorLifeSavingAppliancesScreen({
   navigation,
 }: InspectorLifeSavingAppliancesScreenProps) {
-  const { state, actions } = useHazProStore();
-  const sddgInspectionContext = state.sddgInspectionContext;
+  const { inspection, addPackageFrustration, removePackageFrustration } =
+    useInspectionForm();
+  const { actions } = useHazProStore();
 
   const [currentStep, setCurrentStep] = useState(0);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -86,17 +81,12 @@ export default function InspectorLifeSavingAppliancesScreen({
   const currentCondition = LIFE_SAVING_INSPECTION_CONDITIONS[currentStep];
   const totalSteps = LIFE_SAVING_INSPECTION_CONDITIONS.length;
 
-  // Get current UN ID for verification
   const unId =
-    sddgInspectionContext?.verificationCopy?.unIdNo ||
-    sddgInspectionContext?.extractedContent?.unIdNo;
-  const properShippingName =
-    sddgInspectionContext?.verificationCopy?.properShippingName ||
-    sddgInspectionContext?.extractedContent?.properShippingName;
+    inspection?.verificationCopy?.unIdNo ||
+    inspection?.extractedContent?.unIdNo;
 
-  // Get existing package frustrations for life-saving appliances
   const existingFrustrations =
-    state.sddgInspectionContext?.packageFrustrations?.filter(
+    inspection?.packageFrustrations?.filter(
       f => f.category === "life-saving"
     ) || [];
   const frustratedCount = existingFrustrations.length;
@@ -106,34 +96,21 @@ export default function InspectorLifeSavingAppliancesScreen({
     f => f.itemId === currentCondition?.id
   );
 
-  console.log("🛟 [InspectorLifeSavingAppliances] Component rendered");
-  console.log("🛟 [InspectorLifeSavingAppliances] UN ID:", unId);
-  console.log("🛟 [InspectorLifeSavingAppliances] Current step:", currentStep);
-  console.log(
-    "🛟 [InspectorLifeSavingAppliances] Existing frustrations:",
-    existingFrustrations.length
-  );
-
-  // Default frustration message
   const DEFAULT_FRUSTRATION_MESSAGE =
     "This life-saving appliance inspection condition is not met. Requires re-inspection per AFMAN 24-604 A13.12.";
 
-  // Set active chevron when component mounts
   useEffect(() => {
     actions.setCurrentChevron("package");
   }, []);
 
   useEffect(() => {
-    // Reset edit mode when changing steps
     setIsEditMode(false);
     setAdditionalComments("");
   }, [currentStep]);
 
   const handleValidate = () => {
-    // Remove any existing frustration for this condition
-    actions.removePackageFrustration(currentCondition.id);
+    removePackageFrustration(currentCondition.id);
 
-    // Move to next step
     if (currentStep < totalSteps - 1) {
       setCurrentStep(currentStep + 1);
     } else {
@@ -142,34 +119,28 @@ export default function InspectorLifeSavingAppliancesScreen({
   };
 
   const handleFrustrate = () => {
-    // Switch to edit mode to add comments
     setIsEditMode(true);
     setAdditionalComments(currentFrustration?.additionalComments || "");
   };
 
   const handleSaveFrustration = () => {
-    // Save the frustration
-    const frustrationData: PackageFrustrationRecord = {
-      id: currentCondition.id,
-      category: "life-saving",
+    const frustrationData = {
+      category: "life-saving" as const,
       itemId: currentCondition.id,
       itemLabel: currentCondition.label,
       expectedValues: ["Pass"],
-      verificationStatus: "incorrect",
-      frustrationDate: new Date(),
+      verificationStatus: "incorrect" as const,
       defaultMessage: DEFAULT_FRUSTRATION_MESSAGE,
       additionalComments: additionalComments.trim() || undefined,
-      inspector: sddgInspectionContext?.inspector,
       afmanReference: currentCondition.afmanRef,
     };
 
     console.log(
-      "💾 [InspectorLifeSavingAppliances] Saving frustration for condition:",
+      "💾 [InspectorLifeSaving] Saving frustration for condition:",
       currentCondition.id
     );
-    actions.addPackageFrustration(frustrationData);
+    addPackageFrustration(frustrationData);
 
-    // Move to next step
     if (currentStep < totalSteps - 1) {
       setCurrentStep(currentStep + 1);
     } else {
@@ -188,58 +159,44 @@ export default function InspectorLifeSavingAppliancesScreen({
     }
   };
 
-  const handleFinalSubmit = () => {
-    console.log("🚨 [InspectorLifeSavingAppliances] handleFinalSubmit called");
+  const handleContinue = () => {
+    navigation.navigate("InspectorSpecialProvisionsScreen", {
+      continueRoute: "MLDetectionScreen",
+      continueParams: { unIdNo: unId || "" },
+    });
+  };
 
+  const handleFinalSubmit = () => {
     const currentFrustrations =
-      state.sddgInspectionContext?.packageFrustrations?.filter(
+      inspection?.packageFrustrations?.filter(
         f => f.category === "life-saving"
       ) || [];
-    const currentFrustratedCount = currentFrustrations.length;
 
-    console.log(
-      "🚨 [InspectorLifeSavingAppliances] frustratedCount:",
-      currentFrustratedCount
-    );
-
-    const materialType =
-      unId === "UN3072"
-        ? "UN3072 Life-Saving Appliances (Not Self-Inflating)"
-        : "UN2990 Life-Saving Appliances (Self-Inflating)";
-
-    if (currentFrustratedCount === 0) {
-      // No frustrations - proceed to package frustration summary
+    if (currentFrustrations.length === 0) {
       Alert.alert(
-        `${materialType} Inspection Complete`,
-        "All conditions have been validated successfully.\n\nNo compliance issues were found. Proceeding to package summary.",
+        "Life-Saving Appliances Inspection Complete",
+        "All A13.12 conditions have been validated successfully.\n\nNo compliance issues were found. Proceeding to package summary.",
         [
           { text: "Cancel", style: "cancel" },
           {
             text: "Continue",
             style: "default",
-            onPress: () => {
-              // Navigate to Package Markings Screen
-              navigation.navigate("InspectorAttachment28WizardScreen");
-            },
+            onPress: handleContinue,
           },
         ]
       );
     } else {
-      // Has frustrations - navigate to package markings screen
-      navigation.navigate("InspectorAttachment28WizardScreen");
+      handleContinue();
     }
   };
 
-  // Verify this is UN3072 or UN2990
-  if (unId !== "UN3072" && unId !== "UN2990") {
+  if (unId !== "UN2990" && unId !== "UN3072") {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>
             Invalid material type for life-saving appliances inspection
           </Text>
-          <Text style={styles.errorSubtext}>Expected: UN3072 or UN2990</Text>
-          <Text style={styles.errorSubtext}>Found: {unId}</Text>
           <TouchableOpacity
             onPress={() => navigation.goBack()}
             style={styles.backButton}
@@ -251,7 +208,7 @@ export default function InspectorLifeSavingAppliancesScreen({
     );
   }
 
-  if (!currentCondition || !sddgInspectionContext) {
+  if (!currentCondition || !inspection) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.errorContainer}>
@@ -267,11 +224,6 @@ export default function InspectorLifeSavingAppliancesScreen({
     );
   }
 
-  const materialType =
-    unId === "UN3072"
-      ? "Life-Saving Appliances (Not Self-Inflating)"
-      : "Life-Saving Appliances (Self-Inflating)";
-
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
@@ -279,7 +231,7 @@ export default function InspectorLifeSavingAppliancesScreen({
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <ScreenHeader
-          title={`${unId} ${materialType}`}
+          title="UN2990/UN3072 Life-Saving Appliances"
           onBack={() => navigation.goBack()}
           rightContent={
             <Text style={styles.stepIndicator}>
@@ -288,7 +240,6 @@ export default function InspectorLifeSavingAppliancesScreen({
           }
         />
 
-        {/* Progress Bar */}
         <View style={styles.progressBarContainer}>
           <View style={styles.progressBarBackground}>
             <View
@@ -298,6 +249,9 @@ export default function InspectorLifeSavingAppliancesScreen({
               ]}
             />
           </View>
+          <Text style={styles.progressText}>
+            Validated: {validatedCount} | Frustrated: {frustratedCount}
+          </Text>
         </View>
 
         <View style={styles.mainContent}>
@@ -307,10 +261,8 @@ export default function InspectorLifeSavingAppliancesScreen({
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >
-            {/* Current Condition */}
             <View style={styles.fieldCard}>
               {!isEditMode ? (
-                /* Review Mode UI */
                 <>
                   <View style={styles.fieldContent}>
                     <View style={styles.fieldHeader}>
@@ -325,18 +277,6 @@ export default function InspectorLifeSavingAppliancesScreen({
                     <View style={styles.previewContainer}>
                       <Text style={styles.previewText}>
                         {currentCondition.description}
-                      </Text>
-                    </View>
-
-                    {/* AFMAN Reference */}
-                    <View style={styles.afmanReference}>
-                      <MaterialIcons
-                        name="menu-book"
-                        size={16}
-                        color={colors.primary}
-                      />
-                      <Text style={styles.afmanReferenceText}>
-                        {currentCondition.afmanRef}
                       </Text>
                     </View>
 
@@ -365,20 +305,27 @@ export default function InspectorLifeSavingAppliancesScreen({
                       style={styles.frustrateButton}
                       onPress={handleFrustrate}
                     >
-                      <MaterialIcons name="cancel" size={24} color={colors.surface} />
+                      <MaterialIcons
+                        name="cancel"
+                        size={24}
+                        color={colors.surface}
+                      />
                       <Text style={styles.frustrateButtonText}>Frustrate</Text>
                     </TouchableOpacity>
                   </View>
                 </>
               ) : (
-                /* Frustration Edit Mode UI */
                 <>
                   <View style={styles.fieldContent}>
                     <View style={styles.fieldHeader}>
                       <Text style={styles.fieldLabel}>
                         {currentCondition.label}
                       </Text>
-                      <MaterialIcons name="error" size={24} color={colors.error} />
+                      <MaterialIcons
+                        name="error"
+                        size={24}
+                        color={colors.error}
+                      />
                     </View>
 
                     <Text style={styles.frustrationLabel}>
@@ -422,7 +369,11 @@ export default function InspectorLifeSavingAppliancesScreen({
                       style={styles.saveButton}
                       onPress={handleSaveFrustration}
                     >
-                      <MaterialIcons name="save" size={20} color={colors.surface} />
+                      <MaterialIcons
+                        name="save"
+                        size={20}
+                        color={colors.surface}
+                      />
                       <Text style={styles.saveButtonText}>
                         Save Frustration
                       </Text>
@@ -434,7 +385,6 @@ export default function InspectorLifeSavingAppliancesScreen({
           </ScrollView>
         </View>
 
-        {/* Navigation Footer */}
         {!isEditMode && (
           <View style={styles.footer}>
             <TouchableOpacity
@@ -492,6 +442,12 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     borderRadius: 2,
   },
+  progressText: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    textAlign: "center",
+    marginTop: spacing.sm,
+  },
   mainContent: {
     flex: 1,
     flexDirection: "row",
@@ -546,20 +502,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.textPrimary,
     lineHeight: 22,
-  },
-  afmanReference: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: colors.infoLight,
-    padding: 10,
-    borderRadius: 6,
-    marginBottom: spacing.lg,
-  },
-  afmanReferenceText: {
-    marginLeft: 6,
-    fontSize: 13,
-    color: colors.primary,
-    fontWeight: "500",
   },
   complianceButtons: {
     flexDirection: "row",
@@ -714,13 +656,7 @@ const styles = StyleSheet.create({
   errorText: {
     fontSize: 18,
     color: colors.textSecondary,
-    marginBottom: 10,
-    textAlign: "center",
-  },
-  errorSubtext: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    marginBottom: 5,
+    marginBottom: spacing.xl,
     textAlign: "center",
   },
   backButton: {
@@ -728,7 +664,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xxl,
     backgroundColor: colors.primary,
     borderRadius: borderRadius.md,
-    marginTop: spacing.xl,
   },
   backButtonText: {
     color: colors.surface,

@@ -1,19 +1,18 @@
-import React, { useState, useEffect } from "react";
+import { MaterialIcons } from "@expo/vector-icons";
+import React, { useEffect, useState } from "react";
 import {
-  View,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
-  Alert,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { MaterialIcons } from "@expo/vector-icons";
 import { useInspectionForm } from "../../contexts/InspectionFormProvider";
-import { PackageFrustrationRecord } from "../../types/sddg";
 import { useHazProStore } from "../../stores/useHazProStore";
 import {
   ScreenHeader,
@@ -23,109 +22,55 @@ import {
   borderRadius,
   shadows,
 } from "../../components/ui";
+import { navigateToPackageOutcome } from "../../utils/navigateToPackageOutcome";
 
 interface InspectorLithiumBatteriesScreenProps {
   navigation: any;
 }
 
-// AFMAN 24-604 A13.7 Lithium Batteries (UN3480/UN3090) Inspection Requirements
+// AFMAN 24-604 A13.7 UN3090/UN3480 Lithium Batteries Inspection Conditions
 const LITHIUM_BATTERY_INSPECTION_CONDITIONS = [
   {
-    id: "un-38-3-test-requirements",
-    label: "UN Manual of Tests and Criteria (38.3) compliance verified",
+    id: "compliance-a3392",
+    label: "Compliance with A3.3.9.2 (except A3.3.9.2.3)",
     description:
-      "Verify batteries meet UN Manual of Tests and Criteria requirements per A3.3.9.2 (except A3.3.9.2.3)",
-    afmanRef: "AFMAN 24-604 A13.7.1 & A3.3.9.2",
+      "Verify shipment meets A3.3.9.2 requirements with the listed exception.",
+    afmanRef: "AFMAN 24-604 A13.7",
   },
   {
-    id: "non-metallic-inner-packaging",
-    label: "Non-metallic inner packaging completely encloses battery",
+    id: "inner-packaging-nonmetallic",
+    label: "Non-metallic inner packaging fully encloses batteries",
     description:
-      "Verify non-metallic inner packaging completely encloses the cell or battery and separates from contact with equipment or conductive materials",
+      "Cells/batteries are fully enclosed in non-metallic inner packaging and separated from conductive materials.",
     afmanRef: "AFMAN 24-604 A13.7.2.1",
   },
   {
-    id: "short-circuit-protection",
-    label: "Protection against external short circuits verified",
+    id: "outer-packaging-pg2",
+    label: "Outer packaging meets PG II performance",
     description:
-      "Verify batteries have adequate protection against external short circuits including terminal protection and secure placement",
+      "Outer packaging meets the A13.7.2.1 allowed types with Packing Group II performance.",
     afmanRef: "AFMAN 24-604 A13.7.2.1",
   },
   {
-    id: "outer-packaging-compliance",
-    label: "Outer packaging meets UN specification requirements",
+    id: "heavy-batteries-secured",
+    label: "Heavy batteries secured and protected (over 12 kg)",
     description:
-      "Verify outer packaging is metal box (4A, 4B, 4N), wooden box (4C1, 4C2, 4D, 4F), fiberboard box (4G), solid plastic box (4H1, 4H2), or appropriate drum/jerrican meeting PG II performance level",
-    afmanRef: "AFMAN 24-604 A13.7.2.1",
-  },
-  {
-    id: "battery-terminals-secure",
-    label: "Battery terminals properly secured and protected",
-    description:
-      "Verify battery terminals do not support weight of other elements and are secured to prevent inadvertent movement",
+      "Over 12 kg batteries use strong outer packaging or pallets; secure to prevent movement and avoid weight on terminals; identify as P4 for passenger movement when applicable.",
     afmanRef: "AFMAN 24-604 A13.7.2.2",
   },
   {
-    id: "weight-limit-compliance",
-    label: "Battery weight and packaging requirements verified",
+    id: "large-packaging-approved",
+    label: "Large packaging approved (if used)",
     description:
-      "For batteries >12kg: verify use of strong outer packagings, protective enclosures, or pallets. For batteries ≤12kg: verify UN specification packaging compliance",
-    afmanRef: "AFMAN 24-604 A13.7.2.1 & A13.7.2.2",
-  },
-  {
-    id: "large-packaging-compliance",
-    label: "Large packaging requirements verified (if applicable)",
-    description:
-      "For single batteries in large packagings: verify metal with non-conductive lining (50A, 50B, 50N), rigid plastic (50H), wooden (50C, 50D, 50F), or rigid fiberboard (50G) meeting PG II performance level",
+      "Large packagings used are authorized per A13.7.2.3.",
     afmanRef: "AFMAN 24-604 A13.7.2.3",
   },
   {
-    id: "separation-from-hazmat",
-    label: "Proper separation from incompatible hazardous materials",
+    id: "segregation-restrictions",
+    label: "Segregation restrictions met",
     description:
-      "Verify lithium batteries (UN3480/UN3090) are not in same package/overpack as Class 1 (except 1.4S), Division 2.1, Class 3, Division 4.1, or Division 5.1 materials",
+      "UN3090/UN3480 not packaged or overpacked with Class 1 (except 1.4S), Division 2.1, Class 3, Division 4.1, or Division 5.1 materials.",
     afmanRef: "AFMAN 24-604 A13.7.3",
-  },
-  {
-    id: "watt-hour-rating-verification",
-    label: "Watt-hour rating verification (UN3480 only)",
-    description:
-      "For UN3480 lithium-ion batteries: verify watt-hour rating is clearly marked and within acceptable limits for transport classification",
-    afmanRef: "AFMAN 24-604 A13.7 & Table A3.5",
-    isConditional: true,
-    condition: "UN3480",
-  },
-  {
-    id: "lithium-content-verification",
-    label: "Lithium content verification (UN3090 only)",
-    description:
-      "For UN3090 lithium metal batteries: verify lithium content is clearly marked and within acceptable limits for transport classification",
-    afmanRef: "AFMAN 24-604 A13.7 & Table A3.5",
-    isConditional: true,
-    condition: "UN3090",
-  },
-  {
-    id: "excepted-quantity-compliance",
-    label: "Excepted quantity requirements verified (if applicable)",
-    description:
-      "If claiming excepted quantity status: verify compliance with quantity limits, packaging requirements, and marking/labeling per Table A3.5",
-    afmanRef: "AFMAN 24-604 Table A3.5",
-    isConditional: true,
-    condition: "excepted_quantity",
-  },
-  {
-    id: "damage-assessment",
-    label: "Battery condition and damage assessment",
-    description:
-      "Verify batteries are not defective, damaged, or showing signs of leakage. Damaged batteries are prohibited from air transport",
-    afmanRef: "AFMAN 24-604 A13.7 General Safety Requirements",
-  },
-  {
-    id: "packaging-integrity",
-    label: "Overall packaging integrity verification",
-    description:
-      "Verify complete packaging system maintains integrity, proper closures, and adequate protection for air transport conditions",
-    afmanRef: "AFMAN 24-604 A13.7.2.1",
   },
 ];
 
@@ -140,36 +85,13 @@ export default function InspectorLithiumBatteriesScreen({
   const [isEditMode, setIsEditMode] = useState(false);
   const [additionalComments, setAdditionalComments] = useState("");
 
-  // Get current UN ID for verification and conditional requirements
+  const currentCondition = LITHIUM_BATTERY_INSPECTION_CONDITIONS[currentStep];
+  const totalSteps = LITHIUM_BATTERY_INSPECTION_CONDITIONS.length;
+
   const unId =
     inspection?.verificationCopy?.unIdNo ||
     inspection?.extractedContent?.unIdNo;
-  const properShippingName =
-    inspection?.verificationCopy?.properShippingName ||
-    inspection?.extractedContent?.properShippingName;
 
-  // Filter conditions based on UN ID and requirements
-  const getApplicableConditions = () => {
-    return LITHIUM_BATTERY_INSPECTION_CONDITIONS.filter(condition => {
-      if (!condition.isConditional) return true;
-
-      if (condition.condition === "UN3480") return unId === "UN3480";
-      if (condition.condition === "UN3090") return unId === "UN3090";
-      if (condition.condition === "excepted_quantity") {
-        // This would need to be determined based on the specific shipment data
-        // For now, include it for inspection consideration
-        return true;
-      }
-
-      return true;
-    });
-  };
-
-  const applicableConditions = getApplicableConditions();
-  const currentCondition = applicableConditions[currentStep];
-  const totalSteps = applicableConditions.length;
-
-  // Get existing package frustrations for lithium batteries
   const existingFrustrations =
     inspection?.packageFrustrations?.filter(
       f => f.category === "lithium_battery"
@@ -181,37 +103,21 @@ export default function InspectorLithiumBatteriesScreen({
     f => f.itemId === currentCondition?.id
   );
 
-  console.log("🔋 [InspectorLithiumBatteries] Component rendered");
-  console.log("🔋 [InspectorLithiumBatteries] UN ID:", unId);
-  console.log("🔋 [InspectorLithiumBatteries] Current step:", currentStep);
-  console.log(
-    "🔋 [InspectorLithiumBatteries] Applicable conditions:",
-    applicableConditions.length
-  );
-  console.log(
-    "🔋 [InspectorLithiumBatteries] Existing frustrations:",
-    existingFrustrations.length
-  );
+  const DEFAULT_FRUSTRATION_MESSAGE =
+    "This lithium battery inspection condition is not met. Requires re-inspection per AFMAN 24-604 A13.7.";
 
-  // Default frustration message
-  const DEFAULT_FRUSTRATION_MESSAGE = `This ${unId} lithium battery packaging requirement is not met. Requires re-inspection per AFMAN 24-604 A13.7.`;
-
-  // Set active chevron when component mounts
   useEffect(() => {
     actions.setCurrentChevron("package");
   }, []);
 
   useEffect(() => {
-    // Reset edit mode when changing steps
     setIsEditMode(false);
     setAdditionalComments("");
   }, [currentStep]);
 
   const handleValidate = () => {
-    // Remove any existing frustration for this condition
     removePackageFrustration(currentCondition.id);
 
-    // Move to next step
     if (currentStep < totalSteps - 1) {
       setCurrentStep(currentStep + 1);
     } else {
@@ -220,13 +126,11 @@ export default function InspectorLithiumBatteriesScreen({
   };
 
   const handleFrustrate = () => {
-    // Switch to edit mode to add comments
     setIsEditMode(true);
     setAdditionalComments(currentFrustration?.additionalComments || "");
   };
 
   const handleSaveFrustration = () => {
-    // Save the frustration
     const frustrationData = {
       category: "lithium_battery" as const,
       itemId: currentCondition.id,
@@ -244,7 +148,6 @@ export default function InspectorLithiumBatteriesScreen({
     );
     addPackageFrustration(frustrationData);
 
-    // Move to next step
     if (currentStep < totalSteps - 1) {
       setCurrentStep(currentStep + 1);
     } else {
@@ -263,53 +166,43 @@ export default function InspectorLithiumBatteriesScreen({
     }
   };
 
-  const handleFinalSubmit = () => {
-    console.log("🚨 [InspectorLithiumBatteries] handleFinalSubmit called");
+  const handleContinue = () => {
+    navigation.navigate("InspectorSpecialProvisionsScreen", {
+      continueRoute: "MLDetectionScreen",
+      continueParams: { unIdNo: unId || "" },
+    });
+  };
 
+  const handleFinalSubmit = () => {
     const currentFrustrations =
       inspection?.packageFrustrations?.filter(
         f => f.category === "lithium_battery"
       ) || [];
-    const currentFrustratedCount = currentFrustrations.length;
 
-    console.log(
-      "🚨 [InspectorLithiumBatteries] frustratedCount:",
-      currentFrustratedCount
-    );
-
-    if (currentFrustratedCount === 0) {
-      // No frustrations - proceed to package markings
+    if (currentFrustrations.length === 0) {
       Alert.alert(
-        `${unId} Lithium Battery Inspection Complete`,
-        "All packaging requirements have been validated successfully.\\n\\nNo compliance issues were found. Proceeding to package markings inspection.",
+        "Lithium Battery Inspection Complete",
+        "All A13.7 conditions have been validated successfully.\n\nNo compliance issues were found. Proceeding to package summary.",
         [
           { text: "Cancel", style: "cancel" },
           {
             text: "Continue",
             style: "default",
-            onPress: () => {
-              // Navigate to Package Markings Screen
-              navigation.navigate("InspectorAttachment28WizardScreen");
-            },
+            onPress: handleContinue,
           },
         ]
       );
     } else {
-      // Has frustrations - navigate to package markings screen
-      navigation.navigate("InspectorAttachment28WizardScreen");
+      handleContinue();
     }
   };
 
-  // Verify this is UN3480 or UN3090
   if (unId !== "UN3480" && unId !== "UN3090") {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>
             Invalid material type for lithium battery inspection
-          </Text>
-          <Text style={styles.errorSubText}>
-            Expected UN3480 or UN3090, found: {unId || "Unknown"}
           </Text>
           <TouchableOpacity
             onPress={() => navigation.goBack()}
@@ -338,12 +231,6 @@ export default function InspectorLithiumBatteriesScreen({
     );
   }
 
-  const getBatteryTypeDisplay = () => {
-    if (unId === "UN3480") return "Lithium Ion Batteries";
-    if (unId === "UN3090") return "Lithium Metal Batteries";
-    return "Lithium Batteries";
-  };
-
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
@@ -351,7 +238,7 @@ export default function InspectorLithiumBatteriesScreen({
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <ScreenHeader
-          title={`${unId} ${getBatteryTypeDisplay()}`}
+          title="UN3090/UN3480 Lithium Batteries"
           onBack={() => navigation.goBack()}
           rightContent={
             <Text style={styles.stepIndicator}>
@@ -360,7 +247,6 @@ export default function InspectorLithiumBatteriesScreen({
           }
         />
 
-        {/* Progress Bar */}
         <View style={styles.progressBarContainer}>
           <View style={styles.progressBarBackground}>
             <View
@@ -370,17 +256,8 @@ export default function InspectorLithiumBatteriesScreen({
               ]}
             />
           </View>
-        </View>
-
-        {/* Material Info Section */}
-        <View style={styles.materialInfoSection}>
-          <Text style={styles.materialInfoLabel}>CURRENT MATERIAL</Text>
-          <Text style={styles.materialInfoText}>UN ID: {unId}</Text>
-          <Text style={styles.materialInfoText}>
-            Proper Shipping Name: {properShippingName}
-          </Text>
-          <Text style={styles.materialInfoText}>
-            Battery Type: {getBatteryTypeDisplay()}
+          <Text style={styles.progressText}>
+            Validated: {validatedCount} | Frustrated: {frustratedCount}
           </Text>
         </View>
 
@@ -391,23 +268,14 @@ export default function InspectorLithiumBatteriesScreen({
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >
-            {/* Current Condition */}
             <View style={styles.fieldCard}>
               {!isEditMode ? (
-                /* Review Mode UI */
                 <>
                   <View style={styles.fieldContent}>
                     <View style={styles.fieldHeader}>
                       <Text style={styles.fieldLabel}>
                         {currentCondition.label}
                       </Text>
-                      {currentCondition.isConditional && (
-                        <View style={styles.conditionalBadge}>
-                          <Text style={styles.conditionalBadgeText}>
-                            {currentCondition.condition?.toUpperCase()}
-                          </Text>
-                        </View>
-                      )}
                     </View>
 
                     <Text style={styles.descriptionLabel}>
@@ -416,13 +284,6 @@ export default function InspectorLithiumBatteriesScreen({
                     <View style={styles.previewContainer}>
                       <Text style={styles.previewText}>
                         {currentCondition.description}
-                      </Text>
-                    </View>
-
-                    <View style={styles.afmanReference}>
-                      <MaterialIcons name="book" size={16} color={colors.primary} />
-                      <Text style={styles.afmanReferenceText}>
-                        {currentCondition.afmanRef}
                       </Text>
                     </View>
 
@@ -451,20 +312,27 @@ export default function InspectorLithiumBatteriesScreen({
                       style={styles.frustrateButton}
                       onPress={handleFrustrate}
                     >
-                      <MaterialIcons name="cancel" size={24} color={colors.surface} />
+                      <MaterialIcons
+                        name="cancel"
+                        size={24}
+                        color={colors.surface}
+                      />
                       <Text style={styles.frustrateButtonText}>Frustrate</Text>
                     </TouchableOpacity>
                   </View>
                 </>
               ) : (
-                /* Frustration Edit Mode UI */
                 <>
                   <View style={styles.fieldContent}>
                     <View style={styles.fieldHeader}>
                       <Text style={styles.fieldLabel}>
                         {currentCondition.label}
                       </Text>
-                      <MaterialIcons name="error" size={24} color={colors.error} />
+                      <MaterialIcons
+                        name="error"
+                        size={24}
+                        color={colors.error}
+                      />
                     </View>
 
                     <Text style={styles.frustrationLabel}>
@@ -508,7 +376,11 @@ export default function InspectorLithiumBatteriesScreen({
                       style={styles.saveButton}
                       onPress={handleSaveFrustration}
                     >
-                      <MaterialIcons name="save" size={20} color={colors.surface} />
+                      <MaterialIcons
+                        name="save"
+                        size={20}
+                        color={colors.surface}
+                      />
                       <Text style={styles.saveButtonText}>
                         Save Frustration
                       </Text>
@@ -520,7 +392,6 @@ export default function InspectorLithiumBatteriesScreen({
           </ScrollView>
         </View>
 
-        {/* Navigation Footer */}
         {!isEditMode && (
           <View style={styles.footer}>
             <TouchableOpacity
@@ -562,28 +433,9 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     color: colors.primary,
   },
-  materialInfoSection: {
-    backgroundColor: colors.warningLight,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    margin: spacing.lg,
-    borderWidth: 1,
-    borderColor: colors.warning,
-  },
-  materialInfoLabel: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: colors.warning,
-    marginBottom: 6,
-  },
-  materialInfoText: {
-    fontSize: 13,
-    color: colors.textPrimary,
-    marginBottom: 2,
-  },
   progressBarContainer: {
     paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.md,
+    paddingVertical: spacing.md,
     backgroundColor: colors.surface,
   },
   progressBarBackground: {
@@ -596,6 +448,12 @@ const styles = StyleSheet.create({
     height: "100%",
     backgroundColor: colors.primary,
     borderRadius: 2,
+  },
+  progressText: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    textAlign: "center",
+    marginTop: spacing.sm,
   },
   mainContent: {
     flex: 1,
@@ -632,18 +490,6 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     flex: 1,
   },
-  conditionalBadge: {
-    backgroundColor: colors.warning,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: borderRadius.lg,
-    marginLeft: spacing.sm,
-  },
-  conditionalBadgeText: {
-    fontSize: 10,
-    fontWeight: "600",
-    color: colors.surface,
-  },
   descriptionLabel: {
     fontSize: 14,
     fontWeight: "500",
@@ -663,20 +509,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.textPrimary,
     lineHeight: 22,
-  },
-  afmanReference: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: colors.infoLight,
-    padding: 10,
-    borderRadius: 6,
-    marginBottom: spacing.lg,
-  },
-  afmanReferenceText: {
-    marginLeft: 6,
-    fontSize: 13,
-    color: colors.primary,
-    fontWeight: "500",
   },
   complianceButtons: {
     flexDirection: "row",
@@ -830,12 +662,6 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 18,
-    color: colors.textSecondary,
-    marginBottom: spacing.sm,
-    textAlign: "center",
-  },
-  errorSubText: {
-    fontSize: 14,
     color: colors.textSecondary,
     marginBottom: spacing.xl,
     textAlign: "center",

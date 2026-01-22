@@ -1,184 +1,216 @@
-import React, { useState, useEffect, useMemo } from "react";
+import { MaterialIcons } from "@expo/vector-icons";
+import React, { useEffect, useState } from "react";
 import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
   TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { MaterialIcons } from "@expo/vector-icons";
 import { useInspectionForm } from "../../contexts/InspectionFormProvider";
-import {
-  DryIceShipmentData,
-  DryIceInspectionItem,
-  VerificationStatus,
-} from "../../types/dryIceInspection";
-import {
-  generateDryIceInspectionItems,
-  getDefaultFrustrationMessage,
-} from "../../utils/dryIceInspectionItems";
 import { useHazProStore } from "../../stores/useHazProStore";
 import {
   ScreenHeader,
-  StepIndicator,
   InfoBox,
   colors,
   spacing,
   borderRadius,
   shadows,
 } from "../../components/ui";
+import { navigateToPackageOutcome } from "../../utils/navigateToPackageOutcome";
 
 interface InspectorDryIceScreenProps {
   navigation: any;
-  route?: {
-    params?: {
-      dryIceData?: DryIceShipmentData;
-    };
-  };
 }
+
+// AFMAN 24-604 A13.10 UN1845 Dry Ice Inspection Conditions
+const DRY_ICE_INSPECTION_CONDITIONS = [
+  {
+    id: "handling-ventilation",
+    label: "Handling and storage in ventilated areas",
+    description:
+      "Confirm storage in well-ventilated areas, avoid contact hazards, and maximize ventilation during ground operations.",
+    afmanRef: "AFMAN 24-604 A13.10",
+  },
+  {
+    id: "no-hermetic-seal",
+    label: "No hermetically sealed containers",
+    description:
+      "Verify packaging permits CO2 release and prevents pressure buildup; hermetically sealed containers are not used.",
+    afmanRef: "AFMAN 24-604 A13.10",
+  },
+  {
+    id: "packaging-materials",
+    label: "Authorized vented packaging used",
+    description:
+      "Dry ice wrapped in kraft paper, secured with tape, and packed in fiberboard boxes, polystyrene foam containers, or other suitable vented packaging; UN specification packaging not required.",
+    afmanRef: "AFMAN 24-604 A13.10",
+  },
+  {
+    id: "medical-shipments",
+    label: "Medical shipment prep verified (if applicable)",
+    description:
+      "If medical shipment, preparation follows DLAR 4145.21/TB MED 284/NAVSUPINST 4610.31A.",
+    afmanRef: "AFMAN 24-604 A13.10",
+  },
+  {
+    id: "non-haz-shipments",
+    label: "Non-hazard shipments with dry ice use vented packaging",
+    description:
+      "Non-hazard shipments using dry ice are packaged with venting as required.",
+    afmanRef: "AFMAN 24-604 A13.10",
+  },
+];
 
 export default function InspectorDryIceScreen({
   navigation,
-  route,
 }: InspectorDryIceScreenProps) {
   const { inspection, addPackageFrustration, removePackageFrustration } =
     useInspectionForm();
   const { actions } = useHazProStore();
+
   const [currentStep, setCurrentStep] = useState(0);
   const [isEditMode, setIsEditMode] = useState(false);
   const [additionalComments, setAdditionalComments] = useState("");
 
-  // Get SDDG Key 16 quantity data for dry ice inspection
-  const getSDDGQuantityPacking = (): string | undefined => {
-    const verificationData = inspection?.verificationCopy;
-    const extractedData = inspection?.extractedContent;
+  const currentCondition = DRY_ICE_INSPECTION_CONDITIONS[currentStep];
+  const totalSteps = DRY_ICE_INSPECTION_CONDITIONS.length;
 
-    // Try to get quantity and packing from verification data or extracted content
-    const quantityPacking =
-      verificationData?.quantityAndPacking || extractedData?.quantityAndPacking;
+  const unId =
+    inspection?.verificationCopy?.unIdNo ||
+    inspection?.extractedContent?.unIdNo;
 
-    return quantityPacking;
-  };
+  const existingFrustrations =
+    inspection?.packageFrustrations?.filter(f => f.category === "dryice") ||
+    [];
+  const frustratedCount = existingFrustrations.length;
+  const validatedCount = totalSteps - frustratedCount;
 
-  const inspectionItems = useMemo(() => {
-    const sddgQuantityPacking = getSDDGQuantityPacking();
-    return generateDryIceInspectionItems(sddgQuantityPacking);
-  }, [inspection]);
-
-  const [items, setItems] = useState<DryIceInspectionItem[]>(inspectionItems);
-
-  const currentItem = items[currentStep];
-  const totalSteps = items.length;
-
-  // Get dry ice frustrations from context
-  const packageFrustrations = inspection?.packageFrustrations || [];
-  const dryIceFrustrations = packageFrustrations.filter(
-    f => f.category === "dryice"
-  );
-  const currentFrustration = dryIceFrustrations.find(
-    f => f.itemId === currentItem?.id
+  const currentFrustration = existingFrustrations.find(
+    f => f.itemId === currentCondition?.id
   );
 
-  // Set active chevron when component mounts
+  const DEFAULT_FRUSTRATION_MESSAGE =
+    "This dry ice inspection condition is not met. Requires re-inspection per AFMAN 24-604 A13.10.";
+
   useEffect(() => {
     actions.setCurrentChevron("package");
   }, []);
 
   useEffect(() => {
-    if (currentStep < totalSteps) {
-      setIsEditMode(false);
-      setAdditionalComments(currentFrustration?.additionalComments || "");
-    }
-  }, [currentStep, currentFrustration]);
+    setIsEditMode(false);
+    setAdditionalComments("");
+  }, [currentStep]);
 
   const handleValidate = () => {
-    // Remove any existing frustration from context
-    if (currentFrustration) {
-      removePackageFrustration(currentItem.id);
-    }
+    removePackageFrustration(currentCondition.id);
 
-    // Update item status
-    setItems(prev =>
-      prev.map(item =>
-        item.id === currentItem.id
-          ? { ...item, verificationStatus: "pass" as VerificationStatus }
-          : item
-      )
-    );
-
-    // Move to next step or complete inspection
     if (currentStep < totalSteps - 1) {
       setCurrentStep(currentStep + 1);
     } else {
-      // Last step validated - navigate to package markings
-      navigation.navigate("InspectorAttachment28WizardScreen");
+      handleFinalSubmit();
     }
   };
 
   const handleFrustrate = () => {
-    // Switch to edit mode to add comments
     setIsEditMode(true);
     setAdditionalComments(currentFrustration?.additionalComments || "");
   };
 
   const handleSaveFrustration = () => {
-    // Create frustration data compatible with PackageFrustrationRecord
     const frustrationData = {
       category: "dryice" as const,
-      itemId: currentItem.id,
-      itemLabel: currentItem.label,
-      expectedValues: [currentItem.description], // Use description as expected value
-      verificationStatus: "incorrect" as const, // Dry ice failures are typically incorrect rather than missing
-      defaultMessage: getDefaultFrustrationMessage(currentItem.id),
+      itemId: currentCondition.id,
+      itemLabel: currentCondition.label,
+      expectedValues: ["Pass"],
+      verificationStatus: "incorrect" as const,
+      defaultMessage: DEFAULT_FRUSTRATION_MESSAGE,
       additionalComments: additionalComments.trim() || undefined,
-      afmanReference: currentItem.requirement,
+      afmanReference: currentCondition.afmanRef,
     };
 
     console.log(
-      "🧊 [DryIceScreen] Creating frustration for dry ice item:",
-      currentItem.id
+      "💾 [InspectorDryIce] Saving frustration for condition:",
+      currentCondition.id
     );
     addPackageFrustration(frustrationData);
 
-    // Update item status
-    setItems(prev =>
-      prev.map(item =>
-        item.id === currentItem.id
-          ? { ...item, verificationStatus: "fail" as VerificationStatus }
-          : item
-      )
-    );
-
-    setIsEditMode(false);
-
-    // Move to next step or complete inspection
     if (currentStep < totalSteps - 1) {
       setCurrentStep(currentStep + 1);
     } else {
-      // Last step frustrated - navigate to package markings
-      navigation.navigate("InspectorAttachment28WizardScreen");
+      handleFinalSubmit();
     }
   };
 
   const handleCancelFrustration = () => {
     setIsEditMode(false);
+    setAdditionalComments("");
   };
 
-  // Map verification statuses to step statuses for StepIndicator
-  const stepStatuses = items.map(item => {
-    if (item.verificationStatus === "pass") return "pass" as const;
-    if (item.verificationStatus === "fail") return "fail" as const;
-    return "pending" as const;
-  });
+  const handleBack = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
 
-  if (!currentItem) {
+  const handleContinue = () => {
+    navigation.navigate("InspectorSpecialProvisionsScreen", {
+      continueRoute: "MLDetectionScreen",
+      continueParams: { unIdNo: unId || "" },
+    });
+  };
+
+  const handleFinalSubmit = () => {
+    const currentFrustrations =
+      inspection?.packageFrustrations?.filter(f => f.category === "dryice") ||
+      [];
+
+    if (currentFrustrations.length === 0) {
+      Alert.alert(
+        "Dry Ice Inspection Complete",
+        "All A13.10 conditions have been validated successfully.\n\nNo compliance issues were found. Proceeding to package summary.",
+        [
+          { text: "Cancel", style: "cancel" },
+          {
+            text: "Continue",
+            style: "default",
+            onPress: handleContinue,
+          },
+        ]
+      );
+    } else {
+      handleContinue();
+    }
+  };
+
+  if (unId !== "UN1845") {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>No inspection items available</Text>
+          <Text style={styles.errorText}>
+            Invalid material type for dry ice inspection
+          </Text>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={styles.backButton}
+          >
+            <Text style={styles.backButtonText}>Go Back</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (!currentCondition || !inspection) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>No inspection data available</Text>
           <TouchableOpacity
             onPress={() => navigation.goBack()}
             style={styles.backButton}
@@ -192,165 +224,192 @@ export default function InspectorDryIceScreen({
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScreenHeader
-        title="Dry Ice Inspection"
-        onBack={() => navigation.goBack()}
-      />
-
-      <ScrollView
-        style={styles.content}
-        contentContainerStyle={styles.scrollContent}
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        {!isEditMode ? (
-          <>
-            <View style={styles.fieldContent}>
-              <View style={styles.fieldHeader}>
-                <Text style={styles.fieldLabel}>{currentItem.label}</Text>
-              </View>
+        <ScreenHeader
+          title="UN1845 Dry Ice"
+          onBack={() => navigation.goBack()}
+          rightContent={
+            <Text style={styles.stepIndicator}>
+              {currentStep + 1}/{totalSteps}
+            </Text>
+          }
+        />
 
-              <Text style={styles.extractedLabel}>Description:</Text>
-              <View style={styles.previewContainer}>
-                <Text style={styles.previewText}>
-                  {currentItem.description}
-                </Text>
-              </View>
-
-              <Text style={styles.requirementText}>
-                {currentItem.requirement}
-              </Text>
-
-              {currentFrustration && (
-                <InfoBox
-                  variant="error"
-                  message="Previously Frustrated"
-                />
-              )}
-            </View>
-
-            <View style={styles.complianceButtons}>
-              <TouchableOpacity
-                style={styles.validateButton}
-                onPress={handleValidate}
-              >
-                <MaterialIcons name="check-circle" size={24} color={colors.surface} />
-                <Text style={styles.validateButtonText}>Validate</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.frustrateButton}
-                onPress={handleFrustrate}
-              >
-                <MaterialIcons name="cancel" size={24} color={colors.surface} />
-                <Text style={styles.frustrateButtonText}>Frustrate</Text>
-              </TouchableOpacity>
-            </View>
-          </>
-        ) : (
-          /* Frustration Edit Mode UI */
-          <>
-            <View style={styles.fieldContent}>
-              <View style={styles.fieldHeaderWithIcon}>
-                <Text style={styles.fieldLabel}>{currentItem.label}</Text>
-                <MaterialIcons name="error" size={24} color={colors.error} />
-              </View>
-
-              <Text style={styles.frustrationLabel}>Frustration Details:</Text>
-
-              <View style={styles.defaultMessageContainer}>
-                <Text style={styles.defaultMessageLabel}>Default Message:</Text>
-                <Text style={styles.defaultMessage}>
-                  {getDefaultFrustrationMessage(currentItem.id)}
-                </Text>
-              </View>
-
-              <Text style={styles.commentsLabel}>
-                Additional Comments (Optional):
-              </Text>
-              <View style={styles.inputContainer}>
-                <TextInput
-                  style={styles.textInput}
-                  value={additionalComments}
-                  onChangeText={setAdditionalComments}
-                  placeholder="Add specific compliance issues or notes..."
-                  multiline={true}
-                  numberOfLines={4}
-                  textAlignVertical="top"
-                />
-              </View>
-            </View>
-
-            <View style={styles.editButtons}>
-              <TouchableOpacity
-                style={styles.cancelButton}
-                onPress={handleCancelFrustration}
-              >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.saveButton}
-                onPress={handleSaveFrustration}
-              >
-                <Text style={styles.saveButtonText}>Save Frustration</Text>
-              </TouchableOpacity>
-            </View>
-          </>
-        )}
-      </ScrollView>
-
-      <View style={styles.footer}>
-        <TouchableOpacity
-          style={[
-            styles.navButton,
-            currentStep === 0 && styles.navButtonDisabled,
-          ]}
-          onPress={() => setCurrentStep(Math.max(0, currentStep - 1))}
-          disabled={currentStep === 0}
-        >
-          <MaterialIcons
-            name="chevron-left"
-            size={24}
-            color={currentStep === 0 ? "#C7C7CC" : colors.primary}
-          />
-          <Text
-            style={[
-              styles.navButtonText,
-              currentStep === 0 && styles.navButtonTextDisabled,
-            ]}
-          >
-            Previous
+        <View style={styles.progressBarContainer}>
+          <View style={styles.progressBarBackground}>
+            <View
+              style={[
+                styles.progressBarFill,
+                { width: `${((currentStep + 1) / totalSteps) * 100}%` },
+              ]}
+            />
+          </View>
+          <Text style={styles.progressText}>
+            Validated: {validatedCount} | Frustrated: {frustratedCount}
           </Text>
-        </TouchableOpacity>
-
-        <View style={styles.stepIndicatorContainer}>
-          <Text style={styles.stepText}>
-            {currentStep + 1} of {totalSteps}
-          </Text>
-          <StepIndicator
-            totalSteps={totalSteps}
-            currentStep={currentStep}
-            stepStatuses={stepStatuses}
-            showLabel={false}
-          />
         </View>
 
-        <TouchableOpacity
-          style={styles.navButton}
-          onPress={() => {
-            if (currentStep < totalSteps - 1) {
-              setCurrentStep(currentStep + 1);
-            } else {
-              // Navigate to package markings when manually completing
-              navigation.navigate("InspectorAttachment28WizardScreen");
-            }
-          }}
-        >
-          <Text style={styles.navButtonText}>
-            {currentStep < totalSteps - 1 ? "Next" : "Complete"}
-          </Text>
-          <MaterialIcons name="chevron-right" size={24} color={colors.primary} />
-        </TouchableOpacity>
-      </View>
+        <View style={styles.mainContent}>
+          <ScrollView
+            style={styles.content}
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.fieldCard}>
+              {!isEditMode ? (
+                <>
+                  <View style={styles.fieldContent}>
+                    <View style={styles.fieldHeader}>
+                      <Text style={styles.fieldLabel}>
+                        {currentCondition.label}
+                      </Text>
+                    </View>
+
+                    <Text style={styles.descriptionLabel}>
+                      Inspection Requirement:
+                    </Text>
+                    <View style={styles.previewContainer}>
+                      <Text style={styles.previewText}>
+                        {currentCondition.description}
+                      </Text>
+                    </View>
+
+                    {currentFrustration && (
+                      <InfoBox
+                        variant="error"
+                        message="Previously Frustrated"
+                      />
+                    )}
+                  </View>
+
+                  <View style={styles.complianceButtons}>
+                    <TouchableOpacity
+                      style={styles.validateButton}
+                      onPress={handleValidate}
+                    >
+                      <MaterialIcons
+                        name="check-circle"
+                        size={24}
+                        color={colors.surface}
+                      />
+                      <Text style={styles.validateButtonText}>Validate</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={styles.frustrateButton}
+                      onPress={handleFrustrate}
+                    >
+                      <MaterialIcons
+                        name="cancel"
+                        size={24}
+                        color={colors.surface}
+                      />
+                      <Text style={styles.frustrateButtonText}>Frustrate</Text>
+                    </TouchableOpacity>
+                  </View>
+                </>
+              ) : (
+                <>
+                  <View style={styles.fieldContent}>
+                    <View style={styles.fieldHeader}>
+                      <Text style={styles.fieldLabel}>
+                        {currentCondition.label}
+                      </Text>
+                      <MaterialIcons
+                        name="error"
+                        size={24}
+                        color={colors.error}
+                      />
+                    </View>
+
+                    <Text style={styles.frustrationLabel}>
+                      Frustration Details:
+                    </Text>
+
+                    <View style={styles.defaultMessageContainer}>
+                      <Text style={styles.defaultMessageLabel}>
+                        Default Message:
+                      </Text>
+                      <Text style={styles.defaultMessage}>
+                        {DEFAULT_FRUSTRATION_MESSAGE}
+                      </Text>
+                    </View>
+
+                    <Text style={styles.commentsLabel}>
+                      Additional Comments (Optional):
+                    </Text>
+                    <View style={styles.inputContainer}>
+                      <TextInput
+                        style={styles.textInput}
+                        value={additionalComments}
+                        onChangeText={setAdditionalComments}
+                        placeholder="Add specific compliance issues or notes..."
+                        multiline={true}
+                        numberOfLines={4}
+                        textAlignVertical="top"
+                      />
+                    </View>
+                  </View>
+
+                  <View style={styles.editModeButtons}>
+                    <TouchableOpacity
+                      style={styles.cancelButton}
+                      onPress={handleCancelFrustration}
+                    >
+                      <Text style={styles.cancelButtonText}>Cancel</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={styles.saveButton}
+                      onPress={handleSaveFrustration}
+                    >
+                      <MaterialIcons
+                        name="save"
+                        size={20}
+                        color={colors.surface}
+                      />
+                      <Text style={styles.saveButtonText}>
+                        Save Frustration
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </>
+              )}
+            </View>
+          </ScrollView>
+        </View>
+
+        {!isEditMode && (
+          <View style={styles.footer}>
+            <TouchableOpacity
+              style={[
+                styles.navButton,
+                currentStep === 0 && styles.navButtonDisabled,
+              ]}
+              onPress={handleBack}
+              disabled={currentStep === 0}
+            >
+              <MaterialIcons
+                name="chevron-left"
+                size={24}
+                color={currentStep === 0 ? "#C7C7CC" : colors.primary}
+              />
+              <Text
+                style={[
+                  styles.navButtonText,
+                  currentStep === 0 && styles.navButtonTextDisabled,
+                ]}
+              >
+                Back
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -360,69 +419,102 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
+  stepIndicator: {
+    fontSize: 16,
+    fontWeight: "500",
+    color: colors.primary,
+  },
+  progressBarContainer: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    backgroundColor: colors.surface,
+  },
+  progressBarBackground: {
+    height: 4,
+    backgroundColor: colors.border,
+    borderRadius: 2,
+    overflow: "hidden",
+  },
+  progressBarFill: {
+    height: "100%",
+    backgroundColor: colors.primary,
+    borderRadius: 2,
+  },
+  progressText: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    textAlign: "center",
+    marginTop: spacing.sm,
+  },
+  mainContent: {
+    flex: 1,
+    flexDirection: "row",
+  },
   content: {
     flex: 1,
   },
   scrollContent: {
+    flexGrow: 1,
     padding: spacing.lg,
+    paddingBottom: spacing.xl,
   },
-  fieldContent: {
+  fieldCard: {
     backgroundColor: colors.surface,
     borderRadius: borderRadius.lg,
-    padding: spacing.lg,
-    marginBottom: spacing.lg,
+    padding: spacing.xl,
     ...shadows.medium,
+    minHeight: "70%",
+    flex: 1,
+    justifyContent: "space-between",
+  },
+  fieldContent: {
+    flex: 1,
   },
   fieldHeader: {
-    marginBottom: spacing.lg,
-  },
-  fieldHeaderWithIcon: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
     marginBottom: spacing.lg,
   },
   fieldLabel: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "600",
     color: colors.textPrimary,
+    flex: 1,
   },
-  extractedLabel: {
+  descriptionLabel: {
     fontSize: 14,
     fontWeight: "500",
     color: colors.textSecondary,
     marginBottom: spacing.sm,
   },
   previewContainer: {
-    backgroundColor: colors.borderLight,
+    backgroundColor: colors.background,
+    borderWidth: 1,
+    borderColor: colors.border,
     borderRadius: borderRadius.md,
-    padding: spacing.md,
-    marginBottom: spacing.md,
+    padding: spacing.lg,
+    marginBottom: spacing.xl,
+    minHeight: 60,
   },
   previewText: {
-    fontSize: 14,
+    fontSize: 16,
     color: colors.textPrimary,
-    lineHeight: 20,
-  },
-  requirementText: {
-    fontSize: 12,
-    color: colors.textSecondary,
-    fontStyle: "italic",
-    marginBottom: spacing.lg,
+    lineHeight: 22,
   },
   complianceButtons: {
     flexDirection: "row",
     gap: spacing.md,
-    paddingHorizontal: spacing.lg,
   },
   validateButton: {
     flex: 1,
+    backgroundColor: colors.success,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: colors.success,
-    padding: spacing.lg,
-    borderRadius: borderRadius.md,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.xl,
+    borderRadius: borderRadius.lg,
+    ...shadows.light,
   },
   validateButtonText: {
     color: colors.surface,
@@ -432,12 +524,14 @@ const styles = StyleSheet.create({
   },
   frustrateButton: {
     flex: 1,
+    backgroundColor: colors.error,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: colors.error,
-    padding: spacing.lg,
-    borderRadius: borderRadius.md,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.xl,
+    borderRadius: borderRadius.lg,
+    ...shadows.light,
   },
   frustrateButtonText: {
     color: colors.surface,
@@ -446,90 +540,99 @@ const styles = StyleSheet.create({
     marginLeft: spacing.sm,
   },
   frustrationLabel: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "600",
-    color: colors.error,
+    color: colors.textPrimary,
     marginBottom: spacing.lg,
   },
   defaultMessageContainer: {
-    backgroundColor: colors.borderLight,
+    backgroundColor: colors.errorLight,
+    padding: spacing.lg,
     borderRadius: borderRadius.md,
-    padding: spacing.md,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.xl,
+    borderWidth: 1,
+    borderColor: colors.error,
   },
   defaultMessageLabel: {
     fontSize: 12,
     fontWeight: "600",
-    color: colors.textSecondary,
+    color: colors.error,
     marginBottom: spacing.xs,
   },
   defaultMessage: {
-    fontSize: 14,
+    fontSize: 16,
     color: colors.textPrimary,
-    lineHeight: 20,
+    lineHeight: 22,
   },
   commentsLabel: {
     fontSize: 14,
     fontWeight: "500",
-    color: colors.textPrimary,
+    color: colors.textSecondary,
     marginBottom: spacing.sm,
   },
   inputContainer: {
-    marginBottom: spacing.lg,
+    borderWidth: 2,
+    borderRadius: borderRadius.md,
+    backgroundColor: colors.background,
+    borderColor: colors.error,
   },
   textInput: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    fontSize: 14,
-    minHeight: 100,
+    padding: spacing.lg,
+    fontSize: 16,
+    minHeight: 120,
+    textAlignVertical: "top",
   },
-  editButtons: {
+  editModeButtons: {
     flexDirection: "row",
+    justifyContent: "space-between",
     gap: spacing.md,
-    paddingHorizontal: spacing.lg,
+    marginTop: spacing.lg,
   },
   cancelButton: {
     flex: 1,
-    padding: spacing.lg,
+    backgroundColor: colors.surface,
+    borderWidth: 2,
+    borderColor: colors.textSecondary,
+    paddingVertical: spacing.md,
     borderRadius: borderRadius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
     alignItems: "center",
   },
   cancelButtonText: {
-    color: colors.textPrimary,
+    color: colors.textSecondary,
     fontSize: 16,
     fontWeight: "600",
   },
   saveButton: {
     flex: 1,
-    padding: spacing.lg,
-    borderRadius: borderRadius.md,
     backgroundColor: colors.error,
+    flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: spacing.md,
+    borderRadius: borderRadius.md,
   },
   saveButtonText: {
     color: colors.surface,
     fontSize: 16,
     fontWeight: "600",
+    marginLeft: spacing.xs,
   },
   footer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
     backgroundColor: colors.surface,
     borderTopWidth: 1,
     borderTopColor: colors.border,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.lg,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   navButton: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
   },
   navButtonDisabled: {
     opacity: 0.5,
@@ -537,35 +640,27 @@ const styles = StyleSheet.create({
   navButtonText: {
     fontSize: 16,
     color: colors.primary,
-    fontWeight: "500",
+    marginLeft: spacing.xs,
   },
   navButtonTextDisabled: {
     color: "#C7C7CC",
-  },
-  stepIndicatorContainer: {
-    alignItems: "center",
-  },
-  stepText: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    marginBottom: spacing.xs,
   },
   errorContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: spacing.lg,
+    padding: spacing.xl,
   },
   errorText: {
-    fontSize: 16,
-    color: colors.error,
+    fontSize: 18,
+    color: colors.textSecondary,
+    marginBottom: spacing.xl,
     textAlign: "center",
-    marginBottom: spacing.lg,
   },
   backButton: {
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.xxl,
     backgroundColor: colors.primary,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
     borderRadius: borderRadius.md,
   },
   backButtonText: {
