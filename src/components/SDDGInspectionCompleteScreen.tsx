@@ -11,6 +11,12 @@ import { useDatabase } from "@/contexts/DataProvider";
 import { InspectorShipment } from "@/types/sddg";
 import { useHazProActions } from "@/stores/useHazProStore";
 import { DevBenchmarkButton } from "./dev/DevBenchmarkButton";
+import { evaluateAttachment19Eligibility } from "@/utils/eligibility/attachment19Eligibility";
+import { getKey16Quantities } from "@/utils/eligibility/getKey16Quantities";
+import { getPackagingTypeFromKey16 } from "@/utils/getPackagingTypeFromKey16";
+import { hazardousMaterialsList } from "@/hazardousMaterials/hazardousMaterialsList";
+import { hasSpecialProvisionAlphaCode } from "@/utils/specialProvisions";
+import { getPostSddgStartRoute } from "@/utils/inspectorWorkflowRouting";
 import {
   ScreenHeader,
   ActionFooter,
@@ -32,6 +38,10 @@ export default function SDDGInspectionCompleteScreen({
     setSDDGComplete,
     completeSDDGSubstep,
     completeSDDGAndMoveToPackage,
+    setQuantityType,
+    setExceptedQuantityData,
+    setLimitedQuantityData,
+    setPackagePackagingType,
   } = useInspectionForm();
 
   const database = useDatabase();
@@ -125,49 +135,75 @@ export default function SDDGInspectionCompleteScreen({
     setSDDGComplete(true);
     completeSDDGAndMoveToPackage();
 
-    // Route based on UN number (same logic as SDDGFrustrationSummary)
     const unIdNo = sddgData?.unIdNo || "";
+    const startRoute = getPostSddgStartRoute(inspection);
+
+    if (inspection.verificationCopy) {
+      const eligibility = evaluateAttachment19Eligibility({
+        sddgContent: inspection.verificationCopy,
+        quantities: getKey16Quantities(inspection.verificationCopy),
+      });
+      const packagingType = getPackagingTypeFromKey16(
+        inspection.verificationCopy.quantityAndPacking
+      );
+      const hazmatItem = hazardousMaterialsList.find(
+        item => item.unid === inspection.verificationCopy?.unIdNo
+      );
+      const hasA2Restriction =
+        hazmatItem &&
+        hasSpecialProvisionAlphaCode(hazmatItem.specialProvision, "A2");
+      const resolvedPackagingType =
+        hasA2Restriction && packagingType === "single" ? null : packagingType;
+      setQuantityType("standard");
+      setExceptedQuantityData(eligibility.exceptedQuantityData);
+      setLimitedQuantityData(eligibility.limitedQuantityData);
+      setPackagePackagingType(resolvedPackagingType);
+
+      const isEligible =
+        eligibility.exceptedQuantityData.eligible ||
+        eligibility.limitedQuantityData.eligible;
+      const attachment28Params = {
+        continueRoute: "InspectorSpecialProvisionsScreen",
+        continueParams: {
+          continueRoute: "MLDetectionScreen",
+          continueParams: { unIdNo },
+        },
+      };
+      const packagingParams = {
+        nextRoute: "InspectorAttachment28WizardScreen",
+        nextParams: attachment28Params,
+      };
+
+      if (startRoute.screen !== "InspectorAttachment28WizardScreen") {
+        navigation.navigate(startRoute.screen);
+        return;
+      }
+
+      if (isEligible) {
+        navigation.navigate("InspectorQuantityTypeSelectionScreen", packagingParams);
+      } else {
+        navigation.navigate("InspectorPackagingTypeSelectionScreen", packagingParams);
+      }
+      return;
+    }
 
     console.log("📝 [SDDGInspectionComplete] Routing for UN#:", unIdNo);
 
-    if (unIdNo === "UN1845") {
-      // Navigate to Dry Ice Inspector Screen for UN1845 (Carbon Dioxide, Solid - Dry Ice)
-      navigation.navigate("InspectorDryIceScreen");
-    } else if (unIdNo === "UN2807") {
-      // Navigate to Magnetized Material Inspector Screen for UN2807 (Magnetized Material)
-      navigation.navigate("InspectorMagnetizedMaterialsScreen");
-    } else if (unIdNo === "UN3072" || unIdNo === "UN2990") {
-      // Navigate to Life-Saving Appliances Inspector Screen for UN3072/UN2990
-      navigation.navigate("InspectorLifeSavingAppliancesScreen");
-    } else if (unIdNo === "UN3245") {
-      // Navigate to Genetically Modified Organisms Inspector Screen for UN3245 (Genetically Modified Microorganisms)
-      navigation.navigate("InspectorGeneticallyModifiedOrganismsScreen");
-    } else if (unIdNo === "UN3268") {
-      // Navigate to Safety Devices Inspector Screen for UN3268 (Safety Devices, Electrically Initiated)
-      navigation.navigate("InspectorSafetyDevicesScreen");
-    } else if (unIdNo === "UN3508") {
-      // Navigate to Capacitor Inspector Screen for UN3508 (Capacitor, Asymmetric)
-      navigation.navigate("InspectorCapacitorsScreen");
-    } else if (unIdNo === "UN3528" || unIdNo === "UN3529") {
-      // Navigate to Internal Combustion Engines Inspector Screen for UN3528/UN3529
-      navigation.navigate("InspectorEnginesInternalCombustionScreen");
-    } else if (unIdNo === "UN3316") {
-      // Navigate to First Aid/Chemical Kit Inspector Screen for UN3316
-      navigation.navigate("InspectorFirstAidChemicalKitScreen");
-    } else if (unIdNo === "UN3363") {
-      // Navigate to Dangerous Goods in Apparatus Inspector Screen for UN3363
-      navigation.navigate("InspectorDangerousGoodsInApparatusScreen");
-    } else if (unIdNo === "UN3171") {
-      // Navigate to Battery-Powered Vehicle Inspector Screen for UN3171
-      navigation.navigate("InspectorBatteryPoweredVehicleScreen");
-    } else if (unIdNo === "UN3480" || unIdNo === "UN3090") {
-      // Navigate to Lithium Batteries Inspector Screen for UN3480 (Lithium Ion Batteries) / UN3090 (Lithium Metal Batteries)
-      navigation.navigate("InspectorLithiumBatteriesScreen");
-    } else {
-      // Navigate to Package Verification screen for standard workflow
-      // navigation.navigate("InspectorPackageVerification");
-      navigation.navigate("MLDetectionScreen");
+    if (startRoute.screen !== "InspectorAttachment28WizardScreen") {
+      navigation.navigate(startRoute.screen);
+      return;
     }
+
+    navigation.navigate("InspectorPackagingTypeSelectionScreen", {
+      nextRoute: "InspectorAttachment28WizardScreen",
+      nextParams: {
+        continueRoute: "InspectorSpecialProvisionsScreen",
+        continueParams: {
+          continueRoute: "MLDetectionScreen",
+          continueParams: { unIdNo },
+        },
+      },
+    });
   };
 
   return (

@@ -12,6 +12,12 @@ import { useDatabase } from "@/contexts/DataProvider";
 import { FrustrationRecord, InspectorShipment } from "@/types/sddg";
 import { useHazProActions } from "@/stores/useHazProStore";
 import { DevBenchmarkButton } from "./dev/DevBenchmarkButton";
+import { evaluateAttachment19Eligibility } from "@/utils/eligibility/attachment19Eligibility";
+import { getKey16Quantities } from "@/utils/eligibility/getKey16Quantities";
+import { getPackagingTypeFromKey16 } from "@/utils/getPackagingTypeFromKey16";
+import { hazardousMaterialsList } from "@/hazardousMaterials/hazardousMaterialsList";
+import { hasSpecialProvisionAlphaCode } from "@/utils/specialProvisions";
+import { getPostSddgStartRoute } from "@/utils/inspectorWorkflowRouting";
 import {
   ScreenHeader,
   ActionFooter,
@@ -42,6 +48,10 @@ export default function SDDGFrustrationSummary({
     completeReinspection,
     updateReinspectedInspection,
     startNewInspection,
+    setQuantityType,
+    setExceptedQuantityData,
+    setLimitedQuantityData,
+    setPackagePackagingType,
   } = useInspectionForm();
   const actions = useHazProActions();
   const database = useDatabase();
@@ -159,16 +169,79 @@ export default function SDDGFrustrationSummary({
       // This completes the SDDG chevron and moves to Package workflow
       completeSDDGAndMoveToPackage();
 
-      // Navigate to ML Detection Screen for label detection
-      // The ML screen will handle routing to package verification or specialized screens
-      // based on UN number after detection is complete
       const unIdNo =
         inspection?.extractedContent?.unIdNo ||
-        inspection?.verificationCopy?.unIdNo;
+        inspection?.verificationCopy?.unIdNo ||
+        "";
       console.log("LOGGING UN# -> ", unIdNo);
-      console.log("Navigating to MLDetectionScreen for label detection");
+      console.log("Navigating to package workflow start screen");
 
-      navigation.navigate("MLDetectionScreen", { unIdNo });
+      if (inspection.verificationCopy) {
+        const eligibility = evaluateAttachment19Eligibility({
+          sddgContent: inspection.verificationCopy,
+          quantities: getKey16Quantities(inspection.verificationCopy),
+        });
+        const packagingType = getPackagingTypeFromKey16(
+          inspection.verificationCopy.quantityAndPacking
+        );
+        const hazmatItem = hazardousMaterialsList.find(
+          item => item.unid === inspection.verificationCopy?.unIdNo
+        );
+        const hasA2Restriction =
+          hazmatItem &&
+          hasSpecialProvisionAlphaCode(hazmatItem.specialProvision, "A2");
+        const resolvedPackagingType =
+          hasA2Restriction && packagingType === "single" ? null : packagingType;
+        setQuantityType("standard");
+        setExceptedQuantityData(eligibility.exceptedQuantityData);
+        setLimitedQuantityData(eligibility.limitedQuantityData);
+        setPackagePackagingType(resolvedPackagingType);
+
+        const isEligible =
+          eligibility.exceptedQuantityData.eligible ||
+          eligibility.limitedQuantityData.eligible;
+        const startRoute = getPostSddgStartRoute(inspection);
+        const attachment28Params = {
+          continueRoute: "InspectorSpecialProvisionsScreen",
+          continueParams: {
+            continueRoute: "MLDetectionScreen",
+            continueParams: { unIdNo },
+          },
+        };
+        const packagingParams = {
+          nextRoute: "InspectorAttachment28WizardScreen",
+          nextParams: attachment28Params,
+        };
+
+        if (startRoute.screen !== "InspectorAttachment28WizardScreen") {
+          navigation.navigate(startRoute.screen);
+          return;
+        }
+
+        if (isEligible) {
+          navigation.navigate("InspectorQuantityTypeSelectionScreen", packagingParams);
+        } else {
+          navigation.navigate("InspectorPackagingTypeSelectionScreen", packagingParams);
+        }
+        return;
+      }
+
+      const startRoute = getPostSddgStartRoute(inspection);
+      if (startRoute.screen !== "InspectorAttachment28WizardScreen") {
+        navigation.navigate(startRoute.screen);
+        return;
+      }
+
+      navigation.navigate("InspectorPackagingTypeSelectionScreen", {
+        nextRoute: "InspectorAttachment28WizardScreen",
+        nextParams: {
+          continueRoute: "InspectorSpecialProvisionsScreen",
+          continueParams: {
+            continueRoute: "MLDetectionScreen",
+            continueParams: { unIdNo },
+          },
+        },
+      });
     }
   };
 
