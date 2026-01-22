@@ -70,7 +70,7 @@ The core technical innovation is the dual-pipeline ML detection system that comb
          │ "Verified" ─────▶┌──────────────────────────────────────────────┐
          │                  │ SDDGInspectionComplete (reinspection)       │
          │                  │  • Review summary                            │
-         │                  │  • Continue to Package (→ MLDetectionScreen) │
+         │                  │  • Continue to Package (→ package flow)      │
          │                  └──────────────────────────────────────────────┘
          │
 ┌──────────────────┐     ┌──────────────────┐     ┌─────────────────────────┐
@@ -109,6 +109,29 @@ The core technical innovation is the dual-pipeline ML detection system that comb
   ╚════════════════════════════════════════════════════════════════════════════╝
 
     ┌──────────────────────────────────────┐
+    │  InspectorPackagingTypeSelection     │
+    │                                      │
+    │  • Confirm packaging type            │
+    │  • Validate Key 16 packaging match   │
+    └──────────────────────────────────────┘
+                    │
+                    ▼
+    ┌──────────────────────────────────────┐
+    │  InspectorAttachment28WizardScreen   │
+    │                                      │
+    │  • Packaging criteria checks         │
+    │  • Add packaging frustrations        │
+    └──────────────────────────────────────┘
+                    │
+                    ▼
+    ┌──────────────────────────────────────┐
+    │  InspectorSpecialProvisionsScreen    │
+    │                                      │
+    │  • Read-only special provisions      │
+    └──────────────────────────────────────┘
+                    │
+                    ▼
+    ┌──────────────────────────────────────┐
     │         MLDetectionScreen            │
     │                                      │
     │  • Capture up to 6 package images   │
@@ -120,19 +143,7 @@ The core technical innovation is the dual-pipeline ML detection system that comb
     │  • Save CORRECTED results to context│
     └──────────────────────────────────────┘
       Note: If packingInstruction starts with "A6", route to
-      InspectorCylinderTypeSelectionScreen (Class 2 cylinders) and
-      skip POP marking data entry.
-                    │
-                    ▼
-    ┌──────────────────────────────────────┐
-    │   InspectorPOPMarkingDataEntry       │
-    │                                      │
-    │  • Prefill from ML (if present)     │
-    │  • Validate field B (pkg code)      │
-    │  • Validate field C (packing group) │
-    │  • Add frustrations on invalid/miss │
-    │  • Continue to Markings/Labels      │
-    └──────────────────────────────────────┘
+      InspectorCylinderTypeSelectionScreen (Class 2 cylinders).
                     │
                     ▼
     ┌──────────────────────────────────────┐
@@ -151,21 +162,12 @@ The core technical innovation is the dual-pipeline ML detection system that comb
                     │
                     ▼
     ┌──────────────────────────────────────┐
-    │ Material-Specific Screens (Optional) │
+    │   InspectorPOPMarkingDataEntry       │
     │                                      │
-    │  Routes based on UN number:          │
-    │  • UN1845 → DryIceScreen            │
-    │  • UN2807 → MagnetizedMaterials     │
-    │  • UN3480/3090 → LithiumBatteries   │
-    │  • UN3508 → CapacitorsScreen        │
-    │  • UN3072/2990 → LifeSavingApplianc │
-    │  • UN3245 → GeneticallyModified     │
-    │  • UN3268 → SafetyDevices           │
-    │  • UN3528/3529 → EnginesInternal    │
-    │  • UN3316 → FirstAidChemicalKit     │
-    │  • UN3363 → DangerousGoodsApparatus │
-    │  • UN3171 → BatteryPoweredVehicle   │
-    │  • Default → (skip to next step)    │
+    │  • Prefill from ML (if present)     │
+    │  • Validate field B (pkg code)      │
+    │  • Validate field C (packing group) │
+    │  • Add frustrations on invalid/miss │
     └──────────────────────────────────────┘
                     │
                     ▼
@@ -190,6 +192,12 @@ The core technical innovation is the dual-pipeline ML detection system that comb
     └───────┬────────┘  └───────────┬────────────┘
             │                       │
             ▼                       ▼
+
+  Special materials path:
+    SDDG Complete → Material-Specific Screen → InspectorSpecialProvisionsScreen →
+    MLDetectionScreen → InspectorMarkingsLabelsValidationScreen →
+    PackageFrustrationSummary / PackageInspectionCompleteScreen
+  (skips Packaging Type, Attachment 28, and POP marking data entry)
 
   ╔════════════════════════════════════════════════════════════════════════════╗
   ║                        PHASE 3: COMPLETION                                  ║
@@ -217,6 +225,9 @@ The core technical innovation is the dual-pipeline ML detection system that comb
 | SDDG Processing | `src/screens/SDDG/SDDGProcessingScreen.tsx` |
 | Interactive Compliance | `src/screens/inspector/InteractiveSDDGComplianceScreen.tsx` |
 | SDDG Frustration Summary | `src/components/SDDGFrustrationSummary.tsx` |
+| **Packaging Type Selection** | `src/screens/inspector/InspectorPackagingTypeSelectionScreen.tsx` |
+| **Attachment 28 Wizard** | `src/screens/inspector/InspectorAttachment28WizardScreen.tsx` |
+| **Special Provisions** | `src/screens/inspector/InspectorSpecialProvisionsScreen.tsx` |
 | **ML Detection** | `src/screens/inspector/MLDetectionScreen.tsx` |
 | **POP Marking Data Entry** | `src/screens/inspector/InspectorPOPMarkingDataEntry.tsx` |
 | **POP Scan Results (optional)** | `src/screens/inspector/InspectorPOPScanResultsScreen.tsx` |
@@ -453,13 +464,27 @@ const handlePackageStatusClick = async (inspection: InspectorShipment) => {
           text: "Continue",
           onPress: async () => {
             try {
-              await loadInspectionForEdit(inspection.id);
-
-              // Route based on UN number for material-specific flows
               const unIdNo = inspection.unId || "";
+              const inspectionContext = await loadInspectionForEdit(inspection.id);
+              const startRoute = getPostSddgStartRoute(inspectionContext);
+
+              if (startRoute.screen !== "InspectorAttachment28WizardScreen") {
+                navigate("InspectorWrappedStack", { screen: startRoute.screen });
+                return;
+              }
+
               navigate("InspectorWrappedStack", {
-                screen: "MLDetectionScreen",
-                params: { unIdNo },
+                screen: "InspectorPackagingTypeSelectionScreen",
+                params: {
+                  nextRoute: "InspectorAttachment28WizardScreen",
+                  nextParams: {
+                    continueRoute: "InspectorSpecialProvisionsScreen",
+                    continueParams: {
+                      continueRoute: "MLDetectionScreen",
+                      continueParams: { unIdNo },
+                    },
+                  },
+                },
               });
             } catch (error) {
               Alert.alert("Error", "Failed to load inspection data. Please try again.");
@@ -510,8 +535,8 @@ const handlePackageStatusClick = async (inspection: InspectorShipment) => {
 │      │       │ │  ions"       │      │ Screen          │
 │      │       │ │      │       │      │                 │
 │      ▼       │ │      ▼       │      │ (Package phase  │
-│ MLDetection  │ │ [Next screen │      │  begins)        │
-│ Screen       │ │  based on UN]│      └─────────────────┘
+│ Packaging    │ │ [Next screen │      │  begins)        │
+│ Type Screen  │ │  based on UN]│      └─────────────────┘
 └──────────────┘ └──────────────┘
 ```
 
@@ -788,6 +813,7 @@ interface ManualCorrection {
 // src/screens/inspector/MLDetectionScreen.tsx - navigateToNextScreen()
 
 import { aggregateResults } from "../../ml/hooks/useDetection";
+import { getPostMlDetectionRoute } from "@/utils/inspectorWorkflowRouting";
 
 const navigateToNextScreen = useCallback(() => {
   // Use correctedResults if available (contains user corrections), otherwise use original
@@ -807,18 +833,8 @@ const navigateToNextScreen = useCallback(() => {
     setMLAnalysisResults(finalAggregated);
   }
 
-  const packingInstruction =
-    inspection?.verificationCopy?.packingInstruction ||
-    inspection?.extractedContent?.packingInstruction ||
-    "";
-
-  // Class 2 materials (packingInstruction starts with A6) skip POP marking
-  if (packingInstruction.toUpperCase().startsWith("A6")) {
-    navigation.navigate("InspectorCylinderTypeSelectionScreen");
-    return;
-  }
-
-  navigation.navigate("InspectorPOPMarkingDataEntry");
+  const nextRoute = getPostMlDetectionRoute(inspection);
+  navigation.navigate(nextRoute.screen, nextRoute.params);
 }, [navigation, correctedResults, analysisResults, setMLAnalysisResults]);
 ```
 
@@ -831,7 +847,7 @@ const navigateToNextScreen = useCallback(() => {
 | `handleGallerySelect()` | Image picker integration |
 | `handleCropComplete()` | Cropping result handler |
 | `aggregateResults()` | Combine results from all images (exported from useDetection) |
-| `navigateToNextScreen()` | Save corrected results and route to POP data entry (or Class 2 cylinder selection) |
+| `navigateToNextScreen()` | Save corrected results and route to markings/labels (or Class 2 cylinder selection) |
 
 ---
 
@@ -1065,7 +1081,7 @@ Validates the UN specification package marking using a single data-entry screen.
 - Validate **Field B (packaging code)** against allowed codes from the packaging database
 - Validate **Field C (packing group)** against allowable packing groups for the material
 - Add package frustrations when required data is missing or invalid
-- Continue to `InspectorMarkingsLabelsValidationScreen`
+- Continue to package outcome (frustration summary or completion)
 
 ### Optional Scan Review
 
@@ -1082,6 +1098,11 @@ Validates the UN specification package marking using a single data-entry screen.
 ### Purpose
 
 Validates required markings and labels against ML detections and OCR text. Missing items are auto-frustrated on first load to keep the package frustration list complete.
+
+### Navigation
+
+- **General materials**: Continue to `InspectorPOPMarkingDataEntry` for POP marking validation.
+- **Special materials**: Skip POP marking and continue to package outcome (frustration summary or completion).
 
 ### Data Structure
 
@@ -1185,31 +1206,38 @@ const navigateToNextScreen = useCallback(() => {
 
 ### Overview
 
-After Markings & Labels validation, certain UN numbers require additional material-specific verification.
+Certain UN numbers require a material-specific verification screen immediately after SDDG completion (before Special Provisions and ML detection).
 
 ### Routing Table
 
 | UN Number | Material | Screen | Key Validations |
 |-----------|----------|--------|-----------------|
-| UN1845 | Dry Ice (CO₂ solid) | `InspectorDryIceScreen.tsx` | Weight limits, venting |
-| UN2807 | Magnetized Material | `InspectorMagnetizedMaterialsScreen.tsx` | Field strength, handling |
-| UN3072, UN2990 | Life-saving appliances | `InspectorLifeSavingAppliancesScreen.tsx` | Gas cartridges |
-| UN3245 | GMO | `InspectorGeneticallyModifiedOrganismsScreen.tsx` | Containment |
-| UN3268 | Safety devices | `InspectorSafetyDevicesScreen.tsx` | Airbag modules |
+| NA2212, UN2212, UN2590 | Asbestos | `InspectorAsbestosScreen.tsx` | Packaging/labeling controls |
+| UN3171 | Battery-powered vehicle | `InspectorBatteryPoweredVehicleScreen.tsx` | Battery type |
+| UN3373 | Biological substance, Category B | `InspectorBiologicalSubstancesCategoryBScreen.tsx` | Triple packaging |
 | UN3508 | Capacitors | `InspectorCapacitorsScreen.tsx` | Wh rating |
+| ID8000 | Consumer commodity | `InspectorConsumerCommodityScreen.tsx` | Quantity limits |
+| UN3363 | Dangerous goods in apparatus | `InspectorDangerousGoodsInApparatusScreen.tsx` | Integrity/securement |
+| UN1845 | Dry Ice (CO₂ solid) | `InspectorDryIceScreen.tsx` | Weight limits, venting |
 | UN3528, UN3529 | Engines (internal combustion) | `InspectorEnginesInternalCombustionScreen.tsx` | Fuel type |
 | UN3316 | First aid kit | `InspectorFirstAidChemicalKitScreen.tsx` | Contents |
-| UN3363 | Dangerous goods in apparatus | `InspectorDangerousGoodsInApparatusScreen.tsx` | - |
-| UN3171 | Battery-powered vehicle | `InspectorBatteryPoweredVehicleScreen.tsx` | Battery type |
+| UN3166 | Fuel-powered vehicle | `InspectorFuelPoweredVehicleScreen.tsx` | Fuel handling |
+| UN2814, UN2900, UN3245 | Infectious substances | `InspectorInfectiousSubstancesScreen.tsx` | Containment |
+| UN3072, UN2990 | Life-saving appliances | `InspectorLifeSavingAppliancesScreen.tsx` | Gas cartridges |
+| UN3091, UN3481, UN3536 (A13.8) | Lithium batteries contained in equipment | `InspectorLithiumBatteriesContainedInEquipmentScreen.tsx` | Marking/limits |
+| UN3091, UN3481 (A13.9) | Lithium batteries packed with equipment | `InspectorLithiumBatteriesPackedWithEquipmentScreen.tsx` | Marking/limits |
 | UN3480, UN3090 | Lithium batteries | `InspectorLithiumBatteriesScreen.tsx` | Wh rating, cell limits |
+| UN2807 | Magnetized Material | `InspectorMagnetizedMaterialsScreen.tsx` | Field strength, handling |
+| UN3548 | Misc dangerous goods articles | `InspectorMiscDangerousGoodsArticlesScreen.tsx` | Securement |
+| UN3268 | Safety devices | `InspectorSafetyDevicesScreen.tsx` | Airbag modules |
 
 ### Common Pattern
 
 Each material-specific screen:
-1. Reads ML analysis results from context
+1. Reads inspection context (UN number, SDDG data, package frustrations)
 2. Displays material-specific requirements
 3. Allows validation or frustration of each requirement
-4. Navigates to `PackageFrustrationSummary` or `PackageInspectionCompleteScreen`
+4. Navigates to `InspectorSpecialProvisionsScreen` (which continues to ML detection)
 
 ---
 
@@ -1434,8 +1462,8 @@ async function validatePackaging(
   // 2. Look up allowed packaging options
   const entry = packagingDatabaseV2[packagingParagraph];
 
-  // 3. Extract packaging code from POP marking
-  const detectedCode = extractedPOP.fields.fieldA_UNCode;
+  // 3. Extract packaging code (Field B) from POP marking
+  const detectedCode = extractedPOP.fields.B;
 
   // 4. Check if code is in allowed options
   const allowedCodes = entry.packagingOptions.flatMap(opt =>
@@ -2105,3 +2133,4 @@ server/
 | 2026-01-06 | Claude | Added SDDG Save & Exit and Reinspection System documentation. Covers: Save & Exit from SDDGInspectionCompleteScreen and SDDGFrustrationSummary, InspectorHomeScreen table display with "N/A" for package status, reinspection navigation handlers for SDDG "Verified" and Package "N/A" clicks, InteractiveSDDGComplianceScreen button text changes, navigation flow diagrams, and critical implementation notes. Updated workflow diagram to show Save & Exit paths. |
 | 2026-01-15 | Claude | Updated file paths to reflect Inspector screen migration from `src/components/Inspector/` to `src/screens/inspector/`. Updated File Locations Summary table and Quick Reference: File Paths section. |
 | 2026-01-16 | Codex | Updated Inspector workflow to reflect POP data entry flow, Class 2 branch, auto-frustration behavior, and current file paths. |
+| 2026-01-22 | Codex | Updated Inspector workflow order: packaging type → attachment 28 → special provisions → ML detection → markings/labels → POP → outcome, with special materials entering before special provisions and skipping POP. |
