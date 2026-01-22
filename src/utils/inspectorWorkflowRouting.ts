@@ -107,9 +107,14 @@ export const getPostMlDetectionRoute = (inspection: InspectionLike): NextRoute =
     return { screen: "InspectorCylinderTypeSelectionScreen" };
   }
 
-  if (shouldSkipPopMarking(inspection)) {
-    return { screen: "InspectorMarkingsLabelsValidationScreen" };
+  if (quantityType === "limited") {
+    return {
+      screen:
+        unIdNo === "UN3316"
+          ? "InspectorFirstAidChemicalKitScreen"
+          : "InspectorLabelingExceptionsScreen",
+    };
   }
 
-  return { screen: "InspectorPOPMarkingDataEntry" };
+  return { screen: "InspectorMarkingsLabelsValidationScreen" };
 };

@@ -5,8 +5,10 @@ import {
   useExtractedContent,
   useMLAnalysisResults,
   usePackagePopMarking,
+  usePackagePackagingType,
   useInspectionFrustrations,
   useReinspectionState,
+  useVerificationCopy,
 } from "../../contexts/InspectionFormProvider";
 import colors from "../../theming/colors";
 import { PhysicalState } from "../../../types";
@@ -34,20 +36,62 @@ import SolidPopMarking from "../../components/SolidPopMarking";
 import { hazardousMaterialsList } from "../../hazardousMaterials/hazardousMaterialsList";
 import { useHazProActions } from "../../stores/useHazProStore";
 import { DevBenchmarkButton } from "../../components/dev/DevBenchmarkButton";
+import { hasSpecialProvisionCode } from "@/utils/specialProvisions";
+import { navigateToPackageOutcome } from "../../utils/navigateToPackageOutcome";
 
 const { width } = Dimensions.get("window");
 const screenWidth = width;
 
 const hazardClass4ParagraphsWithNoPackingGroup = ["A8.6.", "A8.7.", "A8.8."];
 const packagingParagraphValuesThatRequirePGIPackaging = ["A12.9.", "A12.11."];
+const A13_2_LIQUID_UNIDS = new Set([
+  "UN1941",
+  "UN1990",
+  "UN2315",
+  "UN3082",
+  "UN3151",
+  "NA3082",
+  "NA3334",
+]);
+const A13_2_SOLID_UNIDS = new Set([
+  "NA1350",
+  "NA3077",
+  "UN1931",
+  "UN2071",
+  "UN2216",
+  "UN2969",
+  "UN3077",
+  "UN3152",
+  "UN3432",
+]);
 
 const InspectorPOPMarkingDataEntry = ({ navigation }: { navigation: any }) => {
   // Selector hooks for specific data
   const extractedContent = useExtractedContent();
+  const verificationCopy = useVerificationCopy();
   const mlAnalysisResults = useMLAnalysisResults();
   const packagePopMarking = usePackagePopMarking();
+  const packagePackagingType = usePackagePackagingType();
   const { packageFrustrations } = useInspectionFrustrations();
   const reinspection = useReinspectionState();
+  const getPrimaryParagraph = (paragraphValue: string): string => {
+    if (!paragraphValue) {
+      return "";
+    }
+    return paragraphValue.split(/[,:]/)[0]?.trim() || "";
+  };
+
+  const hazmatParagraph = hazardousMaterialsList.find(
+    material => material.unid === (extractedContent?.unIdNo || "").toUpperCase()
+  )?.packagingParagraph;
+
+  const packagingParagraph = getPrimaryParagraph(
+    (hazmatParagraph && hazmatParagraph.toUpperCase() !== "FORBIDDEN"
+      ? hazmatParagraph
+      : verificationCopy?.packingInstruction ||
+        extractedContent?.packingInstruction ||
+        "") as string
+  ).toUpperCase();
 
   // Actions-only hook
   const {
@@ -62,6 +106,14 @@ const InspectorPOPMarkingDataEntry = ({ navigation }: { navigation: any }) => {
 
   const [hasSelectedCountry, setHasSelectedCountry] = useState<boolean>(false);
   const [yearError, setYearError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (packagingParagraph.startsWith("A10.8") || packagingParagraph.startsWith("A10.9")) {
+      navigation.navigate("InspectorLabelingExceptionsScreen", {
+        fromPopMarking: true,
+      });
+    }
+  }, [navigation, packagingParagraph]);
 
   // Detect physical state from extracted SDDG content
   const detectPhysicalState = (): PhysicalState => {
@@ -188,17 +240,25 @@ const InspectorPOPMarkingDataEntry = ({ navigation }: { navigation: any }) => {
     extractedContent?.packingGroup,
     extractedContent?.packingInstruction,
     fields.C,
+    packagingParagraph,
   ]);
 
   // Determine allowable packing groups based on extracted SDDG data
   const allowablePackingGroups = () => {
     const hazardClass = extractedContent?.hazardClass || "";
     const packingGroup = extractedContent?.packingGroup || "";
-    const packingInstruction =
-      extractedContent?.packingInstruction || "";
+    const packingInstruction = packagingParagraph;
+    const unIdNo = extractedContent?.unIdNo || "";
+    const hazmatItem = hazardousMaterialsList.find(
+      material => material.unid === unIdNo
+    );
+    const specialProvision = hazmatItem?.specialProvision || "";
 
     // Hazard Class 1 (Explosives)
     if (hazardClass.startsWith("1")) {
+      return ["X", "Y"];
+    }
+    if (hasSpecialProvisionCode(specialProvision, "177")) {
       return ["X", "Y"];
     }
     // Special packaging paragraph A7.12
@@ -236,31 +296,123 @@ const InspectorPOPMarkingDataEntry = ({ navigation }: { navigation: any }) => {
     return ["X", "Y", "Z"];
   };
 
+  const getA13_2PhysicalState = (): PhysicalState => {
+    const unIdNo = extractedContent?.unIdNo || "";
+    const psn =
+      extractedContent?.properShippingName?.toLowerCase() ||
+      hazardousMaterialsList.find(material => material.unid === unIdNo)
+        ?.properShippingName?.toLowerCase() ||
+      "";
+
+    if (
+      A13_2_LIQUID_UNIDS.has(unIdNo) ||
+      psn.includes("liquid") ||
+      psn.includes("solution")
+    ) {
+      return PhysicalState.LIQUID;
+    }
+
+    if (
+      A13_2_SOLID_UNIDS.has(unIdNo) ||
+      psn.includes("solid") ||
+      psn.includes("powder") ||
+      psn.includes("flakes") ||
+      psn.includes("meal") ||
+      psn.includes("scrap") ||
+      psn.includes("beans")
+    ) {
+      return PhysicalState.SOLID;
+    }
+
+    return PhysicalState.SOLID;
+  };
+
+  const validateA13_2PackagingCode = (
+    code: string,
+    packagingType: string | null,
+    physicalStateValue: PhysicalState
+  ): boolean => {
+    const entry = packagingDatabaseV2["A13.2."];
+    if (!entry) {
+      return false;
+    }
+
+    const normalizedCode = code.trim().toUpperCase();
+    const stateKey =
+      physicalStateValue === PhysicalState.LIQUID ? "liquids" : "solids";
+    const normalizedType = packagingType?.toLowerCase() || null;
+
+    const relevantOptions = entry.packagingOptions.filter(option => {
+      const matchesState =
+        option.id.includes(`.${stateKey}_`) ||
+        (physicalStateValue === PhysicalState.LIQUID &&
+          option.id.includes("otto_fuel_ii"));
+      if (!matchesState) {
+        return false;
+      }
+      if (!normalizedType) {
+        return true;
+      }
+      return option.type.toLowerCase() === normalizedType;
+    });
+
+    for (const option of relevantOptions) {
+      if (!option.outerPackaging?.categories) {
+        continue;
+      }
+      for (const category of option.outerPackaging.categories) {
+        if (!category.containers) {
+          continue;
+        }
+        for (const container of category.containers) {
+          if (container.code.toUpperCase() === normalizedCode) {
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
+  };
+
   // Validate Field B (packaging code)
   const validateFieldB = useCallback((value: string) => {
-    const packagingParagraph = extractedContent?.packingInstruction;
-
     if (!packagingParagraph || value.trim() === "") {
       setFieldBError(null);
       setFieldBStatus("valid");
       return;
     }
 
-    const result = validatePackagingCodeV2(
-      packagingDatabaseV2,
-      packagingParagraph,
-      value,
-      undefined
-    );
+    const normalizedParagraph = packagingParagraph.endsWith(".")
+      ? packagingParagraph
+      : `${packagingParagraph}.`;
+    const usesA13_2Validation = normalizedParagraph === "A13.2.";
+    const isValid = usesA13_2Validation
+      ? validateA13_2PackagingCode(
+          value,
+          packagePackagingType,
+          getA13_2PhysicalState()
+        )
+      : validatePackagingCodeV2(
+          packagingDatabaseV2,
+          packagingParagraph,
+          value,
+          packagePackagingType || undefined
+        ).isValid;
 
-    if (!result?.isValid) {
+    if (!isValid) {
       setFieldBError(`Packaging code '${value}' not authorized for ${packagingParagraph}`);
       setFieldBStatus("invalid");
     } else {
       setFieldBError(null);
       setFieldBStatus("valid");
     }
-  }, [extractedContent?.packingInstruction]);
+  }, [
+    extractedContent?.properShippingName,
+    extractedContent?.unIdNo,
+    packagePackagingType,
+    packagingParagraph,
+  ]);
 
   // Validate Field C (packing group)
   const validateFieldC = useCallback((value: string) => {
@@ -347,37 +499,69 @@ const InspectorPOPMarkingDataEntry = ({ navigation }: { navigation: any }) => {
   const handleContinue = () => {
     console.log("📝 [InspectorPOPMarkingDataEntry] Continue button pressed");
 
-    // Detect reinspection mode
     const isReinspection = reinspection.mode === "package";
+    const unIdNo =
+      verificationCopy?.unIdNo ||
+      extractedContent?.unIdNo ||
+      "";
+
+    // Track which POP frustrations we're resolving
+    const resolvedItemIds: string[] = [];
+
+    // Resolve POP frustrations if validation passes during reinspection
+    if (isReinspection) {
+      const hasFieldBFrustration = packageFrustrations.some(f => f.itemId === "pop-field-b");
+      const hasFieldCFrustration = packageFrustrations.some(f => f.itemId === "pop-field-c");
+
+      if (hasFieldBFrustration && fieldBStatus === "valid") {
+        console.log("📝 [Reinspection] Resolving pop-field-b frustration");
+        removePackageFrustration("pop-field-b");
+        resolvedItemIds.push("pop-field-b");
+      }
+      if (hasFieldCFrustration && fieldCStatus === "valid") {
+        console.log("📝 [Reinspection] Resolving pop-field-c frustration");
+        removePackageFrustration("pop-field-c");
+        resolvedItemIds.push("pop-field-c");
+      }
+    }
+
+    // Filter out just-resolved frustrations for navigation decisions
+    const remainingFrustrations = packageFrustrations.filter(
+      f => !resolvedItemIds.includes(f.itemId)
+    );
 
     if (isReinspection) {
       // REINSPECTION MODE
 
       // Check if there are frustrated marking/label items (excluding POP)
-      const markingLabelFrustrations = packageFrustrations.filter(
+      const markingLabelFrustrations = remainingFrustrations.filter(
         f => (f.category === "marking" || f.category === "label") &&
              !f.itemId.startsWith("pop-")
+      );
+      const kitFrustrations = remainingFrustrations.filter(
+        f => f.category === "first-aid-chemical-kit"
       );
 
       console.log("📝 [InspectorPOPMarkingDataEntry] Reinspection mode:", {
         markingLabelFrustrationsCount: markingLabelFrustrations.length,
+        kitFrustrationsCount: kitFrustrations.length,
+        resolvedPOPFrustrations: resolvedItemIds,
       });
 
-      if (markingLabelFrustrations.length > 0) {
-        // Navigate to markings/labels for reinspection
+      if (kitFrustrations.length > 0) {
+        console.log("📝 Reinspection: Navigating to InspectorFirstAidChemicalKitScreen");
+        navigation.navigate("InspectorFirstAidChemicalKitScreen");
+      } else if (markingLabelFrustrations.length > 0) {
         console.log("📝 Reinspection: Navigating to InspectorMarkingsLabelsValidationScreen");
         navigation.navigate("InspectorMarkingsLabelsValidationScreen");
       } else {
-        // No more frustrated items - inspection complete
-        console.log("📝 Reinspection: No more frustrations, navigating to PackageInspectionCompleteScreen");
-        navigation.navigate("PackageInspectionCompleteScreen");
+        console.log("📝 Reinspection: No more frustrations, navigating to package outcome");
+        navigateToPackageOutcome(navigation, { packageFrustrations });
       }
     } else {
       // FIRST INSPECTION MODE
-
-      // Always navigate to markings/labels validation
-      console.log("📝 First inspection: Navigating to InspectorMarkingsLabelsValidationScreen");
-      navigation.navigate("InspectorMarkingsLabelsValidationScreen");
+      console.log("📝 First inspection: Navigating to package outcome");
+      navigateToPackageOutcome(navigation, { packageFrustrations });
     }
   };
 

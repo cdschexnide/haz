@@ -31,6 +31,8 @@ import {
   borderRadius,
   shadows,
 } from "../../components/ui";
+import { navigateToPackageOutcome } from "../../utils/navigateToPackageOutcome";
+import { shouldSkipPopMarking } from "@/utils/inspectorWorkflowRouting";
 
 // ============ TYPES ============
 
@@ -57,12 +59,14 @@ interface ValidationSection {
 
 interface InspectorMarkingsLabelsValidationScreenProps {
   navigation: any;
+  route?: { params?: { fromPopMarking?: boolean } };
 }
 
 // ============ COMPONENT ============
 
 function InspectorMarkingsLabelsValidationScreenComponent({
   navigation,
+  route,
 }: InspectorMarkingsLabelsValidationScreenProps) {
   // === CONTEXT SUBSCRIPTIONS ===
   // NOTE: useInspectionForm() subscribes to ENTIRE context - potential render issue!
@@ -99,6 +103,7 @@ function InspectorMarkingsLabelsValidationScreenComponent({
   });
 
   const isExceptedQuantity = inspection.quantityType === "excepted";
+  const cameFromPopMarking = route?.params?.fromPopMarking === true;
 
   // Set chevron on mount
   useEffect(() => {
@@ -188,24 +193,21 @@ function InspectorMarkingsLabelsValidationScreenComponent({
               let matchConfidence: number | null = null;
               let matchedDetection: AggregatedLabel | null = null;
 
-              if (label === "PSN and UN Number") {
+              if (label === "UN Specification Marking" && cameFromPopMarking) {
+                foundInOCR = true;
+                matchConfidence = 1;
+              } else if (label === "EX Number/NSN") {
+                foundInOCR = true;
+                matchConfidence = 1;
+              } else if (label === "PSN and UN Number") {
                 // Check structured data - allUnWithPSN contains parsed UN+PSN pairs
                 const hasUnWithPSN = (mlResults?.allUnWithPSN?.length ?? 0) > 0;
                 foundInOCR = hasUnWithPSN;
                 matchConfidence = hasUnWithPSN ? 0.95 : null; // Higher confidence for structured data
 
               } else if (label === "Military Shipping Label (MSL) or DD Form 1387") {
-                // Use MSL detection from OCR text analysis
-                const mslDetected = mlResults?.mslDetected ?? false;
-                const mslConfidence = mlResults?.mslConfidence;
-                foundInOCR = mslDetected;
-                // Map confidence level to numeric value
-                matchConfidence = mslDetected
-                  ? mslConfidence === 'high' ? 0.95
-                    : mslConfidence === 'medium' ? 0.8
-                    : mslConfidence === 'low' ? 0.6
-                    : 0.7
-                  : null;
+                foundInOCR = true;
+                matchConfidence = 1;
 
               } else if (label === "Limited Quantity Marking") {
                 matchedDetection = findMatchingDetection(
@@ -679,40 +681,12 @@ function InspectorMarkingsLabelsValidationScreenComponent({
       return;
     }
 
-    // First inspection: route based on UN number for material-specific screens
-    // Note: Class 2 materials (A6.X packing instruction) have already been through
-    // cylinder type selection and compressed gases screens before reaching here
-
-    // Route based on UN number (same logic as POP validation screen)
-    const unIdNo =
-      inspection.verificationCopy?.unIdNo ||
-      inspection.extractedContent?.unIdNo ||
-      "";
-
-    if (unIdNo === "UN1845") {
-      navigation.navigate("InspectorDryIceScreen");
-    } else if (unIdNo === "UN2807") {
-      navigation.navigate("InspectorMagnetizedMaterialsScreen");
-    } else if (unIdNo === "UN3072" || unIdNo === "UN2990") {
-      navigation.navigate("InspectorLifeSavingAppliancesScreen");
-    } else if (unIdNo === "UN3245") {
-      navigation.navigate("InspectorGeneticallyModifiedOrganismsScreen");
-    } else if (unIdNo === "UN3268") {
-      navigation.navigate("InspectorSafetyDevicesScreen");
-    } else if (unIdNo === "UN3508") {
-      navigation.navigate("InspectorCapacitorsScreen");
-    } else if (unIdNo === "UN3528" || unIdNo === "UN3529") {
-      navigation.navigate("InspectorEnginesInternalCombustionScreen");
-    } else if (unIdNo === "UN3363") {
-      navigation.navigate("InspectorDangerousGoodsInApparatusScreen");
-    } else if (unIdNo === "UN3171") {
-      navigation.navigate("InspectorBatteryPoweredVehicleScreen");
-    } else if (unIdNo === "UN3480" || unIdNo === "UN3090") {
-      navigation.navigate("InspectorLithiumBatteriesScreen");
-    } else {
-      // No material-specific screen needed - go to A28 packaging inspection wizard
-      navigation.navigate("InspectorAttachment28WizardScreen");
+    if (shouldSkipPopMarking(inspection)) {
+      navigateToPackageOutcome(navigation, inspection);
+      return;
     }
+
+    navigation.navigate("InspectorPOPMarkingDataEntry");
   }, [navigation, inspection, workflow.reinspection.mode, sections]);
 
   return (

@@ -23,11 +23,13 @@ import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
 import { useDetection, aggregateResults } from "../../ml/hooks/useDetection";
+import { getMockDetectionsForUN } from "../../ml/config/mockDetections";
 import { DetectionOverlay } from "../../ml/components/DetectionOverlay";
 import { ImageCropScreen } from "../../ml/components/ImageCropScreen";
 import { LabelPickerModal } from "../../ml/components";
 import { useInspectionFormActions, useInspectionForm } from "../../contexts/InspectionFormProvider";
 import { useHazProActions } from "../../stores/useHazProStore";
+import { getPostMlDetectionRoute } from "@/utils/inspectorWorkflowRouting";
 import { DevBenchmarkButton } from "../../components/dev/DevBenchmarkButton";
 import { ScreenHeader, ActionFooter, InfoBox, colors, spacing, borderRadius } from "../../components/ui";
 import {
@@ -153,20 +155,8 @@ export function MLDetectionScreen({
     // In navigation mode, determine next screen based on material type
     if (!navigation) return;
 
-    // Check if this is a Class 2 material (packing instruction starts with A6)
-    const packingInstruction =
-      inspection?.verificationCopy?.packingInstruction ||
-      inspection?.extractedContent?.packingInstruction ||
-      "";
-
-    if (packingInstruction.toUpperCase().startsWith("A6")) {
-      // Class 2 materials: go to cylinder type selection (skip POP marking)
-      console.log("[MLDetectionScreen] Class 2 material detected, navigating to cylinder type selection:", packingInstruction);
-      navigation.navigate("InspectorCylinderTypeSelectionScreen");
-    } else {
-      // Non-Class 2 materials: go to POP marking data entry
-      navigation.navigate("InspectorPOPMarkingDataEntry");
-    }
+    const nextRoute = getPostMlDetectionRoute(inspection);
+    navigation.navigate(nextRoute.screen, nextRoute.params);
   }, [navigation, onClose, correctedResults, analysisResults, setMLAnalysisResults, inspection]);
 
   // Handle skip
@@ -327,10 +317,32 @@ export function MLDetectionScreen({
   useEffect(() => {
     if (analysisResults && analysisResults.length > 0) {
       // Deep copy results to allow editing without affecting original
-      setCorrectedResults(JSON.parse(JSON.stringify(analysisResults)));
+      const resultsCopy = JSON.parse(JSON.stringify(analysisResults));
+
+      // Inject mock detections if configured for this UN number (for demo scenarios)
+      const unNumber =
+        inspection?.verificationCopy?.unIdNo ||
+        inspection?.extractedContent?.unIdNo ||
+        "";
+      const mockDetections = getMockDetectionsForUN(unNumber);
+
+      if (mockDetections && resultsCopy.length > 0) {
+        console.log("[MLDetectionScreen] Injecting mock detections for", unNumber);
+        const mocksWithIds = mockDetections.map((mock, idx) => ({
+          ...mock,
+          id: `mock-${Date.now()}-${idx}`,
+          source: "mock" as const,
+        }));
+        resultsCopy[0].detections = [
+          ...resultsCopy[0].detections,
+          ...mocksWithIds,
+        ];
+      }
+
+      setCorrectedResults(resultsCopy);
       setCorrections([]);
     }
-  }, [analysisResults]);
+  }, [analysisResults, inspection]);
 
   // Open label picker to add a new label
   const handleAddLabelPress = useCallback((imageIndex: number) => {
@@ -740,34 +752,32 @@ export function MLDetectionScreen({
           onBack={() => setScreenState("preview")}
         />
 
-        {/* Summary Banner with Add Label Action */}
+        {/* Summary Banner */}
         <View
           style={[
             styles.summaryBanner,
             { backgroundColor: totalDetections > 0 || hasOCRData ? colors.successLight : colors.warningLight },
           ]}
         >
-          <View style={styles.summaryLeft}>
-            <MaterialIcons
-              name={totalDetections > 0 || hasOCRData ? "check-circle" : "info"}
-              size={24}
-              color={totalDetections > 0 || hasOCRData ? colors.success : colors.warning}
-            />
-            <View style={styles.summaryTextContainer}>
-              <Text
-                style={[
-                  styles.summaryText,
-                  { color: totalDetections > 0 || hasOCRData ? colors.success : colors.warning },
-                ]}
-              >
-                {totalDetections > 0
-                  ? `Found ${totalDetections} label${totalDetections !== 1 ? "s" : ""}${hasCorrections ? ` (${corrections.length} edited)` : ""}`
-                  : "No labels detected"}
-              </Text>
-              <Text style={styles.summarySubtext}>
-                Something missing? Tap below to add
-              </Text>
-            </View>
+          <MaterialIcons
+            name={totalDetections > 0 || hasOCRData ? "check-circle" : "info"}
+            size={28}
+            color={totalDetections > 0 || hasOCRData ? colors.success : colors.warning}
+          />
+          <View style={styles.summaryTextContainer}>
+            <Text
+              style={[
+                styles.summaryText,
+                { color: totalDetections > 0 || hasOCRData ? colors.success : colors.warning },
+              ]}
+            >
+              {totalDetections > 0
+                ? `Found ${totalDetections} label${totalDetections !== 1 ? "s" : ""}${hasCorrections ? ` (${corrections.length} edited)` : ""}`
+                : "No labels detected"}
+            </Text>
+            <Text style={styles.summarySubtext}>
+              Something missing? Tap below to add
+            </Text>
           </View>
         </View>
 
@@ -820,14 +830,10 @@ export function MLDetectionScreen({
                               </Text>
                             )}
                           </View>
-                          {isManual && !wasEdited ? (
+                          {isManual && !wasEdited && (
                             <View style={styles.manualBadge}>
                               <Text style={styles.manualBadgeText}>Added</Text>
                             </View>
-                          ) : (
-                            <Text style={styles.detectionConfidence}>
-                              {Math.round(d.confidence * 100)}%
-                            </Text>
                           )}
                           {/* Edit icon */}
                           <MaterialIcons name="edit" size={18} color={colors.textSecondary} style={styles.editIcon} />
@@ -1237,25 +1243,21 @@ const styles = StyleSheet.create({
   summaryBanner: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "center",
     paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-  },
-  summaryLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    flex: 1,
-    gap: 10,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.xs,
+    gap: 12,
   },
   summaryTextContainer: {
-    flex: 1,
+    alignItems: "center",
   },
   summaryText: {
-    fontSize: 15,
+    fontSize: 18,
     fontWeight: "600",
   },
   summarySubtext: {
-    fontSize: 12,
+    fontSize: 13,
     color: colors.textSecondary,
     marginTop: 2,
   },
