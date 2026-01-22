@@ -13,14 +13,24 @@ const getUnIdNo = (inspection: InspectionLike) =>
   inspection?.extractedContent?.unIdNo ||
   "";
 
-const getPackingInstruction = (inspection: InspectionLike) =>
-  resolvePackingInstruction(
+const normalizePackingInstruction = (value: string) => {
+  if (!value) return "";
+  return value.split(/[,:]/)[0]?.trim().toUpperCase() || "";
+};
+
+const getPackingInstruction = (inspection: InspectionLike) => {
+  const raw =
+    inspection?.verificationCopy?.packingInstruction ||
+    inspection?.extractedContent?.packingInstruction ||
+    "";
+  if (raw) return normalizePackingInstruction(raw);
+
+  return resolvePackingInstruction(
     inspection?.verificationCopy?.unIdNo ||
       inspection?.extractedContent?.unIdNo,
-    inspection?.verificationCopy?.packingInstruction ||
-      inspection?.extractedContent?.packingInstruction ||
-      ""
+    raw
   );
+};
 
 export const getSpecialMaterialRoute = (
   inspection: InspectionLike
