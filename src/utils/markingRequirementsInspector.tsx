@@ -1,3 +1,5 @@
+import { hazardousMaterialsList } from "@/hazardousMaterials/hazardousMaterialsList";
+
 export function evaluateMarkingRequirementsInspector(
   sddgInspectionContext: any
 ): Record<string, string[]> {
@@ -20,6 +22,12 @@ export function evaluateMarkingRequirementsInspector(
   );
 
   if (!extractedContentFromSddg) return markings;
+
+  const hazmatItem = hazardousMaterialsList.find(
+    item => item.unid === extractedContentFromSddg.unIdNo
+  );
+  const authoritativeHazardClass =
+    hazmatItem?.hazclassDiv || extractedContentFromSddg.hazardClass;
 
   // Required for ALL shipments: Military Shipping Label (MSL) or DD Form 1387
   markings["Military Shipping Label (MSL) or DD Form 1387"] = [
@@ -79,6 +87,19 @@ export function evaluateMarkingRequirementsInspector(
     // }
   }
 
+  if (extractedContentFromSddg.unIdNo === "UN3316") {
+    const kitType =
+      sddgInspectionContext.kitInspectionData?.kitType ||
+      extractedContentFromSddg.properShippingName ||
+      "";
+    const kitTypeUpper = kitType.toUpperCase();
+    if (kitTypeUpper.includes("FIRST AID")) {
+      markings["First Aid Kit Marking"] = ["FIRST AID KITS"];
+    } else if (kitTypeUpper.includes("CHEMICAL")) {
+      markings["Chemical Kit Marking"] = ["CHEMICAL KITS"];
+    }
+  }
+
   //   // TODO Later
   //   if (context.dryIceData?.quantity) {
   //     markings["DRY ICE"] = [`${context.dryIceData?.quantity} KG`];
@@ -105,6 +126,15 @@ export function evaluateMarkingRequirementsInspector(
       .includes("inhalation hazard")
   ) {
     markings["Inhalation Hazard"] = ["Inhalation Hazard"];
+  }
+
+  if (sddgInspectionContext.quantityType === "limited") {
+    markings["Limited Quantity Marking"] = ["Limited Quantity"];
+  }
+
+  // A14.3.7 - Overpack marking (Key 16 includes "overpack")
+  if (/overpack/i.test(extractedContentFromSddg.quantityAndPacking || "")) {
+    markings["OVERPACK"] = ["OVERPACK"];
   }
 
   //   // TODO Later
@@ -170,9 +200,14 @@ export function evaluateMarkingRequirementsInspector(
     ];
   }
 
-  //   if (hazmat.hazclassDiv.startsWith("3") && hazmat.flashPoint) {
-  //     markings["Flash Point"] = [`${hazmat.flashPoint.celsius}°C (${hazmat.flashPoint.fahrenheit}°F)`];
-  //   }
+  if (
+    authoritativeHazardClass?.startsWith("3") &&
+    hazmatItem?.flashPoint
+  ) {
+    markings["Flash Point"] = [
+      `${hazmatItem.flashPoint.celsius}°C (${hazmatItem.flashPoint.fahrenheit}°F)`,
+    ];
+  }
 
   //   if ((extractedContentFromSddg.unIdNo === "UN1745" || extractedContentFromSddg.unIdNo === "UN1746") &&
   //       context.cylinderProperties?.some(cylinder => cylinder.cylinderType === "DOT3E1800")) {
@@ -197,13 +232,7 @@ export function evaluateMarkingRequirementsInspector(
     ];
   }
 
-  // if (extractedContentFromSddg.properShippingName === "CHEMICAL KIT") {
-  //   markings["Chemical Kit"] = ["Chemical Kit"];
-  // }
-
-  // if (extractedContentFromSddg.properShippingName === "FIRST AID KIT") {
-  //   markings["First Aid Kit"] = ["First Aid Kit"];
-  // }
+  // Kit markings handled above.
 
   // UN3508 Capacitor, Asymmetric - Energy Storage Capacity marking requirement
   if (extractedContentFromSddg.unIdNo === "UN3508") {
@@ -211,6 +240,11 @@ export function evaluateMarkingRequirementsInspector(
       "Energy storage capacity in Watt-hours (Wh)",
       "Required for capacitors manufactured after December 31, 2015",
     ];
+  }
+
+  // A14.4.1.2 - EX number or NSN for explosives
+  if (authoritativeHazardClass?.startsWith("1")) {
+    markings["EX Number/NSN"] = ["EX number or NSN"];
   }
 
   //   if (hazmat.properShippingName === "BATTERY-POWERED EQUIPMENT" &&

@@ -192,10 +192,7 @@ function InspectorMarkingsLabelsValidationScreenComponent({
               let matchConfidence: number | null = null;
               let matchedDetection: AggregatedLabel | null = null;
 
-              if (label === "UN Specification Marking" && cameFromPopMarking) {
-                foundInOCR = true;
-                matchConfidence = 1;
-              } else if (label === "EX Number/NSN") {
+              if (label === "EX Number/NSN") {
                 foundInOCR = true;
                 matchConfidence = 1;
               } else if (label === "PSN and UN Number") {
