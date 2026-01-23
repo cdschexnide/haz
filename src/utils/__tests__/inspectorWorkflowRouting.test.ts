@@ -13,16 +13,16 @@ const baseInspection = (overrides: InspectionLike = {}): InspectionLike => ({
   ...overrides,
 });
 
-test("general materials route to markings/labels after ML", () => {
+test("general materials route to POP after ML", () => {
   const inspection = baseInspection({
     verificationCopy: { unIdNo: "UN0106", packingInstruction: "A5.24" },
   });
   expect(getPostMlDetectionRoute(inspection).screen).toBe(
-    "InspectorMarkingsLabelsValidationScreen"
+    "InspectorPOPMarkingDataEntry"
   );
 });
 
-test("special materials route after SDDG and go to markings/labels after ML", () => {
+test("special materials route after SDDG and go to POP after ML (general path)", () => {
   const inspection = baseInspection({
     verificationCopy: { unIdNo: "UN2807", packingInstruction: "A1.1" },
   });
@@ -30,7 +30,7 @@ test("special materials route after SDDG and go to markings/labels after ML", ()
     "InspectorMagnetizedMaterialsScreen"
   );
   expect(getPostMlDetectionRoute(inspection).screen).toBe(
-    "InspectorMarkingsLabelsValidationScreen"
+    "InspectorPOPMarkingDataEntry"
   );
 });
 
@@ -67,7 +67,7 @@ test("routes all special materials to their dedicated screens", () => {
     });
     expect(getPostSddgStartRoute(inspection).screen).toBe(expected);
     expect(getPostMlDetectionRoute(inspection).screen).toBe(
-      "InspectorMarkingsLabelsValidationScreen"
+      "InspectorPOPMarkingDataEntry"
     );
   });
 });

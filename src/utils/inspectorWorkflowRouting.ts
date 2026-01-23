@@ -126,5 +126,5 @@ export const getPostMlDetectionRoute = (inspection: InspectionLike): NextRoute =
     };
   }
 
-  return { screen: "InspectorMarkingsLabelsValidationScreen" };
+  return { screen: "InspectorPOPMarkingDataEntry" };
 };

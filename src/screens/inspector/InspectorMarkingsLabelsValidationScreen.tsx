@@ -32,7 +32,6 @@ import {
   shadows,
 } from "../../components/ui";
 import { navigateToPackageOutcome } from "../../utils/navigateToPackageOutcome";
-import { shouldSkipPopMarking } from "@/utils/inspectorWorkflowRouting";
 
 // ============ TYPES ============
 
@@ -617,48 +616,6 @@ function InspectorMarkingsLabelsValidationScreenComponent({
     );
   };
 
-  const renderAdditionalDetections = () => {
-    if (additionalDetections.length === 0) return null;
-
-    return (
-      <View style={styles.additionalSection}>
-        <TouchableOpacity
-          style={styles.additionalHeader}
-          onPress={() => setShowAdditionalDetections(!showAdditionalDetections)}
-        >
-          <View style={styles.additionalHeaderLeft}>
-            <MaterialIcons
-              name={showAdditionalDetections ? "expand-less" : "expand-more"}
-              size={24}
-              color={colors.textSecondary}
-            />
-            <Text style={styles.additionalHeaderText}>
-              Additional Detections ({additionalDetections.length})
-            </Text>
-          </View>
-          <Text style={styles.additionalHeaderSubtext}>
-            ML detected but not required
-          </Text>
-        </TouchableOpacity>
-
-        {showAdditionalDetections && (
-          <View style={styles.additionalContent}>
-            {additionalDetections.map((detection, index) => (
-              <View key={index} style={styles.additionalItem}>
-                <MaterialIcons name="label" size={16} color={colors.textSecondary} />
-                <Text style={styles.additionalItemText}>
-                  {detection.className}
-                </Text>
-                <Text style={styles.additionalItemConfidence}>
-                  {Math.round(detection.maxConfidence * 100)}%
-                </Text>
-              </View>
-            ))}
-          </View>
-        )}
-      </View>
-    );
-  };
 
   const navigateToNextScreen = useCallback(() => {
     const isReinspection = workflow.reinspection.mode === "package";
@@ -681,12 +638,7 @@ function InspectorMarkingsLabelsValidationScreenComponent({
       return;
     }
 
-    if (shouldSkipPopMarking(inspection)) {
-      navigateToPackageOutcome(navigation, inspection);
-      return;
-    }
-
-    navigation.navigate("InspectorPOPMarkingDataEntry");
+    navigateToPackageOutcome(navigation, inspection);
   }, [navigation, inspection, workflow.reinspection.mode, sections]);
 
   return (
@@ -717,7 +669,6 @@ function InspectorMarkingsLabelsValidationScreenComponent({
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
         stickySectionHeadersEnabled={true}
-        ListFooterComponent={renderAdditionalDetections}
       />
 
       {/* Footer */}

@@ -560,8 +560,8 @@ const InspectorPOPMarkingDataEntry = ({ navigation }: { navigation: any }) => {
       }
     } else {
       // FIRST INSPECTION MODE
-      console.log("📝 First inspection: Navigating to package outcome");
-      navigateToPackageOutcome(navigation, { packageFrustrations });
+      console.log("📝 First inspection: Navigating to InspectorMarkingsLabelsValidationScreen");
+      navigation.navigate("InspectorMarkingsLabelsValidationScreen");
     }
   };
 
