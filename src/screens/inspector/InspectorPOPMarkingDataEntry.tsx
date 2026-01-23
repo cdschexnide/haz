@@ -505,13 +505,22 @@ const InspectorPOPMarkingDataEntry = ({ navigation }: { navigation: any }) => {
       extractedContent?.unIdNo ||
       "";
 
+    const targetSet = new Set(reinspection.targetFrustrations);
+    const scopedFrustrations = isReinspection
+      ? packageFrustrations.filter(f => targetSet.has(f.itemId))
+      : packageFrustrations;
+
     // Track which POP frustrations we're resolving
     const resolvedItemIds: string[] = [];
 
     // Resolve POP frustrations if validation passes during reinspection
     if (isReinspection) {
-      const hasFieldBFrustration = packageFrustrations.some(f => f.itemId === "pop-field-b");
-      const hasFieldCFrustration = packageFrustrations.some(f => f.itemId === "pop-field-c");
+      const hasFieldBFrustration = scopedFrustrations.some(
+        f => f.itemId === "pop-field-b"
+      );
+      const hasFieldCFrustration = scopedFrustrations.some(
+        f => f.itemId === "pop-field-c"
+      );
 
       if (hasFieldBFrustration && fieldBStatus === "valid") {
         console.log("📝 [Reinspection] Resolving pop-field-b frustration");
@@ -526,7 +535,7 @@ const InspectorPOPMarkingDataEntry = ({ navigation }: { navigation: any }) => {
     }
 
     // Filter out just-resolved frustrations for navigation decisions
-    const remainingFrustrations = packageFrustrations.filter(
+    const remainingFrustrations = scopedFrustrations.filter(
       f => !resolvedItemIds.includes(f.itemId)
     );
 

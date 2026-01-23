@@ -17,6 +17,7 @@ import {
 import { PackageFrustrationRecord } from "../../types/sddg";
 import { useHazProActions } from "../../stores/useHazProStore";
 import { DevBenchmarkButton } from "../../components/dev/DevBenchmarkButton";
+import { getPackageFrustrationSnapshot } from "../../utils/getPackageFrustrationSnapshot";
 import {
   ScreenHeader,
   ActionFooter,
@@ -65,6 +66,9 @@ export default function PackageFrustrationSummary({
   const magnetizedFrustrations = packageFrustrations.filter(
     f => f.category === "magnetized"
   );
+  const packagingFrustrations = packageFrustrations.filter(
+    f => f.category === "packaging"
+  );
 
   console.log("📦 [PackageFrustrationSummary] Component rendered");
   console.log(
@@ -86,6 +90,10 @@ export default function PackageFrustrationSummary({
   console.log(
     "🧲 [PackageFrustrationSummary] Magnetized material frustrations:",
     magnetizedFrustrations.length
+  );
+  console.log(
+    "📦 [PackageFrustrationSummary] Packaging frustrations:",
+    packagingFrustrations.length
   );
 
   // Set active chevron when component mounts
@@ -128,8 +136,8 @@ export default function PackageFrustrationSummary({
       return;
     }
 
-    // Extract the frustrated item IDs
-    const frustratedItemIds = packageFrustrations.map(f => f.itemId);
+    const snapshot = getPackageFrustrationSnapshot({ packageFrustrations });
+    const frustratedItemIds = snapshot.ids;
     console.log(
       "📦 [PackageFrustrationSummary] Frustrated item IDs:",
       frustratedItemIds
@@ -139,25 +147,186 @@ export default function PackageFrustrationSummary({
     startPackageReinspection(frustratedItemIds);
 
     // Determine navigation based on what's frustrated
-    const hasPOPFrustrations = packageFrustrations.some(f =>
-      f.itemId.startsWith("pop-") || f.itemId.includes("pop-")
-    );
-
-    const hasMarkingOrLabelFrustrations = packageFrustrations.some(f =>
-      f.category === "marking" || f.category === "label"
-    );
+    const hasPOPFrustrations = (snapshot.idsByCategory.pop || []).length > 0;
+    const hasMarkingOrLabelFrustrations =
+      (snapshot.idsByCategory.marking || []).length > 0 ||
+      (snapshot.idsByCategory.label || []).length > 0;
+  const hasPackagingFrustrations =
+    (snapshot.idsByCategory.packaging || []).length > 0;
+  const hasKitFrustrations = packageFrustrations.some(
+    f => f.category === "first-aid-chemical-kit"
+  );
+  const hasDryIceFrustrations = packageFrustrations.some(
+    f => f.category === "dryice"
+  );
+  const hasMagnetizedFrustrations = packageFrustrations.some(
+    f => f.category === "magnetized"
+  );
+  const hasLifeSavingFrustrations = packageFrustrations.some(
+    f => f.category === "life-saving"
+  );
+  const hasApparatusFrustrations = packageFrustrations.some(
+    f => f.category === "dangerous-goods-apparatus"
+  );
+  const hasClass9GeneralFrustrations = packageFrustrations.some(
+    f => f.category === "class9-general"
+  );
+  const hasAsbestosFrustrations = packageFrustrations.some(
+    f => f.category === "asbestos"
+  );
+  const hasCapacitorFrustrations = packageFrustrations.some(
+    f => f.category === "capacitor"
+  );
+  const hasEngineFrustrations = packageFrustrations.some(
+    f => f.category === "engines-internal-combustion"
+  );
+  const hasConsumerCommodityFrustrations = packageFrustrations.some(
+    f => f.category === "consumer-commodity"
+  );
+  const hasMiscArticlesFrustrations = packageFrustrations.some(
+    f => f.category === "misc-dangerous-goods-articles"
+  );
+  const hasFuelVehicleFrustrations = packageFrustrations.some(
+    f => f.category === "fuel-powered-vehicle"
+  );
+  const hasBatteryVehicleFrustrations = packageFrustrations.some(
+    f => f.category === "battery-vehicle"
+  );
+  const hasLithiumBatteryFrustrations = packageFrustrations.some(
+    f => f.category === "lithium_battery"
+  );
+  const hasLithiumContainedFrustrations = packageFrustrations.some(
+    f => f.category === "lithium_battery_contained"
+  );
+  const hasLithiumPackedFrustrations = packageFrustrations.some(
+    f => f.category === "lithium_battery_packed"
+  );
+  const hasInfectiousSubstancesFrustrations = packageFrustrations.some(
+    f => f.category === "infectious-substances"
+  );
+  const hasCategoryBFrustrations = packageFrustrations.some(
+    f => f.category === "biological-category-b"
+  );
 
     console.log("📦 [PackageFrustrationSummary] Frustration breakdown:", {
       hasPOP: hasPOPFrustrations,
       hasMarkingLabel: hasMarkingOrLabelFrustrations,
+      hasPackaging: hasPackagingFrustrations,
+      hasKit: hasKitFrustrations,
+      hasDryIce: hasDryIceFrustrations,
+      hasMagnetized: hasMagnetizedFrustrations,
+      hasLifeSaving: hasLifeSavingFrustrations,
+      hasApparatus: hasApparatusFrustrations,
+      hasClass9General: hasClass9GeneralFrustrations,
+      hasAsbestos: hasAsbestosFrustrations,
+      hasCapacitor: hasCapacitorFrustrations,
+      hasEngines: hasEngineFrustrations,
+      hasConsumerCommodity: hasConsumerCommodityFrustrations,
+      hasMiscArticles: hasMiscArticlesFrustrations,
+      hasFuelVehicle: hasFuelVehicleFrustrations,
+      hasBatteryVehicle: hasBatteryVehicleFrustrations,
+      hasLithiumBattery: hasLithiumBatteryFrustrations,
+      hasLithiumContained: hasLithiumContainedFrustrations,
+      hasLithiumPacked: hasLithiumPackedFrustrations,
+      hasInfectiousSubstances: hasInfectiousSubstancesFrustrations,
+      hasCategoryB: hasCategoryBFrustrations,
     });
 
-    if (hasPOPFrustrations) {
-      // Navigate to POP marking screen first
+    if (hasPackagingFrustrations) {
+      console.log("📦 [PackageFrustrationSummary] Navigating to packaging reinspection");
+      navigation.navigate("InspectorAttachment28WizardScreen");
+    } else if (hasPOPFrustrations) {
       console.log("📦 [PackageFrustrationSummary] Navigating to POP marking reinspection");
       navigation.navigate("InspectorPOPMarkingDataEntry");
+    } else if (hasKitFrustrations) {
+      console.log("📦 [PackageFrustrationSummary] Navigating to kit reinspection");
+      navigation.navigate("InspectorFirstAidChemicalKitScreen");
+    } else if (hasDryIceFrustrations) {
+      console.log(
+        "📦 [PackageFrustrationSummary] Navigating to dry ice reinspection"
+      );
+      navigation.navigate("InspectorDryIceScreen");
+    } else if (hasMagnetizedFrustrations) {
+      console.log(
+        "📦 [PackageFrustrationSummary] Navigating to magnetized material reinspection"
+      );
+      navigation.navigate("InspectorMagnetizedMaterialsScreen");
+    } else if (hasLifeSavingFrustrations) {
+      console.log(
+        "📦 [PackageFrustrationSummary] Navigating to life-saving appliances reinspection"
+      );
+      navigation.navigate("InspectorLifeSavingAppliancesScreen");
+    } else if (hasApparatusFrustrations) {
+      console.log(
+        "📦 [PackageFrustrationSummary] Navigating to dangerous goods in apparatus reinspection"
+      );
+      navigation.navigate("InspectorDangerousGoodsInApparatusScreen");
+    } else if (hasClass9GeneralFrustrations) {
+      console.log(
+        "📦 [PackageFrustrationSummary] Navigating to Class 9 general reinspection"
+      );
+      navigation.navigate("InspectorClass9GeneralScreen");
+    } else if (hasAsbestosFrustrations) {
+      console.log(
+        "📦 [PackageFrustrationSummary] Navigating to asbestos reinspection"
+      );
+      navigation.navigate("InspectorAsbestosScreen");
+    } else if (hasCapacitorFrustrations) {
+      console.log(
+        "📦 [PackageFrustrationSummary] Navigating to capacitor reinspection"
+      );
+      navigation.navigate("InspectorCapacitorsScreen");
+    } else if (hasEngineFrustrations) {
+      console.log(
+        "📦 [PackageFrustrationSummary] Navigating to internal combustion reinspection"
+      );
+      navigation.navigate("InspectorEnginesInternalCombustionScreen");
+    } else if (hasConsumerCommodityFrustrations) {
+      console.log(
+        "📦 [PackageFrustrationSummary] Navigating to consumer commodity reinspection"
+      );
+      navigation.navigate("InspectorConsumerCommodityScreen");
+    } else if (hasMiscArticlesFrustrations) {
+      console.log(
+        "📦 [PackageFrustrationSummary] Navigating to UN3548 reinspection"
+      );
+      navigation.navigate("InspectorMiscDangerousGoodsArticlesScreen");
+    } else if (hasFuelVehicleFrustrations) {
+      console.log(
+        "📦 [PackageFrustrationSummary] Navigating to fuel-powered vehicle reinspection"
+      );
+      navigation.navigate("InspectorFuelPoweredVehicleScreen");
+    } else if (hasBatteryVehicleFrustrations) {
+      console.log(
+        "📦 [PackageFrustrationSummary] Navigating to battery-powered vehicle reinspection"
+      );
+      navigation.navigate("InspectorBatteryPoweredVehicleScreen");
+    } else if (hasLithiumBatteryFrustrations) {
+      console.log(
+        "📦 [PackageFrustrationSummary] Navigating to lithium battery reinspection"
+      );
+      navigation.navigate("InspectorLithiumBatteriesScreen");
+    } else if (hasLithiumContainedFrustrations) {
+      console.log(
+        "📦 [PackageFrustrationSummary] Navigating to lithium contained-in-equipment reinspection"
+      );
+      navigation.navigate("InspectorLithiumBatteriesContainedInEquipmentScreen");
+    } else if (hasLithiumPackedFrustrations) {
+      console.log(
+        "📦 [PackageFrustrationSummary] Navigating to lithium packed-with-equipment reinspection"
+      );
+      navigation.navigate("InspectorLithiumBatteriesPackedWithEquipmentScreen");
+    } else if (hasInfectiousSubstancesFrustrations) {
+      console.log(
+        "📦 [PackageFrustrationSummary] Navigating to infectious substances reinspection"
+      );
+      navigation.navigate("InspectorInfectiousSubstancesScreen");
+    } else if (hasCategoryBFrustrations) {
+      console.log(
+        "📦 [PackageFrustrationSummary] Navigating to Category B reinspection"
+      );
+      navigation.navigate("InspectorBiologicalSubstancesCategoryBScreen");
     } else if (hasMarkingOrLabelFrustrations) {
-      // Skip POP, go directly to markings/labels
       console.log("📦 [PackageFrustrationSummary] Navigating to markings/labels reinspection");
       navigation.navigate("InspectorMarkingsLabelsValidationScreen");
     } else {
@@ -235,6 +404,8 @@ export default function PackageFrustrationSummary({
         ? "Package Marking"
         : frustration.category === "label"
         ? "Package Label"
+        : frustration.category === "packaging"
+        ? "Packaging"
         : "Dry Ice Inspection";
     const fieldLabel = `${frustration.itemLabel.toUpperCase()} (${categoryLabel})`;
 

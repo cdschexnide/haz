@@ -24,10 +24,12 @@ import {
 
 interface InspectorAttachment28WizardScreenProps {
   navigation: any;
+  route?: { params?: { continueRoute?: string; continueParams?: any } };
 }
 
 export default function InspectorAttachment28WizardScreen({
   navigation,
+  route,
 }: InspectorAttachment28WizardScreenProps) {
   const {
     inspection,
@@ -98,15 +100,46 @@ export default function InspectorAttachment28WizardScreen({
     setAdditionalComments("");
   }, [currentStep]);
 
-  const navigateToNext = useCallback(() => {
-    const hasPackageFrustrations = (inspection?.packageFrustrations?.length ?? 0) > 0;
+  useEffect(() => {
+    if (workflow.reinspection.mode !== "package") {
+      return;
+    }
 
+    const targetIds = new Set(workflow.reinspection.targetFrustrations);
+    if (targetIds.size === 0) {
+      return;
+    }
+
+    const firstTargetIndex = criteria.findIndex((criterion) =>
+      targetIds.has(criterion.id)
+    );
+
+    if (firstTargetIndex >= 0 && firstTargetIndex !== currentStep) {
+      setCurrentStep(firstTargetIndex);
+    }
+  }, [criteria, currentStep, workflow.reinspection.mode, workflow.reinspection.targetFrustrations]);
+
+  const navigateToNext = useCallback(() => {
+    if (workflow.reinspection.mode !== "package") {
+      if (route?.params?.continueRoute) {
+        navigation.navigate(route.params.continueRoute, route.params.continueParams);
+        return;
+      }
+    }
+
+    const hasPackageFrustrations = (inspection?.packageFrustrations?.length ?? 0) > 0;
     if (hasPackageFrustrations) {
       navigation.navigate("PackageFrustrationSummary");
     } else {
       navigation.navigate("PackageInspectionCompleteScreen");
     }
-  }, [navigation, inspection?.packageFrustrations?.length]);
+  }, [
+    navigation,
+    inspection?.packageFrustrations?.length,
+    route?.params?.continueParams,
+    route?.params?.continueRoute,
+    workflow.reinspection.mode,
+  ]);
 
   const handleValidate = useCallback(() => {
     if (!currentCriterion) return;
@@ -296,7 +329,7 @@ export default function InspectorAttachment28WizardScreen({
         </View>
 
         {/* Progress Bar */}
-        <View style={styles.progressBarContainer}>
+        {/* <View style={styles.progressBarContainer}>
           <View style={styles.progressBarBackground}>
             <View
               style={[
@@ -308,7 +341,7 @@ export default function InspectorAttachment28WizardScreen({
           <Text style={styles.progressText}>
             Validated: {validatedCount} | Frustrated: {frustratedCount}
           </Text>
-        </View>
+        </View> */}
 
         {/* Main Content */}
         <View style={styles.mainContent}>
@@ -338,18 +371,18 @@ export default function InspectorAttachment28WizardScreen({
                       </Text>
                     </View>
 
-                    <View style={styles.afmanReference}>
+                    {/* <View style={styles.afmanReference}>
                       <MaterialIcons name="book" size={16} color="#007AFF" />
                       <Text style={styles.afmanReferenceText}>
                         {currentCriterion.afmanRef}
                       </Text>
-                    </View>
+                    </View> */}
 
                     {currentFrustration && (
                       <View style={styles.frustrationIndicator}>
                         <MaterialIcons name="error" size={20} color="#FF3B30" />
                         <Text style={styles.frustrationText}>
-                          Previously Frustrated
+                          Frustrated
                         </Text>
                       </View>
                     )}
