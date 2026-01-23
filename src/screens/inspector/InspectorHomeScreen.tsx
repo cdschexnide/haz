@@ -1,7 +1,7 @@
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { Button, ListItem } from "react-native-elements";
 import { StatusBar } from "expo-status-bar";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import {
   Alert,
   FlatList,
@@ -39,6 +39,7 @@ import CompatibilitySegregationModal from "../../components/CompatibilitySegrega
 import { InspectorShipment } from "../../types/sddg";
 import { useDatabase } from "../../contexts/DataProvider";
 import { useInspectionFormActions } from "../../contexts/InspectionFormProvider";
+import { useFocusEffect } from "@react-navigation/native";
 import { InspectorAMC1015Form } from "./InspectorAMC1015Form";
 import { MLDetectionScreen } from "./MLDetectionScreen";
 import { DevBenchmarkButton } from "../../components/dev/DevBenchmarkButton";
@@ -193,6 +194,45 @@ function InspectorHomeScreenComponent({
     inspectorDispatch({ type: "RESET_CONTEXT" });
   }, []);
 
+  const loadInspections = useCallback(async () => {
+    try {
+      console.log(
+        "🗄️ [InspectorHome] Database initialized, loading inspections..."
+      );
+
+      // Load inspections from SQLite
+      const data = await database.listInspections();
+      setInspections(data);
+
+      // DEBUG: Query SQLite database directly
+      console.log("🗄️ [DEBUG] Querying SQLite database...");
+      console.log("🗄️ [DEBUG] Total inspections in SQLite:", data.length);
+
+      if (data.length > 0) {
+        console.log(
+          "🗄️ [DEBUG] Most recent inspection:",
+          JSON.stringify(data[0], null, 2)
+        );
+
+        // Load full details of the most recent inspection
+        const fullInspection = await database.loadInspection(data[0].id);
+        console.log(
+          "🗄️ [DEBUG] Full inspection data:",
+          JSON.stringify(fullInspection, null, 2)
+        );
+      }
+
+      // Get database stats
+      const stats = await database.getInspectionStats();
+      console.log(
+        "🗄️ [DEBUG] Database stats:",
+        JSON.stringify(stats, null, 2)
+      );
+    } catch (error) {
+      console.error("Failed to load inspections from database:", error);
+    }
+  }, [database]);
+
   // Load inspections when database is initialized
   useEffect(() => {
     if (!database.isInitialized) {
@@ -200,48 +240,18 @@ function InspectorHomeScreenComponent({
       return;
     }
 
-    // Load inspections from SQLite database
-    const loadInspections = async () => {
-      try {
-        console.log(
-          "🗄️ [InspectorHome] Database initialized, loading inspections..."
-        );
-
-        // Load inspections from SQLite
-        const data = await database.listInspections();
-        setInspections(data);
-
-        // DEBUG: Query SQLite database directly
-        console.log("🗄️ [DEBUG] Querying SQLite database...");
-        console.log("🗄️ [DEBUG] Total inspections in SQLite:", data.length);
-
-        if (data.length > 0) {
-          console.log(
-            "🗄️ [DEBUG] Most recent inspection:",
-            JSON.stringify(data[0], null, 2)
-          );
-
-          // Load full details of the most recent inspection
-          const fullInspection = await database.loadInspection(data[0].id);
-          console.log(
-            "🗄️ [DEBUG] Full inspection data:",
-            JSON.stringify(fullInspection, null, 2)
-          );
-        }
-
-        // Get database stats
-        const stats = await database.getInspectionStats();
-        console.log(
-          "🗄️ [DEBUG] Database stats:",
-          JSON.stringify(stats, null, 2)
-        );
-      } catch (error) {
-        console.error("Failed to load inspections from database:", error);
-      }
-    };
-
     loadInspections();
-  }, [database.isInitialized]);
+  }, [database.isInitialized, loadInspections]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!database.isInitialized) {
+        return;
+      }
+
+      loadInspections();
+    }, [database.isInitialized, loadInspections])
+  );
 
   // Function to handle SDDG status click - load real inspection data
   const handleSDDGStatusClick = async (inspection: InspectorShipment) => {

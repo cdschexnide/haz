@@ -23,6 +23,7 @@ import { Form1015CheckBoxWithStatus } from "../../components/Inspector/Form1015C
 import { useHazProActions } from "../../stores/useHazProStore";
 import { DevBenchmarkButton } from "../../components/dev/DevBenchmarkButton";
 import { ActionFooter, colors, spacing, borderRadius } from "../../components/ui";
+import { hazardousMaterialsA13List } from "@/hazardousMaterials/hazardousMaterialsA13List";
 
 interface InspectorAMC1015FormProps {
   navigation?: any;
@@ -48,6 +49,7 @@ export const InspectorAMC1015Form = ({
     inspection.resolvedPackageFrustrations || [];
   const verificationCopy = inspection.verificationCopy;
 
+  console.log('hazardousMaterialsA13List: ', JSON.stringify(hazardousMaterialsA13List, null, 2))
   // Helper to format inspector for display
   const formatInspector = (inspectorData: any): string => {
     if (typeof inspectorData === "string") {
@@ -91,9 +93,53 @@ export const InspectorAMC1015Form = ({
     .split("T")[0]
     .replace(/-/g, "");
 
-  // For now, reinspection date is only set if corrective actions were taken
-  const correctiveActionsChecked = false; // Will be true when we implement correction tracking
-  const reinspectedByDate = correctiveActionsChecked ? inspectedByDate : "";
+  // Check if corrective actions were taken and completed
+  // correctiveActionsChecked is true when:
+  // 1. There were frustrations that have been resolved (resolved frustrations exist)
+  // 2. AND all frustrations have been resolved (no current frustrations remain)
+  const hasResolvedFrustrations =
+    resolvedSddgFrustrations.length > 0 || resolvedPackageFrustrations.length > 0;
+  const correctiveActionsChecked = hasResolvedFrustrations && allPassed;
+
+  // Get the most recent reinspection info from resolved frustrations
+  const getLatestReinspectionInfo = (): { latestDate: Date | null; latestInspector: string } => {
+    let latestDate: Date | null = null;
+    let latestInspector: string = "";
+
+    // Check resolved SDDG frustrations
+    resolvedSddgFrustrations.forEach(frustration => {
+      if (frustration.reinspectionHistory?.length > 0) {
+        const lastAttempt = frustration.reinspectionHistory[frustration.reinspectionHistory.length - 1];
+        const attemptDate = new Date(lastAttempt.date);
+        if (!latestDate || attemptDate > latestDate) {
+          latestDate = attemptDate;
+          latestInspector = lastAttempt.inspector || "";
+        }
+      }
+    });
+
+    // Check resolved package frustrations
+    resolvedPackageFrustrations.forEach(frustration => {
+      if (frustration.reinspectionHistory?.length > 0) {
+        const lastAttempt = frustration.reinspectionHistory[frustration.reinspectionHistory.length - 1];
+        const attemptDate = new Date(lastAttempt.date);
+        if (!latestDate || attemptDate > latestDate) {
+          latestDate = attemptDate;
+          latestInspector = lastAttempt.inspector || "";
+        }
+      }
+    });
+
+    return { latestDate, latestInspector };
+  };
+
+  const { latestDate: reinspectionDate, latestInspector: reinspectedByInspector } =
+    getLatestReinspectionInfo();
+
+  // Format the reinspection date as YYYYMMDD
+  const reinspectedByDate = reinspectionDate
+    ? reinspectionDate.toISOString().split("T")[0].replace(/-/g, "")
+    : "";
 
   // Format frustrations for comments section with complete reinspection history
   const formatFrustrationsForComments = () => {
@@ -613,7 +659,7 @@ export const InspectorAMC1015Form = ({
             <div class="flex-30">
               <div class="label">CORRECTED BY (NAME)</div>
               <div class="value">${
-                correctiveActionsChecked ? inspector : "N/A"
+                correctiveActionsChecked ? reinspectedByInspector : "N/A"
               }</div>
             </div>
           </div>
@@ -629,7 +675,7 @@ export const InspectorAMC1015Form = ({
             <div class="flex-30">
               <div class="label">RE-INSPECTED BY (NAME)</div>
               <div class="value">${
-                correctiveActionsChecked ? inspector : "N/A"
+                correctiveActionsChecked ? reinspectedByInspector : "N/A"
               }</div>
             </div>
             <div class="flex-50">
@@ -1532,25 +1578,31 @@ export const InspectorAMC1015Form = ({
     }
   };
 
-  const handleCompleteInspectionWithFrustration = async () => {
+  const handleCompleteInspection = async () => {
     const totalFrustrations =
       sddgFrustrations.length + packageFrustrations.length;
+    const hasFrustrations = totalFrustrations > 0;
+    const alertMessage = hasFrustrations
+      ? `This inspection will be marked as complete with ${totalFrustrations} frustration${
+          totalFrustrations !== 1 ? "s" : ""
+        }.\n\nThe shipment requires re-inspection before it can proceed for airlift.`
+      : "This inspection will be marked as complete with 0 frustrations.";
+    const confirmLabel = hasFrustrations
+      ? "Complete with Frustration"
+      : "Complete Inspection";
 
     Alert.alert(
       "Complete Inspection",
-      `This inspection will be marked as complete with ${totalFrustrations} frustration${
-        totalFrustrations !== 1 ? "s" : ""
-      }.\n\nThe shipment requires re-inspection before it can proceed for airlift.`,
+      alertMessage,
       [
         { text: "Cancel", style: "cancel" },
         {
-          text: "Complete with Frustration",
-          style: "destructive",
+          text: confirmLabel,
+          style: hasFrustrations ? "destructive" : "default",
           onPress: async () => {
             try {
-              // Log completion start
               console.log(
-                "🚨 [AMC1015] Starting inspection completion with frustrations:",
+                "🚨 [AMC1015] Starting inspection completion:",
                 {
                   sddgFrustrations: sddgFrustrations.length,
                   packageFrustrations: packageFrustrations.length,
@@ -1560,7 +1612,6 @@ export const InspectorAMC1015Form = ({
                 }
               );
 
-              // Use the new completion action that saves to database
               const result = await completeInspection();
 
               if (result?.success) {
@@ -1568,7 +1619,6 @@ export const InspectorAMC1015Form = ({
                   "✅ [AMC1015] Inspection completed and saved successfully"
                 );
 
-                // Navigate back to Inspector Home
                 if (navigation) {
                   navigation.navigate("InspectorHomeStack", {
                     screen: "InspectorHome",
@@ -1669,7 +1719,7 @@ export const InspectorAMC1015Form = ({
             <View style={styles.flex30}>
               <Text style={styles.label}>CORRECTED BY (NAME)</Text>
               <Text style={styles.value}>
-                {correctiveActionsChecked ? inspector : "N/A"}
+                {correctiveActionsChecked ? reinspectedByInspector : "N/A"}
               </Text>
             </View>
           </View>
@@ -1683,7 +1733,7 @@ export const InspectorAMC1015Form = ({
             <View style={styles.flex30}>
               <Text style={styles.label}>RE-INSPECTED BY (NAME)</Text>
               <Text style={styles.value}>
-                {correctiveActionsChecked ? inspector : "N/A"}
+                {correctiveActionsChecked ? reinspectedByInspector : "N/A"}
               </Text>
             </View>
             <View style={styles.flex50Row}>
@@ -2735,7 +2785,7 @@ export const InspectorAMC1015Form = ({
           },
           {
             label: "Complete Inspection",
-            onPress: handleCompleteInspectionWithFrustration,
+            onPress: handleCompleteInspection,
             variant: "primary",
           },
         ]}
