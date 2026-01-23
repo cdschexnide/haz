@@ -5,7 +5,6 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Alert,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
@@ -232,28 +231,8 @@ export default function InspectorAttachment28WizardScreen({
   }, [currentStep]);
 
   const handleFinalSubmit = useCallback(() => {
-    const currentFrustrations =
-      inspection?.packageFrustrations?.filter(
-        (f) => f.category === "packaging" && f.itemId.startsWith("a28-")
-      ) || [];
-
-    if (currentFrustrations.length === 0 && frustratedCount === 0) {
-      Alert.alert(
-        "Packaging Inspection Complete",
-        "All packaging criteria have been validated successfully.",
-        [
-          { text: "Cancel", style: "cancel" },
-          {
-            text: "Continue",
-            style: "default",
-            onPress: navigateToNext,
-          },
-        ]
-      );
-    } else {
-      navigateToNext();
-    }
-  }, [inspection?.packageFrustrations, frustratedCount, navigateToNext]);
+    navigateToNext();
+  }, [navigateToNext]);
 
   // Empty state: No applicable criteria
   if (criteria.length === 0) {
