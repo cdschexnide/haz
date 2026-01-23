@@ -30,7 +30,6 @@ export default function PackageInspectionCompleteScreen({
   const {
     inspection,
     workflow,
-    completeInspection,
     updateReinspectedInspection,
     completeReinspection,
   } = useInspectionForm();
@@ -83,18 +82,8 @@ export default function PackageInspectionCompleteScreen({
 
         console.log("📦 [PackageInspectionComplete] Reinspection updated successfully, navigating to Form 1015");
       } else {
-        // Normal flow: Save new inspection to database
-        const result = await completeInspection();
-
-        if (!result.success) {
-          Alert.alert("Error", result.error || "Failed to save inspection", [
-            { text: "OK" },
-          ]);
-          return;
-        }
-
         console.log(
-          "📦 [PackageInspectionComplete] Inspection saved, navigating to Form 1015"
+          "📦 [PackageInspectionComplete] Navigating to Form 1015 (save happens on completion)"
         );
       }
 

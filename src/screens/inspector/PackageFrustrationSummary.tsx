@@ -43,7 +43,6 @@ export default function PackageFrustrationSummary({
   // Actions-only hook
   const {
     startPackageReinspection,
-    completeInspection,
     completeReinspection,
     updateReinspectedInspection,
   } = useInspectionFormActions();
@@ -376,10 +375,7 @@ export default function PackageFrustrationSummary({
       // Navigate to Form 1015 (same as initial inspection flow)
       navigation.navigate("InspectorAMC1015Form");
     } else {
-      // Original inspection flow - complete and go to Form 1015
-      completeInspection();
-
-      // Log the completion with frustrations
+      // Original inspection flow - go to Form 1015, save on completion
       console.log("Package inspection completed with frustrations:", {
         frustrationCount: packageFrustrations.length,
         markingFrustrations: markingFrustrations.length,
