@@ -935,6 +935,73 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
           "For UN0029: Sift-proof bags (5H2) recommended for flake or prilled TNT, max 30kg",
         ],
       },
+      {
+        id: "A5.6.3.single_drums",
+        type: "single",
+        description:
+          "Single packaging in drums when inner packagings are not required",
+        innerPackaging: {
+          required: false,
+          description:
+            "Inner packagings not required when drums are used as outer packaging",
+        },
+        outerPackaging: {
+          categories: [
+            {
+              type: "drums",
+              containers: [
+                { code: "1A1", material: "steel", description: "Steel drum" },
+                {
+                  code: "1A2",
+                  material: "steel",
+                  description: "Steel drum with removable head",
+                },
+                {
+                  code: "1B1",
+                  material: "aluminum",
+                  description: "Aluminum drum",
+                },
+                {
+                  code: "1B2",
+                  material: "aluminum",
+                  description: "Aluminum drum with removable head",
+                },
+                {
+                  code: "1N1",
+                  material: "other_metal",
+                  description: "Other metal drum",
+                },
+                {
+                  code: "1N2",
+                  material: "other_metal",
+                  description: "Other metal drum with removable head",
+                },
+                {
+                  code: "1D",
+                  material: "plywood",
+                  description: "Plywood drum",
+                },
+                { code: "1G", material: "fiber", description: "Fiber drum" },
+                {
+                  code: "1H1",
+                  material: "plastic",
+                  description: "Plastic drum",
+                },
+                {
+                  code: "1H2",
+                  material: "plastic",
+                  description: "Plastic drum with removable head",
+                },
+              ],
+            },
+          ],
+        },
+        restrictions: ["At least one packaging layer must be sift-proof"],
+        notes: [
+          "Inner packagings not required when drums are used as outer packaging",
+          "Sift-proof requirement mandatory for powder materials",
+        ],
+      },
     ],
 
     specialRequirements: [
@@ -1199,6 +1266,150 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
           "Includes bag packaging options (5-series containers)",
           "Intermediate packaging required only for UN0150",
         ],
+      },
+      {
+        id: "A5.7.1.single_outer_packaging",
+        type: "single",
+        description:
+          "Single packaging when inner packagings are not required (e.g., UN0222)",
+        innerPackaging: {
+          required: false,
+          description: "Inner packaging not required for specific UNs",
+        },
+        outerPackaging: {
+          categories: [
+            {
+              type: "bags",
+              containers: [
+                {
+                  code: "5H2",
+                  material: "woven_plastic",
+                  description: "Sift-proof woven plastic bag",
+                },
+                {
+                  code: "5H3",
+                  material: "woven_plastic",
+                  description: "Water-resistant woven plastic bag",
+                },
+                {
+                  code: "5H4",
+                  material: "plastic_film",
+                  description: "Plastic film bag",
+                },
+                {
+                  code: "5L2",
+                  material: "textile",
+                  description: "Sift-proof textile bag",
+                },
+                {
+                  code: "5L3",
+                  material: "textile",
+                  description: "Water-resistant textile bag",
+                },
+                {
+                  code: "5M2",
+                  material: "paper",
+                  description: "Multiwall water-resistant paper bag",
+                },
+              ],
+            },
+            {
+              type: "boxes",
+              containers: [
+                { code: "4A", material: "steel", description: "Steel box" },
+                {
+                  code: "4B",
+                  material: "aluminum",
+                  description: "Aluminum box",
+                },
+                {
+                  code: "4N",
+                  material: "other_metal",
+                  description: "Other metal box",
+                },
+                {
+                  code: "4C1",
+                  material: "natural_wood",
+                  description: "Ordinary natural wood box",
+                },
+                {
+                  code: "4C2",
+                  material: "natural_wood",
+                  description: "Sift-proof natural wood box",
+                },
+                { code: "4D", material: "plywood", description: "Plywood box" },
+                {
+                  code: "4F",
+                  material: "reconstituted_wood",
+                  description: "Reconstituted wood box",
+                },
+                {
+                  code: "4G",
+                  material: "fiberboard",
+                  description: "Fiberboard box",
+                },
+                {
+                  code: "4H1",
+                  material: "plastic",
+                  description: "Expanded plastic box",
+                },
+                {
+                  code: "4H2",
+                  material: "plastic",
+                  description: "Solid plastic box",
+                },
+              ],
+            },
+            {
+              type: "drums",
+              containers: [
+                { code: "1A1", material: "steel", description: "Steel drum" },
+                {
+                  code: "1A2",
+                  material: "steel",
+                  description: "Steel drum with removable head",
+                },
+                {
+                  code: "1B1",
+                  material: "aluminum",
+                  description: "Aluminum drum",
+                },
+                {
+                  code: "1B2",
+                  material: "aluminum",
+                  description: "Aluminum drum with removable head",
+                },
+                {
+                  code: "1N1",
+                  material: "other_metal",
+                  description: "Other metal drum",
+                },
+                {
+                  code: "1N2",
+                  material: "other_metal",
+                  description: "Other metal drum with removable head",
+                },
+                {
+                  code: "1D",
+                  material: "plywood",
+                  description: "Plywood drum",
+                },
+                { code: "1G", material: "fiber", description: "Fiber drum" },
+                {
+                  code: "1H1",
+                  material: "plastic",
+                  description: "Plastic drum",
+                },
+                {
+                  code: "1H2",
+                  material: "plastic",
+                  description: "Plastic drum with removable head",
+                },
+              ],
+            },
+          ],
+        },
+        notes: ["Inner packaging not required for specific UNs (e.g., UN0222)"],
       },
       {
         id: "A5.7.2.dry_powder_solids",
@@ -1959,6 +2170,72 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
           "Metal packaging prohibited for UN0509",
         ],
       },
+      {
+        id: "A5.9.single_drums",
+        type: "single",
+        description:
+          "Single packaging in drums when inner packagings are not required",
+        innerPackaging: {
+          required: false,
+          description:
+            "Inner packaging not required for specific UNs when packed in drums",
+        },
+        outerPackaging: {
+          categories: [
+            {
+              type: "drums",
+              containers: [
+                { code: "1A1", material: "steel", description: "Steel drum" },
+                {
+                  code: "1A2",
+                  material: "steel",
+                  description: "Steel drum with removable head",
+                },
+                {
+                  code: "1B1",
+                  material: "aluminum",
+                  description: "Aluminum drum",
+                },
+                {
+                  code: "1B2",
+                  material: "aluminum",
+                  description: "Aluminum drum with removable head",
+                },
+                {
+                  code: "1N1",
+                  material: "other_metal",
+                  description: "Other metal drum",
+                },
+                {
+                  code: "1N2",
+                  material: "other_metal",
+                  description: "Other metal drum with removable head",
+                },
+                {
+                  code: "1D",
+                  material: "plywood",
+                  description: "Plywood drum",
+                },
+                { code: "1G", material: "fiber", description: "Fiber drum" },
+                {
+                  code: "1H1",
+                  material: "plastic",
+                  description: "Plastic drum",
+                },
+                {
+                  code: "1H2",
+                  material: "plastic",
+                  description: "Plastic drum with removable head",
+                },
+              ],
+            },
+          ],
+        },
+        notes: [
+          "Inner packaging not required for UN0342 when packed in drums",
+          "Inner packaging not required for UN0160/UN0161 when packed in drums",
+        ],
+      },
     ],
 
     specialRequirements: [
@@ -2599,6 +2876,177 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
           "Jerricans available as alternative outer packaging",
         ],
       },
+      {
+        id: "A5.11.single_outer_packaging",
+        type: "single",
+        description:
+          "Single packaging when inner packagings are not required",
+        innerPackaging: {
+          required: false,
+          description:
+            "Inner packagings may be omitted under specific conditions listed in A5.11",
+        },
+        outerPackaging: {
+          categories: [
+            {
+              type: "boxes",
+              containers: [
+                { code: "4A", material: "steel", description: "Steel box" },
+                {
+                  code: "4B",
+                  material: "aluminum",
+                  description: "Aluminum box",
+                },
+                {
+                  code: "4N",
+                  material: "other_metal",
+                  description: "Other metal box",
+                },
+                {
+                  code: "4C1",
+                  material: "natural_wood",
+                  description: "Ordinary natural wood box",
+                },
+                {
+                  code: "4C2",
+                  material: "natural_wood",
+                  description: "Sift-proof natural wood box",
+                },
+                { code: "4D", material: "plywood", description: "Plywood box" },
+                {
+                  code: "4F",
+                  material: "reconstituted_wood",
+                  description: "Reconstituted wood box",
+                },
+                {
+                  code: "4G",
+                  material: "fiberboard",
+                  description: "Fiberboard box",
+                },
+                {
+                  code: "4H2",
+                  material: "plastic",
+                  description: "Solid plastic box",
+                },
+              ],
+            },
+            {
+              type: "drums",
+              containers: [
+                { code: "1A1", material: "steel", description: "Steel drum" },
+                {
+                  code: "1A2",
+                  material: "steel",
+                  description: "Steel drum with removable head",
+                },
+                {
+                  code: "1B1",
+                  material: "aluminum",
+                  description: "Aluminum drum",
+                },
+                {
+                  code: "1B2",
+                  material: "aluminum",
+                  description: "Aluminum drum with removable head",
+                },
+                {
+                  code: "1N1",
+                  material: "other_metal",
+                  description: "Other metal drum",
+                },
+                {
+                  code: "1N2",
+                  material: "other_metal",
+                  description: "Other metal drum with removable head",
+                },
+                {
+                  code: "1D",
+                  material: "plywood",
+                  description: "Plywood drum",
+                },
+                { code: "1G", material: "fiber", description: "Fiber drum" },
+                {
+                  code: "1H1",
+                  material: "plastic",
+                  description: "Plastic drum",
+                },
+                {
+                  code: "1H2",
+                  material: "plastic",
+                  description: "Plastic drum with removable head",
+                },
+              ],
+            },
+            {
+              type: "jerricans",
+              containers: [
+                {
+                  code: "3A1",
+                  material: "steel",
+                  description: "Steel jerrican",
+                },
+                {
+                  code: "3A2",
+                  material: "steel",
+                  description: "Steel jerrican with removable head",
+                },
+                {
+                  code: "3H1",
+                  material: "plastic",
+                  description: "Plastic jerrican",
+                },
+                {
+                  code: "3H2",
+                  material: "plastic",
+                  description: "Plastic jerrican with removable head",
+                },
+              ],
+            },
+            {
+              type: "bags",
+              containers: [
+                {
+                  code: "5H1",
+                  material: "woven_plastic",
+                  description: "Woven plastic bag",
+                },
+                {
+                  code: "5H2",
+                  material: "woven_plastic",
+                  description: "Sift-proof woven plastic bag",
+                },
+                {
+                  code: "5H3",
+                  material: "woven_plastic",
+                  description: "Water-resistant woven plastic bag",
+                },
+                {
+                  code: "5H4",
+                  material: "plastic_film",
+                  description: "Plastic film bag",
+                },
+                {
+                  code: "5L2",
+                  material: "textile",
+                  description: "Sift-proof textile bag",
+                },
+                {
+                  code: "5L3",
+                  material: "textile",
+                  description: "Water-resistant textile bag",
+                },
+                {
+                  code: "5M2",
+                  material: "paper",
+                  description: "Multiwall water-resistant paper bag",
+                },
+              ],
+            },
+          ],
+        },
+        restrictions: ["Bags prohibited for UN0081"],
+        notes: ["Inner packagings may be omitted for specific UNs per A5.11"],
+      },
     ],
 
     specialRequirements: [
@@ -2694,447 +3142,175 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
 
     referencedParagraphs: ["A5.11"],
   },
-  "A5.12.": {
-    paragraphId: "A5.12.",
-    hazardClass: 1,
-    description:
-      "Ammunition, Illuminating; Ammunition, Incendiary; Ammunition, Incendiary, White Phosphorus; Ammunition, Practice; Ammunition, Proof; Ammunition, Smoke; Ammunition, Smoke, White Phosphorus; Ammunition, Tear-Producing; Bombs; Bombs, Photo-Flash; Cartridges, Depth; Cartridges for Weapons; Cartridges for Weapons, Blank; Cartridges for Weapons, Inert Projectile; Cartridges, Small Arms; Cartridges, Small Arms, Blank; Charges, Bursting, Charges, Demolition; Plastic Bonded; Charges, Propelling for Cannon; Mines; Projectiles; Rocket Motors; Rockets; Rockets, Line-Throwing; Torpedoes; Warheads, Rocket; and Warheads, Torpedo",
-    lastUpdated: new Date().toISOString(),
-    entryType: "specialized",
-    materialTypes: [
-      "ammunition_various",
-      "ordnance_military",
-      "cartridges_weapons",
-      "bombs_explosive",
-      "rockets_missiles",
-      "mines_military",
-      "warheads_explosive",
-    ],
-    applicableUNNumbers: [
-      "UN0006",
-      "UN0009",
-      "UN0010",
-      "UN0015",
-      "UN0016",
-      "UN0018",
-      "UN0019",
-      "UN0034",
-      "UN0035",
-      "UN0038",
-      "UN0039",
-      "UN0048",
-      "UN0056",
-      "UN0137",
-      "UN0138",
-      "UN0168",
-      "UN0169",
-      "UN0171",
-      "UN0181",
-      "UN0182",
-      "UN0183",
-      "UN0186",
-      "UN0221",
-      "UN0238",
-      "UN0243",
-      "UN0244",
-      "UN0245",
-      "UN0246",
-      "UN0254",
-      "UN0280",
-      "UN0281",
-      "UN0286",
-      "UN0287",
-      "UN0297",
-      "UN0299",
-      "UN0300",
-      "UN0301",
-      "UN0303",
-      "UN0321",
-      "UN0328",
-      "UN0329",
-      "UN0344",
-      "UN0345",
-      "UN0346",
-      "UN0347",
-      "UN0362",
-      "UN0363",
-      "UN0370",
-      "UN0412",
-      "UN0424",
-      "UN0425",
-      "UN0434",
-      "UN0435",
-      "UN0436",
-      "UN0437",
-      "UN0438",
-      "UN0451",
-      "UN0459",
-      "UN0488",
-    ],
+"A5.12.": {
+      paragraphId: "A5.12.",
+      hazardClass: 1,
+      description:
+        `Ammunition, Illuminating; Ammunition, Incendiary; Ammunition, Incendiary, White Phosphorus; Ammunition, Practice; Ammunition, Proof; Ammunition, Smoke; Ammunition, Smoke, White Phosphorus; Ammunition, Tear-Producing; Bombs; Bombs, Photo-Flash; Cartridges, Depth;
+  Cartridges for Weapons; Cartridges for Weapons, Blank; Cartridges for Weapons, Inert Projectile; Cartridges, Small Arms; Cartridges, Small Arms, Blank; Charges, Bursting, Charges, Demolition; Plastic Bonded; Charges, Propelling for Cannon; Mines; Projectiles; Rocket
+  Motors; Rockets; Rockets, Line-Throwing; Torpedoes; Warheads, Rocket; and Warheads, Torpedo`,
+      lastUpdated: new Date().toISOString(),
+      entryType: "specialized",
+      materialTypes: [
+        "ammunition_various",
+        "ordnance_military",
+        "cartridges_weapons",
+        "bombs_explosive",
+        "rockets_missiles",
+        "mines_military",
+        "warheads_explosive",
+      ],
+      applicableUNNumbers: [
+        "UN0006",
+        "UN0009",
+        "UN0010",
+        "UN0015",
+        "UN0016",
+        "UN0018",
+        "UN0019",
+        "UN0034",
+        "UN0035",
+        "UN0038",
+        "UN0039",
+        "UN0048",
+        "UN0056",
+        "UN0137",
+        "UN0138",
+        "UN0168",
+        "UN0169",
+        "UN0171",
+        "UN0181",
+        "UN0182",
+        "UN0183",
+        "UN0186",
+        "UN0221",
+        "UN0238",
+        "UN0243",
+        "UN0244",
+        "UN0245",
+        "UN0246",
+        "UN0254",
+        "UN0280",
+        "UN0281",
+        "UN0286",
+        "UN0287",
+        "UN0297",
+        "UN0299",
+        "UN0300",
+        "UN0301",
+        "UN0303",
+        "UN0321",
+        "UN0328",
+        "UN0329",
+        "UN0344",
+        "UN0345",
+        "UN0346",
+        "UN0347",
+        "UN0362",
+        "UN0363",
+        "UN0370",
+        "UN0412",
+        "UN0424",
+        "UN0425",
+        "UN0434",
+        "UN0435",
+        "UN0436",
+        "UN0437",
+        "UN0438",
+        "UN0451",
+        "UN0459",
+        "UN0488",
+      ],
 
-    packagingOptions: [
-      {
-        id: "A5.12.1.standard",
-        type: "single",
-        description:
-          "Standard packaging for ammunition and ordnance (no inner packaging required)",
-        innerPackaging: {
-          required: false,
+      packagingOptions: [
+        {
+          id: "A5.12.1.single",
+          type: "single",
+          description: "Boxes, drums, or large packagings (inner packaging not required)",
+          innerPackaging: {
+            required: false,
+          },
+          outerPackaging: {
+            categories: [
+              {
+                type: "boxes",
+                containers: [
+                  { code: "4A", material: "steel", description: "Steel box" },
+                  { code: "4B", material: "aluminum", description: "Aluminum box" },
+                  { code: "4C1", material: "natural_wood", description: "Ordinary natural wood box" },
+                  { code: "4C2", material: "natural_wood", description: "Sift-proof natural wood box" },
+                  { code: "4D", material: "plywood", description: "Plywood box" },
+                  { code: "4F", material: "reconstituted_wood", description: "Reconstituted wood box" },
+                  { code: "4G", material: "fiberboard", description: "Fiberboard box" },
+                  { code: "4H1", material: "plastic", description: "Expanded plastic box" },
+                  { code: "4H2", material: "plastic", description: "Solid plastic box" },
+                  { code: "4N", material: "other_metal", description: "Other metal box" },
+                ],
+              },
+              {
+                type: "drums",
+                containers: [
+                  { code: "1A1", material: "steel", description: "Steel drum" },
+                  { code: "1A2", material: "steel", description: "Steel drum" },
+                  { code: "1B1", material: "aluminum", description: "Aluminum drum" },
+                  { code: "1B2", material: "aluminum", description: "Aluminum drum" },
+                  { code: "1D", material: "plywood", description: "Plywood drum" },
+                  { code: "1G", material: "fiber", description: "Fiber drum" },
+                  { code: "1H1", material: "plastic", description: "Plastic drum" },
+                  { code: "1H2", material: "plastic", description: "Plastic drum" },
+                  { code: "1N1", material: "other_metal", description: "Other metal drum" },
+                  { code: "1N2", material: "other_metal", description: "Other metal drum" },
+                ],
+              },
+              {
+                type: "large_packagings",
+                containers: [
+                  { code: "50A", material: "steel", description: "Steel large packaging" },
+                  { code: "50B", material: "aluminum", description: "Aluminum large packaging" },
+                  { code: "50C", material: "natural_wood", description: "Natural wood large packaging" },
+                  { code: "50D", material: "plywood", description: "Plywood large packaging" },
+                  { code: "50F", material: "reconstituted_wood", description: "Reconstituted wood large packaging" },
+                  { code: "50G", material: "rigid_fiberboard", description: "Rigid fiberboard large packaging" },
+                  { code: "50H", material: "rigid_plastic", description: "Rigid plastic large packaging" },
+                  { code: "50N", material: "other_metal", description: "Other metal large packaging" },
+                ],
+              },
+            ],
+          },
         },
-        outerPackaging: {
-          categories: [
-            {
-              type: "boxes",
-              containers: [
-                { code: "4A", material: "steel", description: "Steel box" },
-                {
-                  code: "4B",
-                  material: "aluminum",
-                  description: "Aluminum box",
-                },
-                {
-                  code: "4N",
-                  material: "other_metal",
-                  description: "Other metal box",
-                },
-                {
-                  code: "4C1",
-                  material: "natural_wood",
-                  description: "Ordinary natural wood box",
-                },
-                {
-                  code: "4C2",
-                  material: "natural_wood",
-                  description: "Sift-proof natural wood box",
-                },
-                { code: "4D", material: "plywood", description: "Plywood box" },
-                {
-                  code: "4F",
-                  material: "reconstituted_wood",
-                  description: "Reconstituted wood box",
-                },
-                {
-                  code: "4G",
-                  material: "fiberboard",
-                  description: "Fiberboard box",
-                },
-                {
-                  code: "4H1",
-                  material: "plastic",
-                  description: "Expanded plastic box",
-                },
-                {
-                  code: "4H2",
-                  material: "plastic",
-                  description: "Solid plastic box",
-                },
-              ],
-            },
-            {
-              type: "drums",
-              containers: [
-                { code: "1A1", material: "steel", description: "Steel drum" },
-                {
-                  code: "1A2",
-                  material: "steel",
-                  description: "Steel drum with removable head",
-                },
-                {
-                  code: "1B1",
-                  material: "aluminum",
-                  description: "Aluminum drum",
-                },
-                {
-                  code: "1B2",
-                  material: "aluminum",
-                  description: "Aluminum drum with removable head",
-                },
-                {
-                  code: "1N1",
-                  material: "other_metal",
-                  description: "Other metal drum",
-                },
-                {
-                  code: "1N2",
-                  material: "other_metal",
-                  description: "Other metal drum with removable head",
-                },
-                {
-                  code: "1D",
-                  material: "plywood",
-                  description: "Plywood drum",
-                },
-                { code: "1G", material: "fiber", description: "Fiber drum" },
-                {
-                  code: "1H1",
-                  material: "plastic",
-                  description: "Plastic drum",
-                },
-                {
-                  code: "1H2",
-                  material: "plastic",
-                  description: "Plastic drum with removable head",
-                },
-              ],
-            },
-            {
-              type: "large_packagings",
-              containers: [
-                {
-                  code: "50A",
-                  material: "steel",
-                  description: "Steel large packaging",
-                },
-                {
-                  code: "50B",
-                  material: "aluminum",
-                  description: "Aluminum large packaging",
-                },
-                {
-                  code: "50N",
-                  material: "other_metal",
-                  description: "Other metal large packaging",
-                },
-                {
-                  code: "50C",
-                  material: "natural_wood",
-                  description: "Natural wood large packaging",
-                },
-                {
-                  code: "50D",
-                  material: "plywood",
-                  description: "Plywood large packaging",
-                },
-                {
-                  code: "50F",
-                  material: "reconstituted_wood",
-                  description: "Reconstituted wood large packaging",
-                },
-                {
-                  code: "50G",
-                  material: "rigid_fiberboard",
-                  description: "Rigid fiberboard large packaging",
-                },
-                {
-                  code: "50H",
-                  material: "rigid_plastic",
-                  description: "Rigid plastic large packaging",
-                },
-              ],
-            },
+        {
+          id: "A5.12.2.large_robust",
+          type: "specialized",
+          description:
+            "Large and robust articles transported unpacked in DOD-approved devices",
+          innerPackaging: {
+            required: false,
+          },
+          outerPackaging: {
+            categories: [
+              {
+                type: "specialized",
+                containers: [
+                  {
+                    code: "UNPACKED",
+                    material: "none",
+                    description:
+                      "Unpacked transport in DOD-approved containers, crates, cradles, or handling devices",
+                  },
+                ],
+              },
+            ],
+          },
+          restrictions: [
+            "Only for large and robust articles listed in A5.12.2",
+            "Negative result required in UN Test Series 4",
+            "Means of initiation absent or protected by at least two effective features",
           ],
         },
-        notes: [
-          "For standard ammunition and ordnance",
-          "Inner packaging not required",
-          "Includes large packaging options (50-series)",
-        ],
-      },
-      {
-        id: "A5.12.2.large_robust",
-        type: "specialized",
-        description:
-          "Large and robust articles (unpacked transport with special conditions)",
-        innerPackaging: {
-          required: false,
-        },
-        outerPackaging: {
-          categories: [
-            {
-              type: "specialized",
-              containers: [
-                {
-                  code: "UNPACKED",
-                  material: "none",
-                  description:
-                    "Unpacked transport in DOD-approved containers, crates, cradles, or handling devices",
-                  specifications: [
-                    {
-                      property: "test_requirement",
-                      value: "UN_Test_Series_4",
-                      unit: "negative_result",
-                    },
-                    {
-                      property: "protective_features",
-                      value: "two_minimum",
-                      unit: "features",
-                    },
-                    {
-                      property: "handling_device",
-                      value: "DOD_approved",
-                      unit: "required",
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
-        },
-        restrictions: [
-          "Only for large and robust articles listed in A5.12.2",
-          "Negative result required in UN Test Series 4",
-          "Articles without means of initiation, or with means of initiation containing at least two effective protective features",
-          "When articles have propelling charges or are self-propelled, protect ignition systems against transport stimuli",
-        ],
-        notes: [
-          "For large and robust articles meeting special criteria",
-          "Unpacked transport in DOD-approved containers/crates/cradles",
-          "Requires specific UN testing and protective features",
-          "Articles must be secured against loosening during transport",
-        ],
-      },
-    ],
+      ],
 
-    specialRequirements: [
-      {
-        type: "large_packaging_authorization",
-        description:
-          "Large packagings (50-series) authorized for ammunition and ordnance",
-        mandatory: false,
-        applicableContainers: ["A5.12.1.standard"],
-      },
-      {
-        type: "unpacked_transport_criteria",
-        description:
-          "Large and robust articles may be transported unpacked under specific conditions",
-        mandatory: true,
-        applicableContainers: ["A5.12.2.large_robust"],
-      },
-      {
-        type: "test_series_4_requirement",
-        description:
-          "Negative result required in UN Test Series 4 for unpacked transport",
-        mandatory: true,
-        applicableContainers: ["A5.12.2.large_robust"],
-      },
-      {
-        type: "protective_features",
-        description:
-          "At least two effective protective features required for means of initiation",
-        mandatory: true,
-        applicableContainers: ["A5.12.2.large_robust"],
-      },
-      {
-        type: "ignition_system_protection",
-        description:
-          "Protect ignition systems against transport stimuli for self-propelled articles",
-        mandatory: true,
-        applicableContainers: ["A5.12.2.large_robust"],
-      },
-      {
-        type: "dod_approved_containers",
-        description:
-          "DOD-approved containers, crates, cradles, or handling devices required for unpacked transport",
-        mandatory: true,
-        applicableContainers: ["A5.12.2.large_robust"],
-      },
-    ],
-
-    conditionalRequirements: [
-      {
-        condition: "large_robust_article_criteria",
-        conditionType: "un_number",
-        operator: "in_range",
-        value: [
-          "UN0006",
-          "UN0009",
-          "UN0010",
-          "UN0015",
-          "UN0016",
-          "UN0018",
-          "UN0019",
-          "UN0034",
-          "UN0035",
-          "UN0038",
-          "UN0039",
-          "UN0048",
-          "UN0056",
-          "UN0137",
-          "UN0138",
-          "UN0168",
-          "UN0169",
-          "UN0171",
-          "UN0181",
-          "UN0182",
-          "UN0183",
-          "UN0186",
-          "UN0221",
-          "UN0238",
-          "UN0243",
-          "UN0244",
-          "UN0245",
-          "UN0246",
-          "UN0254",
-          "UN0280",
-          "UN0281",
-          "UN0286",
-          "UN0287",
-          "UN0297",
-          "UN0299",
-          "UN0300",
-          "UN0301",
-          "UN0303",
-          "UN0321",
-          "UN0328",
-          "UN0329",
-          "UN0344",
-          "UN0345",
-          "UN0346",
-          "UN0347",
-          "UN0362",
-          "UN0363",
-          "UN0370",
-          "UN0412",
-          "UN0424",
-          "UN0425",
-          "UN0434",
-          "UN0435",
-          "UN0436",
-          "UN0437",
-          "UN0438",
-          "UN0451",
-          "UN0459",
-          "UN0488",
-        ],
-        effect: "require",
-        target: "large_robust_eligibility",
-        description:
-          "Large and robust articles of specified UN numbers eligible for unpacked transport",
-      },
-      {
-        condition: "initiation_means_protection",
-        conditionType: "material_state",
-        operator: "contains",
-        value: "means_of_initiation",
-        effect: "require",
-        target: "two_protective_features",
-        description:
-          "Articles with means of initiation must have at least two effective protective features",
-      },
-      {
-        condition: "propelling_charge_protection",
-        conditionType: "material_state",
-        operator: "contains",
-        value: "propelling_charge",
-        effect: "require",
-        target: "ignition_system_protection",
-        description:
-          "Articles with propelling charges require ignition system protection against transport stimuli",
-      },
-      {
-        condition: "un_test_series_4_negative",
-        conditionType: "testing",
-        operator: "equals",
-        value: "negative_result",
-        effect: "require",
-        target: "unpacked_transport_authorization",
-        description:
-          "Negative result in UN Test Series 4 required for unpacked transport",
-      },
-    ],
-
-    referencedParagraphs: ["A5.12.1", "A5.12.2"],
-  },
+      referencedParagraphs: ["A5.12.1", "A5.12.2"],
+    },
   "A5.13.": {
     paragraphId: "A5.13.",
     hazardClass: 1,
@@ -3268,6 +3444,111 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
           "Wire management critical for safety",
           "Impact protection required for caps",
         ],
+      },
+      {
+        id: "A5.13.single_outer_packaging",
+        type: "single",
+        description:
+          "Single packaging when inner packagings are not required",
+        innerPackaging: {
+          required: false,
+          description:
+            "Inner packagings not required when detonators are packed in pasteboard tubes or spooled configurations",
+        },
+        outerPackaging: {
+          categories: [
+            {
+              type: "boxes",
+              containers: [
+                { code: "4A", material: "steel", description: "Steel box" },
+                {
+                  code: "4B",
+                  material: "aluminum",
+                  description: "Aluminum box",
+                },
+                {
+                  code: "4N",
+                  material: "other_metal",
+                  description: "Other metal box",
+                },
+                {
+                  code: "4C1",
+                  material: "natural_wood",
+                  description: "Ordinary natural wood box",
+                },
+                {
+                  code: "4C2",
+                  material: "natural_wood",
+                  description: "Sift-proof natural wood box",
+                },
+                { code: "4D", material: "plywood", description: "Plywood box" },
+                {
+                  code: "4F",
+                  material: "reconstituted_wood",
+                  description: "Reconstituted wood box",
+                },
+                {
+                  code: "4G",
+                  material: "fiberboard",
+                  description: "Fiberboard box",
+                },
+                {
+                  code: "4H2",
+                  material: "plastic",
+                  description: "Solid plastic box",
+                },
+              ],
+            },
+            {
+              type: "drums",
+              containers: [
+                { code: "1A1", material: "steel", description: "Steel drum" },
+                {
+                  code: "1A2",
+                  material: "steel",
+                  description: "Steel drum with removable head",
+                },
+                {
+                  code: "1B1",
+                  material: "aluminum",
+                  description: "Aluminum drum",
+                },
+                {
+                  code: "1B2",
+                  material: "aluminum",
+                  description: "Aluminum drum with removable head",
+                },
+                {
+                  code: "1N1",
+                  material: "other_metal",
+                  description: "Other metal drum",
+                },
+                {
+                  code: "1N2",
+                  material: "other_metal",
+                  description: "Other metal drum with removable head",
+                },
+                {
+                  code: "1D",
+                  material: "plywood",
+                  description: "Plywood drum",
+                },
+                { code: "1G", material: "fiber", description: "Fiber drum" },
+                {
+                  code: "1H1",
+                  material: "plastic",
+                  description: "Plastic drum",
+                },
+                {
+                  code: "1H2",
+                  material: "plastic",
+                  description: "Plastic drum with removable head",
+                },
+              ],
+            },
+          ],
+        },
+        notes: ["Inner packagings may be omitted for specific packing methods"],
       },
     ],
 
@@ -3503,6 +3784,111 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
           "Configuration-based inner packaging exemptions available",
           "UN-specific restrictions on certain inner packaging types",
         ],
+      },
+      {
+        id: "A5.14.single_outer_packaging",
+        type: "single",
+        description:
+          "Single packaging when inner packagings are not required",
+        innerPackaging: {
+          required: false,
+          description:
+            "Inner packagings not required when packing configuration restricts movement and protects from impact",
+        },
+        outerPackaging: {
+          categories: [
+            {
+              type: "boxes",
+              containers: [
+                { code: "4A", material: "steel", description: "Steel box" },
+                {
+                  code: "4B",
+                  material: "aluminum",
+                  description: "Aluminum box",
+                },
+                {
+                  code: "4N",
+                  material: "other_metal",
+                  description: "Other metal box",
+                },
+                {
+                  code: "4C1",
+                  material: "natural_wood",
+                  description: "Ordinary natural wood box",
+                },
+                {
+                  code: "4C2",
+                  material: "natural_wood",
+                  description: "Sift-proof natural wood box",
+                },
+                { code: "4D", material: "plywood", description: "Plywood box" },
+                {
+                  code: "4F",
+                  material: "reconstituted_wood",
+                  description: "Reconstituted wood box",
+                },
+                {
+                  code: "4G",
+                  material: "fiberboard",
+                  description: "Fiberboard box",
+                },
+                {
+                  code: "4H2",
+                  material: "plastic",
+                  description: "Solid plastic box",
+                },
+              ],
+            },
+            {
+              type: "drums",
+              containers: [
+                { code: "1A1", material: "steel", description: "Steel drum" },
+                {
+                  code: "1A2",
+                  material: "steel",
+                  description: "Steel drum with removable head",
+                },
+                {
+                  code: "1B1",
+                  material: "aluminum",
+                  description: "Aluminum drum",
+                },
+                {
+                  code: "1B2",
+                  material: "aluminum",
+                  description: "Aluminum drum with removable head",
+                },
+                {
+                  code: "1N1",
+                  material: "other_metal",
+                  description: "Other metal drum",
+                },
+                {
+                  code: "1N2",
+                  material: "other_metal",
+                  description: "Other metal drum with removable head",
+                },
+                {
+                  code: "1D",
+                  material: "plywood",
+                  description: "Plywood drum",
+                },
+                { code: "1G", material: "fiber", description: "Fiber drum" },
+                {
+                  code: "1H1",
+                  material: "plastic",
+                  description: "Plastic drum",
+                },
+                {
+                  code: "1H2",
+                  material: "plastic",
+                  description: "Plastic drum with removable head",
+                },
+              ],
+            },
+          ],
+        },
+        notes: ["Inner packagings may be omitted with proper configuration"],
       },
     ],
 
@@ -6870,7 +7256,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
     packagingOptions: [
       {
         id: "A7.3.exception",
-        type: "specialized",
+        type: "single",
         description:
           "Refrigerating machines excepted from specification packaging requirements",
         innerPackaging: {
@@ -6982,7 +7368,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
     packagingOptions: [
       {
         id: "A7.4.option1",
-        type: "equipment",
+        type: "single",
         description:
           "Aluminum pressure vessel with welded aluminum bladder (A7.4.2.1)",
         innerPackaging: {
@@ -7022,7 +7408,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       },
       {
         id: "A7.4.option2",
-        type: "equipment",
+        type: "single",
         description:
           "Aluminum pressure vessel with hermetically sealed fuel compartment (A7.4.2.2)",
         innerPackaging: {
@@ -8091,7 +8477,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
     packagingOptions: [
       {
         id: "A7.8.equipment_packaging",
-        type: "equipment",
+        type: "single",
         description:
           "Fuel cells installed in equipment - UN specification packaging not required (A7.8.1)",
         innerPackaging: {
@@ -8245,6 +8631,44 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
         ],
         isComplete: true,
       },
+      {
+        id: "A7.9.packed_with_equipment_single",
+        type: "single",
+        description:
+          "Fuel cells placed in outer packaging with cushioning or dividers (A7.9.1)",
+        innerPackaging: {
+          required: false,
+          description:
+            "Fuel cells placed in outer packaging with cushioning material or dividers",
+        },
+        outerPackaging: {
+          required: true,
+          categories: [
+            {
+              type: "protective_packaging",
+              subtype: "cushioned_outer_packaging",
+              containers: [
+                {
+                  code: "PROTECTIVE",
+                  material: "various",
+                  description:
+                    "Outer packaging with cushioning material or dividers protecting fuel cartridges from damage during transportation",
+                },
+              ],
+            },
+          ],
+        },
+        restrictions: [
+          "UN specification packaging is not required",
+          "Fuel cells placed with cushioning/dividers",
+          "Maximum cartridges: equipment requirement plus two spares",
+        ],
+        notes: [
+          "Excepted from UN specification packaging requirements",
+          "Outer packaging must prevent damage during transportation",
+        ],
+        isComplete: true,
+      },
     ],
 
     specialRequirements: [
@@ -8253,28 +8677,40 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
         description:
           "Pack fuel cells in inner packagings or place in the outer packaging with cushioning material or divider(s) to protect fuel cartridges from damage during transportation",
         mandatory: true,
-        applicableContainers: ["A7.9.packed_with_equipment"],
+        applicableContainers: [
+          "A7.9.packed_with_equipment",
+          "A7.9.packed_with_equipment_single",
+        ],
       },
       {
         type: "quantity_control",
         description:
           "The maximum number of fuel cell cartridges in the intermediate packaging may not be more than the number required to power the equipment plus two spares",
         mandatory: true,
-        applicableContainers: ["A7.9.packed_with_equipment"],
+        applicableContainers: [
+          "A7.9.packed_with_equipment",
+          "A7.9.packed_with_equipment_single",
+        ],
       },
       {
         type: "compatibility",
         description:
           "UN specification packaging is not required for fuel cells packed with equipment",
         mandatory: true,
-        applicableContainers: ["A7.9.packed_with_equipment"],
+        applicableContainers: [
+          "A7.9.packed_with_equipment",
+          "A7.9.packed_with_equipment_single",
+        ],
       },
       {
         type: "handling",
         description:
           "Protect fuel cartridges from damage during transportation through proper cushioning and divider placement",
         mandatory: true,
-        applicableContainers: ["A7.9.packed_with_equipment"],
+        applicableContainers: [
+          "A7.9.packed_with_equipment",
+          "A7.9.packed_with_equipment_single",
+        ],
       },
     ],
 
@@ -8297,7 +8733,10 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
             description:
               "When using inner packagings, ensure adequate protection from damage during transportation",
             mandatory: true,
-            applicableContainers: ["A7.9.packed_with_equipment"],
+            applicableContainers: [
+              "A7.9.packed_with_equipment",
+              "A7.9.packed_with_equipment_single",
+            ],
           },
         ],
       },
@@ -8309,7 +8748,10 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
             description:
               "When placing directly in outer packaging, use cushioning material or dividers to protect cartridges",
             mandatory: true,
-            applicableContainers: ["A7.9.packed_with_equipment"],
+            applicableContainers: [
+              "A7.9.packed_with_equipment",
+              "A7.9.packed_with_equipment_single",
+            ],
           },
         ],
       },
@@ -8321,7 +8763,10 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
             description:
               "May not exceed two spare cartridges beyond equipment power requirements",
             mandatory: true,
-            applicableContainers: ["A7.9.packed_with_equipment"],
+            applicableContainers: [
+              "A7.9.packed_with_equipment",
+              "A7.9.packed_with_equipment_single",
+            ],
           },
         ],
       },
@@ -8650,7 +9095,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
     packagingOptions: [
       {
         id: "A7.11.equipment_packaging",
-        type: "equipment",
+        type: "single",
         description:
           "Engines, machinery, and support equipment with fuel system preparation",
         innerPackaging: {
@@ -9014,7 +9459,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       },
       {
         id: "A7.12.robust_packaged",
-        type: "specialized",
+        type: "single",
         description: "Robust articles in strong outer packagings (A7.12.2.1)",
         innerPackaging: {
           required: false,
@@ -9046,7 +9491,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       },
       {
         id: "A7.12.robust_unpackaged",
-        type: "specialized",
+        type: "single",
         description: "Robust articles unpackaged or on pallets (A7.12.2.2)",
         innerPackaging: {
           required: false,
@@ -14820,7 +15265,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
     packagingOptions: [
       {
         id: "A8.21.strong_outer_container",
-        type: "specialized",
+        type: "single",
         description:
           "Strong outer container - UN specification packaging not required",
         innerPackaging: {
@@ -16144,7 +16589,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
     packagingOptions: [
       {
         id: "A9.8.caa_approval",
-        type: "specialized",
+        type: "single",
         description: "Ship according to a competent authority approval (CAA)",
         innerPackaging: {
           required: false,
@@ -16336,7 +16781,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
     packagingOptions: [
       {
         id: "A9.10.rigid_outer_packaging",
-        type: "specialized",
+        type: "single",
         description:
           "Rigid outer packaging meeting specific performance criteria",
         innerPackaging: {
@@ -18989,478 +19434,32 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
     paragraphId: "A10.9.",
     hazardClass: 6,
     subclass: ["6.2"],
-    description:
-      "Package Clinical Waste, Unregulated; Exempt Human or Animal Specimens",
+    description: "Package Biological Substances, Category B",
     lastUpdated: new Date().toISOString(),
-    entryType: "standard",
-    materialTypes: [
-      "clinical_waste_unregulated",
-      "exempt_human_specimens",
-      "exempt_animal_specimens",
-      "patient_specimens",
-    ],
+    entryType: "specialized",
+    materialTypes: ["biological_substances_category_b"],
 
     packagingOptions: [
       {
-        id: "A10.9.1.dual_packaging_clinical_waste",
+        id: "A10.9.category_b_packaging",
         type: "combination",
-        description: "Dual packaging system for clinical waste, unregulated",
+        description:
+          "Primary receptacle, leakproof secondary packaging, and rigid outer packaging",
         innerPackaging: {
           required: true,
           materials: ["Glass", "Metal", "Plastic"],
-          description: "Leak-tight primary receptacle",
+          description: "Leakproof primary receptacle and leakproof secondary packaging",
         },
         outerPackaging: {
           categories: [
             {
-              type: "drums",
-              subtype: "leak_tight_drums",
+              type: "specialized",
+              subtype: "rigid_outer_packaging",
               containers: [
                 {
-                  code: "1A1",
-                  material: "steel",
-                  description: "Steel drum tight head (1A1)",
-                },
-                {
-                  code: "1A2",
-                  material: "steel",
-                  description: "Steel drum removable head (1A2)",
-                },
-                {
-                  code: "1B1",
-                  material: "aluminum",
-                  description: "Aluminum drum tight head (1B1)",
-                },
-                {
-                  code: "1B2",
-                  material: "aluminum",
-                  description: "Aluminum drum removable head (1B2)",
-                },
-                {
-                  code: "1H1",
-                  material: "plastic",
-                  description: "Plastic drum tight head (1H1)",
-                },
-                {
-                  code: "1H2",
-                  material: "plastic",
-                  description: "Plastic drum removable head (1H2)",
-                },
-                {
-                  code: "1N1",
-                  material: "other_metal",
-                  description: "Other metal drum tight head (1N1)",
-                },
-                {
-                  code: "1N2",
-                  material: "other_metal",
-                  description: "Other metal drum removable head (1N2)",
-                },
-              ],
-            },
-            {
-              type: "jerricans",
-              subtype: "leak_tight_jerricans",
-              containers: [
-                {
-                  code: "3A1",
-                  material: "steel",
-                  description: "Steel jerrican tight head (3A1)",
-                },
-                {
-                  code: "3A2",
-                  material: "steel",
-                  description: "Steel jerrican removable head (3A2)",
-                },
-                {
-                  code: "3B1",
-                  material: "aluminum",
-                  description: "Aluminum jerrican tight head (3B1)",
-                },
-                {
-                  code: "3B2",
-                  material: "aluminum",
-                  description: "Aluminum jerrican removable head (3B2)",
-                },
-                {
-                  code: "3H1",
-                  material: "plastic",
-                  description: "Plastic jerrican tight head (3H1)",
-                },
-                {
-                  code: "3H2",
-                  material: "plastic",
-                  description: "Plastic jerrican removable head (3H2)",
-                },
-              ],
-            },
-            {
-              type: "boxes",
-              subtype: "rigid_leak_tight_boxes",
-              containers: [
-                {
-                  code: "4A",
-                  material: "steel",
-                  description: "Steel box (4A)",
-                },
-                {
-                  code: "4B",
-                  material: "aluminum",
-                  description: "Aluminum box (4B)",
-                },
-                {
-                  code: "4H1",
-                  material: "plastic",
-                  description: "Expanded plastic box (4H1)",
-                },
-                {
-                  code: "4H2",
-                  material: "plastic",
-                  description: "Solid plastic box (4H2)",
-                },
-                {
-                  code: "4N",
-                  material: "other_metal",
-                  description: "Other metal box (4N)",
-                },
-              ],
-            },
-          ],
-        },
-      },
-      {
-        id: "A10.9.2.single_packaging_exempt",
-        type: "single",
-        description:
-          "Single packaging for exempt human or animal specimens with minimal likelihood of pathogens",
-        innerPackaging: {
-          required: false,
-          description:
-            "Specimens with minimal likelihood of containing pathogens",
-        },
-        outerPackaging: {
-          categories: [
-            {
-              type: "drums",
-              subtype: "appropriate_drums",
-              containers: [
-                {
-                  code: "1A1",
-                  material: "steel",
-                  description: "Steel drum tight head (1A1)",
-                },
-                {
-                  code: "1A2",
-                  material: "steel",
-                  description: "Steel drum removable head (1A2)",
-                },
-                {
-                  code: "1B1",
-                  material: "aluminum",
-                  description: "Aluminum drum tight head (1B1)",
-                },
-                {
-                  code: "1B2",
-                  material: "aluminum",
-                  description: "Aluminum drum removable head (1B2)",
-                },
-                {
-                  code: "1D",
-                  material: "plywood",
-                  description: "Plywood drum (1D)",
-                },
-                {
-                  code: "1G",
-                  material: "fiber",
-                  description: "Fiber drum (1G)",
-                },
-                {
-                  code: "1H1",
-                  material: "plastic",
-                  description: "Plastic drum tight head (1H1)",
-                },
-                {
-                  code: "1H2",
-                  material: "plastic",
-                  description: "Plastic drum removable head (1H2)",
-                },
-                {
-                  code: "1N1",
-                  material: "other_metal",
-                  description: "Other metal drum tight head (1N1)",
-                },
-                {
-                  code: "1N2",
-                  material: "other_metal",
-                  description: "Other metal drum removable head (1N2)",
-                },
-              ],
-            },
-            {
-              type: "barrels",
-              subtype: "wood_barrels",
-              containers: [
-                {
-                  code: "2C1",
-                  material: "wood",
-                  description: "Wood barrel tight head (2C1)",
-                },
-                {
-                  code: "2C2",
-                  material: "wood",
-                  description: "Wood barrel removable head (2C2)",
-                },
-              ],
-            },
-            {
-              type: "jerricans",
-              subtype: "appropriate_jerricans",
-              containers: [
-                {
-                  code: "3A1",
-                  material: "steel",
-                  description: "Steel jerrican tight head (3A1)",
-                },
-                {
-                  code: "3A2",
-                  material: "steel",
-                  description: "Steel jerrican removable head (3A2)",
-                },
-                {
-                  code: "3B1",
-                  material: "aluminum",
-                  description: "Aluminum jerrican tight head (3B1)",
-                },
-                {
-                  code: "3B2",
-                  material: "aluminum",
-                  description: "Aluminum jerrican removable head (3B2)",
-                },
-                {
-                  code: "3H1",
-                  material: "plastic",
-                  description: "Plastic jerrican tight head (3H1)",
-                },
-                {
-                  code: "3H2",
-                  material: "plastic",
-                  description: "Plastic jerrican removable head (3H2)",
-                },
-              ],
-            },
-            {
-              type: "boxes",
-              subtype: "appropriate_boxes",
-              containers: [
-                {
-                  code: "4A",
-                  material: "steel",
-                  description: "Steel box (4A)",
-                },
-                {
-                  code: "4B",
-                  material: "aluminum",
-                  description: "Aluminum box (4B)",
-                },
-                {
-                  code: "4C1",
-                  material: "natural_wood",
-                  description: "Natural wood box (4C1)",
-                },
-                {
-                  code: "4C2",
-                  material: "sift_proof_wood",
-                  description: "Natural wood sift-proof box (4C2)",
-                },
-                {
-                  code: "4D",
-                  material: "plywood",
-                  description: "Plywood box (4D)",
-                },
-                {
-                  code: "4F",
-                  material: "reconstituted_wood",
-                  description: "Reconstituted wood box (4F)",
-                },
-                {
-                  code: "4G",
-                  material: "fiberboard",
-                  description: "Fiberboard box (4G)",
-                },
-                {
-                  code: "4H1",
-                  material: "plastic",
-                  description: "Expanded plastic box (4H1)",
-                },
-                {
-                  code: "4H2",
-                  material: "plastic",
-                  description: "Solid plastic box (4H2)",
-                },
-                {
-                  code: "4N",
-                  material: "other_metal",
-                  description: "Other metal box (4N)",
-                },
-              ],
-            },
-            {
-              type: "bags",
-              subtype: "appropriate_bags",
-              containers: [
-                {
-                  code: "5H1",
-                  material: "plastic",
-                  description:
-                    "Woven plastic bag without inner liner or coating (5H1)",
-                },
-                {
-                  code: "5H2",
-                  material: "plastic",
-                  description: "Woven plastic bag with inner liner (5H2)",
-                },
-                {
-                  code: "5H3",
-                  material: "plastic",
-                  description: "Woven plastic bag with inner coating (5H3)",
-                },
-                {
-                  code: "5H4",
-                  material: "plastic",
-                  description: "Plastic film bag (5H4)",
-                },
-                {
-                  code: "5L1",
-                  material: "textile",
-                  description:
-                    "Textile bag without inner liner or coating (5L1)",
-                },
-                {
-                  code: "5L2",
-                  material: "textile",
-                  description: "Textile bag with inner liner (5L2)",
-                },
-                {
-                  code: "5L3",
-                  material: "textile",
-                  description: "Textile bag with inner coating (5L3)",
-                },
-                {
-                  code: "5M1",
-                  material: "paper",
-                  description: "Paper bag, multiwall (5M1)",
-                },
-                {
-                  code: "5M2",
-                  material: "paper",
-                  description: "Paper bag, multiwall, water-resistant (5M2)",
-                },
-              ],
-            },
-          ],
-        },
-      },
-      {
-        id: "A10.9.3.specialized_exempt_packaging",
-        type: "combination",
-        description:
-          "Dual packaging for exempt specimens requiring better protection",
-        innerPackaging: {
-          required: true,
-          materials: ["Glass", "Metal", "Plastic"],
-          description: "Primary receptacle for exempt specimens",
-        },
-        outerPackaging: {
-          categories: [
-            {
-              type: "drums",
-              subtype: "exempt_specimen_drums",
-              containers: [
-                {
-                  code: "1A2",
-                  material: "steel",
-                  description: "Steel drum removable head (1A2)",
-                },
-                {
-                  code: "1B2",
-                  material: "aluminum",
-                  description: "Aluminum drum removable head (1B2)",
-                },
-                {
-                  code: "1D",
-                  material: "plywood",
-                  description: "Plywood drum (1D)",
-                },
-                {
-                  code: "1G",
-                  material: "fiber",
-                  description: "Fiber drum (1G)",
-                },
-                {
-                  code: "1H2",
-                  material: "plastic",
-                  description: "Plastic drum removable head (1H2)",
-                },
-                {
-                  code: "1N2",
-                  material: "other_metal",
-                  description: "Other metal drum removable head (1N2)",
-                },
-              ],
-            },
-            {
-              type: "boxes",
-              subtype: "exempt_specimen_boxes",
-              containers: [
-                {
-                  code: "4A",
-                  material: "steel",
-                  description: "Steel box (4A)",
-                },
-                {
-                  code: "4B",
-                  material: "aluminum",
-                  description: "Aluminum box (4B)",
-                },
-                {
-                  code: "4C1",
-                  material: "natural_wood",
-                  description: "Natural wood box (4C1)",
-                },
-                {
-                  code: "4C2",
-                  material: "sift_proof_wood",
-                  description: "Natural wood sift-proof box (4C2)",
-                },
-                {
-                  code: "4D",
-                  material: "plywood",
-                  description: "Plywood box (4D)",
-                },
-                {
-                  code: "4F",
-                  material: "reconstituted_wood",
-                  description: "Reconstituted wood box (4F)",
-                },
-                {
-                  code: "4G",
-                  material: "fiberboard",
-                  description: "Fiberboard box (4G)",
-                },
-                {
-                  code: "4H1",
-                  material: "plastic",
-                  description: "Expanded plastic box (4H1)",
-                },
-                {
-                  code: "4H2",
-                  material: "plastic",
-                  description: "Solid plastic box (4H2)",
-                },
-                {
-                  code: "4N",
-                  material: "other_metal",
-                  description: "Other metal box (4N)",
+                  code: "RIGID_OUTER",
+                  material: "various",
+                  description: "Rigid outer packaging meeting A10.9 requirements",
                 },
               ],
             },
@@ -19473,78 +19472,25 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       {
         type: "handling",
         description:
-          "Clinical waste, unregulated includes waste from medical treatment of humans or animals or biological research",
+          "Use packaging consisting of a primary receptacle, secondary packaging, and rigid outer packaging",
         mandatory: true,
-      },
-      {
-        type: "handling",
-        description:
-          "Exempt human or animal specimens have minimal likelihood of containing pathogens",
-        mandatory: true,
-      },
-      {
-        type: "closure_security",
-        description: "Primary receptacle for clinical waste must be leak-tight",
-        mandatory: true,
-        applicableContainers: ["A10.9.1.dual_packaging_clinical_waste"],
       },
       {
         type: "absorbent_material",
         description:
-          "Place absorbent material between primary receptacle and outer packaging for clinical waste",
+          "Place absorbent material between primary receptacle and secondary packaging for liquids",
         mandatory: true,
-        applicableContainers: ["A10.9.1.dual_packaging_clinical_waste"],
       },
       {
-        type: "closure_security",
-        description: "Outer packaging for clinical waste must be leak-tight",
-        mandatory: true,
-        applicableContainers: ["A10.9.1.dual_packaging_clinical_waste"],
-      },
-      {
-        type: "handling",
+        type: "testing",
         description:
-          "Exempt specimens include: routine clinical specimens (blood, urine, feces), tissue/organ transplants, specimens for legal proceedings",
+          "Package must pass drop test at 1.2 meters (3.9 feet)",
         mandatory: true,
-        applicableContainers: [
-          "A10.9.2.single_packaging_exempt",
-          "A10.9.3.specialized_exempt_packaging",
-        ],
       },
       {
-        type: "handling",
+        type: "orientation",
         description:
-          "Exempt specimens include: specimens for which there is minimal likelihood of pathogens being present",
-        mandatory: true,
-        applicableContainers: [
-          "A10.9.2.single_packaging_exempt",
-          "A10.9.3.specialized_exempt_packaging",
-        ],
-      },
-      {
-        type: "closure_security",
-        description:
-          "Package exempt specimens to prevent leakage under normal transport conditions",
-        mandatory: true,
-        applicableContainers: [
-          "A10.9.2.single_packaging_exempt",
-          "A10.9.3.specialized_exempt_packaging",
-        ],
-      },
-      {
-        type: "handling",
-        description:
-          "Clearly mark packages with 'EXEMPT HUMAN SPECIMEN' or 'EXEMPT ANIMAL SPECIMEN' as appropriate",
-        mandatory: true,
-        applicableContainers: [
-          "A10.9.2.single_packaging_exempt",
-          "A10.9.3.specialized_exempt_packaging",
-        ],
-      },
-      {
-        type: "documentation",
-        description:
-          "Include documentation describing specimen contents and any special handling requirements",
+          "Minimum external dimension of 100 mm (3.9 inches)",
         mandatory: true,
       },
     ],
@@ -19553,437 +19499,66 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
 
     quantityLimits: [],
 
-    conditionalRequirements: [
-      {
-        condition: "material_type == 'clinical_waste_unregulated'",
-        conditionType: "material_state",
-        operator: "equals",
-        value: "clinical_waste",
-        effect: "require",
-        description: "Additional requirements for clinical waste, unregulated",
-        requirements: [
-          {
-            type: "closure_security",
-            description:
-              "Both primary receptacle and outer packaging must be leak-tight",
-            mandatory: true,
-            applicableContainers: ["A10.9.1.dual_packaging_clinical_waste"],
-          },
-          {
-            type: "absorbent_material",
-            description:
-              "Must include absorbent material between primary and outer packaging",
-            mandatory: true,
-            applicableContainers: ["A10.9.1.dual_packaging_clinical_waste"],
-          },
-        ],
-      },
-      {
-        condition: "material_type == 'exempt_specimens'",
-        conditionType: "material_state",
-        operator: "equals",
-        value: "exempt",
-        effect: "require",
-        description: "Requirements for exempt human or animal specimens",
-        requirements: [
-          {
-            type: "handling",
-            description:
-              "Must clearly mark as 'EXEMPT HUMAN SPECIMEN' or 'EXEMPT ANIMAL SPECIMEN'",
-            mandatory: true,
-            applicableContainers: [
-              "A10.9.2.single_packaging_exempt",
-              "A10.9.3.specialized_exempt_packaging",
-            ],
-          },
-          {
-            type: "closure_security",
-            description:
-              "Package to prevent leakage under normal transport conditions",
-            mandatory: true,
-            applicableContainers: [
-              "A10.9.2.single_packaging_exempt",
-              "A10.9.3.specialized_exempt_packaging",
-            ],
-          },
-        ],
-      },
-      {
-        condition: "specimen_type in ['blood', 'urine', 'feces', 'saliva']",
-        conditionType: "material_state",
-        operator: "contains",
-        value: "routine_clinical",
-        effect: "allow",
-        description: "Routine clinical specimens qualify as exempt",
-        requirements: [
-          {
-            type: "handling",
-            description:
-              "Routine clinical specimens for diagnosis, treatment, or monitoring qualify as exempt",
-            mandatory: true,
-            applicableContainers: [
-              "A10.9.2.single_packaging_exempt",
-              "A10.9.3.specialized_exempt_packaging",
-            ],
-          },
-        ],
-      },
-      {
-        condition: "specimen_purpose == 'transplant'",
-        conditionType: "material_purpose",
-        operator: "equals",
-        value: "transplant",
-        effect: "allow",
-        description: "Tissue and organ transplants qualify as exempt",
-        requirements: [
-          {
-            type: "handling",
-            description:
-              "Tissue and organ transplants qualify as exempt specimens",
-            mandatory: true,
-            applicableContainers: [
-              "A10.9.2.single_packaging_exempt",
-              "A10.9.3.specialized_exempt_packaging",
-            ],
-          },
-        ],
-      },
-      {
-        condition: "specimen_purpose == 'legal_proceedings'",
-        conditionType: "material_purpose",
-        operator: "equals",
-        value: "legal",
-        effect: "allow",
-        description: "Specimens for legal proceedings qualify as exempt",
-        requirements: [
-          {
-            type: "handling",
-            description:
-              "Specimens collected for legal proceedings qualify as exempt",
-            mandatory: true,
-            applicableContainers: [
-              "A10.9.2.single_packaging_exempt",
-              "A10.9.3.specialized_exempt_packaging",
-            ],
-          },
-        ],
-      },
-    ],
+    conditionalRequirements: [],
 
     referencedParagraphs: [],
   },
   "A10.10.": {
     paragraphId: "A10.10.",
-    hazardClass: 9,
-    description: "Package Chemical Kits and First Aid Kits",
+    hazardClass: 6,
+    subclass: ["6.2"],
+    description:
+      "Package Regulated Medical Waste, N.O.S.; Biomedical Waste, N.O.S.; Clinical Waste, Unspecified, N.O.S.; Medical Waste, N.O.S.",
     lastUpdated: new Date().toISOString(),
-    entryType: "specialized",
-    materialTypes: [
-      "chemical_kits",
-      "first_aid_kits",
-      "polyester_resin_kits",
-      "repair_kits",
-    ],
+    entryType: "standard",
+    materialTypes: ["regulated_medical_waste"],
 
     packagingOptions: [
       {
-        id: "A10.10.1.chemical_kits",
-        type: "combination",
-        description:
-          "Chemical kits with multiple hazardous components requiring segregation",
+        id: "A10.10.1.single_packaging",
+        type: "single",
+        description: "Single packaging drums, boxes, or jerricans",
         innerPackaging: {
-          required: true,
-          materials: ["Glass", "Metal", "Plastic"],
-          description:
-            "Individual inner receptacles for each component with proper segregation",
+          required: false,
+          description: "Inner packaging not required",
         },
         outerPackaging: {
           categories: [
             {
               type: "drums",
-              subtype: "chemical_kit_drums",
+              subtype: "removable_head",
               containers: [
-                {
-                  code: "1A2",
-                  material: "steel",
-                  description: "Steel drum removable head (1A2)",
-                },
-                {
-                  code: "1B2",
-                  material: "aluminum",
-                  description: "Aluminum drum removable head (1B2)",
-                },
-                {
-                  code: "1H2",
-                  material: "plastic",
-                  description: "Plastic drum removable head (1H2)",
-                },
-                {
-                  code: "1N2",
-                  material: "other_metal",
-                  description: "Other metal drum removable head (1N2)",
-                },
+                { code: "1A2", material: "steel", description: "Steel drum removable head (1A2)" },
+                { code: "1B2", material: "aluminum", description: "Aluminum drum removable head (1B2)" },
+                { code: "1N2", material: "other_metal", description: "Other metal drum removable head (1N2)" },
+                { code: "1D", material: "plywood", description: "Plywood drum (1D)" },
+                { code: "1G", material: "fiber", description: "Fiber drum (1G)" },
+                { code: "1H2", material: "plastic", description: "Plastic drum removable head (1H2)" },
               ],
             },
             {
               type: "boxes",
-              subtype: "chemical_kit_boxes",
+              subtype: "rigid_boxes",
               containers: [
-                {
-                  code: "4A",
-                  material: "steel",
-                  description: "Steel box (4A)",
-                },
-                {
-                  code: "4B",
-                  material: "aluminum",
-                  description: "Aluminum box (4B)",
-                },
-                {
-                  code: "4C1",
-                  material: "natural_wood",
-                  description: "Natural wood box (4C1)",
-                },
-                {
-                  code: "4C2",
-                  material: "sift_proof_wood",
-                  description: "Natural wood sift-proof box (4C2)",
-                },
-                {
-                  code: "4D",
-                  material: "plywood",
-                  description: "Plywood box (4D)",
-                },
-                {
-                  code: "4F",
-                  material: "reconstituted_wood",
-                  description: "Reconstituted wood box (4F)",
-                },
-                {
-                  code: "4G",
-                  material: "fiberboard",
-                  description: "Fiberboard box (4G)",
-                },
-                {
-                  code: "4H1",
-                  material: "plastic",
-                  description: "Expanded plastic box (4H1)",
-                },
-                {
-                  code: "4H2",
-                  material: "plastic",
-                  description: "Solid plastic box (4H2)",
-                },
-                {
-                  code: "4N",
-                  material: "other_metal",
-                  description: "Other metal box (4N)",
-                },
-              ],
-            },
-          ],
-        },
-      },
-      {
-        id: "A10.10.2.first_aid_kits",
-        type: "combination",
-        description: "First aid kits containing medicines and medical supplies",
-        innerPackaging: {
-          required: true,
-          materials: ["Glass", "Metal", "Plastic"],
-          description:
-            "Individual containers for medicines and medical supplies",
-        },
-        outerPackaging: {
-          categories: [
-            {
-              type: "drums",
-              subtype: "first_aid_drums",
-              containers: [
-                {
-                  code: "1A2",
-                  material: "steel",
-                  description: "Steel drum removable head (1A2)",
-                },
-                {
-                  code: "1B2",
-                  material: "aluminum",
-                  description: "Aluminum drum removable head (1B2)",
-                },
-                {
-                  code: "1D",
-                  material: "plywood",
-                  description: "Plywood drum (1D)",
-                },
-                {
-                  code: "1G",
-                  material: "fiber",
-                  description: "Fiber drum (1G)",
-                },
-                {
-                  code: "1H2",
-                  material: "plastic",
-                  description: "Plastic drum removable head (1H2)",
-                },
-                {
-                  code: "1N2",
-                  material: "other_metal",
-                  description: "Other metal drum removable head (1N2)",
-                },
+                { code: "4A", material: "steel", description: "Steel box (4A)" },
+                { code: "4B", material: "aluminum", description: "Aluminum box (4B)" },
+                { code: "4C1", material: "natural_wood", description: "Natural wood box (4C1)" },
+                { code: "4C2", material: "sift_proof_wood", description: "Natural wood sift-proof box (4C2)" },
+                { code: "4D", material: "plywood", description: "Plywood box (4D)" },
+                { code: "4F", material: "reconstituted_wood", description: "Reconstituted wood box (4F)" },
+                { code: "4G", material: "fiberboard", description: "Fiberboard box (4G)" },
+                { code: "4H1", material: "plastic", description: "Expanded plastic box (4H1)" },
+                { code: "4H2", material: "plastic", description: "Solid plastic box (4H2)" },
+                { code: "4N", material: "other_metal", description: "Other metal box (4N)" },
               ],
             },
             {
-              type: "boxes",
-              subtype: "first_aid_boxes",
+              type: "jerricans",
+              subtype: "removable_head",
               containers: [
-                {
-                  code: "4A",
-                  material: "steel",
-                  description: "Steel box (4A)",
-                },
-                {
-                  code: "4B",
-                  material: "aluminum",
-                  description: "Aluminum box (4B)",
-                },
-                {
-                  code: "4C1",
-                  material: "natural_wood",
-                  description: "Natural wood box (4C1)",
-                },
-                {
-                  code: "4C2",
-                  material: "sift_proof_wood",
-                  description: "Natural wood sift-proof box (4C2)",
-                },
-                {
-                  code: "4D",
-                  material: "plywood",
-                  description: "Plywood box (4D)",
-                },
-                {
-                  code: "4F",
-                  material: "reconstituted_wood",
-                  description: "Reconstituted wood box (4F)",
-                },
-                {
-                  code: "4G",
-                  material: "fiberboard",
-                  description: "Fiberboard box (4G)",
-                },
-                {
-                  code: "4H1",
-                  material: "plastic",
-                  description: "Expanded plastic box (4H1)",
-                },
-                {
-                  code: "4H2",
-                  material: "plastic",
-                  description: "Solid plastic box (4H2)",
-                },
-                {
-                  code: "4N",
-                  material: "other_metal",
-                  description: "Other metal box (4N)",
-                },
-              ],
-            },
-          ],
-        },
-      },
-      {
-        id: "A10.10.3.polyester_resin_kits",
-        type: "combination",
-        description:
-          "Polyester resin kits with organic peroxide and flammable solid components",
-        innerPackaging: {
-          required: true,
-          materials: ["Glass", "Metal", "Plastic"],
-          description:
-            "Separate inner receptacles for organic peroxide and flammable solid components",
-        },
-        outerPackaging: {
-          categories: [
-            {
-              type: "drums",
-              subtype: "polyester_resin_drums",
-              containers: [
-                {
-                  code: "1A2",
-                  material: "steel",
-                  description: "Steel drum removable head (1A2)",
-                },
-                {
-                  code: "1B2",
-                  material: "aluminum",
-                  description: "Aluminum drum removable head (1B2)",
-                },
-                {
-                  code: "1H2",
-                  material: "plastic",
-                  description: "Plastic drum removable head (1H2)",
-                },
-                {
-                  code: "1N2",
-                  material: "other_metal",
-                  description: "Other metal drum removable head (1N2)",
-                },
-              ],
-            },
-            {
-              type: "boxes",
-              subtype: "polyester_resin_boxes",
-              containers: [
-                {
-                  code: "4A",
-                  material: "steel",
-                  description: "Steel box (4A)",
-                },
-                {
-                  code: "4B",
-                  material: "aluminum",
-                  description: "Aluminum box (4B)",
-                },
-                {
-                  code: "4C1",
-                  material: "natural_wood",
-                  description: "Natural wood box (4C1)",
-                },
-                {
-                  code: "4C2",
-                  material: "sift_proof_wood",
-                  description: "Natural wood sift-proof box (4C2)",
-                },
-                {
-                  code: "4D",
-                  material: "plywood",
-                  description: "Plywood box (4D)",
-                },
-                {
-                  code: "4F",
-                  material: "reconstituted_wood",
-                  description: "Reconstituted wood box (4F)",
-                },
-                {
-                  code: "4G",
-                  material: "fiberboard",
-                  description: "Fiberboard box (4G)",
-                },
-                {
-                  code: "4H1",
-                  material: "plastic",
-                  description: "Expanded plastic box (4H1)",
-                },
-                {
-                  code: "4H2",
-                  material: "plastic",
-                  description: "Solid plastic box (4H2)",
-                },
-                {
-                  code: "4N",
-                  material: "other_metal",
-                  description: "Other metal box (4N)",
-                },
+                { code: "3A2", material: "steel", description: "Steel jerrican removable head (3A2)" },
+                { code: "3B2", material: "aluminum", description: "Aluminum jerrican removable head (3B2)" },
+                { code: "3H2", material: "plastic", description: "Plastic jerrican removable head (3H2)" },
               ],
             },
           ],
@@ -19995,402 +19570,136 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       {
         type: "handling",
         description:
-          "Chemical kits and first aid kits are excepted from most packaging, labeling, and other requirements when transported by military aircraft",
+          "Prepare packages to arrive in good condition and present no hazard during transport",
         mandatory: true,
       },
       {
-        type: "compatibility",
+        type: "testing",
         description:
-          "Kit components must be chemically compatible with each other and with packaging materials",
+          "Use packaging tests appropriate for solids if sufficient absorbent material is present; otherwise tests for liquids",
         mandatory: true,
       },
       {
-        type: "compartment_separation",
+        type: "closure_security",
         description:
-          "Each hazardous component must be individually packaged in inner receptacles to prevent interaction between components",
+          "Packagings for sharp objects must be puncture resistant and retain liquids",
         mandatory: true,
-        applicableContainers: ["A10.10.1.chemical_kits"],
-      },
-      {
-        type: "quantity_control",
-        description:
-          "Individual components must not exceed quantity limits specified for their individual hazard class",
-        mandatory: true,
-      },
-      {
-        type: "handling",
-        description:
-          "Kits must contain only components necessary for their intended use (medical treatment, repair, etc.)",
-        mandatory: true,
-      },
-      {
-        type: "material_compatibility",
-        description:
-          "Components likely to cause dangerous evolution of heat or gas or produce corrosive materials may not be included in the same kit",
-        mandatory: true,
-        applicableContainers: ["A10.10.1.chemical_kits"],
-      },
-      {
-        type: "quantity_control",
-        description:
-          "First aid kits may contain medicines in limited quantities for treatment purposes only",
-        mandatory: true,
-        applicableContainers: ["A10.10.2.first_aid_kits"],
-      },
-      {
-        type: "handling",
-        description:
-          "First aid kit medicines must be in their original pharmaceutical packaging",
-        mandatory: true,
-        applicableContainers: ["A10.10.2.first_aid_kits"],
-      },
-      {
-        type: "quantity_control",
-        description:
-          "Liquid components in first aid kits must not exceed 10 mL per inner receptacle",
-        mandatory: true,
-        applicableContainers: ["A10.10.2.first_aid_kits"],
-      },
-      {
-        type: "compartment_separation",
-        description:
-          "Organic peroxide and flammable solid components must be kept in separate inner receptacles",
-        mandatory: true,
-        applicableContainers: ["A10.10.3.polyester_resin_kits"],
-      },
-      {
-        type: "temperature_control",
-        description:
-          "Polyester resin kits with organic peroxides must be protected from excessive heat",
-        mandatory: true,
-        applicableContainers: ["A10.10.3.polyester_resin_kits"],
-      },
-      {
-        type: "static_prevention",
-        description:
-          "Prevent accumulation of static electricity that could ignite organic peroxide components",
-        mandatory: true,
-        applicableContainers: ["A10.10.3.polyester_resin_kits"],
       },
     ],
 
     packingGroupRestrictions: [],
 
-    quantityLimits: [
-      {
-        scope: "per_inner",
-        value: 10,
-        unit: "ml",
-        description:
-          "Maximum liquid volume per inner receptacle in first aid kits",
-        conditions: ["first_aid_liquids"],
-      },
-    ],
+    quantityLimits: [],
 
-    conditionalRequirements: [
-      {
-        condition: "kit_type == 'chemical'",
-        conditionType: "material_state",
-        operator: "equals",
-        value: "chemical_kit",
-        effect: "require",
-        description: "Additional requirements for chemical kits",
-        requirements: [
-          {
-            type: "compartment_separation",
-            description:
-              "Each hazardous component must be individually packaged to prevent interaction",
-            mandatory: true,
-            applicableContainers: ["A10.10.1.chemical_kits"],
-          },
-          {
-            type: "material_compatibility",
-            description:
-              "Components must not cause dangerous heat evolution, gas production, or corrosion when mixed",
-            mandatory: true,
-            applicableContainers: ["A10.10.1.chemical_kits"],
-          },
-        ],
-      },
-      {
-        condition: "kit_type == 'first_aid'",
-        conditionType: "material_state",
-        operator: "equals",
-        value: "first_aid_kit",
-        effect: "require",
-        description: "Requirements for first aid kits with medicines",
-        requirements: [
-          {
-            type: "quantity_control",
-            description:
-              "Medicines limited to treatment quantities in original pharmaceutical packaging",
-            mandatory: true,
-            applicableContainers: ["A10.10.2.first_aid_kits"],
-          },
-          {
-            type: "quantity_control",
-            description:
-              "Liquid components limited to 10 mL per inner receptacle",
-            mandatory: true,
-            applicableContainers: ["A10.10.2.first_aid_kits"],
-          },
-        ],
-      },
-      {
-        condition: "kit_type == 'polyester_resin'",
-        conditionType: "material_state",
-        operator: "equals",
-        value: "polyester_resin_kit",
-        effect: "require",
-        description:
-          "Requirements for polyester resin kits with organic peroxides",
-        requirements: [
-          {
-            type: "compartment_separation",
-            description:
-              "Organic peroxide and flammable solid components must be separated",
-            mandatory: true,
-            applicableContainers: ["A10.10.3.polyester_resin_kits"],
-          },
-          {
-            type: "temperature_control",
-            description:
-              "Must protect organic peroxides from excessive heat during transport",
-            mandatory: true,
-            applicableContainers: ["A10.10.3.polyester_resin_kits"],
-          },
-        ],
-      },
-      {
-        condition: "military_transport == true",
-        conditionType: "transport_mode",
-        operator: "equals",
-        value: "military_aircraft",
-        effect: "except",
-        description: "Exceptions for military aircraft transport",
-        requirements: [
-          {
-            type: "handling",
-            description:
-              "Excepted from most packaging, labeling, and regulatory requirements when transported by military aircraft",
-            mandatory: true,
-            applicableContainers: [
-              "A10.10.1.chemical_kits",
-              "A10.10.2.first_aid_kits",
-              "A10.10.3.polyester_resin_kits",
-            ],
-          },
-        ],
-      },
-      {
-        condition: "component_hazard_class != 'none'",
-        conditionType: "component_analysis",
-        operator: "not_equals",
-        value: "non_hazardous",
-        effect: "require",
-        description: "Requirements when kit contains hazardous components",
-        requirements: [
-          {
-            type: "quantity_control",
-            description:
-              "Individual components must not exceed quantity limits for their hazard class",
-            mandatory: true,
-            applicableContainers: [
-              "A10.10.1.chemical_kits",
-              "A10.10.2.first_aid_kits",
-              "A10.10.3.polyester_resin_kits",
-            ],
-          },
-        ],
-      },
-      {
-        condition: "organic_peroxide_present == true",
-        conditionType: "component_analysis",
-        operator: "equals",
-        value: "contains_organic_peroxide",
-        effect: "require",
-        description:
-          "Additional requirements when organic peroxides are present",
-        requirements: [
-          {
-            type: "temperature_control",
-            description:
-              "Must maintain temperature control to prevent decomposition",
-            mandatory: true,
-            applicableContainers: ["A10.10.3.polyester_resin_kits"],
-          },
-          {
-            type: "static_prevention",
-            description: "Must prevent static electricity accumulation",
-            mandatory: true,
-            applicableContainers: ["A10.10.3.polyester_resin_kits"],
-          },
-        ],
-      },
-    ],
+    conditionalRequirements: [],
 
     referencedParagraphs: [],
   },
   "A10.11.": {
     paragraphId: "A10.11.",
-    hazardClass: 9,
-    description: "Package Life Saving Appliances",
+    hazardClass: 6,
+    subclass: ["6.1"],
+    description: "Package Chlorosilanes",
     lastUpdated: new Date().toISOString(),
-    entryType: "specialized",
-    materialTypes: [
-      "life_saving_appliances",
-      "self_inflating_slides",
-      "life_rafts",
-      "fire_extinguishers",
-      "compressed_gas_cartridges",
-    ],
+    entryType: "standard",
+    materialTypes: ["chlorosilanes"],
 
     packagingOptions: [
       {
-        id: "A10.11.1.self_inflating_equipment",
-        type: "specialized",
-        description:
-          "Self-inflating life rafts, escape slides, and similar safety equipment",
-        innerPackaging: {
-          required: false,
-          description:
-            "Equipment with integrated compressed gas inflation system",
-        },
-        outerPackaging: {
-          categories: [
-            {
-              type: "specialized",
-              subtype: "life_saving_equipment",
-              containers: [
-                {
-                  code: "LIFE_SAVING",
-                  material: "various",
-                  description:
-                    "Equipment in manufacturer's original protective packaging or strong outer container",
-                },
-              ],
-            },
-          ],
-        },
-      },
-      {
-        id: "A10.11.2.fire_extinguishers",
-        type: "specialized",
-        description:
-          "Fire extinguishers and similar pressure vessel safety equipment",
-        innerPackaging: {
-          required: false,
-          description:
-            "Pressure vessel with extinguishing agent and propellant gas",
-        },
-        outerPackaging: {
-          categories: [
-            {
-              type: "specialized",
-              subtype: "pressure_vessel_equipment",
-              containers: [
-                {
-                  code: "FIRE_EXT",
-                  material: "metal",
-                  description:
-                    "Fire extinguisher in manufacturer's original condition with valve protection",
-                },
-              ],
-            },
-          ],
-        },
-      },
-      {
-        id: "A10.11.3.compressed_gas_cartridges",
+        id: "A10.11.1.combination",
         type: "combination",
-        description: "Compressed gas cartridges for life saving appliances",
+        description: "Combination packagings with drums or boxes",
         innerPackaging: {
           required: true,
-          materials: ["Metal"],
-          description: "Individual compressed gas cartridges",
+          materials: ["Glass", "Steel"],
+          description: "Glass or steel receptacles",
         },
         outerPackaging: {
           categories: [
             {
               type: "drums",
-              subtype: "cartridge_drums",
+              subtype: "combination_drums",
               containers: [
-                {
-                  code: "1A2",
-                  material: "steel",
-                  description: "Steel drum removable head (1A2)",
-                },
-                {
-                  code: "1B2",
-                  material: "aluminum",
-                  description: "Aluminum drum removable head (1B2)",
-                },
-                {
-                  code: "1H2",
-                  material: "plastic",
-                  description: "Plastic drum removable head (1H2)",
-                },
-                {
-                  code: "1N2",
-                  material: "other_metal",
-                  description: "Other metal drum removable head (1N2)",
-                },
+                { code: "1A2", material: "steel", description: "Steel drum removable head (1A2)" },
+                { code: "1D", material: "plywood", description: "Plywood drum (1D)" },
+                { code: "1G", material: "fiber", description: "Fiber drum (1G)" },
+                { code: "1H2", material: "plastic", description: "Plastic drum removable head (1H2)" },
               ],
             },
             {
               type: "boxes",
-              subtype: "cartridge_boxes",
+              subtype: "combination_boxes",
               containers: [
-                {
-                  code: "4A",
-                  material: "steel",
-                  description: "Steel box (4A)",
-                },
-                {
-                  code: "4B",
-                  material: "aluminum",
-                  description: "Aluminum box (4B)",
-                },
-                {
-                  code: "4C1",
-                  material: "natural_wood",
-                  description: "Natural wood box (4C1)",
-                },
-                {
-                  code: "4C2",
-                  material: "sift_proof_wood",
-                  description: "Natural wood sift-proof box (4C2)",
-                },
-                {
-                  code: "4D",
-                  material: "plywood",
-                  description: "Plywood box (4D)",
-                },
-                {
-                  code: "4F",
-                  material: "reconstituted_wood",
-                  description: "Reconstituted wood box (4F)",
-                },
-                {
-                  code: "4G",
-                  material: "fiberboard",
-                  description: "Fiberboard box (4G)",
-                },
-                {
-                  code: "4H1",
-                  material: "plastic",
-                  description: "Expanded plastic box (4H1)",
-                },
-                {
-                  code: "4H2",
-                  material: "plastic",
-                  description: "Solid plastic box (4H2)",
-                },
-                {
-                  code: "4N",
-                  material: "other_metal",
-                  description: "Other metal box (4N)",
-                },
+                { code: "4A", material: "steel", description: "Steel box (4A)" },
+                { code: "4C1", material: "natural_wood", description: "Natural wood box (4C1)" },
+                { code: "4C2", material: "sift_proof_wood", description: "Natural wood sift-proof box (4C2)" },
+                { code: "4D", material: "plywood", description: "Plywood box (4D)" },
+                { code: "4F", material: "reconstituted_wood", description: "Reconstituted wood box (4F)" },
+                { code: "4G", material: "fiberboard", description: "Fiberboard box (4G)" },
+                { code: "4H1", material: "plastic", description: "Expanded plastic box (4H1)" },
+                { code: "4H2", material: "plastic", description: "Solid plastic box (4H2)" },
+              ],
+            },
+          ],
+        },
+      },
+      {
+        id: "A10.11.2.composite_drums",
+        type: "composite_plastic",
+        description: "Composite drums with plastic inner receptacle",
+        innerPackaging: {
+          required: true,
+          materials: ["Plastic"],
+        },
+        outerPackaging: {
+          categories: [
+            {
+              type: "drums",
+              subtype: "composite_drums",
+              containers: [
+                { code: "6HA1", material: "steel", description: "Composite drum with plastic inner (6HA1)" },
+              ],
+            },
+          ],
+        },
+      },
+      {
+        id: "A10.11.3.single",
+        type: "single",
+        description: "Single drums or jerricans",
+        innerPackaging: { required: false },
+        outerPackaging: {
+          categories: [
+            {
+              type: "drums",
+              subtype: "single_drums",
+              containers: [
+                { code: "1A1", material: "steel", description: "Steel drum tight head (1A1)" },
+              ],
+            },
+            {
+              type: "jerricans",
+              subtype: "single_jerricans",
+              containers: [
+                { code: "3A1", material: "steel", description: "Steel jerrican tight head (3A1)" },
+              ],
+            },
+          ],
+        },
+      },
+      {
+        id: "A10.11.4.cylinders",
+        type: "cylinder",
+        description:
+          "Cylinders for compressed gases (excluding 3HT and acetylene specifications 8/8AL)",
+        innerPackaging: { required: false },
+        outerPackaging: {
+          categories: [
+            {
+              type: "cylinders",
+              subtype: "compressed_gas_cylinders",
+              containers: [
+                { code: "CYLINDER", material: "steel", description: "DOT/UN cylinders per A10.11.4" },
               ],
             },
           ],
@@ -20401,395 +19710,294 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
     specialRequirements: [
       {
         type: "handling",
-        description:
-          "Life saving appliances are devices designed to save human life and may contain compressed gases, pyrotechnic devices, or other hazardous materials",
-        mandatory: true,
-      },
-      {
-        type: "static_prevention",
-        description:
-          "Equipment must be protected against inadvertent activation during transport",
-        mandatory: true,
-      },
-      {
-        type: "handling",
-        description:
-          "Self-inflating equipment must be shipped in manufacturer's original protective packaging",
-        mandatory: true,
-        applicableContainers: ["A10.11.1.self_inflating_equipment"],
-      },
-      {
-        type: "orientation",
-        description:
-          "Equipment must be oriented to prevent damage to activation mechanisms, valves, or pressure relief devices",
-        mandatory: true,
-        applicableContainers: [
-          "A10.11.1.self_inflating_equipment",
-          "A10.11.2.fire_extinguishers",
-        ],
-      },
-      {
-        type: "static_prevention",
-        description:
-          "Activation mechanisms must be protected with safety pins, caps, or other means to prevent accidental operation",
-        mandatory: true,
-        applicableContainers: [
-          "A10.11.1.self_inflating_equipment",
-          "A10.11.2.fire_extinguishers",
-        ],
-      },
-      {
-        type: "testing",
-        description:
-          "Fire extinguishers must meet DOT or equivalent pressure vessel standards",
-        mandatory: true,
-        applicableContainers: ["A10.11.2.fire_extinguishers"],
-      },
-      {
-        type: "moisture_protection",
-        description:
-          "Protect valve assemblies and pressure relief devices from damage during transport",
-        mandatory: true,
-        applicableContainers: ["A10.11.2.fire_extinguishers"],
-      },
-      {
-        type: "testing",
-        description:
-          "Pressure vessel must be within test date and show no signs of damage, corrosion, or leakage",
-        mandatory: true,
-        applicableContainers: ["A10.11.2.fire_extinguishers"],
-      },
-      {
-        type: "handling",
-        description:
-          "Fire extinguishers over 13.6 kg (30 lbs) require special handling and securing during transport",
-        mandatory: true,
-        applicableContainers: ["A10.11.2.fire_extinguishers"],
-      },
-      {
-        type: "cushioning",
-        description:
-          "Compressed gas cartridges must be cushioned to prevent impact damage to valve assemblies",
-        mandatory: true,
-        applicableContainers: ["A10.11.3.compressed_gas_cartridges"],
-      },
-      {
-        type: "static_prevention",
-        description:
-          "Cartridge valves must be protected with caps or other means to prevent accidental discharge",
-        mandatory: true,
-        applicableContainers: ["A10.11.3.compressed_gas_cartridges"],
-      },
-      {
-        type: "orientation",
-        description:
-          "Cartridges must be oriented valve-up or as specified by manufacturer to prevent valve damage",
-        mandatory: true,
-        applicableContainers: ["A10.11.3.compressed_gas_cartridges"],
-      },
-      {
-        type: "temperature_control",
-        description:
-          "Protect equipment from extreme temperatures that could affect pressure vessel integrity or activation mechanisms",
+        description: "Packaging meeting PG I or PG II performance standard is required",
         mandatory: true,
       },
     ],
 
     packingGroupRestrictions: [],
 
-    quantityLimits: [
-      {
-        scope: "per_package",
-        value: 30,
-        unit: "kg",
-        description:
-          "Maximum weight for fire extinguishers requiring special handling",
-        conditions: ["heavy_fire_extinguishers"],
-      },
-    ],
+    quantityLimits: [],
 
-    conditionalRequirements: [
-      {
-        condition: "equipment_type == 'self_inflating'",
-        conditionType: "equipment_type",
-        operator: "equals",
-        value: "self_inflating",
-        effect: "require",
-        description: "Requirements for self-inflating life saving equipment",
-        requirements: [
-          {
-            type: "handling",
-            description:
-              "Must remain in manufacturer's original protective packaging with all safety devices intact",
-            mandatory: true,
-            applicableContainers: ["A10.11.1.self_inflating_equipment"],
-          },
-          {
-            type: "static_prevention",
-            description:
-              "Inflation system must be secured against accidental activation",
-            mandatory: true,
-            applicableContainers: ["A10.11.1.self_inflating_equipment"],
-          },
-        ],
-      },
-      {
-        condition: "equipment_type == 'fire_extinguisher'",
-        conditionType: "equipment_type",
-        operator: "equals",
-        value: "fire_extinguisher",
-        effect: "require",
-        description:
-          "Requirements for fire extinguishers and pressure vessel equipment",
-        requirements: [
-          {
-            type: "testing",
-            description:
-              "Must be within required test/inspection dates and show no damage",
-            mandatory: true,
-            applicableContainers: ["A10.11.2.fire_extinguishers"],
-          },
-          {
-            type: "moisture_protection",
-            description:
-              "Valve assemblies must be protected from transport damage",
-            mandatory: true,
-            applicableContainers: ["A10.11.2.fire_extinguishers"],
-          },
-        ],
-      },
-      {
-        condition: "equipment_type == 'compressed_gas_cartridge'",
-        conditionType: "equipment_type",
-        operator: "equals",
-        value: "gas_cartridge",
-        effect: "require",
-        description: "Requirements for compressed gas cartridges",
-        requirements: [
-          {
-            type: "cushioning",
-            description:
-              "Must be cushioned against impact damage to valve assemblies",
-            mandatory: true,
-            applicableContainers: ["A10.11.3.compressed_gas_cartridges"],
-          },
-          {
-            type: "orientation",
-            description:
-              "Must be oriented to protect valve assemblies (typically valve-up)",
-            mandatory: true,
-            applicableContainers: ["A10.11.3.compressed_gas_cartridges"],
-          },
-        ],
-      },
-      {
-        condition: "activation_mechanism == 'automatic'",
-        conditionType: "activation_type",
-        operator: "equals",
-        value: "automatic",
-        effect: "require",
-        description:
-          "Additional requirements for automatically activated equipment",
-        requirements: [
-          {
-            type: "static_prevention",
-            description:
-              "Automatic activation mechanisms must be disabled or secured during transport",
-            mandatory: true,
-            applicableContainers: [
-              "A10.11.1.self_inflating_equipment",
-              "A10.11.2.fire_extinguishers",
-            ],
-          },
-        ],
-      },
-      {
-        condition: "activation_mechanism == 'manual'",
-        conditionType: "activation_type",
-        operator: "equals",
-        value: "manual",
-        effect: "require",
-        description: "Requirements for manually activated equipment",
-        requirements: [
-          {
-            type: "static_prevention",
-            description:
-              "Manual activation controls must be protected against accidental operation",
-            mandatory: true,
-            applicableContainers: [
-              "A10.11.1.self_inflating_equipment",
-              "A10.11.2.fire_extinguishers",
-            ],
-          },
-        ],
-      },
-      {
-        condition: "weight > 30_kg",
-        conditionType: "equipment_weight",
-        operator: "greater_than",
-        value: 30,
-        effect: "require",
-        description: "Special handling requirements for heavy equipment",
-        requirements: [
-          {
-            type: "handling",
-            description:
-              "Equipment over 30 kg requires special securing and handling procedures",
-            mandatory: true,
-            applicableContainers: ["A10.11.2.fire_extinguishers"],
-          },
-        ],
-      },
-      {
-        condition: "pressure_vessel == true",
-        conditionType: "equipment_feature",
-        operator: "equals",
-        value: "contains_pressure_vessel",
-        effect: "require",
-        description:
-          "Additional requirements for equipment containing pressure vessels",
-        requirements: [
-          {
-            type: "testing",
-            description:
-              "Pressure vessels must be within test dates and inspected for damage",
-            mandatory: true,
-            applicableContainers: [
-              "A10.11.2.fire_extinguishers",
-              "A10.11.3.compressed_gas_cartridges",
-            ],
-          },
-          {
-            type: "temperature_control",
-            description:
-              "Must protect against temperature extremes that could affect pressure vessel integrity",
-            mandatory: true,
-            applicableContainers: [
-              "A10.11.2.fire_extinguishers",
-              "A10.11.3.compressed_gas_cartridges",
-            ],
-          },
-        ],
-      },
-    ],
+    conditionalRequirements: [],
 
     referencedParagraphs: [],
   },
   "A10.12.": {
     paragraphId: "A10.12.",
-    hazardClass: 9,
-    description: "Package Engines and Machinery",
+    hazardClass: 6,
+    subclass: ["6.1"],
+    description:
+      "Toxins, Extracted From Living Sources, Liquid or Solid, N.O.S.",
     lastUpdated: new Date().toISOString(),
-    entryType: "specialized",
-    materialTypes: [
-      "engines",
-      "machinery",
-      "vehicles",
-      "equipment_with_fluids",
-      "battery_powered_equipment",
-    ],
+    entryType: "standard",
+    materialTypes: ["toxins_extracted_from_living_sources"],
 
     packagingOptions: [
       {
-        id: "A10.12.1.engines_with_fuel",
-        type: "specialized",
-        description: "Engines and machinery containing fuel systems",
+        id: "A10.12.1.1.liquid_combination",
+        type: "combination",
+        description: "Liquid toxins in combination packagings",
         innerPackaging: {
-          required: false,
-          description:
-            "Engine or machinery with fuel system properly prepared for transport",
+          required: true,
+          materials: ["Glass", "Plastic", "Metal"],
         },
         outerPackaging: {
           categories: [
             {
-              type: "specialized",
-              subtype: "engine_machinery",
+              type: "drums",
+              subtype: "combination_drums",
               containers: [
-                {
-                  code: "ENGINE_FUEL",
-                  material: "various",
-                  description:
-                    "Engine/machinery with fuel system drained or properly contained",
-                },
+                { code: "1A1", material: "steel", description: "Steel drum tight head (1A1)" },
+                { code: "1A2", material: "steel", description: "Steel drum removable head (1A2)" },
+                { code: "1B1", material: "aluminum", description: "Aluminum drum tight head (1B1)" },
+                { code: "1B2", material: "aluminum", description: "Aluminum drum removable head (1B2)" },
+                { code: "1D", material: "plywood", description: "Plywood drum (1D)" },
+                { code: "1G", material: "fiber", description: "Fiber drum (1G)" },
+                { code: "1H1", material: "plastic", description: "Plastic drum tight head (1H1)" },
+                { code: "1H2", material: "plastic", description: "Plastic drum removable head (1H2)" },
+                { code: "1N1", material: "other_metal", description: "Other metal drum tight head (1N1)" },
+                { code: "1N2", material: "other_metal", description: "Other metal drum removable head (1N2)" },
+              ],
+            },
+            {
+              type: "boxes",
+              subtype: "combination_boxes",
+              containers: [
+                { code: "4A", material: "steel", description: "Steel box (4A)" },
+                { code: "4B", material: "aluminum", description: "Aluminum box (4B)" },
+                { code: "4C1", material: "natural_wood", description: "Natural wood box (4C1)" },
+                { code: "4C2", material: "sift_proof_wood", description: "Natural wood sift-proof box (4C2)" },
+                { code: "4D", material: "plywood", description: "Plywood box (4D)" },
+                { code: "4F", material: "reconstituted_wood", description: "Reconstituted wood box (4F)" },
+                { code: "4G", material: "fiberboard", description: "Fiberboard box (4G)" },
+                { code: "4H1", material: "plastic", description: "Expanded plastic box (4H1)" },
+                { code: "4H2", material: "plastic", description: "Solid plastic box (4H2)" },
+                { code: "4N", material: "other_metal", description: "Other metal box (4N)" },
+              ],
+            },
+            {
+              type: "jerricans",
+              subtype: "combination_jerricans",
+              containers: [
+                { code: "3A1", material: "steel", description: "Steel jerrican tight head (3A1)" },
+                { code: "3A2", material: "steel", description: "Steel jerrican removable head (3A2)" },
+                { code: "3B1", material: "aluminum", description: "Aluminum jerrican tight head (3B1)" },
+                { code: "3B2", material: "aluminum", description: "Aluminum jerrican removable head (3B2)" },
+                { code: "3H1", material: "plastic", description: "Plastic jerrican tight head (3H1)" },
+                { code: "3H2", material: "plastic", description: "Plastic jerrican removable head (3H2)" },
               ],
             },
           ],
         },
       },
       {
-        id: "A10.12.2.machinery_with_fluids",
-        type: "specialized",
-        description:
-          "Machinery containing hydraulic fluids, oils, or other operational fluids",
-        innerPackaging: {
-          required: false,
-          description:
-            "Machinery with operational fluids properly contained or drained",
-        },
+        id: "A10.12.1.2.liquid_single",
+        type: "single",
+        description: "Liquid toxins in single packagings",
+        innerPackaging: { required: false },
         outerPackaging: {
           categories: [
             {
-              type: "specialized",
-              subtype: "fluid_machinery",
+              type: "drums",
+              subtype: "single_drums",
               containers: [
-                {
-                  code: "MACH_FLUID",
-                  material: "various",
-                  description:
-                    "Machinery with fluids contained or drained, leak-proof packaging if fluids retained",
-                },
+                { code: "1A1", material: "steel", description: "Steel drum tight head (1A1)" },
+                { code: "1A2", material: "steel", description: "Steel drum removable head (1A2)" },
+                { code: "1B1", material: "aluminum", description: "Aluminum drum tight head (1B1)" },
+                { code: "1B2", material: "aluminum", description: "Aluminum drum removable head (1B2)" },
+                { code: "1H1", material: "plastic", description: "Plastic drum tight head (1H1)" },
+                { code: "1H2", material: "plastic", description: "Plastic drum removable head (1H2)" },
+                { code: "1N1", material: "other_metal", description: "Other metal drum tight head (1N1)" },
+                { code: "1N2", material: "other_metal", description: "Other metal drum removable head (1N2)" },
+              ],
+            },
+            {
+              type: "jerricans",
+              subtype: "single_jerricans",
+              containers: [
+                { code: "3A1", material: "steel", description: "Steel jerrican tight head (3A1)" },
+                { code: "3A2", material: "steel", description: "Steel jerrican removable head (3A2)" },
+                { code: "3B1", material: "aluminum", description: "Aluminum jerrican tight head (3B1)" },
+                { code: "3B2", material: "aluminum", description: "Aluminum jerrican removable head (3B2)" },
+                { code: "3H1", material: "plastic", description: "Plastic jerrican tight head (3H1)" },
+                { code: "3H2", material: "plastic", description: "Plastic jerrican removable head (3H2)" },
               ],
             },
           ],
         },
       },
       {
-        id: "A10.12.3.equipment_with_batteries",
-        type: "specialized",
-        description:
-          "Equipment containing batteries or electrical storage devices",
-        innerPackaging: {
-          required: false,
-          description: "Equipment with batteries disconnected or removed",
-        },
+        id: "A10.12.1.3.liquid_composite_plastic",
+        type: "composite_plastic",
+        description: "Liquid toxins in composite packagings with plastic inner receptacles",
+        innerPackaging: { required: true, materials: ["Plastic"] },
         outerPackaging: {
           categories: [
             {
-              type: "specialized",
-              subtype: "battery_equipment",
+              type: "drums",
+              subtype: "composite_drums",
               containers: [
-                {
-                  code: "EQUIP_BATT",
-                  material: "various",
-                  description:
-                    "Equipment with batteries disconnected, removed, or properly protected",
-                },
+                { code: "6HA1", material: "steel", description: "Composite drum (6HA1)" },
+                { code: "6HB1", material: "aluminum", description: "Composite drum (6HB1)" },
+                { code: "6HD1", material: "plywood", description: "Composite drum (6HD1)" },
+                { code: "6HG1", material: "fiber", description: "Composite drum (6HG1)" },
+                { code: "6HH1", material: "plastic", description: "Composite drum (6HH1)" },
+              ],
+            },
+            {
+              type: "boxes",
+              subtype: "composite_boxes",
+              containers: [
+                { code: "6HA2", material: "steel", description: "Composite box (6HA2)" },
+                { code: "6HB2", material: "aluminum", description: "Composite box (6HB2)" },
+                { code: "6HC", material: "wood", description: "Composite box (6HC)" },
+                { code: "6HD2", material: "plywood", description: "Composite box (6HD2)" },
+                { code: "6HG2", material: "fiberboard", description: "Composite box (6HG2)" },
+                { code: "6HH2", material: "plastic", description: "Composite box (6HH2)" },
               ],
             },
           ],
         },
       },
       {
-        id: "A10.12.4.large_machinery",
-        type: "specialized",
-        description: "Large machinery and vehicles requiring special handling",
+        id: "A10.12.2.1.solid_combination",
+        type: "combination",
+        description: "Solid toxins in combination packagings",
         innerPackaging: {
-          required: false,
-          description:
-            "Large machinery prepared for transport with all hazardous materials addressed",
+          required: true,
+          materials: ["Fiber", "Glass", "Paper", "Plastic", "Metal"],
         },
         outerPackaging: {
           categories: [
             {
-              type: "specialized",
-              subtype: "large_machinery",
+              type: "drums",
+              subtype: "combination_drums",
               containers: [
-                {
-                  code: "LARGE_MACH",
-                  material: "various",
-                  description:
-                    "Large machinery/vehicles with proper securing and hazmat preparation",
-                },
+                { code: "1A1", material: "steel", description: "Steel drum tight head (1A1)" },
+                { code: "1A2", material: "steel", description: "Steel drum removable head (1A2)" },
+                { code: "1B1", material: "aluminum", description: "Aluminum drum tight head (1B1)" },
+                { code: "1B2", material: "aluminum", description: "Aluminum drum removable head (1B2)" },
+                { code: "1D", material: "plywood", description: "Plywood drum (1D)" },
+                { code: "1G", material: "fiber", description: "Fiber drum (1G)" },
+                { code: "1H1", material: "plastic", description: "Plastic drum tight head (1H1)" },
+                { code: "1H2", material: "plastic", description: "Plastic drum removable head (1H2)" },
+                { code: "1N1", material: "other_metal", description: "Other metal drum tight head (1N1)" },
+                { code: "1N2", material: "other_metal", description: "Other metal drum removable head (1N2)" },
+              ],
+            },
+            {
+              type: "boxes",
+              subtype: "combination_boxes",
+              containers: [
+                { code: "4A", material: "steel", description: "Steel box (4A)" },
+                { code: "4B", material: "aluminum", description: "Aluminum box (4B)" },
+                { code: "4C1", material: "natural_wood", description: "Natural wood box (4C1)" },
+                { code: "4C2", material: "sift_proof_wood", description: "Natural wood sift-proof box (4C2)" },
+                { code: "4D", material: "plywood", description: "Plywood box (4D)" },
+                { code: "4F", material: "reconstituted_wood", description: "Reconstituted wood box (4F)" },
+                { code: "4G", material: "fiberboard", description: "Fiberboard box (4G)" },
+                { code: "4H1", material: "plastic", description: "Expanded plastic box (4H1)" },
+                { code: "4H2", material: "plastic", description: "Solid plastic box (4H2)" },
+                { code: "4N", material: "other_metal", description: "Other metal box (4N)" },
+              ],
+            },
+            {
+              type: "jerricans",
+              subtype: "combination_jerricans",
+              containers: [
+                { code: "3A1", material: "steel", description: "Steel jerrican tight head (3A1)" },
+                { code: "3A2", material: "steel", description: "Steel jerrican removable head (3A2)" },
+                { code: "3B1", material: "aluminum", description: "Aluminum jerrican tight head (3B1)" },
+                { code: "3B2", material: "aluminum", description: "Aluminum jerrican removable head (3B2)" },
+                { code: "3H1", material: "plastic", description: "Plastic jerrican tight head (3H1)" },
+                { code: "3H2", material: "plastic", description: "Plastic jerrican removable head (3H2)" },
+              ],
+            },
+          ],
+        },
+      },
+      {
+        id: "A10.12.2.2.solid_single",
+        type: "single",
+        description: "Solid toxins in single packagings",
+        innerPackaging: { required: false },
+        outerPackaging: {
+          categories: [
+            {
+              type: "drums",
+              subtype: "single_drums",
+              containers: [
+                { code: "1A1", material: "steel", description: "Steel drum tight head (1A1)" },
+                { code: "1A2", material: "steel", description: "Steel drum removable head (1A2)" },
+                { code: "1B1", material: "aluminum", description: "Aluminum drum tight head (1B1)" },
+                { code: "1B2", material: "aluminum", description: "Aluminum drum removable head (1B2)" },
+                { code: "1D", material: "plywood", description: "Plywood drum (1D)" },
+                { code: "1G", material: "fiber", description: "Fiber drum (1G)" },
+                { code: "1H1", material: "plastic", description: "Plastic drum tight head (1H1)" },
+                { code: "1H2", material: "plastic", description: "Plastic drum removable head (1H2)" },
+                { code: "1N1", material: "other_metal", description: "Other metal drum tight head (1N1)" },
+                { code: "1N2", material: "other_metal", description: "Other metal drum removable head (1N2)" },
+              ],
+            },
+            {
+              type: "boxes",
+              subtype: "single_boxes",
+              containers: [
+                { code: "4A", material: "steel", description: "Steel box (4A)" },
+                { code: "4B", material: "aluminum", description: "Aluminum box (4B)" },
+                { code: "4C1", material: "natural_wood", description: "Natural wood box (4C1)" },
+                { code: "4C2", material: "sift_proof_wood", description: "Natural wood sift-proof box (4C2)" },
+                { code: "4D", material: "plywood", description: "Plywood box (4D)" },
+                { code: "4F", material: "reconstituted_wood", description: "Reconstituted wood box (4F)" },
+                { code: "4G", material: "fiberboard", description: "Fiberboard box (4G)" },
+                { code: "4H2", material: "plastic", description: "Solid plastic box (4H2)" },
+                { code: "4N", material: "other_metal", description: "Other metal box (4N)" },
+              ],
+            },
+            {
+              type: "jerricans",
+              subtype: "single_jerricans",
+              containers: [
+                { code: "3A1", material: "steel", description: "Steel jerrican tight head (3A1)" },
+                { code: "3A2", material: "steel", description: "Steel jerrican removable head (3A2)" },
+                { code: "3B1", material: "aluminum", description: "Aluminum jerrican tight head (3B1)" },
+                { code: "3B2", material: "aluminum", description: "Aluminum jerrican removable head (3B2)" },
+                { code: "3H1", material: "plastic", description: "Plastic jerrican tight head (3H1)" },
+                { code: "3H2", material: "plastic", description: "Plastic jerrican removable head (3H2)" },
+              ],
+            },
+          ],
+        },
+      },
+      {
+        id: "A10.12.2.3.solid_composite_plastic",
+        type: "composite_plastic",
+        description: "Solid toxins in composite packagings with plastic inner receptacles",
+        innerPackaging: { required: true, materials: ["Plastic"] },
+        outerPackaging: {
+          categories: [
+            {
+              type: "drums",
+              subtype: "composite_drums",
+              containers: [
+                { code: "6HA1", material: "steel", description: "Composite drum (6HA1)" },
+                { code: "6HB1", material: "aluminum", description: "Composite drum (6HB1)" },
+                { code: "6HD1", material: "plywood", description: "Composite drum (6HD1)" },
+                { code: "6HG1", material: "fiber", description: "Composite drum (6HG1)" },
+                { code: "6HH1", material: "plastic", description: "Composite drum (6HH1)" },
+              ],
+            },
+            {
+              type: "boxes",
+              subtype: "composite_boxes",
+              containers: [
+                { code: "6HA2", material: "steel", description: "Composite box (6HA2)" },
+                { code: "6HB2", material: "aluminum", description: "Composite box (6HB2)" },
+                { code: "6HC", material: "wood", description: "Composite box (6HC)" },
+                { code: "6HD2", material: "plywood", description: "Composite box (6HD2)" },
+                { code: "6HG2", material: "fiberboard", description: "Composite box (6HG2)" },
+                { code: "6HH2", material: "plastic", description: "Composite box (6HH2)" },
               ],
             },
           ],
@@ -20801,485 +20009,96 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       {
         type: "handling",
         description:
-          "Engines and machinery may contain fuel, hydraulic fluids, batteries, or other hazardous materials that must be properly managed",
-        mandatory: true,
-      },
-      {
-        type: "handling",
-        description:
-          "Fuel tanks and systems must be drained to the maximum extent possible or fuel must be properly contained",
-        mandatory: true,
-        applicableContainers: ["A10.12.1.engines_with_fuel"],
-      },
-      {
-        type: "closure_security",
-        description:
-          "If fuel cannot be completely drained, fuel system must be leak-tight and fuel tank vented appropriately",
-        mandatory: true,
-        applicableContainers: ["A10.12.1.engines_with_fuel"],
-      },
-      {
-        type: "static_prevention",
-        description:
-          "Disconnect or disable ignition systems, remove spark plugs, or take other measures to prevent accidental engine start",
-        mandatory: true,
-        applicableContainers: ["A10.12.1.engines_with_fuel"],
-      },
-      {
-        type: "absorbent_material",
-        description:
-          "Provide absorbent material to contain any minor fuel or fluid leakage during transport",
-        mandatory: true,
-        applicableContainers: ["A10.12.1.engines_with_fuel"],
-      },
-      {
-        type: "closure_security",
-        description:
-          "Hydraulic systems, oil reservoirs, and fluid containers must be leak-tight or drained",
-        mandatory: true,
-        applicableContainers: ["A10.12.2.machinery_with_fluids"],
-      },
-      {
-        type: "orientation",
-        description:
-          "Orient machinery to prevent fluid spillage from vents, breathers, or fill openings",
-        mandatory: true,
-        applicableContainers: ["A10.12.2.machinery_with_fluids"],
-      },
-      {
-        type: "absorbent_material",
-        description:
-          "Provide absorbent material to contain any fluid leakage during transport",
-        mandatory: true,
-        applicableContainers: ["A10.12.2.machinery_with_fluids"],
-      },
-      {
-        type: "static_prevention",
-        description:
-          "Disconnect battery terminals or remove batteries entirely to prevent electrical hazards",
-        mandatory: true,
-        applicableContainers: ["A10.12.3.equipment_with_batteries"],
-      },
-      {
-        type: "handling",
-        description:
-          "Lithium batteries must be removed or packaging must comply with lithium battery transport requirements",
-        mandatory: true,
-        applicableContainers: ["A10.12.3.equipment_with_batteries"],
-      },
-      {
-        type: "moisture_protection",
-        description:
-          "Protect electrical systems and batteries from moisture and corrosion during transport",
-        mandatory: true,
-        applicableContainers: ["A10.12.3.equipment_with_batteries"],
-      },
-      {
-        type: "handling",
-        description:
-          "Large machinery must be properly secured to prevent movement and damage during transport",
-        mandatory: true,
-        applicableContainers: ["A10.12.4.large_machinery"],
-      },
-      {
-        type: "handling",
-        description:
-          "All hazardous materials in large machinery must be addressed according to their individual requirements",
-        mandatory: true,
-        applicableContainers: ["A10.12.4.large_machinery"],
-      },
-      {
-        type: "documentation",
-        description:
-          "Provide documentation of fuel drainage, fluid removal, battery disconnection, and other hazmat preparations",
+          "Supplement the proper shipping name with a technical name",
         mandatory: true,
       },
     ],
 
     packingGroupRestrictions: [],
 
-    quantityLimits: [
-      {
-        scope: "per_package",
-        value: 500,
-        unit: "ml",
-        description: "Maximum residual fuel in drained fuel systems",
-        conditions: ["fuel_system_drainage"],
-      },
-      {
-        scope: "per_package",
-        value: 5,
-        unit: "L",
-        description:
-          "Maximum retained hydraulic or operational fluids if drainage not practical",
-        conditions: ["fluid_retention"],
-      },
-    ],
+    quantityLimits: [],
 
-    conditionalRequirements: [
-      {
-        condition: "fuel_system_present == true",
-        conditionType: "equipment_feature",
-        operator: "equals",
-        value: "contains_fuel_system",
-        effect: "require",
-        description: "Requirements for engines and machinery with fuel systems",
-        requirements: [
-          {
-            type: "handling",
-            description:
-              "Fuel tanks must be drained to maximum extent possible (residual <500mL)",
-            mandatory: true,
-            applicableContainers: ["A10.12.1.engines_with_fuel"],
-          },
-          {
-            type: "static_prevention",
-            description:
-              "Ignition systems must be disabled to prevent accidental starting",
-            mandatory: true,
-            applicableContainers: ["A10.12.1.engines_with_fuel"],
-          },
-        ],
-      },
-      {
-        condition: "hydraulic_system_present == true",
-        conditionType: "equipment_feature",
-        operator: "equals",
-        value: "contains_hydraulic_system",
-        effect: "require",
-        description: "Requirements for machinery with hydraulic systems",
-        requirements: [
-          {
-            type: "closure_security",
-            description:
-              "Hydraulic systems must be leak-tight or drained if practical",
-            mandatory: true,
-            applicableContainers: ["A10.12.2.machinery_with_fluids"],
-          },
-          {
-            type: "orientation",
-            description:
-              "Orient to prevent fluid spillage from system openings",
-            mandatory: true,
-            applicableContainers: ["A10.12.2.machinery_with_fluids"],
-          },
-        ],
-      },
-      {
-        condition: "battery_type == 'lead_acid'",
-        conditionType: "battery_type",
-        operator: "equals",
-        value: "lead_acid",
-        effect: "require",
-        description: "Requirements for equipment with lead-acid batteries",
-        requirements: [
-          {
-            type: "static_prevention",
-            description:
-              "Disconnect terminals or remove batteries; protect terminals from short circuit",
-            mandatory: true,
-            applicableContainers: ["A10.12.3.equipment_with_batteries"],
-          },
-        ],
-      },
-      {
-        condition: "battery_type == 'lithium'",
-        conditionType: "battery_type",
-        operator: "equals",
-        value: "lithium",
-        effect: "require",
-        description: "Requirements for equipment with lithium batteries",
-        requirements: [
-          {
-            type: "handling",
-            description:
-              "Must comply with lithium battery transport requirements; preferably remove batteries",
-            mandatory: true,
-            applicableContainers: ["A10.12.3.equipment_with_batteries"],
-          },
-        ],
-      },
-      {
-        condition: "weight > 500_kg",
-        conditionType: "equipment_weight",
-        operator: "greater_than",
-        value: 500,
-        effect: "require",
-        description: "Requirements for heavy machinery over 500 kg",
-        requirements: [
-          {
-            type: "handling",
-            description:
-              "Requires special loading, securing, and transport arrangements",
-            mandatory: true,
-            applicableContainers: ["A10.12.4.large_machinery"],
-          },
-        ],
-      },
-      {
-        condition: "fuel_cannot_be_drained == true",
-        conditionType: "drainage_status",
-        operator: "equals",
-        value: "cannot_drain",
-        effect: "require",
-        description:
-          "Additional requirements when fuel cannot be completely drained",
-        requirements: [
-          {
-            type: "closure_security",
-            description:
-              "Fuel system must be completely leak-tight with appropriate venting",
-            mandatory: true,
-            applicableContainers: ["A10.12.1.engines_with_fuel"],
-          },
-          {
-            type: "absorbent_material",
-            description:
-              "Enhanced absorbent material to handle potential leakage",
-            mandatory: true,
-            applicableContainers: ["A10.12.1.engines_with_fuel"],
-          },
-        ],
-      },
-      {
-        condition: "fluids_cannot_be_drained == true",
-        conditionType: "drainage_status",
-        operator: "equals",
-        value: "cannot_drain_fluids",
-        effect: "require",
-        description: "Requirements when operational fluids cannot be drained",
-        requirements: [
-          {
-            type: "closure_security",
-            description:
-              "All fluid systems must be leak-tight with secure closures",
-            mandatory: true,
-            applicableContainers: ["A10.12.2.machinery_with_fluids"],
-          },
-          {
-            type: "quantity_control",
-            description: "Retained fluids limited to 5L maximum per system",
-            mandatory: true,
-            applicableContainers: ["A10.12.2.machinery_with_fluids"],
-          },
-        ],
-      },
-      {
-        condition: "multiple_hazmat_types == true",
-        conditionType: "hazmat_complexity",
-        operator: "equals",
-        value: "multiple_hazards",
-        effect: "require",
-        description:
-          "Requirements for machinery containing multiple types of hazardous materials",
-        requirements: [
-          {
-            type: "documentation",
-            description:
-              "Must document all hazardous materials and their preparation status",
-            mandatory: true,
-            applicableContainers: ["A10.12.4.large_machinery"],
-          },
-          {
-            type: "handling",
-            description:
-              "Each hazardous material must be addressed according to its specific requirements",
-            mandatory: true,
-            applicableContainers: ["A10.12.4.large_machinery"],
-          },
-        ],
-      },
-    ],
+    conditionalRequirements: [],
 
     referencedParagraphs: [],
   },
   "A10.13.": {
     paragraphId: "A10.13.",
-    hazardClass: 9,
-    description: "Package Dangerous Goods in Excepted Quantities",
+    hazardClass: 6,
+    subclass: ["6.1"],
+    description: "UN3546, Articles containing toxic substance, N.O.S.",
     lastUpdated: new Date().toISOString(),
-    entryType: "exception",
-    materialTypes: [
-      "excepted_quantities",
-      "small_quantities",
-      "limited_quantities",
-    ],
+    entryType: "standard",
+    materialTypes: ["articles_containing_toxic_substance"],
 
     packagingOptions: [
       {
-        id: "A10.13.1.inner_outer_combination",
+        id: "A10.13.1.packaged_combination",
         type: "combination",
-        description:
-          "Inner packaging not exceeding excepted quantity limits in outer packaging",
+        description: "Packaged articles with inner receptacles and outer packagings",
         innerPackaging: {
           required: true,
           materials: ["Glass", "Metal", "Plastic"],
           description:
-            "Inner packaging containing dangerous goods in excepted quantities",
+            "Receptacles constructed of suitable materials and secured in the article",
         },
         outerPackaging: {
           categories: [
             {
               type: "drums",
-              subtype: "excepted_quantity_drums",
+              subtype: "removable_head",
               containers: [
-                {
-                  code: "1A2",
-                  material: "steel",
-                  description: "Steel drum removable head (1A2)",
-                },
-                {
-                  code: "1B2",
-                  material: "aluminum",
-                  description: "Aluminum drum removable head (1B2)",
-                },
-                {
-                  code: "1D",
-                  material: "plywood",
-                  description: "Plywood drum (1D)",
-                },
-                {
-                  code: "1G",
-                  material: "fiber",
-                  description: "Fiber drum (1G)",
-                },
-                {
-                  code: "1H2",
-                  material: "plastic",
-                  description: "Plastic drum removable head (1H2)",
-                },
-                {
-                  code: "1N2",
-                  material: "other_metal",
-                  description: "Other metal drum removable head (1N2)",
-                },
+                { code: "1A2", material: "steel", description: "Steel drum removable head (1A2)" },
+                { code: "1B2", material: "aluminum", description: "Aluminum drum removable head (1B2)" },
+                { code: "1N2", material: "other_metal", description: "Other metal drum removable head (1N2)" },
+                { code: "1D", material: "plywood", description: "Plywood drum (1D)" },
+                { code: "1G", material: "fiber", description: "Fiber drum (1G)" },
+                { code: "1H2", material: "plastic", description: "Plastic drum removable head (1H2)" },
               ],
             },
             {
               type: "boxes",
-              subtype: "excepted_quantity_boxes",
+              subtype: "rigid_boxes",
               containers: [
-                {
-                  code: "4A",
-                  material: "steel",
-                  description: "Steel box (4A)",
-                },
-                {
-                  code: "4B",
-                  material: "aluminum",
-                  description: "Aluminum box (4B)",
-                },
-                {
-                  code: "4C1",
-                  material: "natural_wood",
-                  description: "Natural wood box (4C1)",
-                },
-                {
-                  code: "4C2",
-                  material: "sift_proof_wood",
-                  description: "Natural wood sift-proof box (4C2)",
-                },
-                {
-                  code: "4D",
-                  material: "plywood",
-                  description: "Plywood box (4D)",
-                },
-                {
-                  code: "4F",
-                  material: "reconstituted_wood",
-                  description: "Reconstituted wood box (4F)",
-                },
-                {
-                  code: "4G",
-                  material: "fiberboard",
-                  description: "Fiberboard box (4G)",
-                },
-                {
-                  code: "4H1",
-                  material: "plastic",
-                  description: "Expanded plastic box (4H1)",
-                },
-                {
-                  code: "4H2",
-                  material: "plastic",
-                  description: "Solid plastic box (4H2)",
-                },
-                {
-                  code: "4N",
-                  material: "other_metal",
-                  description: "Other metal box (4N)",
-                },
+                { code: "4A", material: "steel", description: "Steel box (4A)" },
+                { code: "4B", material: "aluminum", description: "Aluminum box (4B)" },
+                { code: "4C1", material: "natural_wood", description: "Natural wood box (4C1)" },
+                { code: "4C2", material: "sift_proof_wood", description: "Natural wood sift-proof box (4C2)" },
+                { code: "4D", material: "plywood", description: "Plywood box (4D)" },
+                { code: "4F", material: "reconstituted_wood", description: "Reconstituted wood box (4F)" },
+                { code: "4G", material: "fiberboard", description: "Fiberboard box (4G)" },
+                { code: "4H1", material: "plastic", description: "Expanded plastic box (4H1)" },
+                { code: "4H2", material: "plastic", description: "Solid plastic box (4H2)" },
+                { code: "4N", material: "other_metal", description: "Other metal box (4N)" },
+              ],
+            },
+            {
+              type: "jerricans",
+              subtype: "removable_head",
+              containers: [
+                { code: "3A2", material: "steel", description: "Steel jerrican removable head (3A2)" },
+                { code: "3B2", material: "aluminum", description: "Aluminum jerrican removable head (3B2)" },
+                { code: "3H2", material: "plastic", description: "Plastic jerrican removable head (3H2)" },
               ],
             },
           ],
         },
       },
       {
-        id: "A10.13.2.single_small_packaging",
+        id: "A10.13.2.strong_outer_packaging",
         type: "single",
-        description: "Single small packaging for excepted quantities",
-        innerPackaging: {
-          required: false,
-          description: "Direct packaging of small quantities",
-        },
+        description: "Robust articles in strong outer packagings",
+        innerPackaging: { required: false },
         outerPackaging: {
           categories: [
             {
               type: "specialized",
-              subtype: "small_packaging",
+              subtype: "strong_outer_packaging",
               containers: [
                 {
-                  code: "SMALL_PKG",
+                  code: "STRONG_OUTER",
                   material: "various",
-                  description:
-                    "Small packaging appropriate for excepted quantities",
-                },
-              ],
-            },
-          ],
-        },
-      },
-      {
-        id: "A10.13.3.multiple_inner_packages",
-        type: "combination",
-        description:
-          "Multiple inner packages each containing excepted quantities",
-        innerPackaging: {
-          required: true,
-          materials: ["Glass", "Metal", "Plastic"],
-          description:
-            "Multiple inner packages, each containing materials in excepted quantities",
-        },
-        outerPackaging: {
-          categories: [
-            {
-              type: "boxes",
-              subtype: "multiple_excepted_quantities",
-              containers: [
-                {
-                  code: "4A",
-                  material: "steel",
-                  description: "Steel box (4A)",
-                },
-                {
-                  code: "4B",
-                  material: "aluminum",
-                  description: "Aluminum box (4B)",
-                },
-                {
-                  code: "4D",
-                  material: "plywood",
-                  description: "Plywood box (4D)",
-                },
-                {
-                  code: "4G",
-                  material: "fiberboard",
-                  description: "Fiberboard box (4G)",
-                },
-                {
-                  code: "4H2",
-                  material: "plastic",
-                  description: "Solid plastic box (4H2)",
+                  description: "Strong outer packaging providing adequate protection",
                 },
               ],
             },
@@ -21292,803 +20111,278 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       {
         type: "handling",
         description:
-          "Dangerous goods in excepted quantities are excepted from most packaging, marking, labeling, and documentation requirements",
+          "Pack articles to prevent movement and inadvertent operation during transport",
         mandatory: true,
       },
       {
-        type: "quantity_control",
+        type: "closure_orientation",
         description:
-          "Individual inner packaging must not exceed the excepted quantity limits specified for each hazard class",
-        mandatory: true,
-      },
-      {
-        type: "handling",
-        description:
-          "Excepted quantities mark must be applied to outer packaging unless total quantity per package is very small",
-        mandatory: true,
-      },
-      {
-        type: "documentation",
-        description:
-          "Excepted from dangerous goods declaration requirements but must be identified on shipping documents",
-        mandatory: true,
-      },
-      {
-        type: "quantity_control",
-        description:
-          "Total quantity of all dangerous goods in excepted quantities per outer packaging must not exceed specified limits",
+          "Inner receptacles containing liquids must be oriented correctly",
         mandatory: true,
       },
       {
         type: "handling",
         description:
-          "Different hazard classes may be combined in the same outer packaging if each is in excepted quantities",
+          "Robust articles may be transported unpackaged or on pallets if equivalent protection is provided",
         mandatory: true,
-        applicableContainers: ["A10.13.3.multiple_inner_packages"],
-      },
-      {
-        type: "closure_security",
-        description:
-          "Inner packaging must be leak-tight for liquids or sift-proof for solids",
-        mandatory: true,
-        applicableContainers: [
-          "A10.13.1.inner_outer_combination",
-          "A10.13.3.multiple_inner_packages",
-        ],
-      },
-      {
-        type: "cushioning",
-        description:
-          "Inner packaging must be cushioned or separated to prevent damage during transport",
-        mandatory: true,
-        applicableContainers: [
-          "A10.13.1.inner_outer_combination",
-          "A10.13.3.multiple_inner_packages",
-        ],
-      },
-      {
-        type: "orientation",
-        description:
-          "Package orientation arrows required if inner packaging could leak if inverted",
-        mandatory: true,
-        applicableContainers: [
-          "A10.13.1.inner_outer_combination",
-          "A10.13.3.multiple_inner_packages",
-        ],
       },
     ],
 
     packingGroupRestrictions: [],
 
-    quantityLimits: [
-      {
-        scope: "per_inner",
-        value: 30,
-        unit: "ml",
-        description:
-          "Maximum per inner packaging for most liquid Class 3, 4, 5, 6, 8 materials",
-        conditions: ["liquid_excepted_quantities"],
-      },
-      {
-        scope: "per_inner",
-        value: 30,
-        unit: "g",
-        description:
-          "Maximum per inner packaging for most solid Class 4, 5, 6, 8 materials",
-        conditions: ["solid_excepted_quantities"],
-      },
-      {
-        scope: "per_inner",
-        value: 1,
-        unit: "ml",
-        description: "Maximum per inner packaging for Class 6.1 PG I liquids",
-        conditions: ["class_6_1_pgi_liquids"],
-      },
-      {
-        scope: "per_inner",
-        value: 1,
-        unit: "g",
-        description: "Maximum per inner packaging for Class 6.1 PG I solids",
-        conditions: ["class_6_1_pgi_solids"],
-      },
-      {
-        scope: "per_outer",
-        value: 1000,
-        unit: "ml",
-        description: "Maximum total liquid per outer packaging",
-        conditions: ["total_liquids_per_package"],
-      },
-      {
-        scope: "per_outer",
-        value: 1000,
-        unit: "g",
-        description: "Maximum total solids per outer packaging",
-        conditions: ["total_solids_per_package"],
-      },
-    ],
+    quantityLimits: [],
 
-    conditionalRequirements: [
-      {
-        condition: "hazard_class == '3'",
-        conditionType: "hazard_class",
-        operator: "equals",
-        value: "3",
-        effect: "require",
-        description:
-          "Requirements for Class 3 flammable liquids in excepted quantities",
-        requirements: [
-          {
-            type: "quantity_control",
-            description:
-              "Maximum 30 mL per inner packaging, 1000 mL total per outer packaging",
-            mandatory: true,
-            applicableContainers: [
-              "A10.13.1.inner_outer_combination",
-              "A10.13.3.multiple_inner_packages",
-            ],
-          },
-        ],
-      },
-      {
-        condition: "hazard_class == '4.1'",
-        conditionType: "hazard_class",
-        operator: "equals",
-        value: "4.1",
-        effect: "require",
-        description:
-          "Requirements for Class 4.1 flammable solids in excepted quantities",
-        requirements: [
-          {
-            type: "quantity_control",
-            description:
-              "Maximum 30 g per inner packaging, 1000 g total per outer packaging",
-            mandatory: true,
-            applicableContainers: [
-              "A10.13.1.inner_outer_combination",
-              "A10.13.3.multiple_inner_packages",
-            ],
-          },
-        ],
-      },
-      {
-        condition: "hazard_class == '6.1' && packing_group == 'I'",
-        conditionType: "hazard_class",
-        operator: "equals",
-        value: "6.1_pgi",
-        effect: "require",
-        description:
-          "Requirements for Class 6.1 PG I toxic materials in excepted quantities",
-        requirements: [
-          {
-            type: "quantity_control",
-            description:
-              "Maximum 1 mL/1 g per inner packaging, special limits apply",
-            mandatory: true,
-            applicableContainers: [
-              "A10.13.1.inner_outer_combination",
-              "A10.13.3.multiple_inner_packages",
-            ],
-          },
-        ],
-      },
-      {
-        condition: "hazard_class == '8'",
-        conditionType: "hazard_class",
-        operator: "equals",
-        value: "8",
-        effect: "require",
-        description:
-          "Requirements for Class 8 corrosive materials in excepted quantities",
-        requirements: [
-          {
-            type: "quantity_control",
-            description:
-              "Maximum 30 mL/30 g per inner packaging, 1000 mL/1000 g total per outer packaging",
-            mandatory: true,
-            applicableContainers: [
-              "A10.13.1.inner_outer_combination",
-              "A10.13.3.multiple_inner_packages",
-            ],
-          },
-        ],
-      },
-      {
-        condition: "material_state == 'liquid'",
-        conditionType: "material_state",
-        operator: "equals",
-        value: "liquid",
-        effect: "require",
-        description:
-          "Additional requirements for liquid materials in excepted quantities",
-        requirements: [
-          {
-            type: "closure_security",
-            description: "Inner packaging must be leak-tight",
-            mandatory: true,
-            applicableContainers: [
-              "A10.13.1.inner_outer_combination",
-              "A10.13.3.multiple_inner_packages",
-            ],
-          },
-          {
-            type: "orientation",
-            description: "Package orientation markings required",
-            mandatory: true,
-            applicableContainers: [
-              "A10.13.1.inner_outer_combination",
-              "A10.13.3.multiple_inner_packages",
-            ],
-          },
-        ],
-      },
-      {
-        condition: "material_state == 'solid'",
-        conditionType: "material_state",
-        operator: "equals",
-        value: "solid",
-        effect: "require",
-        description: "Requirements for solid materials in excepted quantities",
-        requirements: [
-          {
-            type: "closure_security",
-            description: "Inner packaging must be sift-proof",
-            mandatory: true,
-            applicableContainers: [
-              "A10.13.1.inner_outer_combination",
-              "A10.13.3.multiple_inner_packages",
-            ],
-          },
-        ],
-      },
-      {
-        condition: "multiple_hazard_classes == true",
-        conditionType: "hazmat_complexity",
-        operator: "equals",
-        value: "multiple_classes",
-        effect: "require",
-        description:
-          "Requirements when combining different hazard classes in excepted quantities",
-        requirements: [
-          {
-            type: "quantity_control",
-            description:
-              "Each hazard class must individually comply with excepted quantity limits",
-            mandatory: true,
-            applicableContainers: ["A10.13.3.multiple_inner_packages"],
-          },
-          {
-            type: "compatibility",
-            description:
-              "Ensure compatibility between different hazard classes in same package",
-            mandatory: true,
-            applicableContainers: ["A10.13.3.multiple_inner_packages"],
-          },
-        ],
-      },
-      {
-        condition: "excepted_quantity_marking_required == true",
-        conditionType: "marking_requirement",
-        operator: "equals",
-        value: "marking_required",
-        effect: "require",
-        description: "Marking requirements for excepted quantities",
-        requirements: [
-          {
-            type: "handling",
-            description:
-              "Must apply excepted quantities mark unless total per package is very small",
-            mandatory: true,
-            applicableContainers: [
-              "A10.13.1.inner_outer_combination",
-              "A10.13.3.multiple_inner_packages",
-            ],
-          },
-        ],
-      },
-      {
-        condition: "total_quantity_very_small == true",
-        conditionType: "quantity_assessment",
-        operator: "equals",
-        value: "very_small",
-        effect: "except",
-        description: "Exceptions for very small total quantities",
-        requirements: [
-          {
-            type: "handling",
-            description:
-              "Excepted quantities mark not required for very small total quantities",
-            mandatory: true,
-            applicableContainers: ["A10.13.2.single_small_packaging"],
-          },
-        ],
-      },
-    ],
+    conditionalRequirements: [],
 
     referencedParagraphs: [],
   },
-  "A12.2.": {
-    paragraphId: "A12.2.",
-    hazardClass: 8,
-    description: "Packaging for Liquid Class 8 Materials (Corrosives)",
-    lastUpdated: new Date().toISOString(),
-    entryType: "standard",
-    materialTypes: ["corrosive_liquids"],
+  // A12.2 (Package Liquid Class 8 Materials)
+    "A12.2.": {
+      paragraphId: "A12.2.",
+      hazardClass: 8,
+      description: "Package Liquid Class 8 Materials",
+      lastUpdated: new Date().toISOString(),
+      entryType: "standard",
+      materialTypes: ["corrosive_liquids"],
 
-    packagingOptions: [
-      {
-        id: "A12.2.combination",
-        type: "combination",
-        description: "Inner packages inside outer package",
-        innerPackaging: {
-          required: true,
-          materials: [
-            "Glass receptacles",
-            "Earthenware receptacles",
-            "Plastic receptacles",
-            "Metal receptacles",
-          ],
-          specialRequirements: [
-            "For PG I material inner packagings packed in a rigid and leakproof receptacle or intermediate packaging containing sufficient absorbent material to absorb the entire contents of all inner packagings before packing the inner packaging(s) in the outer package.",
-            "Inner packaging or receptacle closures of combination packages containing liquids must be held securely, tightly, and effectively in place by secondary means. See A20.3.",
-          ],
+      packagingOptions: [
+        {
+          id: "A12.2.1.combination",
+          type: "combination",
+          description: "Combination packagings with outer drums, barrels, jerricans, or boxes",
+          innerPackaging: {
+            required: true,
+            materials: [
+              "Glass receptacles",
+              "Earthenware receptacles",
+              "Plastic receptacles",
+              "Metal receptacles",
+            ],
+          },
+          outerPackaging: {
+            categories: [
+              {
+                type: "drums",
+                containers: [
+                  { code: "1A1", material: "steel", description: "Steel drum" },
+                  { code: "1A2", material: "steel", description: "Steel drum" },
+                  { code: "1B1", material: "aluminum", description: "Aluminum drum" },
+                  { code: "1B2", material: "aluminum", description: "Aluminum drum" },
+                  { code: "1D", material: "plywood", description: "Plywood drum" },
+                  { code: "1G", material: "fiber", description: "Fiber drum" },
+                  { code: "1H1", material: "plastic", description: "Plastic drum" },
+                  { code: "1H2", material: "plastic", description: "Plastic drum" },
+                  {
+                    code: "1N1",
+                    material: "other_metal",
+                    description: "Metal other than steel or aluminum drum",
+                  },
+                  {
+                    code: "1N2",
+                    material: "other_metal",
+                    description: "Metal other than steel or aluminum drum",
+                  },
+                ],
+              },
+              {
+                type: "barrels",
+                containers: [{ code: "2C2", material: "wood", description: "Wood barrel" }],
+              },
+              {
+                type: "jerricans",
+                containers: [
+                  { code: "3A1", material: "steel", description: "Steel jerrican" },
+                  { code: "3A2", material: "steel", description: "Steel jerrican" },
+                  { code: "3B1", material: "aluminum", description: "Aluminum jerrican" },
+                  { code: "3B2", material: "aluminum", description: "Aluminum jerrican" },
+                  { code: "3H1", material: "plastic", description: "Plastic jerrican" },
+                  { code: "3H2", material: "plastic", description: "Plastic jerrican" },
+                ],
+              },
+              {
+                type: "boxes",
+                containers: [
+                  { code: "4A", material: "steel", description: "Steel box" },
+                  { code: "4B", material: "aluminum", description: "Aluminum box" },
+                  { code: "4C1", material: "natural_wood", description: "Natural wood box" },
+                  { code: "4C2", material: "natural_wood", description: "Natural wood box" },
+                  { code: "4D", material: "plywood", description: "Plywood box" },
+                  { code: "4F", material: "reconstituted_wood", description: "Reconstituted wood box" },
+                  { code: "4G", material: "fiberboard", description: "Fiberboard box" },
+                  { code: "4H1", material: "plastic", description: "Expanded plastic box" },
+                  { code: "4H2", material: "plastic", description: "Solid plastic box" },
+                  { code: "4N", material: "other_metal", description: "Other metal box" },
+                ],
+              },
+            ],
+          },
         },
-        outerPackaging: {
-          categories: [
-            {
-              type: "drums",
-              containers: [
-                { code: "1A1", material: "steel", description: "Steel" },
-                { code: "1A2", material: "steel", description: "Steel" },
-                { code: "1B1", material: "aluminum", description: "Aluminum" },
-                { code: "1B2", material: "aluminum", description: "Aluminum" },
-                { code: "1D", material: "plywood", description: "Plywood" },
-                { code: "1G", material: "fiber", description: "Fiber" },
-                { code: "1H1", material: "plastic", description: "Plastic" },
-                { code: "1H2", material: "plastic", description: "Plastic" },
-                {
-                  code: "1N1",
-                  material: "other_metal",
-                  description: "Other metal than steel or aluminum",
-                },
-                {
-                  code: "1N2",
-                  material: "other_metal",
-                  description: "Other metal than steel or aluminum",
-                },
-              ],
-            },
-            {
-              type: "barrels",
-              containers: [
-                { code: "2C2", material: "wood", description: "Wood" },
-              ],
-            },
-            {
-              type: "jerricans",
-              containers: [
-                { code: "3A1", material: "steel", description: "Steel" },
-                { code: "3A2", material: "steel", description: "Steel" },
-                { code: "3B1", material: "aluminum", description: "Aluminum" },
-                { code: "3B2", material: "aluminum", description: "Aluminum" },
-                { code: "3H1", material: "plastic", description: "Plastic" },
-                { code: "3H2", material: "plastic", description: "Plastic" },
-              ],
-            },
-            {
-              type: "boxes",
-              containers: [
-                { code: "4A", material: "steel", description: "Steel" },
-                { code: "4B", material: "aluminum", description: "Aluminum" },
-                {
-                  code: "4C1",
-                  material: "natural_wood",
-                  description: "Natural wood",
-                },
-                {
-                  code: "4C2",
-                  material: "natural_wood",
-                  description: "Natural wood",
-                },
-                { code: "4D", material: "plywood", description: "Plywood" },
-                {
-                  code: "4F",
-                  material: "reconstituted_wood",
-                  description: "Reconstituted wood",
-                },
-                {
-                  code: "4G",
-                  material: "fiberboard",
-                  description: "Fiberboard",
-                },
-                { code: "4H1", material: "plastic", description: "Plastic" },
-                { code: "4H2", material: "plastic", description: "Plastic" },
-                {
-                  code: "4N",
-                  material: "other_metal",
-                  description: "Other metal",
-                },
-              ],
-            },
-          ],
+        {
+          id: "A12.2.2.single_packaging",
+          type: "single",
+          description: "Single packaging drums, barrels, or jerricans",
+          innerPackaging: {
+            required: false,
+          },
+          outerPackaging: {
+            categories: [
+              {
+                type: "drums",
+                containers: [
+                  { code: "1A1", material: "steel", description: "Steel drum" },
+                  { code: "1A2", material: "steel", description: "Steel drum" },
+                  { code: "1B1", material: "aluminum", description: "Aluminum drum" },
+                  { code: "1B2", material: "aluminum", description: "Aluminum drum" },
+                  { code: "1G", material: "fiber", description: "Fiber drum with liner" },
+                  { code: "1H1", material: "plastic", description: "Plastic drum" },
+                  { code: "1H2", material: "plastic", description: "Plastic drum" },
+                  {
+                    code: "1N1",
+                    material: "other_metal",
+                    description: "Metal other than steel or aluminum drum",
+                  },
+                  {
+                    code: "1N2",
+                    material: "other_metal",
+                    description: "Metal other than steel or aluminum drum",
+                  },
+                ],
+              },
+              {
+                type: "barrels",
+                containers: [{ code: "2C1", material: "wood", description: "Wood barrel" }],
+              },
+              {
+                type: "jerricans",
+                containers: [
+                  { code: "3A1", material: "steel", description: "Steel jerrican" },
+                  { code: "3A2", material: "steel", description: "Steel jerrican" },
+                  { code: "3B1", material: "aluminum", description: "Aluminum jerrican" },
+                  { code: "3B2", material: "aluminum", description: "Aluminum jerrican" },
+                  { code: "3H1", material: "plastic", description: "Plastic jerrican" },
+                  { code: "3H2", material: "plastic", description: "Plastic jerrican" },
+                ],
+              },
+            ],
+          },
         },
-        notes: ["Wood barrel (2C2) not authorized for PG I material."],
-      },
-    ],
+        {
+          id: "A12.2.3.composite_plastic",
+          type: "composite_plastic",
+          description: "Composite packagings with plastic inner receptacles",
+          innerPackaging: {
+            required: true,
+            materials: ["Plastic inner receptacles"],
+          },
+          outerPackaging: {
+            categories: [
+              {
+                type: "composite_drum",
+                containers: [
+                  { code: "6HA1", material: "steel_plastic", description: "Steel drum" },
+                  { code: "6HB1", material: "aluminum_plastic", description: "Aluminum drum" },
+                  { code: "6HG1", material: "fiber_plastic", description: "Fiber drum" },
+                  { code: "6HH1", material: "plastic_plastic", description: "Plastic drum" },
+                  { code: "6HD1", material: "plywood_plastic", description: "Plywood drum" },
+                ],
+              },
+              {
+                type: "composite_box",
+                containers: [
+                  { code: "6HA2", material: "steel_plastic", description: "Steel box" },
+                  { code: "6HB2", material: "aluminum_plastic", description: "Aluminum box" },
+                  { code: "6HC", material: "wooden_plastic", description: "Wooden box" },
+                  { code: "6HD2", material: "plywood_plastic", description: "Plywood box" },
+                  { code: "6HG2", material: "fiberboard_plastic", description: "Fiberboard box" },
+                ],
+              },
+            ],
+          },
+        },
+        {
+          id: "A12.2.4.composite_glass",
+          type: "composite_glass",
+          description: "Composite packagings with glass, porcelain, or stoneware inner receptacles",
+          innerPackaging: {
+            required: true,
+            materials: ["Glass", "Porcelain", "Stoneware"],
+          },
+          outerPackaging: {
+            categories: [
+              {
+                type: "composite_drum",
+                containers: [
+                  { code: "6PA1", material: "steel_glass", description: "Steel drum" },
+                  { code: "6PB1", material: "aluminum_glass", description: "Aluminum drum" },
+                  { code: "6PG1", material: "fiber_glass", description: "Fiber drum" },
+                ],
+              },
+              {
+                type: "composite_box",
+                containers: [
+                  { code: "6PA2", material: "steel_glass", description: "Steel box" },
+                  { code: "6PB2", material: "aluminum_glass", description: "Aluminum box" },
+                  { code: "6PC", material: "wooden_glass", description: "Wooden box" },
+                  { code: "6PG2", material: "fiberboard_glass", description: "Fiberboard box" },
+                ],
+              },
+              {
+                type: "composite_plastic_packaging",
+                containers: [
+                  { code: "6PH1", material: "plastic_glass", description: "Solid plastic packaging" },
+                  { code: "6PH2", material: "plastic_glass", description: "Expanded plastic packaging" },
+                ],
+              },
+              {
+                type: "composite_plywood",
+                containers: [
+                  { code: "6PD1", material: "plywood_glass", description: "Plywood drum" },
+                  { code: "6PD2", material: "plywood_glass", description: "Wickerwork hamper" },
+                ],
+              },
+            ],
+          },
+        },
+        {
+          id: "A12.2.5.cylinder",
+          type: "cylinder",
+          description: "DOT specification cylinders",
+          innerPackaging: {
+            required: false,
+          },
+          outerPackaging: {
+            categories: [
+              {
+                type: "cylinders",
+                subtype: "dot_specification",
+                containers: [
+                  {
+                    code: "DOT_SPEC",
+                    material: "metal",
+                    description:
+                      "DOT specification cylinders as prescribed for any compressed gas (except acetylene 8/8AL and DOT 3HT)",
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      ],
 
-    packingGroupRestrictions: [
-      {
-        packingGroup: "I",
-        restriction: "prohibited",
-        description: "Wood barrel (2C2) not authorized for PG I material",
-        conditions: ["2C2"],
-      },
-    ],
-
-    specialRequirements: [
-      {
-        type: "closure_type",
-        description:
-          "Inner packaging or receptacle closures of combination packages containing liquids must be held securely, tightly, and effectively in place by secondary means. See A20.3.",
-        mandatory: true,
-        applicableContainers: ["combination"],
-      },
-      {
-        type: "compatibility",
-        description:
-          "Consider material compatibility with corrosive substances",
-        mandatory: true,
-        applicableContainers: ["all"],
-      },
-    ],
-
-    referencedParagraphs: ["A20.3"],
-  },
-
-  // Phase 3, Week 13: Class 8 Corrosives Entry - A12.2 (Package Liquid Class 8 Materials)
-  // "A12.2.": {
-  //   paragraphId: "A12.2.",
-  //   hazardClass: 8,
-  //   description: "Package Liquid Class 8 Materials as follows:",
-  //   lastUpdated: new Date().toISOString(),
-  //   entryType: 'standard',
-  //   materialTypes: ['corrosive_liquids'],
-
-  //   packagingOptions: [
-  //     {
-  //       id: "A12.2.1.combination",
-  //       type: "combination",
-  //       description: "Inner packages inside outer package",
-  //       innerPackaging: {
-  //         required: true,
-  //         materials: ["Glass receptacles", "Earthenware receptacles", "Plastic receptacles", "Metal receptacles"],
-  //         specialRequirements: [
-  //           "For PG I material, inner packagings must be packed in a rigid and leakproof receptacle or intermediate packaging containing sufficient absorbent material to absorb the entire contents of all inner packagings before packing the inner packaging(s) in the outer package.",
-  //           "Inner packaging or receptacle closures of combination packages containing liquids must be held securely, tightly, and effectively in place by secondary means. See A20.3."
-  //         ]
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "drums",
-  //             containers: [
-  //               { code: "1A1", material: "steel", description: "Steel" },
-  //               { code: "1A2", material: "steel", description: "Removable head steel" },
-  //               { code: "1B1", material: "aluminum", description: "Aluminum" },
-  //               { code: "1B2", material: "aluminum", description: "Removable head aluminum" },
-  //               { code: "1D", material: "plywood", description: "Plywood" },
-  //               { code: "1G", material: "fiber", description: "Fiber" },
-  //               { code: "1H1", material: "plastic", description: "Plastic" },
-  //               { code: "1H2", material: "plastic", description: "Removable head plastic" },
-  //               { code: "1N1", material: "other_metal", description: "Metal other than steel or aluminum" },
-  //               { code: "1N2", material: "other_metal", description: "Removable head metal other than steel or aluminum" }
-  //             ]
-  //           },
-  //           {
-  //             type: "barrels",
-  //             containers: [
-  //               { code: "2C2", material: "wood", description: "Wood barrel" }
-  //             ],
-  //             // restrictions: ["Wood barrel (2C2) is not authorized for PG I material."]
-  //           },
-  //           {
-  //             type: "jerricans",
-  //             containers: [
-  //               { code: "3A1", material: "steel", description: "Steel" },
-  //               { code: "3A2", material: "steel", description: "Removable head steel" },
-  //               { code: "3B1", material: "aluminum", description: "Aluminum" },
-  //               { code: "3B2", material: "aluminum", description: "Removable head aluminum" },
-  //               { code: "3H1", material: "plastic", description: "Plastic" },
-  //               { code: "3H2", material: "plastic", description: "Removable head plastic" }
-  //             ]
-  //           },
-  //           {
-  //             type: "boxes",
-  //             containers: [
-  //               { code: "4A", material: "steel", description: "Steel" },
-  //               { code: "4B", material: "aluminum", description: "Aluminum" },
-  //               { code: "4C1", material: "natural_wood", description: "Natural wood" },
-  //               { code: "4C2", material: "natural_wood", description: "Sift-proof natural wood" },
-  //               { code: "4D", material: "plywood", description: "Plywood" },
-  //               { code: "4F", material: "reconstituted_wood", description: "Reconstituted wood" },
-  //               { code: "4G", material: "fiberboard", description: "Fiberboard" },
-  //               { code: "4H1", material: "plastic", description: "Expanded plastic" },
-  //               { code: "4H2", material: "plastic", description: "Solid plastic" },
-  //               { code: "4N", material: "other_metal", description: "Other metal" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     },
-  //     {
-  //       id: "A12.2.2.single_packaging",
-  //       type: "single",
-  //       description: "Single packaging drums, barrels, or jerricans",
-  //       innerPackaging: {
-  //         required: false
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "drums",
-  //             containers: [
-  //               { code: "1A1", material: "steel", description: "Steel" },
-  //               { code: "1A2", material: "steel", description: "Removable head steel" },
-  //               { code: "1B1", material: "aluminum", description: "Aluminum" },
-  //               { code: "1B2", material: "aluminum", description: "Removable head aluminum" },
-  //               { code: "1G", material: "fiber", description: "Fiber with liner",
-  //                 // restrictions: ["Fiber drum (1G) with liner only authorized for PG II and III material."]
-  //               },
-  //               { code: "1H1", material: "plastic", description: "Plastic" },
-  //               { code: "1H2", material: "plastic", description: "Removable head plastic" },
-  //               { code: "1N1", material: "other_metal", description: "Metal other than steel or aluminum" },
-  //               { code: "1N2", material: "other_metal", description: "Removable head metal other than steel or aluminum" }
-  //             ]
-  //           },
-  //           {
-  //             type: "barrels",
-  //             containers: [
-  //               { code: "2C1", material: "wood", description: "Wood barrel" }
-  //             ],
-  //             // restrictions: [{ packingGroup: "I", description: "Wood barrel (2C1) not authorized for PG I material."}]
-  //           },
-  //           {
-  //             type: "jerricans",
-  //             containers: [
-  //               { code: "3A1", material: "steel", description: "Steel" },
-  //               { code: "3A2", material: "steel", description: "Removable head steel" },
-  //               { code: "3B1", material: "aluminum", description: "Aluminum" },
-  //               { code: "3B2", material: "aluminum", description: "Removable head aluminum" },
-  //               { code: "3H1", material: "plastic", description: "Plastic" },
-  //               { code: "3H2", material: "plastic", description: "Removable head plastic" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     },
-  //     {
-  //       id: "A12.2.3.composite_plastic",
-  //       type: "composite_plastic",
-  //       description: "Composite packagings with plastic inner receptacles",
-  //       innerPackaging: {
-  //         required: true,
-  //         materials: ["Plastic inner receptacles"]
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "composite_drum",
-  //             containers: [
-  //               { code: "6HA1", material: "steel_plastic", description: "Steel drum with plastic inner" },
-  //               { code: "6HB1", material: "aluminum_plastic", description: "Aluminum drum with plastic inner" },
-  //               { code: "6HG1", material: "fiber_plastic", description: "Fiber drum with plastic inner" },
-  //               { code: "6HH1", material: "plastic_plastic", description: "Plastic drum with plastic inner" },
-  //               { code: "6HD1", material: "plywood_plastic", description: "Plywood drum with plastic inner",
-  //                 // restrictions: ["Plywood drums not authorized for PG I material."]
-  //               }
-  //             ]
-  //           },
-  //           {
-  //             type: "composite_box",
-  //             containers: [
-  //               { code: "6HA2", material: "steel_plastic", description: "Steel box with plastic inner" },
-  //               { code: "6HB2", material: "aluminum_plastic", description: "Aluminum box with plastic inner" },
-  //               { code: "6HC", material: "wooden_plastic", description: "Wooden box with plastic inner" },
-  //               { code: "6HD2", material: "plywood_plastic", description: "Plywood box with plastic inner" },
-  //               { code: "6HG2", material: "fiberboard_plastic", description: "Fiberboard box with plastic inner" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     },
-  //     {
-  //       id: "A12.2.4.composite_glass",
-  //       type: "composite_glass",
-  //       description: "Composite packagings with glass, porcelain, or stoneware inner receptacles",
-  //       innerPackaging: {
-  //         required: true,
-  //         materials: ["Glass inner receptacles", "Porcelain inner receptacles", "Stoneware inner receptacles"]
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "composite_drum",
-  //             containers: [
-  //               { code: "6PA1", material: "steel_glass", description: "Steel drum with glass/porcelain/stoneware inner" },
-  //               { code: "6PB1", material: "aluminum_glass", description: "Aluminum drum with glass/porcelain/stoneware inner" },
-  //               { code: "6PG1", material: "fiber_glass", description: "Fiber drum with glass/porcelain/stoneware inner" }
-  //             ]
-  //           },
-  //           {
-  //             type: "composite_box",
-  //             containers: [
-  //               { code: "6PA2", material: "steel_glass", description: "Steel box with glass/porcelain/stoneware inner" },
-  //               { code: "6PB2", material: "aluminum_glass", description: "Aluminum box with glass/porcelain/stoneware inner" },
-  //               { code: "6PC", material: "wooden_glass", description: "Wooden box with glass/porcelain/stoneware inner" },
-  //               { code: "6PG2", material: "fiberboard_glass", description: "Fiberboard box with glass/porcelain/stoneware inner" }
-  //             ]
-  //           },
-  //           {
-  //             type: "composite_plastic_packaging",
-  //             containers: [
-  //               { code: "6PH1", material: "plastic_glass", description: "Solid plastic packaging with glass/porcelain/stoneware inner" },
-  //               { code: "6PH2", material: "plastic_glass", description: "Expanded plastic packaging with glass/porcelain/stoneware inner" }
-  //             ]
-  //           },
-  //           {
-  //             type: "composite_plywood",
-  //             containers: [
-  //               { code: "6PD1", material: "plywood_glass", description: "Plywood drum with glass/porcelain/stoneware inner" },
-  //               { code: "6PD2", material: "plywood_glass", description: "Wickerwork hamper with glass/porcelain/stoneware inner" }
-  //             ],
-  //             // restrictions: ["Plywood drum and wickerwork hamper not authorized for PG I material."]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     },
-  //     {
-  //       id: "A12.2.5.cylinder",
-  //       type: "cylinder",
-  //       description: "DOT specification cylinders",
-  //       innerPackaging: {
-  //         required: false
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "cylinders",
-  //             containers: [
-  //               { code: "DOT", material: "metal", description: "DOT specification cylinders as prescribed for any compressed gas, except those for acetylene (8, 8AL) and DOT 3HT" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     }
-  //   ],
-
-  //   specialRequirements: [
-  //     {
-  //       type: "secondary_closure_means",
-  //       description: "Inner packaging or receptacle closures of combination packages containing liquids must be held securely by secondary means",
-  //       mandatory: true,
-  //       applicableContainers: ["A12.2.1.combination"]
-  //     },
-  //     {
-  //       type: "absorbent_material_pgi",
-  //       description: "For PG I material, pack inner packagings in rigid and leakproof receptacle with sufficient absorbent material",
-  //       mandatory: true,
-  //       applicableContainers: ["A12.2.1.combination"]
-  //     },
-  //     {
-  //       type: "fiber_drum_liner_restriction",
-  //       description: "Fiber drum (1G) with liner only authorized for PG II and III material",
-  //       mandatory: true,
-  //       applicableContainers: ["A12.2.2.single_packaging"]
-  //     },
-  //     {
-  //       type: "wood_barrel_pgi_restriction",
-  //       description: "Wood barrel not authorized for PG I material",
-  //       mandatory: true,
-  //       applicableContainers: ["A12.2.1.combination", "A12.2.2.single_packaging"]
-  //     },
-  //     {
-  //       type: "plywood_composite_pgi_restriction",
-  //       description: "Plywood drums and wickerwork hampers not authorized for PG I material in composite packaging",
-  //       mandatory: true,
-  //       applicableContainers: ["A12.2.3.composite_plastic", "A12.2.4.composite_glass"]
-  //     },
-  //     {
-  //       type: "cylinder_restrictions",
-  //       description: "DOT specification cylinders except those for acetylene (8, 8AL) and DOT 3HT",
-  //       mandatory: true,
-  //       applicableContainers: ["A12.2.5.cylinder"]
-  //     }
-  //   ],
-
-  //   quantityLimits: [
-  //     {
-  //       packingGroup: "I",
-  //       scope: "per_package",
-  //       value: "",
-  //       unit: "L",
-  //       description: "No specific volume limits for PG I liquid corrosives in authorized packaging"
-  //     },
-  //     {
-  //       packingGroup: "II",
-  //       scope: "per_package",
-  //       value: "",
-  //       unit: "L",
-  //       description: "No specific volume limits for PG II liquid corrosives in authorized packaging"
-  //     },
-  //     {
-  //       packingGroup: "III",
-  //       scope: "per_package",
-  //       value: "",
-  //       unit: "L",
-  //       description: "No specific volume limits for PG III liquid corrosives in authorized packaging"
-  //     }
-  //   ],
-
-  //   conditionalRequirements: [
-  //     {
-  //       condition: "packing_group='I'",
-  //       requirements: [
-  //         {
-  //           type: "wood_barrel_prohibition",
-  //           description: "Wood barrels (2C1, 2C2) not authorized for PG I material",
-  //           mandatory: true,
-  //           applicableContainers: ["A12.2.1.combination", "A12.2.2.single_packaging"]
-  //         },
-  //         {
-  //           type: "fiber_drum_liner_prohibition",
-  //           description: "Fiber drum (1G) with liner not authorized for PG I material",
-  //           mandatory: true,
-  //           applicableContainers: ["A12.2.2.single_packaging"]
-  //         },
-  //         {
-  //           type: "plywood_composite_prohibition",
-  //           description: "Plywood drums and wickerwork hampers not authorized for PG I material in composite packaging",
-  //           mandatory: true,
-  //           applicableContainers: ["A12.2.3.composite_plastic", "A12.2.4.composite_glass"]
-  //         },
-  //         {
-  //           type: "mandatory_absorbent_material",
-  //           description: "Rigid and leakproof receptacle with sufficient absorbent material required for PG I materials",
-  //           mandatory: true,
-  //           applicableContainers: ["A12.2.1.combination"]
-  //         }
-  //       ]
-  //     },
-  //     {
-  //       condition: "packing_group='II' OR packing_group='III'",
-  //       requirements: [
-  //         {
-  //           type: "fiber_drum_liner_authorization",
-  //           description: "Fiber drum (1G) with liner authorized for PG II and III material",
-  //           mandatory: false,
-  //           applicableContainers: ["A12.2.2.single_packaging"]
-  //         }
-  //       ]
-  //     },
-  //     {
-  //       condition: "material_state='liquid'",
-  //       requirements: [
-  //         {
-  //           type: "secondary_closure_requirement",
-  //           description: "Inner packaging closures must be held securely by secondary means for liquid corrosives",
-  //           mandatory: true,
-  //           applicableContainers: ["A12.2.1.combination"]
-  //         }
-  //       ]
-  //     }
-  //   ],
-
-  //   referencedParagraphs: ["A12.2", "A12.2.1", "A12.2.2", "A12.2.3", "A12.2.4", "A12.2.5", "A20.3"]
-  // },
+      packingGroupRestrictions: [],
+      specialRequirements: [],
+      quantityLimits: [],
+      conditionalRequirements: [],
+      referencedParagraphs: [
+        "A12.2",
+        "A12.2.1",
+        "A12.2.2",
+        "A12.2.3",
+        "A12.2.4",
+        "A12.2.5",
+        "A20.3",
+      ],
+    },
 
   // Phase 3, Week 13: Class 8 Corrosives Entry - A12.3 (Package Solid Class 8 Materials)
   "A12.3.": {
@@ -23875,3011 +22169,646 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
     ],
   },
 
-  // Phase 3, Week 13: Class 8 Corrosives Entry - A12.7 (Package Class 8, PG I, Poisonous by Inhalation (PIH), Hazard Zone A and B)
-  "A12.7.": {
-    paragraphId: "A12.7.",
-    hazardClass: 8,
-    description:
-      "Package Class 8, PG I, Poisonous by Inhalation (PIH), Hazard Zone A and B materials as follows:",
-    lastUpdated: new Date().toISOString(),
-    entryType: "specialized",
-    materialTypes: ["corrosive_pih_zone_a", "corrosive_pih_zone_b"],
+ // A12.7 (Package Gallium)
+"A12.7.": {
+      paragraphId: "A12.7.",
+      hazardClass: 8,
+      description: "Package Gallium",
+      lastUpdated: new Date().toISOString(),
+      entryType: "specialized",
+      materialTypes: ["gallium"],
 
-    packagingOptions: [
-      {
-        id: "A12.7.1.combination_packaging",
-        type: "combination",
-        description:
-          "Inner packages inside outer package for PG I PIH materials",
-        innerPackaging: {
-          required: true,
-          materials: ["Glass", "Metal"],
-          specialRequirements: [
-            "Inner packagings must not exceed 4 L capacity for liquids or 4 kg capacity for solids",
-            "Pack inner packagings in a rigid and leakproof receptacle or intermediate packaging containing sufficient absorbent material to absorb the entire contents of all inner packagings",
-          ],
-        },
-        outerPackaging: {
-          categories: [
-            {
-              type: "drums",
-              containers: [
-                { code: "1A1", material: "steel", description: "Steel drum" },
-                {
-                  code: "1A2",
-                  material: "steel",
-                  description: "Removable head steel drum",
-                },
-                {
-                  code: "1B1",
-                  material: "aluminum",
-                  description: "Aluminum drum",
-                },
-                {
-                  code: "1B2",
-                  material: "aluminum",
-                  description: "Removable head aluminum drum",
-                },
-                {
-                  code: "1N1",
-                  material: "other_metal",
-                  description: "Metal drum other than steel or aluminum",
-                },
-                {
-                  code: "1N2",
-                  material: "other_metal",
-                  description:
-                    "Removable head metal drum other than steel or aluminum",
-                },
-              ],
-            },
-            {
-              type: "boxes",
-              containers: [
-                { code: "4A", material: "steel", description: "Steel box" },
-                {
-                  code: "4B",
-                  material: "aluminum",
-                  description: "Aluminum box",
-                },
-                {
-                  code: "4N",
-                  material: "other_metal",
-                  description: "Other metal box",
-                },
-              ],
-            },
-          ],
-        },
-        restrictions: [
-          "Only metal outer packaging authorized for PG I PIH materials",
-        ],
-        isComplete: true,
-      },
-      {
-        id: "A12.7.2.single_packaging",
-        type: "single",
-        description:
-          "Single packaging metal drums or jerricans for PG I PIH materials",
-        innerPackaging: {
-          required: false,
-        },
-        outerPackaging: {
-          categories: [
-            {
-              type: "drums",
-              containers: [
-                { code: "1A1", material: "steel", description: "Steel drum" },
-                {
-                  code: "1A2",
-                  material: "steel",
-                  description: "Removable head steel drum",
-                },
-                {
-                  code: "1B1",
-                  material: "aluminum",
-                  description: "Aluminum drum",
-                },
-                {
-                  code: "1B2",
-                  material: "aluminum",
-                  description: "Removable head aluminum drum",
-                },
-                {
-                  code: "1N1",
-                  material: "other_metal",
-                  description: "Metal drum other than steel or aluminum",
-                },
-                {
-                  code: "1N2",
-                  material: "other_metal",
-                  description:
-                    "Removable head metal drum other than steel or aluminum",
-                },
-              ],
-            },
-            {
-              type: "jerricans",
-              containers: [
-                {
-                  code: "3A1",
-                  material: "steel",
-                  description: "Steel jerrican",
-                },
-                {
-                  code: "3A2",
-                  material: "steel",
-                  description: "Removable head steel jerrican",
-                },
-                {
-                  code: "3B1",
-                  material: "aluminum",
-                  description: "Aluminum jerrican",
-                },
-                {
-                  code: "3B2",
-                  material: "aluminum",
-                  description: "Removable head aluminum jerrican",
-                },
-              ],
-            },
-          ],
-        },
-        restrictions: [
-          "Only metal packaging authorized for PG I PIH materials",
-        ],
-        isComplete: true,
-      },
-      {
-        id: "A12.7.3.cylinder_packaging",
-        type: "cylinder",
-        description: "DOT specification cylinders for PG I PIH materials",
-        innerPackaging: {
-          required: false,
-        },
-        outerPackaging: {
-          categories: [
-            {
-              type: "cylinders",
-              containers: [
-                {
-                  code: "DOT_PIH",
-                  material: "metal",
-                  description:
-                    "DOT specification cylinders as prescribed for any compressed gas, except those for acetylene (8, 8AL) and DOT 3HT",
-                },
-              ],
-            },
-          ],
-        },
-        isComplete: true,
-      },
-    ],
-
-    specialRequirements: [
-      {
-        type: "metal_packaging_only",
-        description:
-          "Only metal outer packaging is authorized for PG I PIH materials",
-        mandatory: true,
-        applicableContainers: [
-          "A12.7.1.combination_packaging",
-          "A12.7.2.single_packaging",
-        ],
-      },
-      {
-        type: "inner_package_capacity_limit",
-        description:
-          "Inner packagings must not exceed 4 L capacity for liquids or 4 kg capacity for solids",
-        mandatory: true,
-        applicableContainers: ["A12.7.1.combination_packaging"],
-      },
-      {
-        type: "absorbent_material_mandatory",
-        description:
-          "Pack inner packagings in rigid and leakproof receptacle with sufficient absorbent material to absorb entire contents",
-        mandatory: true,
-        applicableContainers: ["A12.7.1.combination_packaging"],
-      },
-      {
-        type: "pih_zone_classification",
-        description:
-          "Materials must be properly classified as PIH Hazard Zone A or B",
-        mandatory: true,
-        applicableContainers: [
-          "A12.7.1.combination_packaging",
-          "A12.7.2.single_packaging",
-          "A12.7.3.cylinder_packaging",
-        ],
-      },
-      {
-        type: "pg_i_performance_standard",
-        description: "All packaging must meet PG I performance standards",
-        mandatory: true,
-        applicableContainers: [
-          "A12.7.1.combination_packaging",
-          "A12.7.2.single_packaging",
-        ],
-      },
-      {
-        type: "cylinder_restrictions",
-        description:
-          "DOT specification cylinders except those for acetylene (8, 8AL) and DOT 3HT",
-        mandatory: true,
-        applicableContainers: ["A12.7.3.cylinder_packaging"],
-      },
-      {
-        type: "leak_proof_requirement",
-        description:
-          "All packaging must be completely leak-proof to prevent release of PIH vapors",
-        mandatory: true,
-        applicableContainers: [
-          "A12.7.1.combination_packaging",
-          "A12.7.2.single_packaging",
-          "A12.7.3.cylinder_packaging",
-        ],
-      },
-      {
-        type: "secondary_containment",
-        description:
-          "Secondary containment required through rigid and leakproof receptacles for combination packaging",
-        mandatory: true,
-        applicableContainers: ["A12.7.1.combination_packaging"],
-      },
-    ],
-
-    quantityLimits: [
-      {
-        packingGroup: "I",
-        scope: "per_inner",
-        value: 4,
-        unit: "L",
-        description:
-          "Inner packagings must not exceed 4 L capacity for liquids",
-      },
-      {
-        packingGroup: "I",
-        scope: "per_inner",
-        value: 4,
-        unit: "kg",
-        description:
-          "Inner packagings must not exceed 4 kg capacity for solids",
-      },
-    ],
-
-    conditionalRequirements: [
-      {
-        condition: "hazard_zone='A'",
-        requirements: [
-          {
-            type: "zone_a_restrictions",
-            description:
-              "Additional restrictions apply for PIH Hazard Zone A materials due to extreme toxicity",
-            mandatory: true,
-            applicableContainers: [
-              "A12.7.1.combination_packaging",
-              "A12.7.2.single_packaging",
-              "A12.7.3.cylinder_packaging",
+      packagingOptions: [
+        {
+          id: "A12.7.combination",
+          type: "combination",
+          description: "Sealed gallium bag in outer drum or box",
+          innerPackaging: {
+            required: true,
+            materials: ["Semi-rigid plastic", "Sealed leak-tight bag"],
+          },
+          outerPackaging: {
+            categories: [
+              {
+                type: "boxes",
+                containers: [
+                  { code: "4C1", material: "natural_wood", description: "Natural wood box" },
+                  { code: "4C2", material: "natural_wood", description: "Natural wood box" },
+                  { code: "4D", material: "plywood", description: "Plywood box" },
+                  { code: "4F", material: "reconstituted_wood", description: "Reconstituted wood box" },
+                  { code: "4G", material: "fiberboard", description: "Fiberboard box" },
+                  { code: "4H1", material: "plastic", description: "Expanded plastic box" },
+                  { code: "4H2", material: "plastic", description: "Solid plastic box" },
+                  { code: "4N", material: "other_metal", description: "Other metal box" },
+                ],
+              },
+              {
+                type: "drums",
+                containers: [
+                  { code: "1A1", material: "steel", description: "Steel drum" },
+                  { code: "1A2", material: "steel", description: "Steel drum" },
+                  { code: "1G", material: "fiber", description: "Fiber drum" },
+                  { code: "1H1", material: "plastic", description: "Plastic drum" },
+                  { code: "1H2", material: "plastic", description: "Plastic drum" },
+                  { code: "1N1", material: "other_metal", description: "Other metal drum" },
+                  { code: "1N2", material: "other_metal", description: "Other metal drum" },
+                ],
+              },
             ],
           },
-          {
-            type: "enhanced_containment_zone_a",
-            description:
-              "Enhanced containment measures required for Zone A materials",
-            mandatory: true,
-            applicableContainers: [
-              "A12.7.1.combination_packaging",
-              "A12.7.2.single_packaging",
-              "A12.7.3.cylinder_packaging",
-            ],
-          },
-        ],
-      },
-      {
-        condition: "hazard_zone='B'",
-        requirements: [
-          {
-            type: "zone_b_requirements",
-            description: "Standard PIH Zone B requirements apply",
-            mandatory: true,
-            applicableContainers: [
-              "A12.7.1.combination_packaging",
-              "A12.7.2.single_packaging",
-              "A12.7.3.cylinder_packaging",
-            ],
-          },
-        ],
-      },
-      {
-        condition: "packaging_type='combination'",
-        requirements: [
-          {
-            type: "inner_capacity_limit",
-            description:
-              "Inner packagings limited to 4L for liquids or 4kg for solids",
-            mandatory: true,
-            applicableContainers: ["A12.7.1.combination_packaging"],
-          },
-          {
-            type: "absorbent_material_requirement",
-            description:
-              "Sufficient absorbent material required to absorb entire contents of all inner packagings",
-            mandatory: true,
-            applicableContainers: ["A12.7.1.combination_packaging"],
-          },
-          {
-            type: "rigid_leakproof_receptacle",
-            description:
-              "Rigid and leakproof receptacle or intermediate packaging required",
-            mandatory: true,
-            applicableContainers: ["A12.7.1.combination_packaging"],
-          },
-        ],
-      },
-      {
-        condition: "material_state='liquid'",
-        requirements: [
-          {
-            type: "liquid_capacity_limit",
-            description:
-              "Inner packaging capacity limited to 4L for liquid PIH materials",
-            mandatory: true,
-            applicableContainers: ["A12.7.1.combination_packaging"],
-          },
-        ],
-      },
-      {
-        condition: "material_state='solid'",
-        requirements: [
-          {
-            type: "solid_capacity_limit",
-            description:
-              "Inner packaging capacity limited to 4kg for solid PIH materials",
-            mandatory: true,
-            applicableContainers: ["A12.7.1.combination_packaging"],
-          },
-        ],
-      },
-    ],
-
-    referencedParagraphs: ["A12.7", "A12.7.1", "A12.7.2", "A12.7.3"],
-  },
-
-  // Phase 3, Week 13: Class 8 Corrosives Entry - A12.8 (Package Tear Gas Devices)
-  "A12.8.": {
-    paragraphId: "A12.8.",
-    hazardClass: 8,
-    description: "Package Tear Gas Devices as follows:",
-    lastUpdated: new Date().toISOString(),
-    entryType: "specialized",
-    materialTypes: ["tear_gas_devices"],
-
-    packagingOptions: [
-      {
-        id: "A12.8.combination",
-        type: "combination",
-        description:
-          "Tear gas devices in inner packaging inside outer packaging",
-        innerPackaging: {
-          required: true,
-          materials: ["Various"],
-          specialRequirements: [
-            "Each tear gas device must be individually packed in inner packaging to prevent accidental activation",
-            "Inner packaging must provide cushioning and protection against impact",
-          ],
         },
-        outerPackaging: {
-          categories: [
-            {
-              type: "boxes",
-              containers: [
-                { code: "4A", material: "steel", description: "Steel box" },
+      ],
+
+      packingGroupRestrictions: [
+        {
+          packingGroup: "I",
+          restriction: "required",
+          description: "Packaging meeting PG I performance standard is required",
+        },
+      ],
+      referencedParagraphs: ["A12.7"],
+    },
+
+  // A12.8 (Package Hydrogen Fluoride)
+    "A12.8.": {
+        paragraphId: "A12.8.",
+        hazardClass: 8,
+        description: "Package Hydrogen Fluoride",
+        lastUpdated: new Date().toISOString(),
+        entryType: "specialized",
+        materialTypes: ["hydrogen_fluoride"],
+
+        packagingOptions: [
+          {
+            id: "A12.8.cylinders",
+            type: "cylinder",
+            description: "DOT specification cylinders for hydrogen fluoride",
+            innerPackaging: {
+              required: false,
+            },
+            outerPackaging: {
+              categories: [
                 {
-                  code: "4B",
-                  material: "aluminum",
-                  description: "Aluminum box",
-                },
-                {
-                  code: "4C1",
-                  material: "natural_wood",
-                  description: "Natural wood box",
-                },
-                {
-                  code: "4C2",
-                  material: "natural_wood",
-                  description: "Sift-proof natural wood box",
-                },
-                { code: "4D", material: "plywood", description: "Plywood box" },
-                {
-                  code: "4F",
-                  material: "reconstituted_wood",
-                  description: "Reconstituted wood box",
-                },
-                {
-                  code: "4G",
-                  material: "fiberboard",
-                  description: "Fiberboard box",
-                },
-                {
-                  code: "4H2",
-                  material: "plastic",
-                  description: "Solid plastic box",
-                },
-                {
-                  code: "4N",
-                  material: "other_metal",
-                  description: "Other metal box",
+                  type: "cylinders",
+                  containers: [
+                    { code: "3", material: "metal", description: "DOT 3 cylinder" },
+                    { code: "3A", material: "metal", description: "DOT 3A cylinder" },
+                    { code: "3AA", material: "metal", description: "DOT 3AA cylinder" },
+                    { code: "3B", material: "metal", description: "DOT 3B cylinder" },
+                    { code: "3BN", material: "metal", description: "DOT 3BN cylinder" },
+                    { code: "3E", material: "metal", description: "DOT 3E cylinder" },
+                    { code: "4B", material: "metal", description: "DOT 4B cylinder" },
+                    { code: "4BA", material: "metal", description: "DOT 4BA cylinder" },
+                    { code: "4BW", material: "metal", description: "DOT 4BW cylinder" },
+                  ],
                 },
               ],
             },
-          ],
-        },
-        isComplete: true,
-      },
-    ],
-
-    specialRequirements: [
-      {
-        type: "individual_packaging",
-        description:
-          "Each tear gas device must be individually packed to prevent accidental activation",
-        mandatory: true,
-        applicableContainers: ["A12.8.combination"],
-      },
-      {
-        type: "impact_protection",
-        description:
-          "Inner packaging must provide cushioning and protection against impact",
-        mandatory: true,
-        applicableContainers: ["A12.8.combination"],
-      },
-      {
-        type: "accidental_activation_prevention",
-        description:
-          "Package to prevent accidental activation during transport",
-        mandatory: true,
-        applicableContainers: ["A12.8.combination"],
-      },
-      {
-        type: "secure_closure",
-        description:
-          "All packaging must be securely closed to prevent inadvertent opening",
-        mandatory: true,
-        applicableContainers: ["A12.8.combination"],
-      },
-      {
-        type: "pg_ii_performance_standard",
-        description: "Packaging meeting PG II performance standard is required",
-        mandatory: true,
-        applicableContainers: ["A12.8.combination"],
-      },
-      {
-        type: "device_integrity_protection",
-        description:
-          "Protect devices from damage that could cause leakage or malfunction",
-        mandatory: true,
-        applicableContainers: ["A12.8.combination"],
-      },
-      {
-        type: "separation_requirement",
-        description:
-          "Separate multiple devices to prevent sympathetic activation",
-        mandatory: true,
-        applicableContainers: ["A12.8.combination"],
-      },
-    ],
-
-    quantityLimits: [
-      {
-        packingGroup: "II",
-        scope: "per_package",
-        value: "",
-        unit: "pieces",
-        description:
-          "No specific quantity limits specified, but devices must be individually packaged with proper separation",
-      },
-    ],
-
-    conditionalRequirements: [
-      {
-        condition: "multiple_devices=true",
-        requirements: [
-          {
-            type: "device_separation_mandatory",
-            description:
-              "Multiple tear gas devices must be separated to prevent sympathetic activation",
-            mandatory: true,
-            applicableContainers: ["A12.8.combination"],
-          },
-          {
-            type: "individual_inner_packaging",
-            description:
-              "Each device must be in its own individual inner packaging",
-            mandatory: true,
-            applicableContainers: ["A12.8.combination"],
           },
         ],
-      },
-      {
-        condition: "packaging_performance='PG_II'",
-        requirements: [
-          {
-            type: "performance_standard_compliance",
-            description: "All packaging must meet PG II performance standards",
-            mandatory: true,
-            applicableContainers: ["A12.8.combination"],
-          },
-        ],
-      },
-      {
-        condition: "device_type='pressurized'",
-        requirements: [
-          {
-            type: "pressure_device_handling",
-            description:
-              "Special handling required for pressurized tear gas devices to prevent rupture",
-            mandatory: true,
-            applicableContainers: ["A12.8.combination"],
-          },
-          {
-            type: "temperature_protection",
-            description:
-              "Protect pressurized devices from extreme temperature variations",
-            mandatory: true,
-            applicableContainers: ["A12.8.combination"],
-          },
-        ],
-      },
-      {
-        condition: "activation_mechanism_present=true",
-        requirements: [
-          {
-            type: "activation_prevention_measures",
-            description:
-              "Implement specific measures to prevent inadvertent activation of devices with trigger mechanisms",
-            mandatory: true,
-            applicableContainers: ["A12.8.combination"],
-          },
-          {
-            type: "safety_mechanism_verification",
-            description:
-              "Verify safety mechanisms are engaged before packaging",
-            mandatory: true,
-            applicableContainers: ["A12.8.combination"],
-          },
-        ],
-      },
-    ],
 
-    referencedParagraphs: ["A12.8"],
-  },
-
-  // Phase 3, Week 13: Class 8 Corrosives Entry - A12.9 (Package Metal Powder, Self-heating, N.O.S.)
+        referencedParagraphs: ["A12.8"],
+      },
+ // A12.9 (Package Mercury)
   "A12.9.": {
-    paragraphId: "A12.9.",
-    hazardClass: 8,
-    description: "Package Metal Powder, Self-heating, N.O.S. as follows:",
-    lastUpdated: new Date().toISOString(),
-    entryType: "specialized",
-    materialTypes: ["metal_powder_self_heating"],
+      paragraphId: "A12.9.",
+      hazardClass: 8,
+      description: "Package Mercury (Metallic and Articles Containing Mercury)",
+      lastUpdated: new Date().toISOString(),
+      entryType: "specialized",
+      materialTypes: ["mercury"],
 
-    packagingOptions: [
-      {
-        id: "A12.9.1.combination_packaging",
-        type: "combination",
-        description:
-          "Inner packages inside outer package for self-heating metal powders",
-        innerPackaging: {
-          required: true,
-          materials: ["Metal", "Plastic"],
-          specialRequirements: [
-            "Inner packagings must be resistant to corrosion by the metal powder",
-            "Inner packagings must prevent access of moisture which could accelerate self-heating",
-          ],
+      packagingOptions: [
+        {
+          id: "A12.9.2.1.combination",
+          type: "combination",
+          description: "Inner receptacles in outer drums, jerricans, or boxes",
+          innerPackaging: {
+            required: true,
+            materials: ["Earthenware", "Glass", "Plastic", "Steel flask"],
+          },
+          outerPackaging: {
+            categories: [
+              {
+                type: "drums",
+                containers: [
+                  { code: "1A1", material: "steel", description: "Steel drum" },
+                  { code: "1A2", material: "steel", description: "Steel drum" },
+                  { code: "1D", material: "plywood", description: "Plywood drum" },
+                  { code: "1G", material: "fiber", description: "Fiber drum" },
+                  { code: "1N1", material: "other_metal", description: "Other metal drum" },
+                  { code: "1N2", material: "other_metal", description: "Other metal drum" },
+                ],
+              },
+              {
+                type: "jerricans",
+                containers: [
+                  { code: "3A2", material: "steel", description: "Steel jerrican" },
+                ],
+              },
+              {
+                type: "boxes",
+                containers: [
+                  { code: "4C1", material: "natural_wood", description: "Natural wood box" },
+                  { code: "4C2", material: "natural_wood", description: "Natural wood box" },
+                  { code: "4D", material: "plywood", description: "Plywood box" },
+                  { code: "4F", material: "reconstituted_wood", description: "Reconstituted wood box" },
+                  { code: "4G", material: "fiberboard", description: "Fiberboard box" },
+                  { code: "4H2", material: "plastic", description: "Solid plastic box" },
+                  { code: "4N", material: "other_metal", description: "Other metal box" },
+                ],
+              },
+            ],
+          },
         },
-        outerPackaging: {
-          categories: [
-            {
-              type: "drums",
-              containers: [
-                { code: "1A1", material: "steel", description: "Steel drum" },
-                {
-                  code: "1A2",
-                  material: "steel",
-                  description: "Removable head steel drum",
-                },
-                {
-                  code: "1B1",
-                  material: "aluminum",
-                  description: "Aluminum drum",
-                },
-                {
-                  code: "1B2",
-                  material: "aluminum",
-                  description: "Removable head aluminum drum",
-                },
-                {
-                  code: "1H1",
-                  material: "plastic",
-                  description: "Plastic drum",
-                },
-                {
-                  code: "1H2",
-                  material: "plastic",
-                  description: "Removable head plastic drum",
-                },
-                {
-                  code: "1N1",
-                  material: "other_metal",
-                  description: "Metal drum other than steel or aluminum",
-                },
-                {
-                  code: "1N2",
-                  material: "other_metal",
-                  description:
-                    "Removable head metal drum other than steel or aluminum",
-                },
-              ],
-            },
-            {
-              type: "boxes",
-              containers: [
-                { code: "4A", material: "steel", description: "Steel box" },
-                {
-                  code: "4B",
-                  material: "aluminum",
-                  description: "Aluminum box",
-                },
-                {
-                  code: "4C1",
-                  material: "natural_wood",
-                  description: "Natural wood box",
-                },
-                {
-                  code: "4C2",
-                  material: "natural_wood",
-                  description: "Sift-proof natural wood box",
-                },
-                { code: "4D", material: "plywood", description: "Plywood box" },
-                {
-                  code: "4F",
-                  material: "reconstituted_wood",
-                  description: "Reconstituted wood box",
-                },
-                {
-                  code: "4G",
-                  material: "fiberboard",
-                  description: "Fiberboard box",
-                },
-                {
-                  code: "4H2",
-                  material: "plastic",
-                  description: "Solid plastic box",
-                },
-                {
-                  code: "4N",
-                  material: "other_metal",
-                  description: "Other metal box",
-                },
-              ],
-            },
-          ],
+      ],
+
+      packingGroupRestrictions: [
+        {
+          packingGroup: "I",
+          restriction: "required",
+          description: "Packaging meeting PG I performance standard is required",
         },
-        isComplete: true,
-      },
-      {
-        id: "A12.9.2.single_packaging",
-        type: "single",
-        description: "Single packaging drums for self-heating metal powders",
-        innerPackaging: {
-          required: false,
+      ],
+      referencedParagraphs: ["A12.9", "A12.9.2.1"],
+    },
+
+    // A12.10 (Package Nitrating Acid Mixtures or Nitric Acid)
+    "A12.10.": {
+      paragraphId: "A12.10.",
+      hazardClass: 8,
+      description:
+        "Package Nitrating Acid Mixtures; Nitrating Acid Mixtures, Spent; or Nitric Acid",
+      lastUpdated: new Date().toISOString(),
+      entryType: "specialized",
+      materialTypes: ["nitric_acid"],
+
+      packagingOptions: [
+        {
+          id: "A12.10.single_drums",
+          type: "single",
+          description: "Single drums for nitric acid",
+          innerPackaging: {
+            required: false,
+          },
+          outerPackaging: {
+            categories: [
+              {
+                type: "drums",
+                containers: [
+                  { code: "1A1", material: "steel", description: "Stainless steel drum" },
+                  { code: "1B1", material: "aluminum", description: "Aluminum drum" },
+                ],
+              },
+            ],
+          },
         },
-        outerPackaging: {
-          categories: [
-            {
-              type: "drums",
-              containers: [
-                { code: "1A1", material: "steel", description: "Steel drum" },
-                {
-                  code: "1A2",
-                  material: "steel",
-                  description: "Removable head steel drum",
-                },
-                {
-                  code: "1B1",
-                  material: "aluminum",
-                  description: "Aluminum drum",
-                },
-                {
-                  code: "1B2",
-                  material: "aluminum",
-                  description: "Removable head aluminum drum",
-                },
-                {
-                  code: "1H1",
-                  material: "plastic",
-                  description: "Plastic drum",
-                },
-                {
-                  code: "1H2",
-                  material: "plastic",
-                  description: "Removable head plastic drum",
-                },
-                {
-                  code: "1N1",
-                  material: "other_metal",
-                  description: "Metal drum other than steel or aluminum",
-                },
-                {
-                  code: "1N2",
-                  material: "other_metal",
-                  description:
-                    "Removable head metal drum other than steel or aluminum",
-                },
-              ],
-            },
-          ],
+        {
+          id: "A12.10.combination",
+          type: "combination",
+          description: "Combination packagings for nitric acid",
+          innerPackaging: {
+            required: true,
+            materials: ["Glass", "Earthenware", "Plastic"],
+          },
+          outerPackaging: {
+            categories: [
+              {
+                type: "drums",
+                containers: [
+                  { code: "1A2", material: "steel", description: "Steel drum" },
+                  { code: "1B2", material: "aluminum", description: "Aluminum drum" },
+                  { code: "1D", material: "plywood", description: "Plywood drum" },
+                  { code: "1G", material: "fiber", description: "Fiber drum" },
+                  { code: "1H2", material: "plastic", description: "Plastic drum" },
+                  { code: "1N2", material: "other_metal", description: "Other metal drum" },
+                ],
+              },
+              {
+                type: "jerricans",
+                containers: [
+                  { code: "3H2", material: "plastic", description: "Plastic jerrican" },
+                ],
+              },
+              {
+                type: "boxes",
+                containers: [
+                  { code: "4A", material: "steel", description: "Steel box" },
+                  { code: "4B", material: "aluminum", description: "Aluminum box" },
+                  { code: "4C1", material: "natural_wood", description: "Natural wood box" },
+                  { code: "4C2", material: "natural_wood", description: "Natural wood box" },
+                  { code: "4D", material: "plywood", description: "Plywood box" },
+                  { code: "4F", material: "reconstituted_wood", description: "Reconstituted wood box" },
+                  { code: "4G", material: "fiberboard", description: "Fiberboard box" },
+                  { code: "4N", material: "other_metal", description: "Other metal box" },
+                  { code: "4H1", material: "plastic", description: "Expanded plastic box" },
+                ],
+              },
+            ],
+          },
         },
-        isComplete: true,
-      },
-    ],
-
-    specialRequirements: [
-      {
-        type: "moisture_prevention",
-        description:
-          "Packaging must prevent access of moisture which could accelerate self-heating",
-        mandatory: true,
-        applicableContainers: [
-          "A12.9.1.combination_packaging",
-          "A12.9.2.single_packaging",
-        ],
-      },
-      {
-        type: "corrosion_resistance",
-        description:
-          "Inner packagings must be resistant to corrosion by the metal powder",
-        mandatory: true,
-        applicableContainers: ["A12.9.1.combination_packaging"],
-      },
-      {
-        type: "self_heating_prevention",
-        description:
-          "Package to prevent or control self-heating reaction during transport",
-        mandatory: true,
-        applicableContainers: [
-          "A12.9.1.combination_packaging",
-          "A12.9.2.single_packaging",
-        ],
-      },
-      {
-        type: "air_exclusion",
-        description:
-          "Minimize air contact to reduce oxidation and self-heating potential",
-        mandatory: true,
-        applicableContainers: [
-          "A12.9.1.combination_packaging",
-          "A12.9.2.single_packaging",
-        ],
-      },
-      {
-        type: "temperature_monitoring",
-        description:
-          "Consider temperature monitoring for large quantities to detect self-heating",
-        mandatory: false,
-        applicableContainers: [
-          "A12.9.1.combination_packaging",
-          "A12.9.2.single_packaging",
-        ],
-      },
-      {
-        type: "pg_ii_performance_standard",
-        description: "Packaging meeting PG II performance standard is required",
-        mandatory: true,
-        applicableContainers: [
-          "A12.9.1.combination_packaging",
-          "A12.9.2.single_packaging",
-        ],
-      },
-      {
-        type: "powder_containment",
-        description:
-          "Prevent powder spillage which could create fire or corrosion hazard",
-        mandatory: true,
-        applicableContainers: [
-          "A12.9.1.combination_packaging",
-          "A12.9.2.single_packaging",
-        ],
-      },
-      {
-        type: "static_electricity_control",
-        description:
-          "Control static electricity buildup during handling of metal powders",
-        mandatory: true,
-        applicableContainers: [
-          "A12.9.1.combination_packaging",
-          "A12.9.2.single_packaging",
-        ],
-      },
-    ],
-
-    quantityLimits: [
-      {
-        packingGroup: "II",
-        scope: "per_package",
-        value: "",
-        unit: "kg",
-        description:
-          "No specific weight limits specified for self-heating metal powders in authorized packaging",
-      },
-    ],
-
-    conditionalRequirements: [
-      {
-        condition: "material_fineness='fine_powder'",
-        requirements: [
-          {
-            type: "enhanced_containment",
-            description:
-              "Fine metal powders require enhanced containment to prevent dispersion",
-            mandatory: true,
-            applicableContainers: [
-              "A12.9.1.combination_packaging",
-              "A12.9.2.single_packaging",
+        {
+          id: "A12.10.composite",
+          type: "composite_plastic",
+          description: "Composite packagings for nitric acid",
+          innerPackaging: {
+            required: true,
+          },
+          outerPackaging: {
+            categories: [
+              {
+                type: "composite_packagings",
+                containers: [
+                  { code: "6PA1", material: "composite", description: "Composite packaging" },
+                  { code: "6PA2", material: "composite", description: "Composite packaging" },
+                  { code: "6PB1", material: "composite", description: "Composite packaging" },
+                  { code: "6PB2", material: "composite", description: "Composite packaging" },
+                  { code: "6PC", material: "composite", description: "Composite packaging" },
+                  { code: "6PD1", material: "composite", description: "Composite packaging" },
+                  { code: "6PH1", material: "composite", description: "Composite packaging" },
+                  { code: "6PH2", material: "composite", description: "Composite packaging" },
+                  { code: "6HH1", material: "composite", description: "Composite packaging" },
+                  { code: "6HA1", material: "composite", description: "Composite packaging" },
+                ],
+              },
             ],
           },
-          {
-            type: "sift_proof_requirement",
-            description: "Use sift-proof packaging for fine metal powders",
-            mandatory: true,
-            applicableContainers: ["A12.9.1.combination_packaging"],
-          },
-        ],
-      },
-      {
-        condition: "moisture_sensitivity='high'",
-        requirements: [
-          {
-            type: "moisture_barrier_mandatory",
-            description:
-              "High moisture-sensitive powders require additional moisture barrier protection",
-            mandatory: true,
-            applicableContainers: [
-              "A12.9.1.combination_packaging",
-              "A12.9.2.single_packaging",
-            ],
-          },
-          {
-            type: "desiccant_consideration",
-            description:
-              "Consider use of desiccant for highly moisture-sensitive materials",
-            mandatory: false,
-            applicableContainers: [
-              "A12.9.1.combination_packaging",
-              "A12.9.2.single_packaging",
-            ],
-          },
-        ],
-      },
-      {
-        condition: "self_heating_risk='high'",
-        requirements: [
-          {
-            type: "temperature_control_measures",
-            description:
-              "Implement temperature control measures for high self-heating risk materials",
-            mandatory: true,
-            applicableContainers: [
-              "A12.9.1.combination_packaging",
-              "A12.9.2.single_packaging",
-            ],
-          },
-          {
-            type: "quantity_limitation",
-            description:
-              "Consider quantity limitations for high self-heating risk materials",
-            mandatory: true,
-            applicableContainers: [
-              "A12.9.1.combination_packaging",
-              "A12.9.2.single_packaging",
-            ],
-          },
-        ],
-      },
-      {
-        condition: "oxidation_potential='high'",
-        requirements: [
-          {
-            type: "inert_atmosphere_packaging",
-            description:
-              "Consider inert atmosphere packaging for materials with high oxidation potential",
-            mandatory: false,
-            applicableContainers: [
-              "A12.9.1.combination_packaging",
-              "A12.9.2.single_packaging",
-            ],
-          },
-          {
-            type: "oxygen_exclusion_measures",
-            description:
-              "Implement measures to exclude oxygen contact with highly oxidizable powders",
-            mandatory: true,
-            applicableContainers: [
-              "A12.9.1.combination_packaging",
-              "A12.9.2.single_packaging",
-            ],
-          },
-        ],
-      },
-      {
-        condition: "packaging_type='combination'",
-        requirements: [
-          {
-            type: "inner_material_compatibility",
-            description:
-              "Inner packaging materials must be compatible with specific metal powder",
-            mandatory: true,
-            applicableContainers: ["A12.9.1.combination_packaging"],
-          },
-          {
-            type: "corrosion_resistance_verification",
-            description:
-              "Verify corrosion resistance of inner packaging materials",
-            mandatory: true,
-            applicableContainers: ["A12.9.1.combination_packaging"],
-          },
-        ],
-      },
-    ],
-
-    referencedParagraphs: ["A12.9"],
-  },
-
-  // Phase 3, Week 13: Class 8 Corrosives Entry - A12.11 (Package Corrosive Liquids, N.O.S., Class 8, PG I or II (Aviation))
-  "A12.11.": {
-    paragraphId: "A12.11.",
-    hazardClass: 8,
-    description:
-      "Package Corrosive Liquids, N.O.S., Class 8, PG I or II (Aviation) as follows:",
-    lastUpdated: new Date().toISOString(),
-    entryType: "aviation_specialized",
-    materialTypes: ["corrosive_liquids_aviation_nos"],
-
-    packagingOptions: [
-      {
-        id: "A12.11.1.combination_packaging",
-        type: "combination",
-        description:
-          "Inner packages inside outer packaging for aviation corrosive liquids",
-        innerPackaging: {
-          required: true,
-          materials: ["Glass", "Metal", "Plastic"],
-          specialRequirements: [
-            "Inner packagings must be compatible with the corrosive liquid",
-            "Inner packagings must not exceed 1 L capacity for PG I materials",
-            "Inner packagings must not exceed 5 L capacity for PG II materials",
-          ],
         },
-        outerPackaging: {
-          categories: [
-            {
-              type: "boxes",
-              containers: [
-                { code: "4A", material: "steel", description: "Steel box" },
-                {
-                  code: "4B",
-                  material: "aluminum",
-                  description: "Aluminum box",
-                },
-                {
-                  code: "4C1",
-                  material: "natural_wood",
-                  description: "Natural wood box",
-                },
-                {
-                  code: "4C2",
-                  material: "natural_wood",
-                  description: "Sift-proof natural wood box",
-                },
-                { code: "4D", material: "plywood", description: "Plywood box" },
-                {
-                  code: "4F",
-                  material: "reconstituted_wood",
-                  description: "Reconstituted wood box",
-                },
-                {
-                  code: "4G",
-                  material: "fiberboard",
-                  description: "Fiberboard box",
-                },
-                {
-                  code: "4H2",
-                  material: "plastic",
-                  description: "Solid plastic box",
-                },
-                {
-                  code: "4N",
-                  material: "other_metal",
-                  description: "Other metal box",
-                },
-              ],
-            },
-            {
-              type: "drums",
-              containers: [
-                {
-                  code: "1A2",
-                  material: "steel",
-                  description: "Removable head steel drum",
-                },
-                {
-                  code: "1B2",
-                  material: "aluminum",
-                  description: "Removable head aluminum drum",
-                },
-                { code: "1G", material: "fiber", description: "Fiber drum" },
-                {
-                  code: "1H2",
-                  material: "plastic",
-                  description: "Removable head plastic drum",
-                },
-                {
-                  code: "1N2",
-                  material: "other_metal",
-                  description:
-                    "Removable head metal drum other than steel or aluminum",
-                },
-              ],
-            },
-          ],
+      ],
+
+      referencedParagraphs: [
+        "A12.10",
+        "A12.10.1",
+        "A12.10.2",
+        "A12.10.3",
+        "A12.10.4",
+        "A12.10.5",
+        "A12.10.6",
+        "A12.10.7",
+        "A12.10.8",
+      ],
+    },
+
+    // A12.11 (Package Class 8 Materials With an Inhalation Hazard)
+    "A12.11.": {
+      paragraphId: "A12.11.",
+      hazardClass: 8,
+      description: "Package Class 8 Materials With an Inhalation Hazard (Zones A/B)",
+      lastUpdated: new Date().toISOString(),
+      entryType: "specialized",
+      materialTypes: ["corrosive_inhalation_hazard"],
+
+      packagingOptions: [
+        {
+          id: "A12.11.cylinders",
+          type: "cylinder",
+          description: "Seamless DOT/UN specification cylinders (except 8/8AL/39)",
+          innerPackaging: {
+            required: false,
+          },
+          outerPackaging: {
+            categories: [
+              {
+                type: "cylinders",
+                containers: [
+                  {
+                    code: "DOT_SPEC",
+                    material: "metal",
+                    description:
+                      "DOT/UN spec cylinders per 49 CFR 178 Subpart C (except 8, 8AL, 39)",
+                  },
+                ],
+              },
+            ],
+          },
         },
-        isComplete: true,
-      },
-      {
-        id: "A12.11.2.single_packaging",
-        type: "single",
-        description: "Single packaging for aviation corrosive liquids",
-        innerPackaging: {
-          required: false,
+        {
+          id: "A12.11.double_drum",
+          type: "combination",
+          description: "Inner drum within outer drum (PG I performance)",
+          innerPackaging: {
+            required: true,
+            materials: ["1A1", "1B1", "1H1", "1N1", "6HA1"],
+          },
+          outerPackaging: {
+            categories: [
+              {
+                type: "drums",
+                containers: [
+                  { code: "1A2", material: "steel", description: "Steel drum" },
+                  { code: "1H2", material: "plastic", description: "Plastic drum" },
+                ],
+              },
+            ],
+          },
         },
-        outerPackaging: {
-          categories: [
-            {
-              type: "drums",
-              containers: [
-                {
-                  code: "1A2",
-                  material: "steel",
-                  description: "Removable head steel drum",
-                },
-                {
-                  code: "1B2",
-                  material: "aluminum",
-                  description: "Removable head aluminum drum",
-                },
-                {
-                  code: "1H2",
-                  material: "plastic",
-                  description: "Removable head plastic drum",
-                },
-                {
-                  code: "1N2",
-                  material: "other_metal",
-                  description:
-                    "Removable head metal drum other than steel or aluminum",
-                },
-              ],
-            },
-            {
-              type: "jerricans",
-              containers: [
-                {
-                  code: "3A2",
-                  material: "steel",
-                  description: "Removable head steel jerrican",
-                },
-                {
-                  code: "3B2",
-                  material: "aluminum",
-                  description: "Removable head aluminum jerrican",
-                },
-                {
-                  code: "3H2",
-                  material: "plastic",
-                  description: "Removable head plastic jerrican",
-                },
-              ],
-            },
-          ],
+        {
+          id: "A12.11.inner_system",
+          type: "combination",
+          description: "Inner system in outer drums or boxes (PG I performance)",
+          innerPackaging: {
+            required: true,
+            materials: ["Glass", "Earthenware", "Plastic", "Metal"],
+          },
+          outerPackaging: {
+            categories: [
+              {
+                type: "drums",
+                containers: [
+                  { code: "1A2", material: "steel", description: "Steel drum" },
+                  { code: "1B2", material: "aluminum", description: "Aluminum drum" },
+                  { code: "1D", material: "plywood", description: "Plywood drum" },
+                  { code: "1G", material: "fiber", description: "Fiber drum" },
+                  { code: "1H2", material: "plastic", description: "Plastic drum" },
+                  { code: "1N2", material: "other_metal", description: "Other metal drum" },
+                ],
+              },
+              {
+                type: "boxes",
+                containers: [
+                  { code: "4A", material: "steel", description: "Steel box" },
+                  { code: "4B", material: "aluminum", description: "Aluminum box" },
+                  { code: "4C1", material: "natural_wood", description: "Natural wood box" },
+                  { code: "4C2", material: "natural_wood", description: "Natural wood box" },
+                  { code: "4D", material: "plywood", description: "Plywood box" },
+                  { code: "4F", material: "reconstituted_wood", description: "Reconstituted wood box" },
+                  { code: "4G", material: "fiberboard", description: "Fiberboard box" },
+                  { code: "4H1", material: "plastic", description: "Expanded plastic box" },
+                  { code: "4H2", material: "plastic", description: "Solid plastic box" },
+                  { code: "4N", material: "other_metal", description: "Other metal box" },
+                ],
+              },
+            ],
+          },
         },
-        restrictions: ["Single packaging not authorized for PG I materials"],
-        isComplete: true,
-      },
-    ],
+      ],
 
-    specialRequirements: [
-      {
-        type: "aviation_compatibility",
-        description:
-          "Packaging must be compatible with aviation transport conditions",
-        mandatory: true,
-        applicableContainers: [
-          "A12.11.1.combination_packaging",
-          "A12.11.2.single_packaging",
-        ],
-      },
-      {
-        type: "pgi_capacity_limit",
-        description:
-          "Inner packagings must not exceed 1 L capacity for PG I materials",
-        mandatory: true,
-        applicableContainers: ["A12.11.1.combination_packaging"],
-      },
-      {
-        type: "pgii_capacity_limit",
-        description:
-          "Inner packagings must not exceed 5 L capacity for PG II materials",
-        mandatory: true,
-        applicableContainers: ["A12.11.1.combination_packaging"],
-      },
-      {
-        type: "material_compatibility",
-        description:
-          "Inner packagings must be compatible with the corrosive liquid",
-        mandatory: true,
-        applicableContainers: ["A12.11.1.combination_packaging"],
-      },
-      {
-        type: "aviation_performance_standard",
-        description:
-          "Packaging must meet aviation performance standards appropriate to packing group",
-        mandatory: true,
-        applicableContainers: [
-          "A12.11.1.combination_packaging",
-          "A12.11.2.single_packaging",
-        ],
-      },
-      {
-        type: "leak_prevention",
-        description:
-          "Package to prevent leakage under aviation transport conditions including pressure changes",
-        mandatory: true,
-        applicableContainers: [
-          "A12.11.1.combination_packaging",
-          "A12.11.2.single_packaging",
-        ],
-      },
-      {
-        type: "secondary_closure_means",
-        description:
-          "Inner packaging closures of combination packages containing liquids must be held securely by secondary means",
-        mandatory: true,
-        applicableContainers: ["A12.11.1.combination_packaging"],
-      },
-      {
-        type: "pressure_differential_resistance",
-        description:
-          "Packaging must withstand pressure differentials encountered in aviation transport",
-        mandatory: true,
-        applicableContainers: [
-          "A12.11.1.combination_packaging",
-          "A12.11.2.single_packaging",
-        ],
-      },
-      {
-        type: "nos_classification_requirement",
-        description:
-          "N.O.S. materials must be properly identified and classified before packaging",
-        mandatory: true,
-        applicableContainers: [
-          "A12.11.1.combination_packaging",
-          "A12.11.2.single_packaging",
-        ],
-      },
-    ],
-
-    quantityLimits: [
-      {
-        packingGroup: "I",
-        scope: "per_inner",
-        value: 1,
-        unit: "L",
-        description:
-          "Inner packagings must not exceed 1 L capacity for PG I materials",
-      },
-      {
-        packingGroup: "II",
-        scope: "per_inner",
-        value: 5,
-        unit: "L",
-        description:
-          "Inner packagings must not exceed 5 L capacity for PG II materials",
-      },
-    ],
-
-    conditionalRequirements: [
-      {
-        condition: "packing_group='I'",
-        requirements: [
-          {
-            type: "inner_capacity_restriction",
-            description:
-              "Inner packaging capacity limited to 1 L for PG I corrosive liquids",
-            mandatory: true,
-            applicableContainers: ["A12.11.1.combination_packaging"],
-          },
-          {
-            type: "single_packaging_prohibition",
-            description: "Single packaging not authorized for PG I materials",
-            mandatory: true,
-            applicableContainers: ["A12.11.2.single_packaging"],
-          },
-          {
-            type: "enhanced_containment_pgi",
-            description:
-              "Enhanced containment measures required for PG I aviation corrosive liquids",
-            mandatory: true,
-            applicableContainers: ["A12.11.1.combination_packaging"],
-          },
-        ],
-      },
-      {
-        condition: "packing_group='II'",
-        requirements: [
-          {
-            type: "inner_capacity_limit_pgii",
-            description:
-              "Inner packaging capacity limited to 5 L for PG II corrosive liquids",
-            mandatory: true,
-            applicableContainers: ["A12.11.1.combination_packaging"],
-          },
-          {
-            type: "single_packaging_authorization",
-            description:
-              "Single packaging authorized for PG II materials with appropriate containers",
-            mandatory: false,
-            applicableContainers: ["A12.11.2.single_packaging"],
-          },
-        ],
-      },
-      {
-        condition: "transport_mode='aviation'",
-        requirements: [
-          {
-            type: "aviation_pressure_requirements",
-            description:
-              "Must withstand aviation pressure differentials and altitude changes",
-            mandatory: true,
-            applicableContainers: [
-              "A12.11.1.combination_packaging",
-              "A12.11.2.single_packaging",
-            ],
-          },
-          {
-            type: "aviation_compatibility_verification",
-            description:
-              "Verify packaging compatibility with aviation transport conditions",
-            mandatory: true,
-            applicableContainers: [
-              "A12.11.1.combination_packaging",
-              "A12.11.2.single_packaging",
-            ],
-          },
-        ],
-      },
-      {
-        condition: "material_classification='nos'",
-        requirements: [
-          {
-            type: "proper_identification_required",
-            description:
-              "N.O.S. materials must be properly identified and classified before packaging",
-            mandatory: true,
-            applicableContainers: [
-              "A12.11.1.combination_packaging",
-              "A12.11.2.single_packaging",
-            ],
-          },
-          {
-            type: "compatibility_assessment",
-            description:
-              "Assess compatibility of N.O.S. materials with proposed packaging materials",
-            mandatory: true,
-            applicableContainers: [
-              "A12.11.1.combination_packaging",
-              "A12.11.2.single_packaging",
-            ],
-          },
-        ],
-      },
-      {
-        condition: "packaging_type='combination'",
-        requirements: [
-          {
-            type: "secondary_closure_mandatory",
-            description:
-              "Secondary closure means mandatory for liquid-containing inner packages",
-            mandatory: true,
-            applicableContainers: ["A12.11.1.combination_packaging"],
-          },
-          {
-            type: "inner_outer_compatibility",
-            description:
-              "Verify compatibility between inner packaging and outer packaging materials",
-            mandatory: true,
-            applicableContainers: ["A12.11.1.combination_packaging"],
-          },
-        ],
-      },
-    ],
-
-    referencedParagraphs: ["A12.11", "A12.11.1", "A12.11.2"],
-  },
-
-  // Phase 3, Week 13: Class 8 Corrosives Entry - A12.12 (Package Corrosive Solids, N.O.S., Class 8, PG I, II, or III (Aviation))
-  "A12.12.": {
-    paragraphId: "A12.12.",
-    hazardClass: 8,
-    description:
-      "Package Corrosive Solids, N.O.S., Class 8, PG I, II, or III (Aviation) as follows:",
-    lastUpdated: new Date().toISOString(),
-    entryType: "aviation_specialized",
-    materialTypes: ["corrosive_solids_aviation_nos"],
-
-    packagingOptions: [
-      {
-        id: "A12.12.1.combination_packaging",
-        type: "combination",
-        description:
-          "Inner packages inside outer packaging for aviation corrosive solids",
-        innerPackaging: {
-          required: true,
-          materials: ["Glass", "Metal", "Plastic"],
-          specialRequirements: [
-            "Inner packagings must be compatible with the corrosive solid",
-            "Inner packagings must not exceed 25 kg capacity for PG I materials",
-            "Inner packagings must not exceed 25 kg capacity for PG II materials",
-            "Inner packagings must not exceed 25 kg capacity for PG III materials",
-          ],
+      packingGroupRestrictions: [
+        {
+          packingGroup: "I",
+          restriction: "required",
+          description: "Packaging meeting PG I performance standard is required",
         },
-        outerPackaging: {
-          categories: [
-            {
-              type: "boxes",
-              containers: [
-                { code: "4A", material: "steel", description: "Steel box" },
-                {
-                  code: "4B",
-                  material: "aluminum",
-                  description: "Aluminum box",
-                },
-                {
-                  code: "4C1",
-                  material: "natural_wood",
-                  description: "Natural wood box",
-                },
-                {
-                  code: "4C2",
-                  material: "natural_wood",
-                  description: "Sift-proof natural wood box",
-                },
-                { code: "4D", material: "plywood", description: "Plywood box" },
-                {
-                  code: "4F",
-                  material: "reconstituted_wood",
-                  description: "Reconstituted wood box",
-                },
-                {
-                  code: "4G",
-                  material: "fiberboard",
-                  description: "Fiberboard box",
-                },
-                {
-                  code: "4H2",
-                  material: "plastic",
-                  description: "Solid plastic box",
-                },
-                {
-                  code: "4N",
-                  material: "other_metal",
-                  description: "Other metal box",
-                },
-              ],
-            },
-            {
-              type: "drums",
-              containers: [
-                {
-                  code: "1A2",
-                  material: "steel",
-                  description: "Removable head steel drum",
-                },
-                {
-                  code: "1B2",
-                  material: "aluminum",
-                  description: "Removable head aluminum drum",
-                },
-                { code: "1G", material: "fiber", description: "Fiber drum" },
-                {
-                  code: "1H2",
-                  material: "plastic",
-                  description: "Removable head plastic drum",
-                },
-                {
-                  code: "1N2",
-                  material: "other_metal",
-                  description:
-                    "Removable head metal drum other than steel or aluminum",
-                },
-              ],
-            },
-          ],
+      ],
+      referencedParagraphs: ["A12.11", "A12.11.2", "A12.11.3"],
+    },
+
+    // A12.12 (Package Fuel Cell Cartridges)
+    "A12.12.": {
+      paragraphId: "A12.12.",
+      hazardClass: 8,
+      description: "Package Fuel Cell Cartridges",
+      lastUpdated: new Date().toISOString(),
+      entryType: "specialized",
+      materialTypes: ["fuel_cell_cartridge"],
+
+      packagingOptions: [
+        {
+          id: "A12.12.single",
+          type: "single",
+          description: "Single packagings for fuel cell cartridges",
+          innerPackaging: {
+            required: false,
+          },
+          outerPackaging: {
+            categories: [
+              {
+                type: "drums",
+                containers: [
+                  { code: "1A2", material: "steel", description: "Steel drum" },
+                  { code: "1B2", material: "aluminum", description: "Aluminum drum" },
+                  { code: "1D", material: "plywood", description: "Plywood drum" },
+                  { code: "1G", material: "fiber", description: "Fiber drum" },
+                  { code: "1H2", material: "plastic", description: "Plastic drum" },
+                  { code: "1N2", material: "other_metal", description: "Other metal drum" },
+                ],
+              },
+              {
+                type: "jerricans",
+                containers: [
+                  { code: "3A2", material: "steel", description: "Steel jerrican" },
+                  { code: "3B2", material: "aluminum", description: "Aluminum jerrican" },
+                  { code: "3H2", material: "plastic", description: "Plastic jerrican" },
+                ],
+              },
+              {
+                type: "boxes",
+                containers: [
+                  { code: "4A", material: "steel", description: "Steel box" },
+                  { code: "4B", material: "aluminum", description: "Aluminum box" },
+                  { code: "4C1", material: "natural_wood", description: "Natural wood box" },
+                  { code: "4C2", material: "natural_wood", description: "Natural wood box" },
+                  { code: "4D", material: "plywood", description: "Plywood box" },
+                  { code: "4F", material: "reconstituted_wood", description: "Reconstituted wood box" },
+                  { code: "4G", material: "fiberboard", description: "Fiberboard box" },
+                  { code: "4H2", material: "plastic", description: "Solid plastic box" },
+                  { code: "4N", material: "other_metal", description: "Other metal box" },
+                ],
+              },
+            ],
+          },
         },
-        isComplete: true,
-      },
-      {
-        id: "A12.12.2.single_packaging_drums",
-        type: "single",
-        description:
-          "Single packaging drums for aviation corrosive solids (PG II and III only)",
-        innerPackaging: {
-          required: false,
+      ],
+
+      referencedParagraphs: ["A12.12", "A12.12.1"],
+    },
+
+    // A12.13 (Fuel Cells Contained in Equipment)
+    "A12.13.": {
+      paragraphId: "A12.13.",
+      hazardClass: 8,
+      description: "Fuel Cells Contained in Equipment",
+      lastUpdated: new Date().toISOString(),
+      entryType: "equipment",
+      materialTypes: ["fuel_cell_contained"],
+
+      packagingOptions: [
+        {
+          id: "A12.13.strong_outer",
+          type: "single",
+          description: "Strong outer packaging (UN specification not required)",
+          innerPackaging: {
+            required: false,
+          },
+          outerPackaging: {
+            categories: [
+              {
+                type: "strong_outer_packaging",
+                containers: [
+                  {
+                    code: "STRONG_OUTER",
+                    material: "various",
+                    description: "Strong outer packaging",
+                  },
+                ],
+              },
+            ],
+          },
         },
-        outerPackaging: {
-          categories: [
-            {
-              type: "drums",
-              containers: [
-                {
-                  code: "1A2",
-                  material: "steel",
-                  description: "Removable head steel drum",
-                },
-                {
-                  code: "1B2",
-                  material: "aluminum",
-                  description: "Removable head aluminum drum",
-                },
-                { code: "1G", material: "fiber", description: "Fiber drum" },
-                {
-                  code: "1H2",
-                  material: "plastic",
-                  description: "Removable head plastic drum",
-                },
-                {
-                  code: "1N2",
-                  material: "other_metal",
-                  description:
-                    "Removable head metal drum other than steel or aluminum",
-                },
-              ],
-            },
-          ],
+      ],
+
+      referencedParagraphs: ["A12.13", "A12.13.1", "A12.13.2"],
+    },
+
+    // A12.14 (Fuel Cells Packed With Equipment)
+    "A12.14.": {
+      paragraphId: "A12.14.",
+      hazardClass: 8,
+      description: "Fuel Cells Packed With Equipment",
+      lastUpdated: new Date().toISOString(),
+      entryType: "equipment",
+      materialTypes: ["fuel_cell_packed"],
+
+      packagingOptions: [
+        {
+          id: "A12.14.strong_outer",
+          type: "single",
+          description: "Strong outer packaging (UN specification not required)",
+          innerPackaging: {
+            required: false,
+          },
+          outerPackaging: {
+            categories: [
+              {
+                type: "strong_outer_packaging",
+                containers: [
+                  {
+                    code: "STRONG_OUTER",
+                    material: "various",
+                    description: "Strong outer packaging",
+                  },
+                ],
+              },
+            ],
+          },
         },
-        restrictions: [
-          "Single packaging drums not authorized for PG I materials",
-        ],
-        isComplete: true,
-      },
-      {
-        id: "A12.12.3.single_packaging_bags",
-        type: "single",
-        description:
-          "Single packaging bags for aviation corrosive solids (PG II and III only)",
-        innerPackaging: {
-          required: false,
+      ],
+
+      referencedParagraphs: ["A12.14", "A12.14.1"],
+    },
+
+    // A12.15 (Package Chlorosilanes)
+    "A12.15.": {
+      paragraphId: "A12.15.",
+      hazardClass: 8,
+      description: "Package Chlorosilanes",
+      lastUpdated: new Date().toISOString(),
+      entryType: "specialized",
+      materialTypes: ["chlorosilanes"],
+
+      packagingOptions: [
+        {
+          id: "A12.15.1.combination",
+          type: "combination",
+          description: "Combination drums or boxes",
+          innerPackaging: {
+            required: true,
+            materials: ["Glass", "Steel"],
+          },
+          outerPackaging: {
+            categories: [
+              {
+                type: "drums",
+                containers: [
+                  { code: "1A2", material: "steel", description: "Steel drum" },
+                  { code: "1D", material: "plywood", description: "Plywood drum" },
+                  { code: "1G", material: "fiber", description: "Fiber drum" },
+                  { code: "1H2", material: "plastic", description: "Plastic drum" },
+                ],
+              },
+              {
+                type: "boxes",
+                containers: [
+                  { code: "4A", material: "steel", description: "Steel box" },
+                  { code: "4C1", material: "natural_wood", description: "Natural wood box" },
+                  { code: "4C2", material: "natural_wood", description: "Natural wood box" },
+                  { code: "4D", material: "plywood", description: "Plywood box" },
+                  { code: "4F", material: "reconstituted_wood", description: "Reconstituted wood box" },
+                  { code: "4G", material: "fiberboard", description: "Fiberboard box" },
+                  { code: "4H1", material: "plastic", description: "Expanded plastic box" },
+                  { code: "4H2", material: "plastic", description: "Solid plastic box" },
+                ],
+              },
+            ],
+          },
         },
-        outerPackaging: {
-          categories: [
-            {
-              type: "bags",
-              containers: [
-                {
-                  code: "5H1",
-                  material: "plastic",
-                  description: "Woven plastic bag",
-                },
-                {
-                  code: "5H2",
-                  material: "plastic",
-                  description: "Woven plastic bag",
-                },
-                {
-                  code: "5H3",
-                  material: "plastic",
-                  description: "Woven plastic bag",
-                },
-                {
-                  code: "5H4",
-                  material: "plastic",
-                  description: "Plastic film bag",
-                },
-                {
-                  code: "5L1",
-                  material: "textile",
-                  description: "Textile bag",
-                },
-                {
-                  code: "5L2",
-                  material: "textile",
-                  description: "Textile bag",
-                },
-                {
-                  code: "5L3",
-                  material: "textile",
-                  description: "Textile bag",
-                },
-                {
-                  code: "5M2",
-                  material: "paper",
-                  description: "Paper bag, multiwall, water-resistant",
-                },
-              ],
-            },
-          ],
+        {
+          id: "A12.15.2.composite_plastic",
+          type: "composite_plastic",
+          description: "Composite drums",
+          innerPackaging: {
+            required: true,
+            materials: ["Plastic"],
+          },
+          outerPackaging: {
+            categories: [
+              {
+                type: "composite_drum",
+                containers: [
+                  { code: "6HA1", material: "composite", description: "Composite drum" },
+                ],
+              },
+            ],
+          },
         },
-        restrictions: [
-          "Single packaging bags not authorized for PG I materials",
-        ],
-        isComplete: true,
-      },
-    ],
-
-    specialRequirements: [
-      {
-        type: "aviation_compatibility",
-        description:
-          "Packaging must be compatible with aviation transport conditions",
-        mandatory: true,
-        applicableContainers: [
-          "A12.12.1.combination_packaging",
-          "A12.12.2.single_packaging_drums",
-          "A12.12.3.single_packaging_bags",
-        ],
-      },
-      {
-        type: "inner_capacity_limit",
-        description:
-          "Inner packagings must not exceed 25 kg capacity for all packing groups",
-        mandatory: true,
-        applicableContainers: ["A12.12.1.combination_packaging"],
-      },
-      {
-        type: "material_compatibility",
-        description:
-          "Inner packagings must be compatible with the corrosive solid",
-        mandatory: true,
-        applicableContainers: ["A12.12.1.combination_packaging"],
-      },
-      {
-        type: "aviation_performance_standard",
-        description:
-          "Packaging must meet aviation performance standards appropriate to packing group",
-        mandatory: true,
-        applicableContainers: [
-          "A12.12.1.combination_packaging",
-          "A12.12.2.single_packaging_drums",
-          "A12.12.3.single_packaging_bags",
-        ],
-      },
-      {
-        type: "pressure_differential_resistance",
-        description:
-          "Packaging must withstand pressure differentials encountered in aviation transport",
-        mandatory: true,
-        applicableContainers: [
-          "A12.12.1.combination_packaging",
-          "A12.12.2.single_packaging_drums",
-          "A12.12.3.single_packaging_bags",
-        ],
-      },
-      {
-        type: "dust_containment",
-        description:
-          "Package to prevent dust release that could create corrosive exposure during aviation transport",
-        mandatory: true,
-        applicableContainers: [
-          "A12.12.1.combination_packaging",
-          "A12.12.2.single_packaging_drums",
-          "A12.12.3.single_packaging_bags",
-        ],
-      },
-      {
-        type: "moisture_protection",
-        description:
-          "Protect corrosive solids from moisture that could increase corrosivity",
-        mandatory: true,
-        applicableContainers: [
-          "A12.12.1.combination_packaging",
-          "A12.12.2.single_packaging_drums",
-          "A12.12.3.single_packaging_bags",
-        ],
-      },
-      {
-        type: "nos_classification_requirement",
-        description:
-          "N.O.S. materials must be properly identified and classified before packaging",
-        mandatory: true,
-        applicableContainers: [
-          "A12.12.1.combination_packaging",
-          "A12.12.2.single_packaging_drums",
-          "A12.12.3.single_packaging_bags",
-        ],
-      },
-      {
-        type: "sift_proof_requirement",
-        description:
-          "Use sift-proof packaging for fine corrosive solid powders",
-        mandatory: true,
-        applicableContainers: [
-          "A12.12.1.combination_packaging",
-          "A12.12.2.single_packaging_drums",
-          "A12.12.3.single_packaging_bags",
-        ],
-      },
-    ],
-
-    quantityLimits: [
-      {
-        packingGroup: "I",
-        scope: "per_inner",
-        value: 25,
-        unit: "kg",
-        description:
-          "Inner packagings must not exceed 25 kg capacity for PG I materials",
-      },
-      {
-        packingGroup: "II",
-        scope: "per_inner",
-        value: 25,
-        unit: "kg",
-        description:
-          "Inner packagings must not exceed 25 kg capacity for PG II materials",
-      },
-      {
-        packingGroup: "III",
-        scope: "per_inner",
-        value: 25,
-        unit: "kg",
-        description:
-          "Inner packagings must not exceed 25 kg capacity for PG III materials",
-      },
-    ],
-
-    conditionalRequirements: [
-      {
-        condition: "packing_group='I'",
-        requirements: [
-          {
-            type: "combination_packaging_only",
-            description:
-              "Only combination packaging authorized for PG I corrosive solids",
-            mandatory: true,
-            applicableContainers: ["A12.12.1.combination_packaging"],
+        {
+          id: "A12.15.3.single",
+          type: "single",
+          description: "Single drums or jerricans",
+          innerPackaging: {
+            required: false,
           },
-          {
-            type: "single_packaging_prohibition",
-            description: "Single packaging not authorized for PG I materials",
-            mandatory: true,
-            applicableContainers: [
-              "A12.12.2.single_packaging_drums",
-              "A12.12.3.single_packaging_bags",
+          outerPackaging: {
+            categories: [
+              {
+                type: "drums",
+                containers: [
+                  { code: "1A1", material: "steel", description: "Steel drum" },
+                ],
+              },
+              {
+                type: "jerricans",
+                containers: [
+                  { code: "3A1", material: "steel", description: "Steel jerrican" },
+                ],
+              },
             ],
           },
-          {
-            type: "enhanced_containment_pgi",
-            description:
-              "Enhanced containment measures required for PG I aviation corrosive solids",
-            mandatory: true,
-            applicableContainers: ["A12.12.1.combination_packaging"],
-          },
-        ],
-      },
-      {
-        condition: "packing_group='II' OR packing_group='III'",
-        requirements: [
-          {
-            type: "single_packaging_authorization",
-            description:
-              "Single packaging authorized for PG II and III materials in drums or bags",
-            mandatory: false,
-            applicableContainers: [
-              "A12.12.2.single_packaging_drums",
-              "A12.12.3.single_packaging_bags",
-            ],
-          },
-          {
-            type: "bag_packaging_option",
-            description:
-              "Bag packaging authorized for PG II and III corrosive solids",
-            mandatory: false,
-            applicableContainers: ["A12.12.3.single_packaging_bags"],
-          },
-        ],
-      },
-      {
-        condition: "transport_mode='aviation'",
-        requirements: [
-          {
-            type: "aviation_pressure_requirements",
-            description:
-              "Must withstand aviation pressure differentials and altitude changes",
-            mandatory: true,
-            applicableContainers: [
-              "A12.12.1.combination_packaging",
-              "A12.12.2.single_packaging_drums",
-              "A12.12.3.single_packaging_bags",
-            ],
-          },
-          {
-            type: "aviation_compatibility_verification",
-            description:
-              "Verify packaging compatibility with aviation transport conditions",
-            mandatory: true,
-            applicableContainers: [
-              "A12.12.1.combination_packaging",
-              "A12.12.2.single_packaging_drums",
-              "A12.12.3.single_packaging_bags",
-            ],
-          },
-        ],
-      },
-      {
-        condition: "material_classification='nos'",
-        requirements: [
-          {
-            type: "proper_identification_required",
-            description:
-              "N.O.S. materials must be properly identified and classified before packaging",
-            mandatory: true,
-            applicableContainers: [
-              "A12.12.1.combination_packaging",
-              "A12.12.2.single_packaging_drums",
-              "A12.12.3.single_packaging_bags",
-            ],
-          },
-          {
-            type: "compatibility_assessment",
-            description:
-              "Assess compatibility of N.O.S. materials with proposed packaging materials",
-            mandatory: true,
-            applicableContainers: [
-              "A12.12.1.combination_packaging",
-              "A12.12.2.single_packaging_drums",
-              "A12.12.3.single_packaging_bags",
-            ],
-          },
-        ],
-      },
-      {
-        condition: "material_fineness='fine_powder'",
-        requirements: [
-          {
-            type: "enhanced_dust_containment",
-            description:
-              "Fine corrosive powders require enhanced dust containment measures",
-            mandatory: true,
-            applicableContainers: [
-              "A12.12.1.combination_packaging",
-              "A12.12.2.single_packaging_drums",
-              "A12.12.3.single_packaging_bags",
-            ],
-          },
-          {
-            type: "sift_proof_mandatory",
-            description:
-              "Sift-proof packaging mandatory for fine corrosive solid powders",
-            mandatory: true,
-            applicableContainers: ["A12.12.1.combination_packaging"],
-          },
-        ],
-      },
-      {
-        condition: "moisture_sensitivity='high'",
-        requirements: [
-          {
-            type: "moisture_barrier_protection",
-            description:
-              "High moisture-sensitive solids require enhanced moisture barrier protection",
-            mandatory: true,
-            applicableContainers: [
-              "A12.12.1.combination_packaging",
-              "A12.12.2.single_packaging_drums",
-              "A12.12.3.single_packaging_bags",
-            ],
-          },
-        ],
-      },
-    ],
-
-    referencedParagraphs: ["A12.12", "A12.12.1", "A12.12.2", "A12.12.3"],
-  },
-
-  // Phase 3, Week 13: Class 8 Corrosives Entry - A12.13 (Package Elevated Temperature Liquid, N.O.S., at or above 100°C and below its flash point)
-  "A12.13.": {
-    paragraphId: "A12.13.",
-    hazardClass: 8,
-    description:
-      "Package Elevated Temperature Liquid, N.O.S., at or above 100°C and below its flash point as follows:",
-    lastUpdated: new Date().toISOString(),
-    entryType: "specialized",
-    materialTypes: ["elevated_temperature_liquid_nos"],
-
-    packagingOptions: [
-      {
-        id: "A12.13.1.combination_packaging",
-        type: "combination",
-        description:
-          "Inner packages inside outer packaging for elevated temperature liquids",
-        innerPackaging: {
-          required: true,
-          materials: ["Metal", "Glass"],
-          specialRequirements: [
-            "Inner packagings must be suitable for the intended temperature",
-            "Inner packagings must not exceed 450 L capacity",
-            "Inner packagings must be resistant to thermal expansion effects",
-          ],
         },
-        outerPackaging: {
-          categories: [
-            {
-              type: "drums",
-              containers: [
-                {
-                  code: "1A2",
-                  material: "steel",
-                  description: "Removable head steel drum",
-                },
-                {
-                  code: "1B2",
-                  material: "aluminum",
-                  description: "Removable head aluminum drum",
-                },
-                {
-                  code: "1N2",
-                  material: "other_metal",
-                  description:
-                    "Removable head metal drum other than steel or aluminum",
-                },
-              ],
-            },
-            {
-              type: "boxes",
-              containers: [
-                { code: "4A", material: "steel", description: "Steel box" },
-                {
-                  code: "4B",
-                  material: "aluminum",
-                  description: "Aluminum box",
-                },
-                {
-                  code: "4N",
-                  material: "other_metal",
-                  description: "Other metal box",
-                },
-              ],
-            },
-          ],
+        {
+          id: "A12.15.4.cylinders",
+          type: "cylinder",
+          description: "Cylinders for compressed gas (except 8/8AL/3HT)",
+          innerPackaging: {
+            required: false,
+          },
+          outerPackaging: {
+            categories: [
+              {
+                type: "cylinders",
+                containers: [
+                  {
+                    code: "DOT_SPEC",
+                    material: "metal",
+                    description:
+                      "DOT cylinders for compressed gas (except 8, 8AL, 3HT)",
+                  },
+                ],
+              },
+            ],
+          },
         },
-        restrictions: [
-          "Only metal outer packaging authorized due to elevated temperature",
-        ],
-        isComplete: true,
-      },
-      {
-        id: "A12.13.2.single_packaging",
-        type: "single",
-        description:
-          "Single packaging metal drums for elevated temperature liquids",
-        innerPackaging: {
-          required: false,
+      ],
+
+      packingGroupRestrictions: [
+        {
+          packingGroup: "I",
+          restriction: "required",
+          description: "Packaging meeting PG I or PG II performance standard is required",
         },
-        outerPackaging: {
-          categories: [
-            {
-              type: "drums",
-              containers: [
-                { code: "1A1", material: "steel", description: "Steel drum" },
-                {
-                  code: "1A2",
-                  material: "steel",
-                  description: "Removable head steel drum",
-                },
-                {
-                  code: "1B1",
-                  material: "aluminum",
-                  description: "Aluminum drum",
-                },
-                {
-                  code: "1B2",
-                  material: "aluminum",
-                  description: "Removable head aluminum drum",
-                },
-                {
-                  code: "1N1",
-                  material: "other_metal",
-                  description: "Metal drum other than steel or aluminum",
-                },
-                {
-                  code: "1N2",
-                  material: "other_metal",
-                  description:
-                    "Removable head metal drum other than steel or aluminum",
-                },
-              ],
-            },
-          ],
-        },
-        restrictions: [
-          "Only metal packaging authorized due to elevated temperature",
-        ],
-        isComplete: true,
-      },
-    ],
-
-    specialRequirements: [
-      {
-        type: "elevated_temperature_suitability",
-        description:
-          "Packaging must be suitable for the intended elevated temperature at or above 100°C",
-        mandatory: true,
-        applicableContainers: [
-          "A12.13.1.combination_packaging",
-          "A12.13.2.single_packaging",
-        ],
-      },
-      {
-        type: "metal_packaging_only",
-        description:
-          "Only metal packaging authorized due to elevated temperature requirements",
-        mandatory: true,
-        applicableContainers: [
-          "A12.13.1.combination_packaging",
-          "A12.13.2.single_packaging",
-        ],
-      },
-      {
-        type: "thermal_expansion_resistance",
-        description:
-          "Inner packagings must be resistant to thermal expansion effects",
-        mandatory: true,
-        applicableContainers: ["A12.13.1.combination_packaging"],
-      },
-      {
-        type: "temperature_compatibility",
-        description:
-          "All packaging components must be compatible with the intended transport temperature",
-        mandatory: true,
-        applicableContainers: [
-          "A12.13.1.combination_packaging",
-          "A12.13.2.single_packaging",
-        ],
-      },
-      {
-        type: "flash_point_verification",
-        description:
-          "Verify liquid temperature remains below its flash point during transport",
-        mandatory: true,
-        applicableContainers: [
-          "A12.13.1.combination_packaging",
-          "A12.13.2.single_packaging",
-        ],
-      },
-      {
-        type: "thermal_insulation_consideration",
-        description:
-          "Consider thermal insulation to maintain temperature control during transport",
-        mandatory: false,
-        applicableContainers: [
-          "A12.13.1.combination_packaging",
-          "A12.13.2.single_packaging",
-        ],
-      },
-      {
-        type: "vapor_pressure_management",
-        description:
-          "Manage vapor pressure increase due to elevated temperature",
-        mandatory: true,
-        applicableContainers: [
-          "A12.13.1.combination_packaging",
-          "A12.13.2.single_packaging",
-        ],
-      },
-      {
-        type: "cooling_provisions",
-        description:
-          "Provide adequate cooling or temperature maintenance provisions during transport",
-        mandatory: true,
-        applicableContainers: [
-          "A12.13.1.combination_packaging",
-          "A12.13.2.single_packaging",
-        ],
-      },
-      {
-        type: "nos_classification_requirement",
-        description:
-          "N.O.S. materials must be properly identified and classified before packaging",
-        mandatory: true,
-        applicableContainers: [
-          "A12.13.1.combination_packaging",
-          "A12.13.2.single_packaging",
-        ],
-      },
-    ],
-
-    quantityLimits: [
-      {
-        packingGroup: "III",
-        scope: "per_inner",
-        value: 450,
-        unit: "L",
-        description:
-          "Inner packagings must not exceed 450 L capacity for elevated temperature liquids",
-      },
-    ],
-
-    conditionalRequirements: [
-      {
-        condition: "temperature_range='100_to_150_celsius'",
-        requirements: [
-          {
-            type: "standard_metal_packaging",
-            description:
-              "Standard metal packaging suitable for temperatures 100°C to 150°C",
-            mandatory: true,
-            applicableContainers: [
-              "A12.13.1.combination_packaging",
-              "A12.13.2.single_packaging",
-            ],
-          },
-          {
-            type: "thermal_expansion_allowance",
-            description:
-              "Allow for thermal expansion at moderate elevated temperatures",
-            mandatory: true,
-            applicableContainers: [
-              "A12.13.1.combination_packaging",
-              "A12.13.2.single_packaging",
-            ],
-          },
-        ],
-      },
-      {
-        condition: "temperature_range='150_to_200_celsius'",
-        requirements: [
-          {
-            type: "enhanced_metal_packaging",
-            description:
-              "Enhanced metal packaging required for temperatures 150°C to 200°C",
-            mandatory: true,
-            applicableContainers: [
-              "A12.13.1.combination_packaging",
-              "A12.13.2.single_packaging",
-            ],
-          },
-          {
-            type: "thermal_stress_management",
-            description:
-              "Implement thermal stress management for high temperature range",
-            mandatory: true,
-            applicableContainers: [
-              "A12.13.1.combination_packaging",
-              "A12.13.2.single_packaging",
-            ],
-          },
-        ],
-      },
-      {
-        condition: "temperature_range='above_200_celsius'",
-        requirements: [
-          {
-            type: "specialized_high_temp_packaging",
-            description:
-              "Specialized high-temperature packaging required for temperatures above 200°C",
-            mandatory: true,
-            applicableContainers: [
-              "A12.13.1.combination_packaging",
-              "A12.13.2.single_packaging",
-            ],
-          },
-          {
-            type: "extreme_thermal_protection",
-            description:
-              "Extreme thermal protection measures required for very high temperatures",
-            mandatory: true,
-            applicableContainers: [
-              "A12.13.1.combination_packaging",
-              "A12.13.2.single_packaging",
-            ],
-          },
-        ],
-      },
-      {
-        condition: "flash_point_proximity='high'",
-        requirements: [
-          {
-            type: "enhanced_temperature_monitoring",
-            description:
-              "Enhanced temperature monitoring required when operating close to flash point",
-            mandatory: true,
-            applicableContainers: [
-              "A12.13.1.combination_packaging",
-              "A12.13.2.single_packaging",
-            ],
-          },
-          {
-            type: "temperature_safety_margin",
-            description:
-              "Maintain adequate safety margin below flash point temperature",
-            mandatory: true,
-            applicableContainers: [
-              "A12.13.1.combination_packaging",
-              "A12.13.2.single_packaging",
-            ],
-          },
-        ],
-      },
-      {
-        condition: "material_classification='nos'",
-        requirements: [
-          {
-            type: "thermal_property_assessment",
-            description:
-              "Assess thermal properties of N.O.S. materials before packaging",
-            mandatory: true,
-            applicableContainers: [
-              "A12.13.1.combination_packaging",
-              "A12.13.2.single_packaging",
-            ],
-          },
-          {
-            type: "flash_point_determination",
-            description:
-              "Determine accurate flash point for N.O.S. elevated temperature liquids",
-            mandatory: true,
-            applicableContainers: [
-              "A12.13.1.combination_packaging",
-              "A12.13.2.single_packaging",
-            ],
-          },
-        ],
-      },
-      {
-        condition: "transport_duration='extended'",
-        requirements: [
-          {
-            type: "thermal_insulation_mandatory",
-            description:
-              "Thermal insulation mandatory for extended transport duration",
-            mandatory: true,
-            applicableContainers: [
-              "A12.13.1.combination_packaging",
-              "A12.13.2.single_packaging",
-            ],
-          },
-          {
-            type: "temperature_maintenance_system",
-            description:
-              "Active temperature maintenance system required for long transport",
-            mandatory: true,
-            applicableContainers: [
-              "A12.13.1.combination_packaging",
-              "A12.13.2.single_packaging",
-            ],
-          },
-        ],
-      },
-      {
-        condition: "vapor_pressure_risk='high'",
-        requirements: [
-          {
-            type: "pressure_relief_provisions",
-            description:
-              "Provide pressure relief provisions for high vapor pressure risk",
-            mandatory: true,
-            applicableContainers: [
-              "A12.13.1.combination_packaging",
-              "A12.13.2.single_packaging",
-            ],
-          },
-          {
-            type: "venting_system_consideration",
-            description:
-              "Consider controlled venting system for vapor pressure management",
-            mandatory: false,
-            applicableContainers: [
-              "A12.13.1.combination_packaging",
-              "A12.13.2.single_packaging",
-            ],
-          },
-        ],
-      },
-    ],
-
-    referencedParagraphs: ["A12.13", "A12.13.1", "A12.13.2"],
-  },
-
-  // Phase 3, Week 13: Class 8 Corrosives Entry - A12.14 (Package Elevated Temperature Solid, N.O.S., at or above 240°C)
-  "A12.14.": {
-    paragraphId: "A12.14.",
-    hazardClass: 8,
-    description:
-      "Package Elevated Temperature Solid, N.O.S., at or above 240°C as follows:",
-    lastUpdated: new Date().toISOString(),
-    entryType: "specialized",
-    materialTypes: ["elevated_temperature_solid_nos"],
-
-    packagingOptions: [
-      {
-        id: "A12.14.1.combination_packaging",
-        type: "combination",
-        description:
-          "Inner packages inside outer packaging for high temperature solids",
-        innerPackaging: {
-          required: true,
-          materials: ["Metal"],
-          specialRequirements: [
-            "Inner packagings must be suitable for temperatures at or above 240°C",
-            "Inner packagings must not exceed 400 kg capacity",
-            "Inner packagings must be resistant to thermal shock and expansion",
-          ],
-        },
-        outerPackaging: {
-          categories: [
-            {
-              type: "drums",
-              containers: [
-                {
-                  code: "1A2",
-                  material: "steel",
-                  description: "Removable head steel drum",
-                },
-                {
-                  code: "1B2",
-                  material: "aluminum",
-                  description: "Removable head aluminum drum",
-                },
-                {
-                  code: "1N2",
-                  material: "other_metal",
-                  description:
-                    "Removable head metal drum other than steel or aluminum",
-                },
-              ],
-            },
-            {
-              type: "boxes",
-              containers: [
-                { code: "4A", material: "steel", description: "Steel box" },
-                {
-                  code: "4B",
-                  material: "aluminum",
-                  description: "Aluminum box",
-                },
-                {
-                  code: "4N",
-                  material: "other_metal",
-                  description: "Other metal box",
-                },
-              ],
-            },
-          ],
-        },
-        restrictions: [
-          "Only metal packaging authorized due to high temperature requirements",
-        ],
-        isComplete: true,
-      },
-      {
-        id: "A12.14.2.single_packaging",
-        type: "single",
-        description: "Single packaging metal drums for high temperature solids",
-        innerPackaging: {
-          required: false,
-        },
-        outerPackaging: {
-          categories: [
-            {
-              type: "drums",
-              containers: [
-                { code: "1A1", material: "steel", description: "Steel drum" },
-                {
-                  code: "1A2",
-                  material: "steel",
-                  description: "Removable head steel drum",
-                },
-                {
-                  code: "1B1",
-                  material: "aluminum",
-                  description: "Aluminum drum",
-                },
-                {
-                  code: "1B2",
-                  material: "aluminum",
-                  description: "Removable head aluminum drum",
-                },
-                {
-                  code: "1N1",
-                  material: "other_metal",
-                  description: "Metal drum other than steel or aluminum",
-                },
-                {
-                  code: "1N2",
-                  material: "other_metal",
-                  description:
-                    "Removable head metal drum other than steel or aluminum",
-                },
-              ],
-            },
-          ],
-        },
-        restrictions: [
-          "Only metal packaging authorized due to high temperature requirements",
-        ],
-        isComplete: true,
-      },
-    ],
-
-    specialRequirements: [
-      {
-        type: "high_temperature_suitability",
-        description:
-          "Packaging must be suitable for temperatures at or above 240°C",
-        mandatory: true,
-        applicableContainers: [
-          "A12.14.1.combination_packaging",
-          "A12.14.2.single_packaging",
-        ],
-      },
-      {
-        type: "metal_packaging_only",
-        description:
-          "Only metal packaging authorized due to high temperature requirements",
-        mandatory: true,
-        applicableContainers: [
-          "A12.14.1.combination_packaging",
-          "A12.14.2.single_packaging",
-        ],
-      },
-      {
-        type: "thermal_shock_resistance",
-        description:
-          "Inner packagings must be resistant to thermal shock and expansion at high temperatures",
-        mandatory: true,
-        applicableContainers: ["A12.14.1.combination_packaging"],
-      },
-      {
-        type: "high_temperature_compatibility",
-        description:
-          "All packaging components must maintain integrity at or above 240°C",
-        mandatory: true,
-        applicableContainers: [
-          "A12.14.1.combination_packaging",
-          "A12.14.2.single_packaging",
-        ],
-      },
-      {
-        type: "thermal_insulation_mandatory",
-        description:
-          "Thermal insulation mandatory to protect surrounding materials and personnel",
-        mandatory: true,
-        applicableContainers: [
-          "A12.14.1.combination_packaging",
-          "A12.14.2.single_packaging",
-        ],
-      },
-      {
-        type: "heat_transfer_control",
-        description:
-          "Control heat transfer to prevent damage to adjacent packaging or transport equipment",
-        mandatory: true,
-        applicableContainers: [
-          "A12.14.1.combination_packaging",
-          "A12.14.2.single_packaging",
-        ],
-      },
-      {
-        type: "thermal_barrier_protection",
-        description:
-          "Provide thermal barrier protection to prevent burns and heat damage",
-        mandatory: true,
-        applicableContainers: [
-          "A12.14.1.combination_packaging",
-          "A12.14.2.single_packaging",
-        ],
-      },
-      {
-        type: "temperature_monitoring_system",
-        description:
-          "Implement temperature monitoring system for high temperature transport",
-        mandatory: true,
-        applicableContainers: [
-          "A12.14.1.combination_packaging",
-          "A12.14.2.single_packaging",
-        ],
-      },
-      {
-        type: "cooling_system_provisions",
-        description:
-          "Provide active or passive cooling system provisions during transport",
-        mandatory: true,
-        applicableContainers: [
-          "A12.14.1.combination_packaging",
-          "A12.14.2.single_packaging",
-        ],
-      },
-      {
-        type: "nos_classification_requirement",
-        description:
-          "N.O.S. materials must be properly identified and classified with thermal properties assessed",
-        mandatory: true,
-        applicableContainers: [
-          "A12.14.1.combination_packaging",
-          "A12.14.2.single_packaging",
-        ],
-      },
-    ],
-
-    quantityLimits: [
-      {
-        packingGroup: "III",
-        scope: "per_inner",
-        value: 400,
-        unit: "kg",
-        description:
-          "Inner packagings must not exceed 400 kg capacity for high temperature solids",
-      },
-    ],
-
-    conditionalRequirements: [
-      {
-        condition: "temperature_range='240_to_300_celsius'",
-        requirements: [
-          {
-            type: "standard_high_temp_metal_packaging",
-            description:
-              "Standard high-temperature metal packaging suitable for 240°C to 300°C",
-            mandatory: true,
-            applicableContainers: [
-              "A12.14.1.combination_packaging",
-              "A12.14.2.single_packaging",
-            ],
-          },
-          {
-            type: "moderate_thermal_insulation",
-            description:
-              "Moderate thermal insulation required for temperatures 240°C to 300°C",
-            mandatory: true,
-            applicableContainers: [
-              "A12.14.1.combination_packaging",
-              "A12.14.2.single_packaging",
-            ],
-          },
-        ],
-      },
-      {
-        condition: "temperature_range='300_to_400_celsius'",
-        requirements: [
-          {
-            type: "enhanced_high_temp_packaging",
-            description:
-              "Enhanced high-temperature packaging required for temperatures 300°C to 400°C",
-            mandatory: true,
-            applicableContainers: [
-              "A12.14.1.combination_packaging",
-              "A12.14.2.single_packaging",
-            ],
-          },
-          {
-            type: "heavy_thermal_insulation",
-            description:
-              "Heavy thermal insulation required for temperatures 300°C to 400°C",
-            mandatory: true,
-            applicableContainers: [
-              "A12.14.1.combination_packaging",
-              "A12.14.2.single_packaging",
-            ],
-          },
-        ],
-      },
-      {
-        condition: "temperature_range='above_400_celsius'",
-        requirements: [
-          {
-            type: "specialized_extreme_temp_packaging",
-            description:
-              "Specialized extreme temperature packaging required for temperatures above 400°C",
-            mandatory: true,
-            applicableContainers: [
-              "A12.14.1.combination_packaging",
-              "A12.14.2.single_packaging",
-            ],
-          },
-          {
-            type: "maximum_thermal_protection",
-            description:
-              "Maximum thermal protection and insulation required for extreme temperatures",
-            mandatory: true,
-            applicableContainers: [
-              "A12.14.1.combination_packaging",
-              "A12.14.2.single_packaging",
-            ],
-          },
-        ],
-      },
-      {
-        condition: "material_classification='nos'",
-        requirements: [
-          {
-            type: "thermal_property_characterization",
-            description:
-              "Complete thermal property characterization required for N.O.S. high temperature solids",
-            mandatory: true,
-            applicableContainers: [
-              "A12.14.1.combination_packaging",
-              "A12.14.2.single_packaging",
-            ],
-          },
-          {
-            type: "high_temp_compatibility_testing",
-            description:
-              "High temperature compatibility testing required for N.O.S. materials",
-            mandatory: true,
-            applicableContainers: [
-              "A12.14.1.combination_packaging",
-              "A12.14.2.single_packaging",
-            ],
-          },
-        ],
-      },
-      {
-        condition: "transport_duration='extended'",
-        requirements: [
-          {
-            type: "active_cooling_system",
-            description:
-              "Active cooling system required for extended transport of high temperature solids",
-            mandatory: true,
-            applicableContainers: [
-              "A12.14.1.combination_packaging",
-              "A12.14.2.single_packaging",
-            ],
-          },
-          {
-            type: "continuous_temperature_monitoring",
-            description:
-              "Continuous temperature monitoring required for extended high temperature transport",
-            mandatory: true,
-            applicableContainers: [
-              "A12.14.1.combination_packaging",
-              "A12.14.2.single_packaging",
-            ],
-          },
-        ],
-      },
-      {
-        condition: "thermal_stability_risk='high'",
-        requirements: [
-          {
-            type: "thermal_runaway_prevention",
-            description:
-              "Implement thermal runaway prevention measures for thermally unstable materials",
-            mandatory: true,
-            applicableContainers: [
-              "A12.14.1.combination_packaging",
-              "A12.14.2.single_packaging",
-            ],
-          },
-          {
-            type: "emergency_cooling_provisions",
-            description:
-              "Provide emergency cooling provisions for high thermal stability risk materials",
-            mandatory: true,
-            applicableContainers: [
-              "A12.14.1.combination_packaging",
-              "A12.14.2.single_packaging",
-            ],
-          },
-        ],
-      },
-      {
-        condition: "heat_generation='self_heating'",
-        requirements: [
-          {
-            type: "self_heating_control_measures",
-            description:
-              "Implement control measures for self-heating high temperature solids",
-            mandatory: true,
-            applicableContainers: [
-              "A12.14.1.combination_packaging",
-              "A12.14.2.single_packaging",
-            ],
-          },
-          {
-            type: "heat_dissipation_provisions",
-            description:
-              "Provide adequate heat dissipation provisions for self-heating materials",
-            mandatory: true,
-            applicableContainers: [
-              "A12.14.1.combination_packaging",
-              "A12.14.2.single_packaging",
-            ],
-          },
-        ],
-      },
-      {
-        condition: "oxidation_risk='high'",
-        requirements: [
-          {
-            type: "inert_atmosphere_packaging",
-            description:
-              "Consider inert atmosphere packaging for high oxidation risk at elevated temperatures",
-            mandatory: false,
-            applicableContainers: [
-              "A12.14.1.combination_packaging",
-              "A12.14.2.single_packaging",
-            ],
-          },
-          {
-            type: "oxygen_exclusion_high_temp",
-            description:
-              "Implement oxygen exclusion measures for high temperature oxidation-prone materials",
-            mandatory: true,
-            applicableContainers: [
-              "A12.14.1.combination_packaging",
-              "A12.14.2.single_packaging",
-            ],
-          },
-        ],
-      },
-    ],
-
-    referencedParagraphs: ["A12.14", "A12.14.1", "A12.14.2"],
-  },
-
-  // Phase 3, Week 13: Class 8 Corrosives Entry - A12.15 (Package Biological Agents or Lab Specimens that are chemically inactivated or neutralized and do not meet the requirements for Hazard Class 6.2)
-  "A12.15.": {
-    paragraphId: "A12.15.",
-    hazardClass: 8,
-    description:
-      "Package Biological Agents or Lab Specimens that are chemically inactivated or neutralized and do not meet the requirements for Hazard Class 6.2 as follows:",
-    lastUpdated: new Date().toISOString(),
-    entryType: "specialized",
-    materialTypes: ["biological_agents_chemically_inactivated"],
-
-    packagingOptions: [
-      {
-        id: "A12.15.1.combination_packaging",
-        type: "combination",
-        description:
-          "Inner packages inside outer packaging for chemically inactivated biological specimens",
-        innerPackaging: {
-          required: true,
-          materials: ["Glass", "Plastic", "Metal"],
-          specialRequirements: [
-            "Inner packagings must be resistant to chemical inactivating agents",
-            "Inner packagings must prevent leakage of chemically treated specimens",
-            "Inner packagings must be compatible with preservative/inactivating chemicals",
-          ],
-        },
-        outerPackaging: {
-          categories: [
-            {
-              type: "boxes",
-              containers: [
-                { code: "4A", material: "steel", description: "Steel box" },
-                {
-                  code: "4B",
-                  material: "aluminum",
-                  description: "Aluminum box",
-                },
-                {
-                  code: "4C1",
-                  material: "natural_wood",
-                  description: "Natural wood box",
-                },
-                {
-                  code: "4C2",
-                  material: "natural_wood",
-                  description: "Sift-proof natural wood box",
-                },
-                { code: "4D", material: "plywood", description: "Plywood box" },
-                {
-                  code: "4F",
-                  material: "reconstituted_wood",
-                  description: "Reconstituted wood box",
-                },
-                {
-                  code: "4G",
-                  material: "fiberboard",
-                  description: "Fiberboard box",
-                },
-                {
-                  code: "4H2",
-                  material: "plastic",
-                  description: "Solid plastic box",
-                },
-                {
-                  code: "4N",
-                  material: "other_metal",
-                  description: "Other metal box",
-                },
-              ],
-            },
-            {
-              type: "drums",
-              containers: [
-                {
-                  code: "1A2",
-                  material: "steel",
-                  description: "Removable head steel drum",
-                },
-                {
-                  code: "1B2",
-                  material: "aluminum",
-                  description: "Removable head aluminum drum",
-                },
-                { code: "1G", material: "fiber", description: "Fiber drum" },
-                {
-                  code: "1H2",
-                  material: "plastic",
-                  description: "Removable head plastic drum",
-                },
-                {
-                  code: "1N2",
-                  material: "other_metal",
-                  description:
-                    "Removable head metal drum other than steel or aluminum",
-                },
-              ],
-            },
-          ],
-        },
-        isComplete: true,
-      },
-    ],
-
-    specialRequirements: [
-      {
-        type: "chemical_inactivation_verification",
-        description:
-          "Verify that biological agents have been chemically inactivated or neutralized",
-        mandatory: true,
-        applicableContainers: ["A12.15.1.combination_packaging"],
-      },
-      {
-        type: "class_6_2_exclusion_verification",
-        description:
-          "Verify that materials do not meet the requirements for Hazard Class 6.2",
-        mandatory: true,
-        applicableContainers: ["A12.15.1.combination_packaging"],
-      },
-      {
-        type: "chemical_compatibility",
-        description:
-          "Inner packagings must be compatible with preservative/inactivating chemicals",
-        mandatory: true,
-        applicableContainers: ["A12.15.1.combination_packaging"],
-      },
-      {
-        type: "leak_proof_requirement",
-        description:
-          "Inner packagings must prevent leakage of chemically treated specimens",
-        mandatory: true,
-        applicableContainers: ["A12.15.1.combination_packaging"],
-      },
-      {
-        type: "inactivating_agent_resistance",
-        description:
-          "Inner packagings must be resistant to chemical inactivating agents",
-        mandatory: true,
-        applicableContainers: ["A12.15.1.combination_packaging"],
-      },
-      {
-        type: "documentation_requirement",
-        description:
-          "Provide documentation of chemical inactivation process and effectiveness",
-        mandatory: true,
-        applicableContainers: ["A12.15.1.combination_packaging"],
-      },
-      {
-        type: "pg_ii_performance_standard",
-        description: "Packaging meeting PG II performance standard is required",
-        mandatory: true,
-        applicableContainers: ["A12.15.1.combination_packaging"],
-      },
-      {
-        type: "specimen_integrity_protection",
-        description:
-          "Protect specimen integrity during transport while containing chemical agents",
-        mandatory: true,
-        applicableContainers: ["A12.15.1.combination_packaging"],
-      },
-      {
-        type: "cross_contamination_prevention",
-        description:
-          "Prevent cross-contamination between different specimens or with other materials",
-        mandatory: true,
-        applicableContainers: ["A12.15.1.combination_packaging"],
-      },
-      {
-        type: "temperature_control_consideration",
-        description:
-          "Consider temperature control requirements for specimen preservation",
-        mandatory: false,
-        applicableContainers: ["A12.15.1.combination_packaging"],
-      },
-    ],
-
-    quantityLimits: [
-      {
-        packingGroup: "II",
-        scope: "per_package",
-        value: "",
-        unit: "pieces",
-        description:
-          "No specific quantity limits but individual specimens must be properly contained and separated",
-      },
-    ],
-
-    conditionalRequirements: [
-      {
-        condition: "inactivation_method='chemical'",
-        requirements: [
-          {
-            type: "chemical_agent_compatibility",
-            description:
-              "Packaging materials must be compatible with specific chemical inactivating agents used",
-            mandatory: true,
-            applicableContainers: ["A12.15.1.combination_packaging"],
-          },
-          {
-            type: "inactivation_effectiveness_verification",
-            description:
-              "Verify effectiveness of chemical inactivation before packaging",
-            mandatory: true,
-            applicableContainers: ["A12.15.1.combination_packaging"],
-          },
-        ],
-      },
-      {
-        condition: "specimen_type='liquid'",
-        requirements: [
-          {
-            type: "liquid_containment_measures",
-            description:
-              "Enhanced liquid containment measures for liquid biological specimens",
-            mandatory: true,
-            applicableContainers: ["A12.15.1.combination_packaging"],
-          },
-          {
-            type: "secondary_containment",
-            description:
-              "Secondary containment required for liquid specimens to prevent leakage",
-            mandatory: true,
-            applicableContainers: ["A12.15.1.combination_packaging"],
-          },
-        ],
-      },
-      {
-        condition: "specimen_type='solid'",
-        requirements: [
-          {
-            type: "solid_specimen_securing",
-            description:
-              "Secure solid specimens to prevent movement and damage during transport",
-            mandatory: true,
-            applicableContainers: ["A12.15.1.combination_packaging"],
-          },
-          {
-            type: "moisture_control",
-            description:
-              "Control moisture to prevent degradation of solid specimens",
-            mandatory: true,
-            applicableContainers: ["A12.15.1.combination_packaging"],
-          },
-        ],
-      },
-      {
-        condition: "preservation_chemicals='corrosive'",
-        requirements: [
-          {
-            type: "corrosive_chemical_compatibility",
-            description:
-              "Packaging must be compatible with corrosive preservative chemicals",
-            mandatory: true,
-            applicableContainers: ["A12.15.1.combination_packaging"],
-          },
-          {
-            type: "enhanced_chemical_resistance",
-            description:
-              "Enhanced chemical resistance required for packaging exposed to corrosive preservatives",
-            mandatory: true,
-            applicableContainers: ["A12.15.1.combination_packaging"],
-          },
-        ],
-      },
-      {
-        condition: "multiple_specimens=true",
-        requirements: [
-          {
-            type: "individual_containment",
-            description:
-              "Each specimen must be individually contained to prevent cross-contamination",
-            mandatory: true,
-            applicableContainers: ["A12.15.1.combination_packaging"],
-          },
-          {
-            type: "specimen_separation",
-            description:
-              "Adequate separation between different specimens during transport",
-            mandatory: true,
-            applicableContainers: ["A12.15.1.combination_packaging"],
-          },
-        ],
-      },
-      {
-        condition: "transport_duration='extended'",
-        requirements: [
-          {
-            type: "extended_preservation_measures",
-            description:
-              "Additional preservation measures for extended transport duration",
-            mandatory: true,
-            applicableContainers: ["A12.15.1.combination_packaging"],
-          },
-          {
-            type: "chemical_stability_verification",
-            description:
-              "Verify chemical stability of inactivating agents during extended transport",
-            mandatory: true,
-            applicableContainers: ["A12.15.1.combination_packaging"],
-          },
-        ],
-      },
-      {
-        condition: "temperature_sensitive=true",
-        requirements: [
-          {
-            type: "temperature_controlled_packaging",
-            description:
-              "Temperature-controlled packaging required for temperature-sensitive specimens",
-            mandatory: true,
-            applicableContainers: ["A12.15.1.combination_packaging"],
-          },
-          {
-            type: "thermal_protection_measures",
-            description:
-              "Implement thermal protection measures to maintain specimen integrity",
-            mandatory: true,
-            applicableContainers: ["A12.15.1.combination_packaging"],
-          },
-        ],
-      },
-      {
-        condition: "regulatory_compliance='required'",
-        requirements: [
-          {
-            type: "documentation_package",
-            description:
-              "Complete documentation package including inactivation certificates and test results",
-            mandatory: true,
-            applicableContainers: ["A12.15.1.combination_packaging"],
-          },
-          {
-            type: "chain_of_custody_maintenance",
-            description:
-              "Maintain proper chain of custody documentation for biological specimens",
-            mandatory: true,
-            applicableContainers: ["A12.15.1.combination_packaging"],
-          },
-        ],
-      },
-    ],
-
-    referencedParagraphs: ["A12.15", "A12.15.1"],
-  },
-
+      ],
+      referencedParagraphs: ["A12.15", "A12.15.1", "A12.15.2", "A12.15.3", "A12.15.4"],
+    },
   // Phase 3, Week 14: Class 9 Miscellaneous Entry - A13.2 (Package Ammonium Nitrate Fertilizers; Benzaldehyde; Dibromodifluoromethane; Environmentally Hazardous Substances, N.O.S.; Fish Meal, Stabilized; Fish Scrap, Stabilized; Hazardous Waste, N.O.S.; Other Regulated Substances; Polychlorinated Biphenyls (PCB); Zinc Dithionite, Zinc Hydrosulfite)
   "A13.2.": {
     paragraphId: "A13.2.",
@@ -28198,3629 +24127,930 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
     ],
   },
 
-  // "A13.3.": {
-  //   title: "Package Consumer Commodities",
-  //   description: "Packaging requirements for consumer commodities including Class 2 aerosols, liquids, and solids with specific quantity limits and testing requirements",
-  //   materials: ["Consumer commodities including Class 2 aerosols", "Consumer commodity liquids", "Consumer commodity solids"],
-  //   hazardClasses: [2, 3, 8, 9],
-
-  //   // specialRequirements: [
-  //   //   "Consumer commodities must be in their original retail packaging",
-  //   //   "Class 2 aerosols must not exceed 500mL capacity per receptacle",
-  //   //   "Consumer commodity liquids limited to 500mL per inner receptacle",
-  //   //   "Consumer commodity solids limited to 500g per inner receptacle",
-  //   //   "Total package weight must not exceed 30kg",
-  //   //   "Strong outer packaging required but no UN specification packaging needed",
-  //   //   "Original retail packaging must be intact and undamaged"
-  //   // ],
-
-  //   quantityLimits: [],
-
-  //   packagingOptions: [
-  //     {
-  //       id: "A13.3.1.aerosols",
-  //       type: "combination",
-  //       description: "Consumer commodity Class 2 aerosols in strong outer packaging",
-  //       innerPackaging: {
-  //         required: true,
-  //         description: "Original retail aerosol containers",
-  //         materials: ["Metal aerosol containers"],
-  //         specialRequirements: [
-  //           "Aerosols must be in original retail packaging",
-  //           "Maximum 500mL capacity per aerosol container",
-  //           "Aerosols must have successfully passed pressure testing",
-  //           "Valve protection required to prevent inadvertent discharge"
-  //         ]
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "boxes",
-  //             containers: [
-  //               { code: "4G", material: "fiberboard", description: "Strong fiberboard box" },
-  //               { code: "4C1", material: "natural_wood", description: "Wooden box" },
-  //               { code: "4D", material: "plywood", description: "Plywood box" },
-  //               { code: "4H2", material: "plastic", description: "Solid plastic box" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     },
-  //     {
-  //       id: "A13.3.2.liquids",
-  //       type: "combination",
-  //       description: "Consumer commodity liquids in strong outer packaging",
-  //       innerPackaging: {
-  //         required: true,
-  //         description: "Original retail liquid containers",
-  //         materials: ["Glass", "Plastic", "Metal"],
-  //         specialRequirements: [
-  //           "Liquids must be in original retail packaging",
-  //           "Maximum 500mL per inner receptacle",
-  //           "Inner packaging must be leak-proof and undamaged"
-  //         ]
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "boxes",
-  //             containers: [
-  //               { code: "4G", material: "fiberboard", description: "Strong fiberboard box" },
-  //               { code: "4C1", material: "natural_wood", description: "Wooden box" },
-  //               { code: "4D", material: "plywood", description: "Plywood box" },
-  //               { code: "4H2", material: "plastic", description: "Solid plastic box" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     },
-  //     {
-  //       id: "A13.3.3.solids",
-  //       type: "combination",
-  //       description: "Consumer commodity solids in strong outer packaging",
-  //       innerPackaging: {
-  //         required: true,
-  //         description: "Original retail solid containers",
-  //         materials: ["Glass", "Plastic", "Metal", "Paper", "Cardboard"],
-  //         specialRequirements: [
-  //           "Solids must be in original retail packaging",
-  //           "Maximum 500g per inner receptacle",
-  //           "Inner packaging must be intact and undamaged"
-  //         ]
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "boxes",
-  //             containers: [
-  //               { code: "4G", material: "fiberboard", description: "Strong fiberboard box" },
-  //               { code: "4C1", material: "natural_wood", description: "Wooden box" },
-  //               { code: "4D", material: "plywood", description: "Plywood box" },
-  //               { code: "4H2", material: "plastic", description: "Solid plastic box" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     }
-  //   ],
-
-  //   conditionalRequirements: [
-  //     {
-  //       condition: "aerosol_testing_required",
-  //       description: "Class 2 aerosols require successful pressure testing",
-  //       // requirement: "Aerosols must have passed pressure testing at elevated temperatures",
-  //       // applicableContainers: ["A13.3.1.aerosols"]
-  //     },
-  //     {
-  //       condition: "retail_packaging_intact",
-  //       description: "Original retail packaging must be intact",
-  //       // requirement: "Consumer commodities must remain in original, undamaged retail packaging",
-  //       // applicableContainers: ["A13.3.1.aerosols", "A13.3.2.liquids", "A13.3.3.solids"]
-  //     },
-  //     {
-  //       condition: "volume_weight_limits",
-  //       description: "Quantity limits must be observed",
-  //       // requirement: "500mL/500g per inner receptacle, 30kg total package weight",
-  //       // applicableContainers: ["A13.3.1.aerosols", "A13.3.2.liquids", "A13.3.3.solids"]
-  //     },
-  //     {
-  //       condition: "valve_protection_aerosols",
-  //       description: "Aerosol valve protection required",
-  //       // requirement: "Aerosol valves must be protected against inadvertent discharge",
-  //       // applicableContainers: ["A13.3.1.aerosols"]
-  //     }
-  //   ],
-
-  //   referencedParagraphs: ["A13.3", "A13.3.1", "A13.3.2", "A13.3.3", "A13.3.4"]
-  // },
-
-  // "A13.4.": {
-  //   title: "Prepare Vehicles",
-  //   description: "Vehicle preparation requirements including compliance with technical orders, fuel limitations, and accessorial hazard management for safe air transport",
-  //   materials: ["Military vehicles", "Aircraft", "Helicopters", "Boats", "Watercraft", "Unmanned aerial vehicles (UAV)", "Fuel servicing vehicles", "Generators", "Engines"],
-  //   hazardClasses: [3, 8, 9],
-
-  //   // specialRequirements: [
-  //   //   "Use vehicle service or technical manual to prepare item for shipment",
-  //   //   "Each liquid vehicle fuel tank may be no more than one-half full (general rule)",
-  //   //   "Drain and purge fuel tanks when required by technical manual",
-  //   //   "Ensure batteries are secured and terminals protected against short circuit",
-  //   //   "Remove munitions and explosives except permanent-type aircraft equipment",
-  //   //   "Secure accessorial hazards in approved holders designed for vehicle use",
-  //   //   "Comply with A3.3.3.4 when determining actual fuel level requirements"
-  //   // ],
-
-  //   quantityLimits: [],
-
-  //   packagingOptions: [
-  //     {
-  //       id: "A13.4.1.technical_compliance",
-  //       type: "single",
-  //       description: "Vehicle preparation according to technical orders and service manuals",
-  //       innerPackaging: {
-  //         required: false
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "vehicle_transport",
-  //             containers: [
-  //               { code: "VEHICLE", material: "vehicle_platform", description: "Vehicle prepared according to technical manual" },
-  //               { code: "AIRCRAFT", material: "aircraft_platform", description: "Aircraft prepared according to shipping manual" },
-  //               { code: "HELICOPTER", material: "aircraft_platform", description: "Helicopter prepared according to shipping manual" },
-  //               { code: "WATERCRAFT", material: "vessel_platform", description: "Boat/watercraft prepared according to technical directive" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     },
-  //     {
-  //       id: "A13.4.2.fuel_limited_vehicles",
-  //       type: "single",
-  //       description: "Vehicles with fuel tank limitations and draining requirements",
-  //       innerPackaging: {
-  //         required: false
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "fuel_limited_transport",
-  //             containers: [
-  //               { code: "VEHICLE_HALF", material: "vehicle_platform", description: "Vehicle with fuel tanks max 1/2 full" },
-  //               { code: "VEHICLE_THREE_QUARTERS", material: "vehicle_platform", description: "Vehicle with fuel tanks max 3/4 full (Chapter 3)" },
-  //               { code: "AIRCRAFT_150GAL", material: "aircraft_platform", description: "Aircraft/helicopter with max 150 gallons or 3/4 full per tank" },
-  //               { code: "VEHICLE_DRAINED", material: "vehicle_platform", description: "Vehicle with drained and purged fuel system" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     },
-  //     {
-  //       id: "A13.4.3.accessorial_hazards",
-  //       type: "single",
-  //       description: "Vehicles with properly secured accessorial hazards and components",
-  //       innerPackaging: {
-  //         required: false
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "vehicle_with_accessories",
-  //             containers: [
-  //               { code: "VEHICLE_BATTERY", material: "vehicle_platform", description: "Vehicle with secured batteries and protected terminals" },
-  //               { code: "VEHICLE_FIRE_EXT", material: "vehicle_platform", description: "Vehicle with fire extinguishers in approved holders" },
-  //               { code: "AIRCRAFT_EMERGENCY", material: "aircraft_platform", description: "Aircraft with emergency equipment in approved holders" },
-  //               { code: "VEHICLE_FUEL_CELL", material: "vehicle_platform", description: "Vehicle with secured and protected fuel cell" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     }
-  //   ],
-
-  //   conditionalRequirements: [
-  //     {
-  //       condition: "technical_manual_compliance",
-  //       description: "Technical manual requirements must be followed",
-  //       // requirement: "Use vehicle service or technical manual to prepare item for shipment",
-  //       // applicableContainers: ["A13.4.1.technical_compliance", "A13.4.2.fuel_limited_vehicles", "A13.4.3.accessorial_hazards"]
-  //     },
-  //     {
-  //       condition: "fuel_tank_half_full_general",
-  //       description: "General fuel limitation requirement",
-  //       // requirement: "Each liquid vehicle fuel tank may be no more than one-half full",
-  //       // applicableContainers: ["A13.4.2.fuel_limited_vehicles"]
-  //     },
-  //     {
-  //       condition: "fuel_tank_three_quarters_chapter3",
-  //       description: "Chapter 3 transport fuel limitations",
-  //       // requirement: "When transported under Chapter 3 authority, fuel tanks may be three-fourths full",
-  //       // applicableContainers: ["A13.4.2.fuel_limited_vehicles"]
-  //     },
-  //     {
-  //       condition: "aircraft_150_gallon_limit",
-  //       description: "Aircraft and helicopter fuel limits",
-  //       // requirement: "Transport fueled helicopters and aircraft with max 150 gallons or 3/4 full per tank, whichever is least",
-  //       // applicableContainers: ["A13.4.2.fuel_limited_vehicles"]
-  //     },
-  //     {
-  //       condition: "cargo_ramp_half_full",
-  //       description: "Cargo ramp fuel limitations",
-  //       // requirement: "Units on aircraft cargo ramp may not exceed one-half full per tank",
-  //       // applicableContainers: ["A13.4.2.fuel_limited_vehicles"]
-  //     },
-  //     {
-  //       condition: "drain_and_purge_required",
-  //       description: "Draining and purging requirements",
-  //       // requirement: "Drain and purge when technical manual requires or when susceptible to fuel spills/leakage",
-  //       // applicableContainers: ["A13.4.2.fuel_limited_vehicles"]
-  //     },
-  //     {
-  //       condition: "freight_container_requirements",
-  //       description: "Freight container fuel and battery requirements",
-  //       // requirements: ["When loaded in freight container, drain fuel tank and remove/secure batteries properly"],
-  //       // applicableContainers: ["A13.4.2.fuel_limited_vehicles", "A13.4.3.accessorial_hazards"]
-  //     },
-  //     {
-  //       condition: "battery_security_requirements",
-  //       description: "Battery installation and protection",
-  //       // requirement: "Secure batteries upright in designed holders with terminals protected against short circuit",
-  //       // applicableContainers: ["A13.4.3.accessorial_hazards"]
-  //     },
-  //     {
-  //       condition: "fuel_servicing_vehicle_limits",
-  //       description: "Fuel servicing vehicle requirements",
-  //       // requirement: "Fuel servicing vehicles must have tank/lines purged or drained with no more than 5 gallons remaining",
-  //       // applicableContainers: ["A13.4.2.fuel_limited_vehicles"]
-  //     },
-  //     {
-  //       condition: "lpg_vehicle_requirements",
-  //       description: "LPG/compressed gas vehicle requirements",
-  //       // requirement: "Completely empty gaseous fuel from non-DOT tanks, lines, and regulator. Securely close tanks.",
-  //       // applicableContainers: ["A13.4.2.fuel_limited_vehicles"]
-  //     },
-  //     {
-  //       condition: "munitions_removal_required",
-  //       description: "Munitions and explosives removal",
-  //       // requirement: "Remove all munitions and explosives except permanent-type aircraft equipment per A3.3.1.9",
-  //       // applicableContainers: ["A13.4.3.accessorial_hazards"]
-  //     },
-  //     {
-  //       condition: "lithium_battery_protection",
-  //       description: "Lithium battery security requirements",
-  //       // requirement: "Secure lithium batteries in vehicle holder and protect terminals with non-conductive caps",
-  //       // applicableContainers: ["A13.4.3.accessorial_hazards"]
-  //     }
-  //   ],
-
-  //   referencedParagraphs: ["A13.4", "A13.4.1", "A13.4.2", "A13.4.2.1", "A13.4.2.2", "A13.4.2.3", "A13.4.2.4", "A13.4.2.5", "A13.4.2.6", "A13.4.2.7", "A13.4.2.8", "A13.4.2.9", "A13.4.2.10", "A13.4.2.11", "A13.4.2.12", "A13.4.2.13", "A13.4.2.14", "A13.4.2.15", "A13.4.3", "A13.4.3.1", "A13.4.3.2", "A13.4.3.3", "A13.4.3.4", "A13.4.3.5", "A13.4.3.6", "A13.4.3.7"]
-  // },
-
-  // "A13.5.": {
-  //   title: "UN3548, Articles containing miscellaneous dangerous goods, N.O.S.",
-  //   description: "Packaging requirements for articles containing miscellaneous dangerous goods with specific quantity limits and performance standards for both packaged and unpackaged transport",
-  //   materials: ["Articles containing miscellaneous dangerous goods", "Articles with internal receptacles", "Robust articles", "Equipment containing dangerous goods"],
-  //   hazardClasses: [9],
-
-  //   // specialRequirements: [
-  //   //   "Classified per paragraph A4.2.3",
-  //   //   "Maximum net quantity per package: 60L for liquids, 100kg for solids",
-  //   //   "When packaged: Packing Group II performance standard required",
-  //   //   "Pack articles to prevent movement and inadvertent operation during transport",
-  //   //   "Pack inner receptacles containing liquids with closures correctly oriented",
-  //   //   "Article must fully enclose dangerous goods and prevent release under normal conditions",
-  //   //   "Robust articles may be transported unpackaged or on pallets when afforded equivalent protection"
-  //   // ],
-
-  //   // quantityLimits: {
-  //   //   passengerAircraft: {
-  //   //     maxPerPackage: "60L for liquids, 100kg for solids per article",
-  //   //     maxPerInnerReceptacle: "As contained within article receptacles",
-  //   //     additionalRestrictions: [
-  //   //       "Must meet Packing Group II performance standards when packaged",
-  //   //       "Inner receptacles must be secured to prevent breakage or leakage"
-  //   //     ]
-  //   //   },
-  //   //   cargoAircraft: {
-  //   //     maxPerPackage: "60L for liquids, 100kg for solids per article",
-  //   //     maxPerInnerReceptacle: "As contained within article receptacles",
-  //   //     additionalRestrictions: [
-  //   //       "Must meet Packing Group II performance standards when packaged",
-  //   //       "Inner receptacles must be secured to prevent breakage or leakage"
-  //   //     ]
-  //   //   }
-  //   // },
-
-  //   packagingOptions: [
-  //     {
-  //       id: "A13.5.1.packaged_articles",
-  //       type: "combination",
-  //       description: "Articles containing dangerous goods in UN specification packaging meeting PG II standards",
-  //       innerPackaging: {
-  //         required: true,
-  //         description: "Receptacles constructed of suitable materials and secured within article",
-  //         materials: ["Suitable materials", "Metal", "Plastic", "Glass"],
-  //         specialRequirements: [
-  //           "Receptacles secured so they cannot break, be punctured, or leak under normal transport conditions",
-  //           "Inner receptacles containing liquids must have closures correctly oriented"
-  //         ]
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "drums",
-  //             containers: [
-  //               { code: "1A2", material: "steel", description: "Removable head steel drum" },
-  //               { code: "1B2", material: "aluminum", description: "Removable head aluminum drum" },
-  //               { code: "1N2", material: "other_metal", description: "Removable head metal drum other than steel or aluminum" },
-  //               { code: "1D", material: "plywood", description: "Plywood drum" },
-  //               { code: "1G", material: "fiber", description: "Fiber drum" },
-  //               { code: "1H2", material: "plastic", description: "Removable head plastic drum" }
-  //             ]
-  //           },
-  //           {
-  //             type: "boxes",
-  //             containers: [
-  //               { code: "4A", material: "steel", description: "Steel box" },
-  //               { code: "4B", material: "aluminum", description: "Aluminum box" },
-  //               { code: "4C1", material: "natural_wood", description: "Ordinary natural wood box" },
-  //               { code: "4C2", material: "natural_wood", description: "Sift-proof natural wood box" },
-  //               { code: "4D", material: "plywood", description: "Plywood box" },
-  //               { code: "4F", material: "reconstituted_wood", description: "Reconstituted wood box" },
-  //               { code: "4G", material: "fiberboard", description: "Fiberboard box" },
-  //               { code: "4H1", material: "plastic", description: "Expanded plastic box" },
-  //               { code: "4H2", material: "plastic", description: "Solid plastic box" },
-  //               { code: "4N", material: "other_metal", description: "Other metal box" }
-  //             ]
-  //           },
-  //           {
-  //             type: "jerricans",
-  //             containers: [
-  //               { code: "3A2", material: "steel", description: "Removable head steel jerrican" },
-  //               { code: "3B2", material: "aluminum", description: "Removable head aluminum jerrican" },
-  //               { code: "3H2", material: "plastic", description: "Plastic removable head jerrican" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     },
-  //     {
-  //       id: "A13.5.2.robust_articles_packaged",
-  //       type: "single",
-  //       description: "Robust articles in strong outer packaging of adequate strength and design",
-  //       innerPackaging: {
-  //         required: false
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "strong_packaging",
-  //             containers: [
-  //               { code: "STRONG_BOX", material: "suitable_material", description: "Strong outer packaging of suitable material and adequate strength" },
-  //               { code: "STRONG_DRUM", material: "suitable_material", description: "Strong outer drum of suitable material and adequate strength" },
-  //               { code: "STRONG_CONTAINER", material: "suitable_material", description: "Strong outer container of suitable material and adequate strength" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     },
-  //     {
-  //       id: "A13.5.2.robust_articles_unpackaged",
-  //       type: "single",
-  //       description: "Robust articles transported unpackaged or on pallets with equivalent protection",
-  //       innerPackaging: {
-  //         required: false
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "unpackaged_transport",
-  //             containers: [
-  //               { code: "UNPACKAGED", material: "none", description: "Robust article transported unpackaged" },
-  //               { code: "PALLETIZED", material: "pallet_platform", description: "Robust article on pallet with equivalent protection" },
-  //               { code: "PROTECTED_ARTICLE", material: "article_protection", description: "Article providing equivalent protection to dangerous goods" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     }
-  //   ],
-
-  //   conditionalRequirements: [
-  //     {
-  //       condition: "classification_a423_required",
-  //       description: "Classification per paragraph A4.2.3 required",
-  //       // requirement: "Articles must be classified per paragraph A4.2.3",
-  //       // applicableContainers: ["A13.5.1.packaged_articles", "A13.5.2.robust_articles_packaged", "A13.5.2.robust_articles_unpackaged"]
-  //     },
-  //     {
-  //       condition: "quantity_limits_60l_100kg",
-  //       description: "Maximum quantity limits must be observed",
-  //       // requirement: "Maximum net quantity per package: 60L for liquids and 100kg for solids",
-  //       // applicableContainers: ["A13.5.1.packaged_articles", "A13.5.2.robust_articles_packaged", "A13.5.2.robust_articles_unpackaged"]
-  //     },
-  //     {
-  //       condition: "packing_group_ii_standard",
-  //       description: "Packing Group II performance standard required when packaged",
-  //       // requirement: "When packaged, packagings must meet Packing Group II performance standard",
-  //       // applicableContainers: ["A13.5.1.packaged_articles"]
-  //     },
-  //     {
-  //       condition: "prevent_movement_operation",
-  //       description: "Prevention of movement and inadvertent operation",
-  //       // requirement: "Pack articles to prevent movement and inadvertent operation during normal conditions of transport",
-  //       // applicableContainers: ["A13.5.1.packaged_articles", "A13.5.2.robust_articles_packaged"]
-  //     },
-  //     {
-  //       condition: "liquid_closure_orientation",
-  //       description: "Proper orientation of liquid closures",
-  //       // requirement: "Pack inner receptacles containing liquids with closures correctly oriented in outer packagings",
-  //       // applicableContainers: ["A13.5.1.packaged_articles"]
-  //     },
-  //     {
-  //       condition: "article_containment_requirement",
-  //       description: "Article must fully enclose dangerous goods",
-  //       // requirement: "Where no receptacle within article, ensure article fully encloses dangerous goods and prevents release",
-  //       // applicableContainers: ["A13.5.1.packaged_articles", "A13.5.2.robust_articles_packaged", "A13.5.2.robust_articles_unpackaged"]
-  //     },
-  //     {
-  //       condition: "receptacle_security_requirement",
-  //       description: "Inner receptacles must be secured against breakage",
-  //       // requirement: "Receptacles secured so they cannot break, be punctured, or leak under normal transport conditions",
-  //       // applicableContainers: ["A13.5.1.packaged_articles"]
-  //     },
-  //     {
-  //       condition: "robust_article_protection",
-  //       description: "Robust articles must provide equivalent protection",
-  //       // requirement: "Robust articles transported unpackaged must afford equivalent protection by the article containing dangerous goods",
-  //       // applicableContainers: ["A13.5.2.robust_articles_unpackaged"]
-  //     },
-  //     {
-  //       condition: "strong_packaging_adequacy",
-  //       description: "Strong packaging must be adequate for intended use",
-  //       // requirement: "Strong outer packaging must be of adequate strength and design in relation to packaging capacity and intended use",
-  //       // applicableContainers: ["A13.5.2.robust_articles_packaged"]
-  //     }
-  //   ],
-
-  //   referencedParagraphs: ["A13.5", "A13.5.1", "A13.5.1.1", "A13.5.1.2", "A13.5.1.3", "A13.5.2", "A13.5.2.1", "A13.5.2.2", "A4.2.3"]
-  // },
-
-  // "A13.6.": {
-  //   title: "Package Battery Powered Equipment and Vehicles",
-  //   description: "Preparation requirements for items powered by wet cell, non-spillable, or lithium batteries including equipment with batteries as installed integral components",
-  //   materials: ["Battery powered equipment", "Vehicles with batteries", "Tactical shelters", "Trailers with batteries", "Wheelchairs with batteries", "Equipment with lithium batteries"],
-  //   hazardClasses: [8, 9],
-
-  //   // specialRequirements: [
-  //   //   "Use vehicle or equipment service technical manuals to prepare items for shipment",
-  //   //   "Secure batteries upright in designed holders (except non-spillable A67 batteries)",
-  //   //   "Protect battery terminals to prevent short circuit using battery boxes, covers, or taping",
-  //   //   "If battery cables are disconnected, secure away from terminals and protect terminals",
-  //   //   "Remove battery and ship per A12.4 if item likely to be shipped non-upright",
-  //   //   "Securely fasten original installed equipment in approved holders",
-  //   //   "Do not remove hazardous materials from packaging and store in vehicle racks/containers",
-  //   //   "Lithium batteries must be secured with non-conductive terminal caps"
-  //   // ],
-
-  //   // quantityLimits: {
-  //   //   passengerAircraft: {
-  //   //     maxPerPackage: "Per installed battery specifications",
-  //   //     maxPerInnerReceptacle: "Battery capacity as installed in equipment",
-  //   //     additionalRestrictions: [
-  //   //       "Batteries must remain in designed holders",
-  //   //       "Non-spillable batteries may be oriented to fit holder",
-  //   //       "Spillable batteries must remain upright"
-  //   //     ]
-  //   //   },
-  //   //   cargoAircraft: {
-  //   //     maxPerPackage: "Per installed battery specifications",
-  //   //     maxPerInnerReceptacle: "Battery capacity as installed in equipment",
-  //   //     additionalRestrictions: [
-  //   //       "Batteries must remain in designed holders",
-  //   //       "Non-spillable batteries may be oriented to fit holder",
-  //   //       "Spillable batteries must remain upright"
-  //   //     ]
-  //   //   }
-  //   // },
-
-  //   packagingOptions: [
-  //     {
-  //       id: "A13.6.1.general_battery_equipment",
-  //       type: "single",
-  //       description: "Battery powered equipment with batteries secured in designed holders",
-  //       innerPackaging: {
-  //         required: false
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "equipment_transport",
-  //             containers: [
-  //               { code: "EQUIPMENT_UPRIGHT", material: "equipment_platform", description: "Equipment with batteries secured upright in designed holders" },
-  //               { code: "EQUIPMENT_ORIENTED", material: "equipment_platform", description: "Equipment with non-spillable A67 batteries oriented to fit holder" },
-  //               { code: "EQUIPMENT_PROTECTED", material: "equipment_platform", description: "Equipment with protected battery terminals and secured cables" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     },
-  //     {
-  //       id: "A13.6.4.wheelchair_non_spillable",
-  //       type: "single",
-  //       description: "Wheelchairs equipped with non-spillable batteries with terminal protection",
-  //       innerPackaging: {
-  //         required: false
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "wheelchair_transport",
-  //             containers: [
-  //               { code: "WHEELCHAIR_ATTACHED", material: "wheelchair_platform", description: "Wheelchair with non-spillable batteries securely attached" },
-  //               { code: "WHEELCHAIR_BOXED", material: "wheelchair_platform", description: "Wheelchair with batteries removed and boxed (no UN spec required)" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     },
-  //     {
-  //       id: "A13.6.5.wheelchair_spillable",
-  //       type: "single",
-  //       description: "Wheelchairs equipped with spillable batteries for upright transport",
-  //       innerPackaging: {
-  //         required: false
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "wheelchair_upright_transport",
-  //             containers: [
-  //               { code: "WHEELCHAIR_UPRIGHT", material: "wheelchair_platform", description: "Wheelchair secured upright with spillable batteries installed" },
-  //               { code: "WHEELCHAIR_DEACTIVATED", material: "wheelchair_platform", description: "Wheelchair with power source disconnected at battery terminals" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     },
-  //     {
-  //       id: "A13.6.6.lithium_battery_equipment",
-  //       type: "single",
-  //       description: "Equipment with lithium batteries secured and protected against damage",
-  //       innerPackaging: {
-  //         required: false
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "lithium_equipment_transport",
-  //             containers: [
-  //               { code: "LITHIUM_SECURED", material: "equipment_platform", description: "Equipment with lithium batteries secured in battery holder" },
-  //               { code: "LITHIUM_PROTECTED", material: "equipment_platform", description: "Equipment with lithium batteries protected by non-conductive terminal caps" },
-  //               { code: "LITHIUM_TESTED", material: "equipment_platform", description: "Equipment with UN tested lithium batteries or DOT approved batteries" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     }
-  //   ],
-
-  //   conditionalRequirements: [
-  //     {
-  //       condition: "technical_manual_compliance",
-  //       description: "Technical manual requirements must be followed",
-  //       // requirement: "Use vehicle or equipment service technical manuals to prepare items for shipment",
-  //       // applicableContainers: ["A13.6.1.general_battery_equipment", "A13.6.4.wheelchair_non_spillable", "A13.6.5.wheelchair_spillable", "A13.6.6.lithium_battery_equipment"]
-  //     },
-  //     {
-  //       condition: "battery_upright_positioning",
-  //       description: "Batteries must be secured upright in designed holders",
-  //       // requirement: "Secure batteries upright in designed holders except non-spillable A67 batteries",
-  //       // applicableContainers: ["A13.6.1.general_battery_equipment", "A13.6.5.wheelchair_spillable"]
-  //     },
-  //     {
-  //       condition: "non_spillable_orientation_allowed",
-  //       description: "Non-spillable A67 batteries may be oriented to fit holder",
-  //       // requirement: "Non-spillable batteries meeting Table A4.2 Special Provision A67 may be oriented to fit designed holder",
-  //       // applicableContainers: ["A13.6.1.general_battery_equipment", "A13.6.4.wheelchair_non_spillable"]
-  //     },
-  //     {
-  //       condition: "terminal_protection_required",
-  //       description: "Battery terminals must be protected against short circuit",
-  //       // requirement: "Protect terminals using battery boxes, protective covers, taping, etc. to prevent short circuit",
-  //       // applicableContainers: ["A13.6.1.general_battery_equipment", "A13.6.4.wheelchair_non_spillable", "A13.6.5.wheelchair_spillable", "A13.6.6.lithium_battery_equipment"]
-  //     },
-  //     {
-  //       condition: "cable_disconnection_security",
-  //       description: "Disconnected cables must be secured and terminals protected",
-  //       // requirement: "If battery cables disconnected, secure away from terminals and protect terminals",
-  //       // applicableContainers: ["A13.6.1.general_battery_equipment", "A13.6.5.wheelchair_spillable"]
-  //     },
-  //     {
-  //       condition: "non_upright_battery_removal",
-  //       description: "Battery removal required for non-upright shipping",
-  //       // requirement: "Remove battery and ship according to A12.4 if item likely to be shipped non-upright",
-  //       // applicableContainers: ["A13.6.1.general_battery_equipment", "A13.6.5.wheelchair_spillable"]
-  //     },
-  //     {
-  //       condition: "original_equipment_fastening",
-  //       description: "Original installed equipment must be securely fastened",
-  //       // requirement: "Securely fasten original installed equipment in properly configured and approved holders",
-  //       // applicableContainers: ["A13.6.1.general_battery_equipment", "A13.6.6.lithium_battery_equipment"]
-  //     },
-  //     {
-  //       condition: "hazmat_packaging_prohibition",
-  //       description: "Prohibition on removing hazmat from packaging for vehicle storage",
-  //       // requirement: "Do not remove other hazardous materials from packaging and store in racks or containers",
-  //       // applicableContainers: ["A13.6.1.general_battery_equipment"]
-  //     },
-  //     {
-  //       condition: "wheelchair_non_spillable_protection",
-  //       description: "Wheelchair non-spillable battery protection requirements",
-  //       // requirement: "Protect non-spillable wheelchair batteries against short circuits and attach to wheelchair or remove and box",
-  //       // applicableContainers: ["A13.6.4.wheelchair_non_spillable"]
-  //     },
-  //     {
-  //       condition: "wheelchair_spillable_upright_requirement",
-  //       description: "Wheelchair spillable battery upright transport requirement",
-  //       // requirement: "Wheelchairs with spillable batteries must be secured upright in cargo compartments that accommodate upright loading",
-  //       // applicableContainers: ["A13.6.5.wheelchair_spillable"]
-  //     },
-  //     {
-  //       condition: "wheelchair_deactivation_requirement",
-  //       description: "Wheelchair deactivation requirement for spillable batteries",
-  //       // requirement: "Deactivate wheelchairs by removing connections at battery terminals or disconnecting power source",
-  //       // applicableContainers: ["A13.6.5.wheelchair_spillable"]
-  //     },
-  //     {
-  //       condition: "lithium_battery_securing",
-  //       description: "Lithium battery securing and protection requirements",
-  //       // requirement: "Securely fasten lithium batteries in battery holder and protect with non-conductive caps covering terminals entirely",
-  //       // applicableContainers: ["A13.6.6.lithium_battery_equipment"]
-  //     },
-  //     {
-  //       condition: "lithium_battery_testing_approval",
-  //       description: "Lithium battery testing or approval requirements",
-  //       // requirement: "Prototype/low production lithium batteries must pass UN Manual tests or be DOT approved",
-  //       // applicableContainers: ["A13.6.6.lithium_battery_equipment"]
-  //     },
-  //     {
-  //       condition: "no_un_spec_wheelchair_batteries",
-  //       description: "No UN specification packaging required for wheelchair batteries",
-  //       // requirement: "Specification packaging not required for wheelchair non-spillable batteries",
-  //       // applicableContainers: ["A13.6.4.wheelchair_non_spillable"]
-  //     }
-  //   ],
-
-  //   referencedParagraphs: ["A13.6", "A13.6.1", "A13.6.2", "A13.6.3", "A13.6.4", "A13.6.5", "A13.6.6", "A12.4", "A4.2", "A67"]
-  // },
-
-  // "A13.7.": {
-  //   paragraphId: "A13.7.",
-  //   hazardClass: 9,
-  //   description: "Packaging for Lithium Batteries and Battery-Powered Equipment",
-  //   lastUpdated: new Date().toISOString(),
-  //   entryType: 'equipment',
-  //   materialTypes: ['lithium_batteries', 'battery_equipment'],
-  //   applicableUNNumbers: ['UN3480', 'UN3481', 'UN3091', 'UN3092'],
-
-  //   packagingOptions: [
-  //     {
-  //       id: "A13.7.small_batteries",
-  //       type: "specialized",
-  //       description: "Small lithium batteries (≤20Wh)",
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "boxes",
-  //             containers: [
-  //               { code: "4G", material: "fiberboard", description: "Fiberboard box" },
-  //               { code: "4H2", material: "plastic", description: "Solid plastic box" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       restrictions: [
-  //         "Maximum 8 cells or 2 batteries per package",
-  //         "Batteries must be protected against short circuit",
-  //         "Package must be able to withstand 1.2m drop test"
-  //       ],
-  //       notes: [
-  //         "Each battery/cell must be individually protected",
-  //         "No other dangerous goods permitted in same package"
-  //       ]
-  //     },
-  //     {
-  //       id: "A13.7.medium_batteries",
-  //       type: "specialized",
-  //       description: "Medium lithium batteries (20-100Wh)",
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "boxes",
-  //             containers: [
-  //               { code: "4G", material: "fiberboard", description: "UN specification fiberboard box" },
-  //               { code: "4H2", material: "plastic", description: "UN specification plastic box" }
-  //             ]
-  //           },
-  //           {
-  //             type: "drums",
-  //             containers: [
-  //               { code: "1A2", material: "steel", description: "Steel drum" },
-  //               { code: "1H2", material: "plastic", description: "Plastic drum" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       restrictions: [
-  //         "Maximum 8 cells or 2 batteries per package",
-  //         "UN specification packaging required",
-  //         "Terminal protection mandatory"
-  //       ],
-  //       quantityLimits: [
-  //         { scope: "per_package", value: 2, unit: "pieces" }
-  //       ]
-  //     },
-  //     {
-  //       id: "A13.7.large_batteries",
-  //       type: "specialized",
-  //       description: "Large lithium batteries (>100Wh)",
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "specialized",
-  //             containers: [
-  //               {
-  //                 code: "SPECIAL",
-  //                 material: "multiple",
-  //                 description: "Manufacturer-approved packaging",
-  //                 specifications: [
-  //                   { property: "approval_type", value: "manufacturer_specific" },
-  //                   { property: "testing_required", value: "UN38.3" },
-  //                   { property: "documentation", value: "test_summary_required" }
-  //                 ]
-  //               }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       restrictions: [
-  //         "Maximum 1 battery per package",
-  //         "Manufacturer approval required",
-  //         "UN38.3 test summary required",
-  //         "Special handling procedures apply"
-  //       ]
-  //     },
-  //     {
-  //       id: "A13.7.equipment_installed",
-  //       type: "equipment",
-  //       description: "Equipment with installed lithium batteries",
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "boxes",
-  //             containers: [
-  //               { code: "4G", material: "fiberboard", description: "Strong outer packaging" },
-  //               { code: "4H2", material: "plastic", description: "Rigid plastic packaging" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       restrictions: [
-  //         "Equipment must be secured against movement",
-  //         "Battery must be protected against damage",
-  //         "Switch must be in OFF position"
-  //       ],
-  //       notes: [
-  //         "Equipment may be shipped without UN specification packaging",
-  //         "Strong outer packaging sufficient if equipment provides adequate protection"
-  //       ]
-  //     }
-  //   ],
-  //   specialRequirements: [
-  //     {
-  //       type: "testing",
-  //       description: "All lithium batteries must pass UN38.3 testing requirements",
-  //       mandatory: true,
-  //       applicableContainers: ["all"]
-  //     },
-  //     {
-  //       type: "handling",
-  //       description: "Batteries must be protected against short circuit and physical damage",
-  //       mandatory: true,
-  //       applicableContainers: ["all"]
-  //     },
-  //     {
-  //       type: "orientation",
-  //       description: "Packages must be marked with orientation arrows if required",
-  //       mandatory: false,
-  //       applicableContainers: ["specialized"]
-  //     }
-  //   ],
-  //   conditionalRequirements: [
-  //     {
-  //       condition: "watt_hour_rating_greater_than_20",
-  //       conditionType: "energy_capacity",
-  //       operator: "greater_than",
-  //       value: 20,
-  //       effect: "require",
-  //       target: "un_specification_packaging",
-  //       description: "Batteries >20Wh require UN specification packaging"
-  //     },
-  //     {
-  //       condition: "watt_hour_rating_greater_than_100",
-  //       conditionType: "energy_capacity",
-  //       operator: "greater_than",
-  //       value: 100,
-  //       effect: "require",
-  //       target: "manufacturer_approval",
-  //       description: "Batteries >100Wh require manufacturer-approved packaging"
-  //     },
-  //     {
-  //       condition: "damaged_or_defective",
-  //       conditionType: "material_state",
-  //       operator: "contains",
-  //       value: "damaged",
-  //       effect: "prohibit",
-  //       target: "air_transport",
-  //       description: "Damaged or defective batteries prohibited from air transport"
-  //     }
-  //   ],
-
-  //   referencedParagraphs: ["A13.7.1", "A13.7.2", "A13.7.3", "UN38.3"]
-  // },
-  // "A13.7.": {
-  //   title: "Lithium Cells and Batteries",
-  //   description: "Packaging requirements for standalone lithium cells and batteries including combination packaging, large packaging options, and compatibility restrictions with other hazardous materials",
-  //   materials: ["Lithium metal cells", "Lithium metal batteries", "Lithium ion cells", "Lithium ion batteries", "Large lithium batteries exceeding 12kg", "Single battery assemblies"],
-  //   hazardClasses: [9],
-
-  //   // specialRequirements: [
-  //   //   "Lithium cells and batteries must meet requirements of paragraph A3.3.9.2 (except A3.3.9.2.3)",
-  //   //   "Use non-metallic inner packaging that completely encloses cell or battery",
-  //   //   "Separate cells/batteries from contact with equipment, devices, or conductive materials",
-  //   //   "Packaging meeting PG II performance level required (except hand-carried spare batteries)",
-  //   //   "UN specification packaging not required for hand-carried spare batteries per Chapter 3",
-  //   //   "Batteries exceeding 12kg may use strong outer packaging instead of UN performance packaging",
-  //   //   "Large packaging authorized for single batteries with PG II performance level",
-  //   //   "Prohibit mixing with Class 1 (except 1.4S), Division 2.1, Class 3, Division 4.1, or 5.1"
-  //   // ],
-
-  //   // quantityLimits: {
-  //   //   passengerAircraft: {
-  //   //     maxPerPackage: "Per A3.3.9.2 requirements",
-  //   //     maxPerInnerReceptacle: "Individual cell or battery capacity",
-  //   //     additionalRestrictions: [
-  //   //       "Batteries exceeding 12kg identified as 'P4' for passenger movement",
-  //   //       "Large packaging authorized for single batteries only"
-  //   //     ]
-  //   //   },
-  //   //   cargoAircraft: {
-  //   //     maxPerPackage: "Per A3.3.9.2 requirements",
-  //   //     maxPerInnerReceptacle: "Individual cell or battery capacity",
-  //   //     additionalRestrictions: [
-  //   //       "Batteries exceeding 12kg may use alternative packaging",
-  //   //       "Large packaging authorized for single batteries only"
-  //   //     ]
-  //   //   }
-  //   // },
-
-  //   packagingOptions: [
-  //     {
-  //       id: "A13.7.2.1.combination_packaging",
-  //       type: "combination",
-  //       description: "Lithium cells and batteries in combination packaging with non-metallic inner packaging",
-  //       innerPackaging: {
-  //         required: true,
-  //         description: "Non-metallic inner packaging that completely encloses cell or battery",
-  //         materials: ["Non-metallic materials"],
-  //         specialRequirements: [
-  //           "Must completely enclose the cell or battery",
-  //           "Must separate cells/batteries from contact with equipment, devices, or conductive materials",
-  //           "Must prevent contact with metal in packaging"
-  //         ]
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "boxes",
-  //             containers: [
-  //               { code: "4A", material: "steel", description: "Metal box" },
-  //               { code: "4B", material: "aluminum", description: "Aluminum box" },
-  //               { code: "4N", material: "other_metal", description: "Other metal box" },
-  //               { code: "4C1", material: "natural_wood", description: "Ordinary natural wood box" },
-  //               { code: "4C2", material: "natural_wood", description: "Sift-proof natural wood box" },
-  //               { code: "4D", material: "plywood", description: "Plywood box" },
-  //               { code: "4F", material: "reconstituted_wood", description: "Reconstituted wood box" },
-  //               { code: "4G", material: "fiberboard", description: "Fiberboard box" },
-  //               { code: "4H1", material: "plastic", description: "Expanded plastic box" },
-  //               { code: "4H2", material: "plastic", description: "Solid plastic box" }
-  //             ]
-  //           },
-  //           {
-  //             type: "drums",
-  //             containers: [
-  //               { code: "1A2", material: "steel", description: "Removable head steel drum" },
-  //               { code: "1B2", material: "aluminum", description: "Removable head aluminum drum" },
-  //               { code: "1N2", material: "other_metal", description: "Removable head metal drum other than steel or aluminum" },
-  //               { code: "1G", material: "fiber", description: "Fiber drum" },
-  //               { code: "1H2", material: "plastic", description: "Removable head plastic drum" },
-  //               { code: "1D", material: "plywood", description: "Plywood drum" }
-  //             ]
-  //           },
-  //           {
-  //             type: "jerricans",
-  //             containers: [
-  //               { code: "3H2", material: "plastic", description: "Plastic removable head jerrican" },
-  //               { code: "3A2", material: "steel", description: "Removable head steel jerrican" },
-  //               { code: "3B2", material: "aluminum", description: "Removable head aluminum jerrican" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     },
-  //     {
-  //       id: "A13.7.2.2.large_batteries_12kg",
-  //       type: "single",
-  //       description: "Batteries exceeding 12kg with strong outer packaging or protective enclosures",
-  //       innerPackaging: {
-  //         required: false
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "strong_packaging_large_battery",
-  //             containers: [
-  //               { code: "STRONG_OUTER", material: "strong_material", description: "Strong outer packaging for batteries >12kg" },
-  //               { code: "PROTECTIVE_ENCLOSURE", material: "protective_material", description: "Protective enclosure (fully enclosed wooden slatted crates)" },
-  //               { code: "PALLET_HANDLING", material: "pallet_platform", description: "Pallets or other handling devices for large batteries" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     },
-  //     {
-  //       id: "A13.7.2.3.large_packaging_single",
-  //       type: "single",
-  //       description: "Large packaging meeting PG II performance level for single batteries",
-  //       innerPackaging: {
-  //         required: false
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "large_packaging",
-  //             containers: [
-  //               { code: "50A", material: "steel", description: "Metal large packaging with non-conductive lining" },
-  //               { code: "50B", material: "aluminum", description: "Aluminum large packaging with non-conductive lining" },
-  //               { code: "50N", material: "other_metal", description: "Other metal large packaging with non-conductive lining" },
-  //               { code: "50H", material: "plastic", description: "Rigid plastic large packaging" },
-  //               { code: "50C", material: "natural_wood", description: "Natural wood large packaging" },
-  //               { code: "50D", material: "plywood", description: "Plywood large packaging" },
-  //               { code: "50F", material: "reconstituted_wood", description: "Reconstituted wood large packaging" },
-  //               { code: "50G", material: "fiberboard", description: "Rigid fiberboard large packaging" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     }
-  //   ],
-
-  //   conditionalRequirements: [
-  //     {
-  //       condition: "lithium_a3392_compliance",
-  //       description: "Lithium cells and batteries must meet A3.3.9.2 requirements",
-  //       // requirement: "Ensure lithium cells and batteries meet requirements of paragraph A3.3.9.2 except A3.3.9.2.3",
-  //       // applicableContainers: ["A13.7.2.1.combination_packaging", "A13.7.2.2.large_batteries_12kg", "A13.7.2.3.large_packaging_single"]
-  //     },
-  //     {
-  //       condition: "non_metallic_inner_packaging",
-  //       description: "Non-metallic inner packaging required for combination packaging",
-  //       // requirement: "Package in non-metallic inner packaging that completely encloses cell or battery",
-  //       // applicableContainers: ["A13.7.2.1.combination_packaging"]
-  //     },
-  //     {
-  //       condition: "separation_from_conductive_materials",
-  //       description: "Separation from equipment and conductive materials required",
-  //       // requirement: "Separate cells/batteries from contact with equipment, other devices, or conductive materials in packaging",
-  //       // applicableContainers: ["A13.7.2.1.combination_packaging"]
-  //     },
-  //     {
-  //       condition: "packing_group_ii_performance",
-  //       description: "Packing Group II performance level required",
-  //       // requirement: "Packaging meeting PG II performance level required (except hand-carried spare batteries)",
-  //       // applicableContainers: ["A13.7.2.1.combination_packaging", "A13.7.2.3.large_packaging_single"]
-  //     },
-  //     {
-  //       condition: "hand_carried_exemption",
-  //       description: "UN specification packaging not required for hand-carried spare batteries",
-  //       // requirement: "UN specification packaging not required when individual spare batteries hand-carried per Chapter 3",
-  //       // applicableContainers: ["A13.7.2.1.combination_packaging"]
-  //     },
-  //     {
-  //       condition: "large_battery_12kg_exemption",
-  //       description: "Alternative packaging for batteries exceeding 12kg",
-  //       // requirement: "Batteries >12kg with strong outer casing may use strong outer packaging instead of UN performance packaging",
-  //       // applicableContainers: ["A13.7.2.2.large_batteries_12kg"]
-  //     },
-  //     {
-  //       condition: "large_battery_security",
-  //       description: "Security requirements for large batteries",
-  //       // requirement: "Secure batteries to prevent inadvertent movement, ensure terminals don't support weight of other elements",
-  //       // applicableContainers: ["A13.7.2.2.large_batteries_12kg"]
-  //     },
-  //     {
-  //       condition: "large_battery_p4_identification",
-  //       description: "P4 identification required for passenger movement",
-  //       // requirement: "Identify batteries or assemblies packaged per A13.7.2.2 as 'P4' for movement with passengers",
-  //       // applicableContainers: ["A13.7.2.2.large_batteries_12kg"]
-  //     },
-  //     {
-  //       condition: "large_packaging_single_battery",
-  //       description: "Large packaging authorized for single battery only",
-  //       // requirement: "Large packagings meeting PG II performance level authorized for a single battery",
-  //       // applicableContainers: ["A13.7.2.3.large_packaging_single"]
-  //     },
-  //     {
-  //       condition: "metal_packaging_non_conductive_lining",
-  //       description: "Metal large packaging requires non-conductive lining",
-  //       // requirement: "Metal large packaging must be fitted with electrically non-conductive lining material",
-  //       // applicableContainers: ["A13.7.2.3.large_packaging_single"]
-  //     },
-  //     {
-  //       condition: "compatibility_restrictions",
-  //       description: "Prohibition on mixing with certain hazardous materials",
-  //       // requirement: "Do not place lithium batteries (UN3480/UN3090) in same package/overpack as Class 1 (except 1.4S), 2.1, 3, 4.1, or 5.1",
-  //       // applicableContainers: ["A13.7.2.1.combination_packaging", "A13.7.2.2.large_batteries_12kg", "A13.7.2.3.large_packaging_single"]
-  //     }
-  //   ],
-
-  //   referencedParagraphs: ["A13.7", "A13.7.1", "A13.7.2", "A13.7.2.1", "A13.7.2.2", "A13.7.2.3", "A13.7.3", "A3.3.9.2", "Chapter 3"]
-  // },
-
-  // "A13.8.": {
-  //   title: "Lithium Batteries Contained in Equipment",
-  //   description: "Packaging requirements for equipment containing installed lithium batteries including suitable outer packaging, equipment security, and special provisions for vehicles and airdrop missions",
-  //   materials: ["Equipment with lithium batteries", "Electronic equipment", "Vehicles with lithium batteries", "Engines with lithium batteries", "Mechanical equipment with lithium batteries"],
-  //   hazardClasses: [9],
-
-  //   // specialRequirements: [
-  //   //   "Lithium cells and batteries must meet requirements of paragraph A3.3.9.2 (except A3.3.9.2.3)",
-  //   //   "UN specification packaging is not required",
-  //   //   "Pack equipment in outer packaging of suitable material with adequate strength and design",
-  //   //   "Equipment may provide equivalent protection if lithium cells/batteries are adequately protected",
-  //   //   "Secure equipment to prevent movement, short circuit, and accidental operation during transport",
-  //   //   "Package additional cells or batteries in accordance with A13.7.2",
-  //   //   "Securely fasten lithium batteries in vehicle/engine/equipment battery holders",
-  //   //   "Use non-conductive caps covering terminals entirely for vehicle batteries"
-  //   // ],
-
-  //   // quantityLimits: {
-  //   //   passengerAircraft: {
-  //   //     maxPerPackage: "Per A3.3.9.2 requirements for contained batteries",
-  //   //     maxPerInnerReceptacle: "Battery capacity as installed in equipment",
-  //   //     additionalRestrictions: [
-  //   //       "Equipment must provide adequate protection for contained batteries",
-  //   //       "Additional spare batteries must follow A13.7.2 requirements"
-  //   //     ]
-  //   //   },
-  //   //   cargoAircraft: {
-  //   //     maxPerPackage: "Per A3.3.9.2 requirements for contained batteries",
-  //   //     maxPerInnerReceptacle: "Battery capacity as installed in equipment",
-  //   //     additionalRestrictions: [
-  //   //       "Equipment must provide adequate protection for contained batteries",
-  //   //       "Additional spare batteries must follow A13.7.2 requirements"
-  //   //     ]
-  //   //   }
-  //   // },
-
-  //   packagingOptions: [
-  //     {
-  //       id: "A13.8.2.equipment_suitable_packaging",
-  //       type: "single",
-  //       description: "Equipment with lithium batteries in suitable outer packaging",
-  //       innerPackaging: {
-  //         required: false
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "suitable_outer_packaging",
-  //             containers: [
-  //               { code: "SUITABLE_BOX", material: "suitable_material", description: "Outer packaging of suitable material with adequate strength and design" },
-  //               { code: "ADEQUATE_CONTAINER", material: "adequate_material", description: "Container with adequate strength in relation to capacity and intended use" },
-  //               { code: "PROTECTIVE_PACKAGING", material: "protective_material", description: "Packaging providing adequate protection for equipment and batteries" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     },
-  //     {
-  //       id: "A13.8.2.equipment_equivalent_protection",
-  //       type: "single",
-  //       description: "Equipment providing equivalent protection for contained lithium batteries",
-  //       innerPackaging: {
-  //         required: false
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "equipment_protection",
-  //             containers: [
-  //               { code: "EQUIPMENT_PROTECTED", material: "equipment_casing", description: "Equipment providing equivalent protection for lithium batteries" },
-  //               { code: "SELF_PROTECTED", material: "equipment_housing", description: "Self-protecting equipment housing for contained batteries" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     },
-  //     {
-  //       id: "A13.8.2.3.vehicle_equipment",
-  //       type: "single",
-  //       description: "Vehicles, engines, or mechanical equipment with secured lithium batteries",
-  //       innerPackaging: {
-  //         required: false
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "vehicle_equipment_transport",
-  //             containers: [
-  //               { code: "VEHICLE_LITHIUM", material: "vehicle_platform", description: "Vehicle with securely fastened lithium batteries in holders" },
-  //               { code: "ENGINE_LITHIUM", material: "engine_platform", description: "Engine with protected lithium batteries and non-conductive caps" },
-  //               { code: "MECHANICAL_EQUIPMENT", material: "equipment_platform", description: "Mechanical equipment with secured lithium batteries" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     },
-  //     {
-  //       id: "A13.8.3.airdrop_equipment",
-  //       type: "single",
-  //       description: "Electronic equipment for airdrop missions with lithium batteries",
-  //       innerPackaging: {
-  //         required: false
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "airdrop_transport",
-  //             containers: [
-  //               { code: "RUCKSACK", material: "fabric_container", description: "Electronic equipment hand-carried in rucksack" },
-  //               { code: "AIRDROP_CONTAINER", material: "shipping_container", description: "Equipment in shipping (airdrop) container" },
-  //               { code: "DOOR_BUNDLE", material: "bundle_platform", description: "Equipment packaged as door bundle" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     }
-  //   ],
-
-  //   conditionalRequirements: [
-  //     {
-  //       condition: "lithium_a3392_compliance",
-  //       description: "Lithium cells and batteries must meet A3.3.9.2 requirements",
-  //       // requirement: "Ensure lithium cells and batteries meet requirements of paragraph A3.3.9.2 except A3.3.9.2.3",
-  //       // applicableContainers: ["A13.8.2.equipment_suitable_packaging", "A13.8.2.equipment_equivalent_protection", "A13.8.2.3.vehicle_equipment", "A13.8.3.airdrop_equipment"]
-  //     },
-  //     {
-  //       condition: "no_un_specification_required",
-  //       description: "UN specification packaging not required for equipment with batteries",
-  //       // requirement: "UN specification packaging is not required for equipment containing lithium batteries",
-  //       // applicableContainers: ["A13.8.2.equipment_suitable_packaging", "A13.8.2.equipment_equivalent_protection", "A13.8.2.3.vehicle_equipment", "A13.8.3.airdrop_equipment"]
-  //     },
-  //     {
-  //       condition: "suitable_outer_packaging",
-  //       description: "Suitable outer packaging with adequate strength required",
-  //       // requirement: "Pack in outer packaging of suitable material with adequate strength and design in relation to capacity and intended use",
-  //       // applicableContainers: ["A13.8.2.equipment_suitable_packaging"]
-  //     },
-  //     {
-  //       condition: "equipment_equivalent_protection",
-  //       description: "Equipment may provide equivalent protection",
-  //       // requirement: "Equipment may be used without outer packaging if lithium cells/batteries are afforded equivalent protection by equipment",
-  //       // applicableContainers: ["A13.8.2.equipment_equivalent_protection"]
-  //     },
-  //     {
-  //       condition: "equipment_security_requirements",
-  //       description: "Equipment must be secured to prevent hazards",
-  //       // requirement: "Secure equipment to prevent movement, short circuit, and accidental operation during transport",
-  //       // applicableContainers: ["A13.8.2.equipment_suitable_packaging", "A13.8.2.equipment_equivalent_protection", "A13.8.2.3.vehicle_equipment"]
-  //     },
-  //     {
-  //       condition: "additional_batteries_a1372",
-  //       description: "Additional cells or batteries must follow A13.7.2",
-  //       // requirement: "Package additional cells or batteries in accordance with A13.7.2",
-  //       // applicableContainers: ["A13.8.2.equipment_suitable_packaging", "A13.8.2.equipment_equivalent_protection"]
-  //     },
-  //     {
-  //       condition: "mixed_packaging_marking",
-  //       description: "Proper shipping name marking for mixed battery packaging",
-  //       // requirement: "Mark package with 'Lithium metal batteries packed with equipment' or 'Lithium ion batteries packed with equipment' when containing both types",
-  //       // applicableContainers: ["A13.8.2.equipment_suitable_packaging", "A13.8.2.equipment_equivalent_protection"]
-  //     },
-  //     {
-  //       condition: "vehicle_battery_fastening",
-  //       description: "Vehicle lithium battery securing requirements",
-  //       // requirement: "Securely fasten lithium batteries in battery holder of vehicle, engine, or mechanical equipment",
-  //       // applicableContainers: ["A13.8.2.3.vehicle_equipment"]
-  //     },
-  //     {
-  //       condition: "vehicle_battery_protection",
-  //       description: "Vehicle lithium battery terminal protection",
-  //       // requirement: "Protect batteries to prevent damage and short circuits using non-conductive caps covering terminals entirely",
-  //       // applicableContainers: ["A13.8.2.3.vehicle_equipment"]
-  //     },
-  //     {
-  //       condition: "airdrop_chapter3_authorization",
-  //       description: "Airdrop missions must be authorized per Chapter 3",
-  //       // requirement: "Airdrop missions must be authorized according to Chapter 3 of this manual",
-  //       // applicableContainers: ["A13.8.3.airdrop_equipment"]
-  //     },
-  //     {
-  //       condition: "airdrop_mission_packaging_options",
-  //       description: "Airdrop packaging depends on mission requirements",
-  //       // requirement: "Pack electronic equipment in rucksack, shipping container, or as door bundle depending on mission requirements",
-  //       // applicableContainers: ["A13.8.3.airdrop_equipment"]
-  //     },
-  //     {
-  //       condition: "airdrop_no_sddg_certification",
-  //       description: "No SDDG certification required for airdrop equipment",
-  //       // requirement: "Shipper's Declaration for Dangerous Goods certification is not required for airdrop equipment",
-  //       // applicableContainers: ["A13.8.3.airdrop_equipment"]
-  //     }
-  //   ],
-
-  //   referencedParagraphs: ["A13.8", "A13.8.1", "A13.8.2", "A13.8.2.1", "A13.8.2.2", "A13.8.2.3", "A13.8.3", "A13.7.2", "A3.3.9.2", "Chapter 3"]
-  // },
-
-  // "A13.9.": {
-  //   title: "Lithium Batteries Packed With Equipment",
-  //   description: "Packaging requirements for lithium batteries packed together with equipment including inner packaging to prevent short circuits and outer packaging meeting PG II performance standards",
-  //   materials: ["Lithium batteries packed with equipment", "Spare lithium batteries with equipment", "Electronic equipment with separate lithium batteries"],
-  //   hazardClasses: [9],
-
-  //   // specialRequirements: [
-  //   //   "Lithium cells and batteries must meet requirements of paragraph A3.3.9.2 (except A3.3.9.2.3)",
-  //   //   "Pack cells/batteries in inner packaging that completely encloses cell or battery",
-  //   //   "Inner packaging must prevent short circuits including shifting that could lead to short circuits",
-  //   //   "Use packaging meeting Packing Group II performance requirements per A13.7.2",
-  //   //   "Large packaging authorized for batteries packed with single piece of equipment",
-  //   //   "Metal large packaging requires electrically non-conductive lining material",
-  //   //   "For Chapter 3 missions: equipment may be hand-carried in rucksack or airdrop packaging"
-  //   // ],
-
-  //   // quantityLimits: {
-  //   //   passengerAircraft: {
-  //   //     maxPerPackage: "Per A3.3.9.2 requirements for packed batteries",
-  //   //     maxPerInnerReceptacle: "Individual battery capacity in inner packaging",
-  //   //     additionalRestrictions: [
-  //   //       "Must use PG II performance packaging per A13.7.2",
-  //   //       "Large packaging authorized for single equipment piece only"
-  //   //     ]
-  //   //   },
-  //   //   cargoAircraft: {
-  //   //     maxPerPackage: "Per A3.3.9.2 requirements for packed batteries",
-  //   //     maxPerInnerReceptacle: "Individual battery capacity in inner packaging",
-  //   //     additionalRestrictions: [
-  //   //       "Must use PG II performance packaging per A13.7.2",
-  //   //       "Large packaging authorized for single equipment piece only"
-  //   //     ]
-  //   //   }
-  //   // },
-
-  //   packagingOptions: [
-  //     {
-  //       id: "A13.9.2.1.batteries_then_equipment",
-  //       type: "combination",
-  //       description: "Lithium batteries in PG II packaging then packed with equipment",
-  //       innerPackaging: {
-  //         required: true,
-  //         description: "Inner packaging that completely encloses cell or battery and prevents short circuits",
-  //         materials: ["Non-conductive materials"],
-  //         specialRequirements: [
-  //           "Must completely enclose the cell or battery",
-  //           "Must prevent short circuits including shifting that could lead to short circuits",
-  //           "Inner packaging must prevent movement during transport"
-  //         ]
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "pg_ii_performance_packaging",
-  //             containers: [
-  //               { code: "4A", material: "steel", description: "Steel box meeting PG II performance" },
-  //               { code: "4B", material: "aluminum", description: "Aluminum box meeting PG II performance" },
-  //               { code: "4C1", material: "natural_wood", description: "Ordinary natural wood box meeting PG II performance" },
-  //               { code: "4C2", material: "natural_wood", description: "Sift-proof natural wood box meeting PG II performance" },
-  //               { code: "4D", material: "plywood", description: "Plywood box meeting PG II performance" },
-  //               { code: "4F", material: "reconstituted_wood", description: "Reconstituted wood box meeting PG II performance" },
-  //               { code: "4G", material: "fiberboard", description: "Fiberboard box meeting PG II performance" },
-  //               { code: "4H1", material: "plastic", description: "Expanded plastic box meeting PG II performance" },
-  //               { code: "4H2", material: "plastic", description: "Solid plastic box meeting PG II performance" },
-  //               { code: "4N", material: "other_metal", description: "Other metal box meeting PG II performance" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     },
-  //     {
-  //       id: "A13.9.2.2.combined_packaging",
-  //       type: "combination",
-  //       description: "Batteries and equipment packed together in PG II performance packaging",
-  //       innerPackaging: {
-  //         required: true,
-  //         description: "Inner packaging that completely encloses cell or battery and prevents short circuits",
-  //         materials: ["Non-conductive materials"],
-  //         specialRequirements: [
-  //           "Must completely enclose the cell or battery",
-  //           "Must prevent short circuits including shifting that could lead to short circuits",
-  //           "Must accommodate both batteries and equipment"
-  //         ]
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "combined_equipment_packaging",
-  //             containers: [
-  //               { code: "4A", material: "steel", description: "Steel box for combined battery and equipment packaging" },
-  //               { code: "4B", material: "aluminum", description: "Aluminum box for combined battery and equipment packaging" },
-  //               { code: "4G", material: "fiberboard", description: "Fiberboard box for combined battery and equipment packaging" },
-  //               { code: "4H2", material: "plastic", description: "Solid plastic box for combined battery and equipment packaging" },
-  //               { code: "1A2", material: "steel", description: "Removable head steel drum for combined packaging" },
-  //               { code: "1B2", material: "aluminum", description: "Removable head aluminum drum for combined packaging" },
-  //               { code: "1H2", material: "plastic", description: "Removable head plastic drum for combined packaging" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     },
-  //     {
-  //       id: "A13.9.2.3.large_packaging_equipment",
-  //       type: "combination",
-  //       description: "Large packaging for batteries packed with single piece of equipment",
-  //       innerPackaging: {
-  //         required: true,
-  //         description: "Inner packaging that completely encloses batteries and prevents short circuits",
-  //         materials: ["Non-conductive materials"],
-  //         specialRequirements: [
-  //           "Must completely enclose batteries",
-  //           "Must prevent short circuits including shifting",
-  //           "Must accommodate single piece of equipment"
-  //         ]
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "large_packaging_equipment",
-  //             containers: [
-  //               { code: "50A", material: "steel", description: "Metal large packaging with non-conductive lining for equipment" },
-  //               { code: "50B", material: "aluminum", description: "Aluminum large packaging with non-conductive lining for equipment" },
-  //               { code: "50N", material: "other_metal", description: "Other metal large packaging with non-conductive lining for equipment" },
-  //               { code: "50H", material: "plastic", description: "Rigid plastic large packaging for equipment" },
-  //               { code: "50C", material: "natural_wood", description: "Natural wood large packaging for equipment" },
-  //               { code: "50D", material: "plywood", description: "Plywood large packaging for equipment" },
-  //               { code: "50F", material: "reconstituted_wood", description: "Reconstituted wood large packaging for equipment" },
-  //               { code: "50G", material: "fiberboard", description: "Rigid fiberboard large packaging for equipment" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     },
-  //     {
-  //       id: "A13.9.3.airdrop_equipment",
-  //       type: "single",
-  //       description: "Electronic equipment with batteries for Chapter 3 airdrop missions",
-  //       innerPackaging: {
-  //         required: true,
-  //         description: "Inner packaging preventing short circuits for batteries packed with equipment",
-  //         materials: ["Non-conductive materials"],
-  //         specialRequirements: [
-  //           "Must prevent battery short circuits",
-  //           "Must secure batteries to prevent shifting"
-  //         ]
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "airdrop_mission_packaging",
-  //             containers: [
-  //               { code: "RUCKSACK_EQUIPMENT", material: "fabric_container", description: "Electronic equipment with batteries hand-carried in rucksack" },
-  //               { code: "AIRDROP_CONTAINER_EQUIPMENT", material: "shipping_container", description: "Equipment with batteries in shipping (airdrop) container" },
-  //               { code: "DOOR_BUNDLE_EQUIPMENT", material: "bundle_platform", description: "Equipment with batteries packaged as door bundle" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     }
-  //   ],
-
-  //   conditionalRequirements: [
-  //     {
-  //       condition: "lithium_a3392_compliance",
-  //       description: "Lithium cells and batteries must meet A3.3.9.2 requirements",
-  //       // requirement: "Ensure lithium cells and batteries meet requirements of paragraph A3.3.9.2 except A3.3.9.2.3",
-  //       // applicableContainers: ["A13.9.2.1.batteries_then_equipment", "A13.9.2.2.combined_packaging", "A13.9.2.3.large_packaging_equipment", "A13.9.3.airdrop_equipment"]
-  //     },
-  //     {
-  //       condition: "inner_packaging_complete_enclosure",
-  //       description: "Inner packaging must completely enclose batteries",
-  //       // requirement: "Pack cells/batteries in inner packaging that completely encloses cell or battery",
-  //       // applicableContainers: ["A13.9.2.1.batteries_then_equipment", "A13.9.2.2.combined_packaging", "A13.9.2.3.large_packaging_equipment", "A13.9.3.airdrop_equipment"]
-  //     },
-  //     {
-  //       condition: "short_circuit_prevention",
-  //       description: "Inner packaging must prevent short circuits and shifting",
-  //       // requirement: "Inner packaging must prevent short circuits including shifting that could lead to short circuits",
-  //       // applicableContainers: ["A13.9.2.1.batteries_then_equipment", "A13.9.2.2.combined_packaging", "A13.9.2.3.large_packaging_equipment", "A13.9.3.airdrop_equipment"]
-  //     },
-  //     {
-  //       condition: "packing_group_ii_performance_a1372",
-  //       description: "Packaging must meet PG II performance requirements per A13.7.2",
-  //       // requirement: "Pack in packagings meeting Packing Group II performance requirements as specified in A13.7.2",
-  //       // applicableContainers: ["A13.9.2.1.batteries_then_equipment", "A13.9.2.2.combined_packaging", "A13.9.2.3.large_packaging_equipment"]
-  //     },
-  //     {
-  //       condition: "batteries_then_equipment_sequence",
-  //       description: "Option to pack batteries in PG II packaging then pack with equipment",
-  //       // requirement: "Pack in packagings meeting PG II performance requirements per A13.7.2 then pack with equipment",
-  //       // applicableContainers: ["A13.9.2.1.batteries_then_equipment"]
-  //     },
-  //     {
-  //       condition: "combined_equipment_packaging",
-  //       description: "Option to pack batteries with equipment in combined PG II packaging",
-  //       // requirement: "Pack batteries with equipment in packagings meeting PG II performance requirements per A13.7.2",
-  //       // applicableContainers: ["A13.9.2.2.combined_packaging"]
-  //     },
-  //     {
-  //       condition: "large_packaging_single_equipment",
-  //       description: "Large packaging authorized for batteries with single equipment piece",
-  //       // requirement: "Large packagings meeting PG II performance level authorized for batteries packed with single piece of equipment",
-  //       // applicableContainers: ["A13.9.2.3.large_packaging_equipment"]
-  //     },
-  //     {
-  //       condition: "metal_large_packaging_non_conductive_lining",
-  //       description: "Metal large packaging requires non-conductive lining",
-  //       // requirement: "Metal large packaging must be fitted with electrically non-conductive lining material",
-  //       // applicableContainers: ["A13.9.2.3.large_packaging_equipment"]
-  //     },
-  //     {
-  //       condition: "chapter3_mission_authorization",
-  //       description: "Chapter 3 missions must be authorized",
-  //       // requirement: "Airdrop missions must be authorized according to Chapter 3 of this manual",
-  //       // applicableContainers: ["A13.9.3.airdrop_equipment"]
-  //     },
-  //     {
-  //       condition: "airdrop_packaging_mission_dependent",
-  //       description: "Airdrop packaging depends on mission requirements",
-  //       // requirement: "Electronic equipment may be hand-carried in rucksack, shipping container, or door bundle depending on mission requirements",
-  //       // applicableContainers: ["A13.9.3.airdrop_equipment"]
-  //     },
-  //     {
-  //       condition: "airdrop_no_sddg_certification_required",
-  //       description: "No SDDG certification required for Chapter 3 airdrop equipment",
-  //       // requirement: "Shipper's Declaration for Dangerous Goods certification is not required for Chapter 3 missions",
-  //       // applicableContainers: ["A13.9.3.airdrop_equipment"]
-  //     }
-  //   ],
-
-  //   referencedParagraphs: ["A13.9", "A13.9.1", "A13.9.2", "A13.9.2.1", "A13.9.2.2", "A13.9.2.3", "A13.9.3", "A13.7.2", "A3.3.9.2", "Chapter 3"]
-  // },
-
-  // "A13.10.": {
-  //   title: "Package Carbon Dioxide, Solid (Dry Ice)",
-  //   description: "Packaging and handling requirements for solid carbon dioxide (dry ice) including ventilation requirements, pressure release packaging, and special provisions for medical shipments",
-  //   materials: ["Carbon dioxide solid", "Dry ice", "Medical shipments with dry ice", "Non-hazardous shipments with dry ice"],
-  //   hazardClasses: [9],
-
-  //   // specialRequirements: [
-  //   //   "Dry ice is extremely cold and will damage human tissue on contact",
-  //   //   "Store only in well ventilated areas",
-  //   //   "Never store in hermetically or tightly sealed containers",
-  //   //   "Open cargo/access doors and emergency escape hatches for maximum ventilation during ground operations",
-  //   //   "Wrap in kraft paper and secure with tape",
-  //   //   "Use packaging designed to permit carbon dioxide gas release",
-  //   //   "Prevent pressure build-up that could rupture packaging",
-  //   //   "UN specification packaging is not required"
-  //   // ],
-
-  //   // quantityLimits: {
-  //   //   passengerAircraft: {
-  //   //     maxPerPackage: "Per applicable regulations for dry ice transport",
-  //   //     maxPerInnerReceptacle: "As required for maintaining product integrity",
-  //   //     additionalRestrictions: [
-  //   //       "Must use packaging that permits CO2 gas release",
-  //   //       "Packaging must prevent pressure rupture"
-  //   //     ]
-  //   //   },
-  //   //   cargoAircraft: {
-  //   //     maxPerPackage: "Per applicable regulations for dry ice transport",
-  //   //     maxPerInnerReceptacle: "As required for maintaining product integrity",
-  //   //     additionalRestrictions: [
-  //   //       "Must use packaging that permits CO2 gas release",
-  //   //       "Packaging must prevent pressure rupture"
-  //   //     ]
-  //   //   }
-  //   // },
-
-  //   packagingOptions: [
-  //     {
-  //       id: "A13.10.2.1.general_dry_ice",
-  //       type: "single",
-  //       description: "General dry ice packaging with kraft paper wrapping and pressure-release containers",
-  //       innerPackaging: {
-  //         required: true,
-  //         description: "Kraft paper wrapping secured with tape",
-  //         materials: ["Kraft paper"],
-  //         specialRequirements: [
-  //           "Wrap dry ice in kraft paper",
-  //           "Secure with tape",
-  //           "Allow for gas release"
-  //         ]
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "pressure_release_packaging",
-  //             containers: [
-  //               { code: "FIBERBOARD_BOX", material: "fiberboard", description: "Fiberboard box designed to permit CO2 gas release" },
-  //               { code: "POLYSTYRENE_FOAM", material: "foam", description: "Polystyrene foam container with gas release capability" },
-  //               { code: "SUITABLE_PACKAGING", material: "suitable_material", description: "Other suitable packaging designed for CO2 gas release" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     },
-  //     {
-  //       id: "A13.10.2.2.medical_shipments",
-  //       type: "single",
-  //       description: "DOD medical shipments with dry ice per DLAR 4145.21/TB MED 284/NAVSUPINST 4610.31A",
-  //       innerPackaging: {
-  //         required: true,
-  //         description: "Medical material packaging with dry ice cooling per DOD specifications",
-  //         materials: ["Medical grade materials", "Kraft paper"],
-  //         specialRequirements: [
-  //           "Follow DLAR 4145.21/TB MED 284/NAVSUPINST 4610.31A requirements",
-  //           "Maintain freeze or chill environment for medical material",
-  //           "Ensure proper dry ice quantity for shipping duration"
-  //         ]
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "medical_shipping_packaging",
-  //             containers: [
-  //               { code: "MEDICAL_CONTAINER", material: "medical_grade", description: "Medical shipping container per DOD specifications" },
-  //               { code: "INSULATED_BOX", material: "insulated_material", description: "Insulated container for medical material with dry ice" },
-  //               { code: "MEDICAL_FOAM", material: "foam", description: "Medical grade foam container with CO2 release" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     },
-  //     {
-  //       id: "A13.10.2.3.non_hazardous_shipments",
-  //       type: "single",
-  //       description: "Non-hazardous shipments requiring dry ice per technical directives or industry standards",
-  //       innerPackaging: {
-  //         required: true,
-  //         description: "Kraft paper wrapping for dry ice with non-hazardous material",
-  //         materials: ["Kraft paper", "Suitable wrapping materials"],
-  //         specialRequirements: [
-  //           "Follow technical directives or industry standards",
-  //           "Wrap dry ice appropriately for non-hazardous material protection",
-  //           "Ensure compatibility with shipped material"
-  //         ]
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "non_hazardous_shipping_packaging",
-  //             containers: [
-  //               { code: "FIBERBOARD_BOX_NH", material: "fiberboard", description: "Fiberboard box for non-hazardous shipments with dry ice" },
-  //               { code: "POLYSTYRENE_FOAM_NH", material: "foam", description: "Polystyrene foam container for non-hazardous shipments" },
-  //               { code: "INDUSTRY_STANDARD", material: "suitable_material", description: "Industry standard packaging with CO2 gas release capability" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     }
-  //   ],
-
-  //   conditionalRequirements: [
-  //     {
-  //       condition: "extreme_cold_hazard",
-  //       description: "Dry ice extreme cold hazard awareness",
-  //       // requirement: "Dry ice is extremely cold and will damage human tissue on contact",
-  //       // applicableContainers: ["A13.10.2.1.general_dry_ice", "A13.10.2.2.medical_shipments", "A13.10.2.3.non_hazardous_shipments"]
-  //     },
-  //     {
-  //       condition: "ventilation_requirement",
-  //       description: "Well ventilated storage areas required",
-  //       // requirement: "Store only in well ventilated areas, never in hermetically or tightly sealed containers",
-  //       // applicableContainers: ["A13.10.2.1.general_dry_ice", "A13.10.2.2.medical_shipments", "A13.10.2.3.non_hazardous_shipments"]
-  //     },
-  //     {
-  //       condition: "aircraft_ventilation_procedure",
-  //       description: "Aircraft ventilation procedures during ground operations",
-  //       // requirement: "Open cargo/access doors and emergency escape hatches for maximum ventilation during ground operations",
-  //       // applicableContainers: ["A13.10.2.1.general_dry_ice", "A13.10.2.2.medical_shipments", "A13.10.2.3.non_hazardous_shipments"]
-  //     },
-  //     {
-  //       condition: "kraft_paper_wrapping",
-  //       description: "Kraft paper wrapping and taping required",
-  //       // requirement: "Wrap in kraft paper and secure with tape",
-  //       // applicableContainers: ["A13.10.2.1.general_dry_ice", "A13.10.2.2.medical_shipments", "A13.10.2.3.non_hazardous_shipments"]
-  //     },
-  //     {
-  //       condition: "pressure_release_packaging",
-  //       description: "Packaging must permit CO2 gas release",
-  //       // requirement: "Use packaging designed and constructed to permit release of carbon dioxide gas",
-  //       // applicableContainers: ["A13.10.2.1.general_dry_ice", "A13.10.2.2.medical_shipments", "A13.10.2.3.non_hazardous_shipments"]
-  //     },
-  //     {
-  //       condition: "pressure_rupture_prevention",
-  //       description: "Packaging must prevent pressure build-up rupture",
-  //       // requirement: "Prevent build-up of pressure that could rupture the packaging",
-  //       // applicableContainers: ["A13.10.2.1.general_dry_ice", "A13.10.2.2.medical_shipments", "A13.10.2.3.non_hazardous_shipments"]
-  //     },
-  //     {
-  //       condition: "no_un_specification_required",
-  //       description: "UN specification packaging not required",
-  //       // requirement: "UN specification packaging is not required for dry ice shipments",
-  //       // applicableContainers: ["A13.10.2.1.general_dry_ice", "A13.10.2.2.medical_shipments", "A13.10.2.3.non_hazardous_shipments"]
-  //     },
-  //     {
-  //       condition: "dod_medical_compliance",
-  //       description: "DOD medical shipments must follow specific regulations",
-  //       // requirement: "Prepare DOD medical shipments per DLAR 4145.21/TB MED 284/NAVSUPINST 4610.31A",
-  //       // applicableContainers: ["A13.10.2.2.medical_shipments"]
-  //     },
-  //     {
-  //       condition: "freeze_chill_environment_maintenance",
-  //       description: "Medical material must maintain required temperature environment",
-  //       // requirement: "Maintain freeze or chill environment for medical material during shipment",
-  //       // applicableContainers: ["A13.10.2.2.medical_shipments"]
-  //     },
-  //     {
-  //       condition: "technical_directive_compliance",
-  //       description: "Non-hazardous shipments must follow technical directives or industry standards",
-  //       // requirement: "Prepare non-hazardous shipments requiring dry ice according to technical directives or industry standards",
-  //       // applicableContainers: ["A13.10.2.3.non_hazardous_shipments"]
-  //     },
-  //     {
-  //       condition: "suitable_outer_packaging_co2",
-  //       description: "Suitable outer packaging for CO2 gas release",
-  //       // requirement: "Ensure outer packaging is fiberboard boxes, polystyrene foam, or other suitable packaging designed for CO2 gas release",
-  //       // applicableContainers: ["A13.10.2.3.non_hazardous_shipments"]
-  //     }
-  //   ],
-
-  //   referencedParagraphs: ["A13.10", "A13.10.1", "A13.10.2", "A13.10.2.1", "A13.10.2.2", "A13.10.2.3", "DLAR 4145.21", "TB MED 284", "NAVSUPINST 4610.31A"]
-  // },
-
-  // "A13.11.": {
-  //   title: "Package Magnetized Material",
-  //   description: "Packaging requirements for magnetized materials including magnetic field shielding, distance requirements, measurement protocols, and special provisions for magnetic tubes and susceptible items",
-  //   materials: ["Magnetized materials", "Magnetic tubes", "Magnetically susceptible items", "Magnetic compass deviation items"],
-  //   hazardClasses: [9],
-
-  //   // specialRequirements: [
-  //   //   "Do not store closer than 4.6m (15 feet) to compass sensing devices or magnetically affected devices",
-  //   //   "Shield magnetic materials to reduce field strength to ≤5.25 milligauss or ≤2° compass deviation at 4.6m",
-  //   //   "Use properly operational meters for magnetic field measurement",
-  //   //   "Measure with two different devices whenever possible",
-  //   //   "Provide blocking and bracing as required",
-  //   //   "Package magnetic tubes individually per MIL-E-75 compliance",
-  //   //   "Maintain minimum 102mm (4 inches) distance between magnetic surface and innermost container",
-  //   //   "UN specification packaging is not required"
-  //   // ],
-
-  //   // quantityLimits: {
-  //   //   passengerAircraft: {
-  //   //     maxPerPackage: "Magnetic field strength ≤0.00525 gauss at 4.6m (15 feet)",
-  //   //     maxPerInnerReceptacle: "Per individual item magnetic field requirements",
-  //   //     additionalRestrictions: [
-  //   //       "Field strength >0.00525 gauss at 15 feet is forbidden for air movement",
-  //   //       "Must not exceed 5.25 milligauss or 2° compass deviation at 15 feet when shielded"
-  //   //     ]
-  //   //   },
-  //   //   cargoAircraft: {
-  //   //     maxPerPackage: "Magnetic field strength ≤0.00525 gauss at 4.6m (15 feet)",
-  //   //     maxPerInnerReceptacle: "Per individual item magnetic field requirements",
-  //   //     additionalRestrictions: [
-  //   //       "Field strength >0.00525 gauss at 15 feet is forbidden for air movement",
-  //   //       "Must not exceed 5.25 milligauss or 2° compass deviation at 15 feet when shielded"
-  //   //     ]
-  //   //   }
-  //   // },
-
-  //   packagingOptions: [
-  //     {
-  //       id: "A13.11.2.shielded_magnetic_materials",
-  //       type: "single",
-  //       description: "Magnetic materials with shielding to reduce magnetic field strength",
-  //       innerPackaging: {
-  //         required: true,
-  //         description: "Magnetic shielding materials to reduce field strength",
-  //         materials: ["Magnetic shielding materials", "Mu-metal", "Steel shielding"],
-  //         specialRequirements: [
-  //           "Shield to reduce magnetic field strength to ≤5.25 milligauss at 4.6m",
-  //           "Shield to reduce compass deviation to ≤2° at 4.6m",
-  //           "Verify shielding effectiveness with properly operational meters"
-  //         ]
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "magnetic_material_packaging",
-  //             containers: [
-  //               { code: "SHIELDED_CONTAINER", material: "shielded_material", description: "Container with magnetic shielding for field reduction" },
-  //               { code: "MAGNETIC_BOX", material: "suitable_material", description: "Suitable container with magnetic field containment" },
-  //               { code: "PROTECTED_PACKAGING", material: "protective_material", description: "Packaging with magnetic field protection and blocking/bracing" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     },
-  //     {
-  //       id: "A13.11.2.magnetic_tubes_mil_e_75",
-  //       type: "single",
-  //       description: "Magnetic tubes packaged individually in compliance with MIL-E-75",
-  //       innerPackaging: {
-  //         required: true,
-  //         description: "Individual packaging for magnetic tubes per MIL-E-75 specifications",
-  //         materials: ["MIL-E-75 compliant materials"],
-  //         specialRequirements: [
-  //           "Package magnetic tubes individually",
-  //           "Comply with MIL-E-75 requirements",
-  //           "Ensure proper individual tube isolation"
-  //         ]
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "magnetic_tube_packaging",
-  //             containers: [
-  //               { code: "MIL_E_75_CONTAINER", material: "mil_spec_material", description: "MIL-E-75 compliant container for magnetic tubes" },
-  //               { code: "INDIVIDUAL_TUBE_BOX", material: "suitable_material", description: "Individual packaging container for each magnetic tube" },
-  //               { code: "MAGNETIC_TUBE_SHIELD", material: "shielded_material", description: "Shielded container for individual magnetic tube packaging" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     },
-  //     {
-  //       id: "A13.11.2.magnetically_susceptible_items",
-  //       type: "single",
-  //       description: "Magnetically susceptible items with protective distance requirements",
-  //       innerPackaging: {
-  //         required: true,
-  //         description: "Protective packaging maintaining minimum distance from magnetic surface",
-  //         materials: ["Non-magnetic materials", "Protective padding"],
-  //         specialRequirements: [
-  //           "Maintain minimum protective distance between magnetic surface and innermost container",
-  //           "Ensure minimum 102mm (4 inches) distance in all cases",
-  //           "Use non-magnetic padding and separation materials"
-  //         ]
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "susceptible_item_packaging",
-  //             containers: [
-  //               { code: "PROTECTIVE_DISTANCE_BOX", material: "non_magnetic_material", description: "Container maintaining protective distance from magnetic materials" },
-  //               { code: "PADDED_CONTAINER", material: "protective_material", description: "Padded container with minimum 4-inch magnetic separation" },
-  //               { code: "ISOLATION_PACKAGING", material: "isolation_material", description: "Isolation packaging for magnetically susceptible items" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     }
-  //   ],
-
-  //   conditionalRequirements: [
-  //     {
-  //       condition: "storage_distance_requirement",
-  //       description: "Minimum storage distance from compass and magnetic sensing devices",
-  //       // requirement: "Do not store closer than 4.6m (15 feet) to compass sensing devices or devices affected by magnetic fields",
-  //       // applicableContainers: ["A13.11.2.shielded_magnetic_materials", "A13.11.2.magnetic_tubes_mil_e_75", "A13.11.2.magnetically_susceptible_items"]
-  //     },
-  //     {
-  //       condition: "magnetic_field_shielding_requirement",
-  //       description: "Magnetic field strength reduction through shielding",
-  //       // requirement: "Shield magnetic materials to reduce field strength to ≤5.25 milligauss or ≤2° compass deviation at 4.6m",
-  //       // applicableContainers: ["A13.11.2.shielded_magnetic_materials"]
-  //     },
-  //     {
-  //       condition: "measurement_device_requirements",
-  //       description: "Proper measurement device operation and dual measurement",
-  //       // requirement: "Ensure meters are properly operational and measure with two different devices whenever possible",
-  //       // applicableContainers: ["A13.11.2.shielded_magnetic_materials", "A13.11.2.magnetic_tubes_mil_e_75", "A13.11.2.magnetically_susceptible_items"]
-  //     },
-  //     {
-  //       condition: "blocking_bracing_requirement",
-  //       description: "Blocking and bracing as required for magnetic materials",
-  //       // requirement: "Provide blocking and bracing as required for magnetic material packaging",
-  //       // applicableContainers: ["A13.11.2.shielded_magnetic_materials", "A13.11.2.magnetic_tubes_mil_e_75", "A13.11.2.magnetically_susceptible_items"]
-  //     },
-  //     {
-  //       condition: "to_00_25_251_reference",
-  //       description: "Additional packaging details reference",
-  //       // requirement: "Additional packaging details are included in TO 00-25-251",
-  //       // applicableContainers: ["A13.11.2.shielded_magnetic_materials", "A13.11.2.magnetic_tubes_mil_e_75", "A13.11.2.magnetically_susceptible_items"]
-  //     },
-  //     {
-  //       condition: "magnetic_tube_individual_packaging",
-  //       description: "Individual packaging requirement for magnetic tubes",
-  //       // requirement: "Package magnetic tubes individually in compliance with MIL-E-75",
-  //       // applicableContainers: ["A13.11.2.magnetic_tubes_mil_e_75"]
-  //     },
-  //     {
-  //       condition: "protective_distance_requirement",
-  //       description: "Minimum protective distance for magnetically susceptible items",
-  //       // requirement: "Distance between magnetic surface and outside of innermost container ≥ protective distance required, minimum 102mm (4 inches)",
-  //       // applicableContainers: ["A13.11.2.magnetically_susceptible_items"]
-  //     },
-  //     {
-  //       condition: "no_un_specification_required",
-  //       description: "UN specification packaging not required",
-  //       // requirement: "UN specification packaging is not required for magnetized materials",
-  //       // applicableContainers: ["A13.11.2.shielded_magnetic_materials", "A13.11.2.magnetic_tubes_mil_e_75", "A13.11.2.magnetically_susceptible_items"]
-  //     },
-  //     {
-  //       condition: "magnetic_field_strength_limit",
-  //       description: "Maximum magnetic field strength for air movement",
-  //       // requirement: "Magnetic material with field strength >0.00525 gauss at 4.6m (15 feet) is forbidden for air movement",
-  //       // applicableContainers: ["A13.11.2.shielded_magnetic_materials", "A13.11.2.magnetic_tubes_mil_e_75", "A13.11.2.magnetically_susceptible_items"]
-  //     },
-  //     {
-  //       condition: "compass_deviation_limit",
-  //       description: "Maximum compass deviation limit after shielding",
-  //       // requirement: "Shielded magnetic materials must not exceed 2° compass deviation at 4.6m (15 feet)",
-  //       // applicableContainers: ["A13.11.2.shielded_magnetic_materials"]
-  //     },
-  //     {
-  //       condition: "milligauss_field_limit",
-  //       description: "Maximum magnetic field strength in milligauss after shielding",
-  //       // requirement: "Shielded magnetic materials must not exceed 5.25 milligauss at 4.6m (15 feet)",
-  //       // applicableContainers: ["A13.11.2.shielded_magnetic_materials"]
-  //     }
-  //   ],
-
-  //   referencedParagraphs: ["A13.11", "A13.11.1", "A13.11.2", "TO 00-25-251", "MIL-E-75"]
-  // },
-
-  // "A13.12.": {
-  //   title: "Package Life-Saving Appliances",
-  //   description: "Packaging requirements for life-saving appliances including life raft kits, survival kits, ejection seats, and parachutes containing small quantities of hazardous materials as integral survival equipment",
-  //   materials: ["Life raft kits", "Life vest kits", "Survival kit assemblies", "Ejection seats", "Non-ejection seats", "Parachutes with survival equipment", "Fire starters and matches", "Ammunition items", "Signal flares", "CO2 cylinders", "Breathing oxygen cylinders"],
-  //   hazardClasses: [1, 2, 3, 9],
-
-  //   // specialRequirements: [
-  //   //   "Store in cool, well-ventilated areas away from fire hazards and heat/ignition sources",
-  //   //   "Do not drop or rough handle life-saving appliances",
-  //   //   "Pack in weather-resistant fiberboard or other securely closed strong outer container",
-  //   //   "Use inner packaging adequate to prevent accidental activation of hazardous materials",
-  //   //   "Suitably cushion inner packagings to prevent movement",
-  //   //   "Meet general requirements of A3.1 (UN specification packaging not required)",
-  //   //   "Individual assigned kits may be hand-carried by crewmembers for accountability",
-  //   //   "Inform Air Terminal Operations Center when transporting hand-carried kits"
-  //   // ],
-
-  //   // quantityLimits: {
-  //   //   passengerAircraft: {
-  //   //     maxPerPackage: "Small quantities as required for survival equipment function",
-  //   //     maxPerInnerReceptacle: "Per individual survival component requirements",
-  //   //     additionalRestrictions: [
-  //   //       "Must meet A3.1 general requirements",
-  //   //       "Individual assigned kits may be hand-carried by crewmembers"
-  //   //     ]
-  //   //   },
-  //   //   cargoAircraft: {
-  //   //     maxPerPackage: "Small quantities as required for survival equipment function",
-  //   //     maxPerInnerReceptacle: "Per individual survival component requirements",
-  //   //     additionalRestrictions: [
-  //   //       "Must meet A3.1 general requirements",
-  //   //       "May be transported as palletized cargo per A13.12.2.1"
-  //   //     ]
-  //   //   }
-  //   // },
-
-  //   packagingOptions: [
-  //     {
-  //       id: "A13.12.2.1.general_life_saving_kits",
-  //       type: "combination",
-  //       description: "Life-saving appliance kits in weather-resistant outer containers with cushioned inner packaging",
-  //       innerPackaging: {
-  //         required: true,
-  //         description: "Inner packaging adequate to prevent accidental activation of hazardous materials",
-  //         materials: ["Protective materials", "Cushioning materials", "Non-reactive materials"],
-  //         specialRequirements: [
-  //           "Adequate to prevent accidental activation of hazardous materials in kit",
-  //           "Suitably cushioned to prevent movement during transport",
-  //           "Compatible with all kit contents to prevent dangerous reactions"
-  //         ]
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "weather_resistant_containers",
-  //             containers: [
-  //               { code: "WEATHER_RESISTANT_FIBERBOARD", material: "fiberboard", description: "Weather-resistant fiberboard container for life-saving kits" },
-  //               { code: "STRONG_OUTER_CONTAINER", material: "strong_material", description: "Other securely closed strong outer container" },
-  //               { code: "PROTECTIVE_BOX", material: "protective_material", description: "Strong weather-resistant container with secure closure" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     },
-  //     {
-  //       id: "A13.12.2.2.1.crew_assigned_kits",
-  //       type: "combination",
-  //       description: "Individually assigned kits for crewmember hand-carry in strong containers or A-3 bags",
-  //       innerPackaging: {
-  //         required: true,
-  //         description: "Inner packaging meeting A13.12.2.1 requirements for cushioning and activation prevention",
-  //         materials: ["Protective materials", "Cushioning materials", "A-3 bag compatible materials"],
-  //         specialRequirements: [
-  //           "Meet A13.12.2.1 requirements for inner packing and cushioning",
-  //           "Adequate to prevent accidental activation",
-  //           "Suitable for hand-carry operations"
-  //         ]
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "crew_carry_containers",
-  //             containers: [
-  //               { code: "STRONG_OUTER_CONTAINER_CREW", material: "strong_material", description: "Strong outer container for crew-carried life-saving kits" },
-  //               { code: "A3_BAG", material: "a3_bag_material", description: "A-3 bag for individually assigned survival kits" },
-  //               { code: "CREW_PORTABLE_CONTAINER", material: "portable_material", description: "Portable container suitable for crewmember transport" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     }
-  //   ],
-
-  //   // conditionalRequirements: [
-  //   //   {
-  //   //     condition: "storage_environment_requirements",
-  //   //     description: "Storage in cool, well-ventilated areas away from hazards",
-  //   //     requirement: "Store in cool, well-ventilated areas away from fire hazards and sources of heat or ignition",
-  //   //     applicableContainers: ["A13.12.2.1.general_life_saving_kits", "A13.12.2.2.1.crew_assigned_kits"]
-  //   //   },
-  //   //   {
-  //   //     condition: "handling_precautions",
-  //   //     description: "Gentle handling requirements for life-saving appliances",
-  //   //     requirement: "Do not drop or rough handle life-saving appliances",
-  //   //     applicableContainers: ["A13.12.2.1.general_life_saving_kits", "A13.12.2.2.1.crew_assigned_kits"]
-  //   //   },
-  //   //   {
-  //   //     condition: "weather_resistant_outer_container",
-  //   //     description: "Weather-resistant strong outer container required",
-  //   //     requirement: "Pack kits in weather-resistant fiberboard or other securely closed strong outer container",
-  //   //     applicableContainers: ["A13.12.2.1.general_life_saving_kits"]
-  //   //   },
-  //   //   {
-  //   //     condition: "accidental_activation_prevention",
-  //   //     description: "Inner packaging must prevent accidental activation",
-  //   //     requirement: "Pack hazardous materials in inner packaging adequate to prevent accidental activation",
-  //   //     applicableContainers: ["A13.12.2.1.general_life_saving_kits", "A13.12.2.2.1.crew_assigned_kits"]
-  //   //   },
-  //   //   {
-  //   //     condition: "cushioning_requirement",
-  //   //     description: "Suitable cushioning to prevent movement",
-  //   //     requirement: "Suitably cushion inner packagings to prevent movement during transport",
-  //   //     applicableContainers: ["A13.12.2.1.general_life_saving_kits", "A13.12.2.2.1.crew_assigned_kits"]
-  //   //   },
-  //   //   {
-  //   //     condition: "a31_general_requirements",
-  //   //     description: "Must meet general requirements of A3.1",
-  //   //     requirement: "Packagings meeting the general requirements of A3.1 is required",
-  //   //     applicableContainers: ["A13.12.2.1.general_life_saving_kits", "A13.12.2.2.1.crew_assigned_kits"]
-  //   //   },
-  //   //   {
-  //   //     condition: "no_un_specification_required",
-  //   //     description: "UN specification packaging not required",
-  //   //     requirement: "UN specification packaging is not required for life-saving appliances",
-  //   //     applicableContainers: ["A13.12.2.1.general_life_saving_kits", "A13.12.2.2.1.crew_assigned_kits"]
-  //   //   },
-  //   //   {
-  //   //     condition: "individual_assignment_applicability",
-  //   //     description: "Individual kit hand-carry applies only to specific support operations",
-  //   //     requirement: "Individual assigned kit hand-carry applies only to support operations for aircraft recovery or crewmember passenger return",
-  //   //     applicableContainers: ["A13.12.2.2.1.crew_assigned_kits"]
-  //   //   },
-  //   //   {
-  //   //     condition: "deployment_reference",
-  //   //     description: "Unit deployments follow different procedures",
-  //   //     requirement: "For unit deployments see paragraph 3.5 or transport as palletized cargo per A13.12.2.1",
-  //   //     applicableContainers: ["A13.12.2.2.1.crew_assigned_kits"]
-  //   //   },
-  //   //   {
-  //   //     condition: "contract_commercial_exclusion",
-  //   //     description: "Does not apply to contract passenger or commercial aircraft",
-  //   //     requirement: "Hand-carry provisions do not apply to contract passenger or commercial aircraft",
-  //   //     applicableContainers: ["A13.12.2.2.1.crew_assigned_kits"]
-  //   //   },
-  //   //   {
-  //   //     condition: "crew_notification_requirement",
-  //   //     description: "Crew must inform Air Terminal Operations Center",
-  //   //     requirement: "Crew members must inform Air Terminal Operations Center when transporting hand-carried life-saving appliances",
-  //   //     applicableContainers: ["A13.12.2.2.1.crew_assigned_kits"]
-  //   //   },
-  //   //   {
-  //   //     condition: "aircraft_commander_storage_direction",
-  //   //     description: "Storage as directed by transporting aircraft commander",
-  //   //     requirement: "Store hand-carried items as directed by the transporting aircraft commander",
-  //   //     applicableContainers: ["A13.12.2.2.1.crew_assigned_kits"]
-  //   //   },
-  //   //   {
-  //   //     condition: "crewmember_possession_exemption",
-  //   //     description: "No other manual requirements apply when in crewmember possession",
-  //   //     requirement: "When prepared and hand-carried per this paragraph, no other manual requirements apply while kit is in crewmember possession",
-  //   //     applicableContainers: ["A13.12.2.2.1.crew_assigned_kits"]
-  //   //   }
-  //   // ],
-
-  //   referencedParagraphs: ["A13.12", "A13.12.1", "A13.12.2", "A13.12.2.1", "A13.12.2.2", "A13.12.2.2.1", "A13.12.2.2.2", "A13.12.2.2.3", "A3.1", "paragraph 3.5"]
-  // },
-
-  // "A13.13.": {
-  //   title: "Package Dangerous Goods in Apparatus or Machinery",
-  //   description: "Packaging requirements for apparatus or machinery containing hazardous materials as integral components including quantity limits, compatibility requirements, and containment specifications for fuel system components and other equipment",
-  //   materials: ["Apparatus with hazardous materials", "Machinery with hazardous materials", "Fuel tanks", "Fuel bladders", "Equipment with integral hazardous components", "Limited quantity materials", "Magnetized materials", "Class 2.2 gases"],
-  //   hazardClasses: [2, 3, 8, 9],
-
-  //   // specialRequirements: [
-  //   //   "Apply only to apparatus/machinery with hazardous material as integral component",
-  //   //   "May be used for items normally part of end item but shipped separately (fuel tanks/bladders)",
-  //   //   "Do not use for machinery/apparatus with existing PSN in Table A4.1",
-  //   //   "Non-fuel components: only limited quantities per A19.3, magnetized materials, or Class 2.2 gases",
-  //   //   "Multiple hazardous materials must not be capable of reacting dangerously together",
-  //   //   "Secure/cushion receptacles to prevent breakage, leakage, and movement",
-  //   //   "Ensure no leakage possible from apparatus/machinery if receptacles damaged"
-  //   // ],
-
-  //   // quantityLimits: {
-  //   //   passengerAircraft: {
-  //   //     maxPerPackage: "1kg solids, 500mL liquids, 0.5kg Class 2.2 gases per package",
-  //   //     maxPerInnerReceptacle: "Per individual receptacle within apparatus/machinery",
-  //   //     additionalRestrictions: [
-  //   //       "Only limited quantities per A19.3 for non-fuel components",
-  //   //       "Class 2.2 gases in authorized cylinders per Attachment 6"
-  //   //     ]
-  //   //   },
-  //   //   cargoAircraft: {
-  //   //     maxPerPackage: "1kg solids, 500mL liquids, 0.5kg Class 2.2 gases per package",
-  //   //     maxPerInnerReceptacle: "Per individual receptacle within apparatus/machinery",
-  //   //     additionalRestrictions: [
-  //   //       "Only limited quantities per A19.3 for non-fuel components",
-  //   //       "Class 2.2 gases in authorized cylinders per Attachment 6"
-  //   //     ]
-  //   //   }
-  //   // },
-
-  //   packagingOptions: [
-  //     {
-  //       id: "A13.13.non_fuel_apparatus",
-  //       type: "single",
-  //       description: "Non-fuel system apparatus/machinery with limited quantities, magnetized materials, or Class 2.2 gases",
-  //       innerPackaging: {
-  //         required: true,
-  //         description: "Secured/cushioned receptacles within apparatus to prevent breakage and leakage",
-  //         materials: ["Compatible materials", "Non-reactive cushioning"],
-  //         specialRequirements: [
-  //           "Contain only limited quantities per A19.3, magnetized materials, or Class 2.2 gases without subsidiary hazard",
-  //           "Exclude refrigerated liquefied gases",
-  //           "Secure receptacles to prevent breakage or leakage",
-  //           "Control movement within item during transport"
-  //         ]
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "apparatus_machinery_packaging",
-  //             containers: [
-  //               { code: "STRONG_OUTER_APPARATUS", material: "strong_material", description: "Strong outer packaging for apparatus with hazardous materials" },
-  //               { code: "PROTECTED_MACHINERY", material: "protective_material", description: "Apparatus/machinery with adequate receptacle protection" },
-  //               { code: "EQUIPMENT_HOUSING", material: "equipment_material", description: "Equipment housing providing adequate hazmat protection" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     },
-  //     {
-  //       id: "A13.13.fuel_system_components",
-  //       type: "single",
-  //       description: "Fuel system components (tanks, bladders) with integral hazardous materials",
-  //       innerPackaging: {
-  //         required: true,
-  //         description: "Fuel system components with leak-proof containment and proper sealing",
-  //         materials: ["Fuel-compatible materials", "Leak-proof liner materials"],
-  //         specialRequirements: [
-  //           "Use leak-proof liner for articles drained of liquid but not purged",
-  //           "Seal or cap all openings and lines per technical directives",
-  //           "Ensure no leakage possible from component if receptacles damaged"
-  //         ]
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "fuel_system_packaging",
-  //             containers: [
-  //               { code: "FUEL_TANK_CONTAINER", material: "fuel_compatible", description: "Container for fuel tanks with leak containment" },
-  //               { code: "BLADDER_PACKAGING", material: "protective_material", description: "Packaging for fuel bladders with spill containment" },
-  //               { code: "FUEL_COMPONENT_BOX", material: "strong_material", description: "Strong container for fuel system components" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     },
-  //     {
-  //       id: "A13.13.class22_gas_apparatus",
-  //       type: "single",
-  //       description: "Apparatus/machinery containing Class 2.2 gases in authorized cylinders",
-  //       innerPackaging: {
-  //         required: true,
-  //         description: "Class 2.2 gases in authorized cylinders per Attachment 6",
-  //         materials: ["Authorized cylinder materials"],
-  //         specialRequirements: [
-  //           "Class 2.2 gases must be in authorized cylinders per Attachment 6",
-  //           "No subsidiary hazards permitted",
-  //           "Secure cylinders within apparatus to prevent movement"
-  //         ]
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "gas_apparatus_packaging",
-  //             containers: [
-  //               { code: "GAS_APPARATUS_CONTAINER", material: "suitable_material", description: "Container for apparatus with Class 2.2 gas cylinders" },
-  //               { code: "CYLINDER_MACHINERY_BOX", material: "protective_material", description: "Protective packaging for machinery with gas cylinders" },
-  //               { code: "EQUIPMENT_GAS_HOUSING", material: "equipment_material", description: "Equipment housing for Class 2.2 gas-containing apparatus" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     }
-  //   ],
-
-  //   // conditionalRequirements: [
-  //   //   {
-  //   //     condition: "integral_component_only",
-  //   //     description: "Apply only to apparatus/machinery with hazardous material as integral component",
-  //   //     requirement: "Apply this description only to apparatus/machinery containing hazardous material as integral component",
-  //   //     applicableContainers: ["A13.13.non_fuel_apparatus", "A13.13.fuel_system_components", "A13.13.class22_gas_apparatus"]
-  //   //   },
-  //   //   {
-  //   //     condition: "separate_shipment_allowance",
-  //   //     description: "May be used for items normally part of end item but shipped separately",
-  //   //     requirement: "May be used for items normally part of end item but shipped separately (e.g., fuel tanks or bladders)",
-  //   //     applicableContainers: ["A13.13.fuel_system_components"]
-  //   //   },
-  //   //   {
-  //   //     condition: "existing_psn_exclusion",
-  //   //     description: "Do not use for machinery/apparatus with existing PSN in Table A4.1",
-  //   //     requirement: "Do not use this description for machinery or apparatus with existing PSN in Table A4.1",
-  //   //     applicableContainers: ["A13.13.non_fuel_apparatus", "A13.13.fuel_system_components", "A13.13.class22_gas_apparatus"]
-  //   //   },
-  //   //   {
-  //   //     condition: "non_fuel_material_restrictions",
-  //   //     description: "Non-fuel components limited to specific hazardous materials",
-  //   //     requirement: "Non-fuel apparatus may only contain limited quantities per A19.3, magnetized materials, or Class 2.2 gases without subsidiary hazard",
-  //   //     applicableContainers: ["A13.13.non_fuel_apparatus"]
-  //   //   },
-  //   //   {
-  //   //     condition: "refrigerated_gas_exclusion",
-  //   //     description: "Refrigerated liquefied gases excluded",
-  //   //     requirement: "Class 2.2 gases permitted but excluding refrigerated liquefied gases",
-  //   //     applicableContainers: ["A13.13.non_fuel_apparatus", "A13.13.class22_gas_apparatus"]
-  //   //   },
-  //   //   {
-  //   //     condition: "multiple_material_compatibility",
-  //   //     description: "Multiple hazardous materials must not react dangerously",
-  //   //     requirement: "If more than one hazardous material present, materials may not be capable of reacting dangerously together",
-  //   //     applicableContainers: ["A13.13.non_fuel_apparatus", "A13.13.fuel_system_components", "A13.13.class22_gas_apparatus"]
-  //   //   },
-  //   //   {
-  //   //     condition: "quantity_limits_per_package",
-  //   //     description: "Total net quantity limits per package",
-  //   //     requirement: "Total net quantity may not exceed: 1kg solids, 500mL liquids, 0.5kg Class 2.2 gases",
-  //   //     applicableContainers: ["A13.13.non_fuel_apparatus", "A13.13.class22_gas_apparatus"]
-  //   //   },
-  //   //   {
-  //   //     condition: "receptacle_security_cushioning",
-  //   //     description: "Receptacles must be secured and cushioned",
-  //   //     requirement: "Secure or cushion receptacles to prevent breakage, leakage, and movement within item during transport",
-  //   //     applicableContainers: ["A13.13.non_fuel_apparatus", "A13.13.fuel_system_components", "A13.13.class22_gas_apparatus"]
-  //   //   },
-  //   //   {
-  //   //     condition: "cushioning_compatibility",
-  //   //     description: "Cushioning materials must be compatible",
-  //   //     requirement: "Cushioning material may not react dangerously with or have properties adversely affected by leakage",
-  //   //     applicableContainers: ["A13.13.non_fuel_apparatus", "A13.13.fuel_system_components", "A13.13.class22_gas_apparatus"]
-  //   //   },
-  //   //   {
-  //   //     condition: "leakage_prevention_requirement",
-  //   //     description: "No leakage possible from apparatus/machinery if receptacles damaged",
-  //   //     requirement: "Ensure no leakage of hazardous material from apparatus/machinery possible if receptacles damaged",
-  //   //     applicableContainers: ["A13.13.non_fuel_apparatus", "A13.13.fuel_system_components", "A13.13.class22_gas_apparatus"]
-  //   //   },
-  //   //   {
-  //   //     condition: "leak_proof_liner_requirement",
-  //   //     description: "Leak-proof liner required for drained but not purged items",
-  //   //     requirement: "Leak-proof liner required for articles completely drained of liquid but not purged",
-  //   //     applicableContainers: ["A13.13.fuel_system_components"]
-  //   //   },
-  //   //   {
-  //   //     condition: "opening_sealing_requirement",
-  //   //     description: "Seal or cap all openings and lines per technical directives",
-  //   //     requirement: "Seal or cap all openings and lines according to applicable technical directives",
-  //   //     applicableContainers: ["A13.13.fuel_system_components"]
-  //   //   },
-  //   //   {
-  //   //     condition: "authorized_cylinder_requirement",
-  //   //     description: "Class 2.2 gases must be in authorized cylinders",
-  //   //     requirement: "Ensure Class 2.2 gases are in authorized cylinders according to Attachment 6",
-  //   //     applicableContainers: ["A13.13.class22_gas_apparatus"]
-  //   //   },
-  //   //   {
-  //   //     condition: "strong_outer_packaging_or_protection",
-  //   //     description: "Strong outer packaging unless adequately protected by construction",
-  //   //     requirement: "Pack in strong outer packagings unless receptacles adequately protected by apparatus/machinery construction",
-  //   //     applicableContainers: ["A13.13.non_fuel_apparatus", "A13.13.fuel_system_components", "A13.13.class22_gas_apparatus"]
-  //   //   },
-  //   //   {
-  //   //     condition: "no_un_specification_required",
-  //   //     description: "UN specification packaging not required",
-  //   //     requirement: "UN specification packaging is not required for apparatus/machinery with dangerous goods",
-  //   //     applicableContainers: ["A13.13.non_fuel_apparatus", "A13.13.fuel_system_components", "A13.13.class22_gas_apparatus"]
-  //   //   }
-  //   // ],
-
-  //   referencedParagraphs: ["A13.13", "A13.13.1", "A13.13.2", "A13.13.3", "A13.13.3.1", "A13.13.3.2", "A13.13.3.3", "A13.13.4", "A13.13.5", "A13.13.6", "A13.13.7", "A19.3", "Attachment 6", "Table A4.1"]
-  // },
-
-  // "A13.14.": {
-  //   title: "Package Class 9 Materials",
-  //   description: "Packaging requirements for Class 9 materials using non-UN specification packaging with outage requirements, vapor pressure considerations, and waterproof packaging for water-reactive materials",
-  //   materials: ["Class 9 liquid materials", "Class 9 solid materials", "Water-reactive Class 9 materials", "High vapor pressure Class 9 materials"],
-  //   hazardClasses: [9],
-
-  //   // specialRequirements: [
-  //   //   "UN specification packaging is not required",
-  //   //   "Use appropriate non-bulk packaging meeting Attachment 3 requirements",
-  //   //   "Provide sufficient outage for packagings ≤208L so not liquid full at 54°C (130°F)",
-  //   //   "Primary packaging must withstand vapor pressure at 54°C for materials >110 kPa at 38°C",
-  //   //   "Use waterproof packaging (inner or outer) for materials that react with water",
-  //   //   "Ensure no leakage from primary packaging under vapor pressure conditions"
-  //   // ],
-
-  //   // quantityLimits: {
-  //   //   passengerAircraft: {
-  //   //     maxPerPackage: "Per Attachment 3 non-bulk packaging requirements",
-  //   //     maxPerInnerReceptacle: "Per individual container specifications for Class 9 materials",
-  //   //     additionalRestrictions: [
-  //   //       "Packagings ≤208L capacity must provide adequate outage",
-  //   //       "High vapor pressure materials require pressure-resistant primary packaging"
-  //   //     ]
-  //   //   },
-  //   //   cargoAircraft: {
-  //   //     maxPerPackage: "Per Attachment 3 non-bulk packaging requirements",
-  //   //     maxPerInnerReceptacle: "Per individual container specifications for Class 9 materials",
-  //   //     additionalRestrictions: [
-  //   //       "Packagings ≤208L capacity must provide adequate outage",
-  //   //       "High vapor pressure materials require pressure-resistant primary packaging"
-  //   //     ]
-  //   //   }
-  //   // },
-
-  //   packagingOptions: [
-  //     {
-  //       id: "A13.14.general_class9_materials",
-  //       type: "single",
-  //       description: "General Class 9 materials in non-bulk packaging meeting Attachment 3 requirements",
-  //       innerPackaging: {
-  //         required: false
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "non_bulk_attachment3_packaging",
-  //             containers: [
-  //               { code: "NON_BULK_DRUM", material: "suitable_material", description: "Non-bulk drum meeting Attachment 3 requirements" },
-  //               { code: "NON_BULK_BOX", material: "suitable_material", description: "Non-bulk box meeting Attachment 3 requirements" },
-  //               { code: "NON_BULK_JERRICAN", material: "suitable_material", description: "Non-bulk jerrican meeting Attachment 3 requirements" },
-  //               { code: "APPROPRIATE_CONTAINER", material: "suitable_material", description: "Any appropriate non-bulk packaging per Attachment 3" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     },
-  //     {
-  //       id: "A13.14.1.outage_required_materials",
-  //       type: "single",
-  //       description: "Class 9 materials requiring outage in packagings ≤208L capacity",
-  //       innerPackaging: {
-  //         required: false
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "outage_packaging",
-  //             containers: [
-  //               { code: "OUTAGE_DRUM_208L", material: "suitable_material", description: "Drum ≤208L capacity with sufficient outage for thermal expansion" },
-  //               { code: "OUTAGE_CONTAINER", material: "suitable_material", description: "Container ≤208L with outage to prevent liquid full at 54°C" },
-  //               { code: "THERMAL_EXPANSION_BOX", material: "suitable_material", description: "Box with adequate outage for thermal expansion prevention" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     },
-  //     {
-  //       id: "A13.14.2.high_vapor_pressure_materials",
-  //       type: "single",
-  //       description: "Class 9 materials with vapor pressure >110 kPa at 38°C requiring pressure-resistant packaging",
-  //       innerPackaging: {
-  //         required: true,
-  //         description: "Primary packaging capable of withstanding vapor pressure at 54°C without leakage",
-  //         materials: ["Pressure-resistant materials", "Vapor-tight materials"],
-  //         specialRequirements: [
-  //           "Primary packaging must withstand inside vapor pressure at 54°C (130°F) without leakage",
-  //           "Must be capable of handling materials with vapor pressure >110 kPa (16 psi) at 38°C (100°F)",
-  //           "Ensure pressure integrity under elevated temperature conditions"
-  //         ]
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "pressure_resistant_packaging",
-  //             containers: [
-  //               { code: "PRESSURE_RESISTANT_DRUM", material: "pressure_resistant_material", description: "Drum with pressure-resistant primary packaging for high vapor pressure materials" },
-  //               { code: "VAPOR_TIGHT_CONTAINER", material: "vapor_tight_material", description: "Container with vapor-tight primary packaging system" },
-  //               { code: "TEMPERATURE_RESISTANT_BOX", material: "temperature_resistant_material", description: "Box with temperature/pressure resistant primary packaging" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     },
-  //     {
-  //       id: "A13.14.3.water_reactive_materials",
-  //       type: "single",
-  //       description: "Class 9 materials that react with water requiring waterproof packaging",
-  //       innerPackaging: {
-  //         required: true,
-  //         description: "Waterproof inner packaging or use of waterproof outer packaging",
-  //         materials: ["Waterproof materials", "Water-resistant materials"],
-  //         specialRequirements: [
-  //           "Use waterproof packaging (inner or outer) for materials that may cause hazard due to reaction with water",
-  //           "Ensure complete water exclusion during transport",
-  //           "Maintain waterproof integrity under normal transport conditions"
-  //         ]
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "waterproof_packaging",
-  //             containers: [
-  //               { code: "WATERPROOF_INNER_CONTAINER", material: "waterproof_material", description: "Container with waterproof inner packaging for water-reactive materials" },
-  //               { code: "WATERPROOF_OUTER_CONTAINER", material: "waterproof_material", description: "Waterproof outer packaging for water-reactive materials" },
-  //               { code: "WATER_BARRIER_BOX", material: "water_barrier_material", description: "Box with water barrier packaging system" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     }
-  //   ],
-
-  //   // conditionalRequirements: [
-  //   //   {
-  //   //     condition: "no_un_specification_required",
-  //   //     description: "UN specification packaging not required for Class 9 materials",
-  //   //     requirement: "UN specification packaging is not required for material packaged according to this paragraph",
-  //   //     applicableContainers: ["A13.14.general_class9_materials", "A13.14.1.outage_required_materials", "A13.14.2.high_vapor_pressure_materials", "A13.14.3.water_reactive_materials"]
-  //   //   },
-  //   //   {
-  //   //     condition: "attachment3_non_bulk_requirements",
-  //   //     description: "Must use non-bulk packaging meeting Attachment 3 requirements",
-  //   //     requirement: "Use any appropriate non-bulk packaging that meets the requirements of Attachment 3",
-  //   //     applicableContainers: ["A13.14.general_class9_materials", "A13.14.1.outage_required_materials", "A13.14.2.high_vapor_pressure_materials", "A13.14.3.water_reactive_materials"]
-  //   //   },
-  //   //   {
-  //   //     condition: "liquid_solid_material_applicability",
-  //   //     description: "Applicable to liquid or solid Class 9 materials",
-  //   //     requirement: "Use appropriate packaging to ship liquid or solid Class 9 material",
-  //   //     applicableContainers: ["A13.14.general_class9_materials", "A13.14.1.outage_required_materials", "A13.14.2.high_vapor_pressure_materials", "A13.14.3.water_reactive_materials"]
-  //   //   },
-  //   //   {
-  //   //     condition: "outage_requirement_208l",
-  //   //     description: "Outage required for packagings ≤208L capacity",
-  //   //     requirement: "Provide enough outage for packagings ≤208L so packaging is not liquid full at 54°C (130°F)",
-  //   //     applicableContainers: ["A13.14.1.outage_required_materials"]
-  //   //   },
-  //   //   {
-  //   //     condition: "thermal_expansion_prevention",
-  //   //     description: "Prevent thermal expansion issues at elevated temperatures",
-  //   //     requirement: "Ensure packaging can accommodate thermal expansion without becoming liquid full at 130°F",
-  //   //     applicableContainers: ["A13.14.1.outage_required_materials"]
-  //   //   },
-  //   //   {
-  //   //     condition: "vapor_pressure_threshold",
-  //   //     description: "Special requirements for materials with vapor pressure >110 kPa at 38°C",
-  //   //     requirement: "Materials with absolute vapor pressure >110 kPa (16 psi) at 38°C (100°F) require special primary packaging",
-  //   //     applicableContainers: ["A13.14.2.high_vapor_pressure_materials"]
-  //   //   },
-  //   //   {
-  //   //     condition: "primary_packaging_pressure_resistance",
-  //   //     description: "Primary packaging must withstand vapor pressure at 54°C",
-  //   //     requirement: "Primary packaging must withstand inside vapor pressure at 54°C (130°F) without leakage",
-  //   //     applicableContainers: ["A13.14.2.high_vapor_pressure_materials"]
-  //   //   },
-  //   //   {
-  //   //     condition: "temperature_pressure_integrity",
-  //   //     description: "Maintain pressure integrity under elevated temperature conditions",
-  //   //     requirement: "Ensure primary packaging maintains pressure integrity at elevated temperatures without leakage",
-  //   //     applicableContainers: ["A13.14.2.high_vapor_pressure_materials"]
-  //   //   },
-  //   //   {
-  //   //     condition: "water_reactive_hazard_identification",
-  //   //     description: "Identification of materials that may cause hazard due to water reaction",
-  //   //     requirement: "Identify material that may cause hazard in transportation due to reaction with water",
-  //   //     applicableContainers: ["A13.14.3.water_reactive_materials"]
-  //   //   },
-  //   //   {
-  //   //     condition: "waterproof_packaging_requirement",
-  //   //     description: "Waterproof packaging required for water-reactive materials",
-  //   //     requirement: "Package water-reactive materials in either inner or outer waterproof packaging",
-  //   //     applicableContainers: ["A13.14.3.water_reactive_materials"]
-  //   //   },
-  //   //   {
-  //   //     condition: "water_exclusion_integrity",
-  //   //     description: "Complete water exclusion required during transport",
-  //   //     requirement: "Ensure complete water exclusion and maintain waterproof integrity under normal transport conditions",
-  //   //     applicableContainers: ["A13.14.3.water_reactive_materials"]
-  //   //   }
-  //   // ],
-
-  //   referencedParagraphs: ["A13.14", "A13.14.1", "A13.14.2", "A13.14.3", "Attachment 3"]
-  // },
-
-  // "A13.15.": {
-  //   title: "Package Air Bag Inflators, Air Bag Modules, and Seat-Belt Pretensioners",
-  //   description: "Packaging requirements for Class 9 air bag inflators, air bag modules, and seat-belt pretensioners approved by DOT per 49 CFR Section 173.166 using boxes, drums, or jerricans without inner packaging",
-  //   materials: ["Air bag inflators", "Air bag modules", "Seat-belt pretensioners", "Automotive safety devices"],
-  //   hazardClasses: [9],
-
-  //   // specialRequirements: [
-  //   //   "Items are classified as Class 9",
-  //   //   "Must be approved by DOT according to 49 CFR Section 173.166",
-  //   //   "Inner packaging is not required",
-  //   //   "Package in boxes, drums, or jerricans as specified",
-  //   //   "Use appropriate outer packaging materials per specifications"
-  //   // ],
-
-  //   // quantityLimits: {
-  //   //   passengerAircraft: {
-  //   //     maxPerPackage: "Per DOT approval under 49 CFR Section 173.166",
-  //   //     maxPerInnerReceptacle: "Not applicable - inner packaging not required",
-  //   //     additionalRestrictions: [
-  //   //       "Must have DOT approval per 49 CFR Section 173.166",
-  //   //       "Package in specified boxes, drums, or jerricans only"
-  //   //     ]
-  //   //   },
-  //   //   cargoAircraft: {
-  //   //     maxPerPackage: "Per DOT approval under 49 CFR Section 173.166",
-  //   //     maxPerInnerReceptacle: "Not applicable - inner packaging not required",
-  //   //     additionalRestrictions: [
-  //   //       "Must have DOT approval per 49 CFR Section 173.166",
-  //   //       "Package in specified boxes, drums, or jerricans only"
-  //   //     ]
-  //   //   }
-  //   // },
-
-  //   packagingOptions: [
-  //     {
-  //       id: "A13.15.boxes",
-  //       type: "single",
-  //       description: "Air bag inflators, modules, and seat-belt pretensioners in boxes without inner packaging",
-  //       innerPackaging: {
-  //         required: false
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "boxes",
-  //             containers: [
-  //               { code: "4A", material: "steel", description: "Steel box for air bag inflators/modules/pretensioners" },
-  //               { code: "4B", material: "aluminum", description: "Aluminum box for air bag inflators/modules/pretensioners" },
-  //               { code: "4C1", material: "natural_wood", description: "Ordinary natural wood box for air bag inflators/modules/pretensioners" },
-  //               { code: "4C2", material: "natural_wood", description: "Sift-proof natural wood box for air bag inflators/modules/pretensioners" },
-  //               { code: "4D", material: "plywood", description: "Plywood box for air bag inflators/modules/pretensioners" },
-  //               { code: "4F", material: "reconstituted_wood", description: "Reconstituted wood box for air bag inflators/modules/pretensioners" },
-  //               { code: "4G", material: "fiberboard", description: "Fiberboard box for air bag inflators/modules/pretensioners" },
-  //               { code: "4H1", material: "plastic", description: "Expanded plastic box for air bag inflators/modules/pretensioners" },
-  //               { code: "4H2", material: "plastic", description: "Solid plastic box for air bag inflators/modules/pretensioners" },
-  //               { code: "4N", material: "other_metal", description: "Other metal box for air bag inflators/modules/pretensioners" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     },
-  //     {
-  //       id: "A13.15.drums",
-  //       type: "single",
-  //       description: "Air bag inflators, modules, and seat-belt pretensioners in drums without inner packaging",
-  //       innerPackaging: {
-  //         required: false
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "drums",
-  //             containers: [
-  //               { code: "1A2", material: "steel", description: "Removable head steel drum for air bag inflators/modules/pretensioners" },
-  //               { code: "1B2", material: "aluminum", description: "Removable head aluminum drum for air bag inflators/modules/pretensioners" },
-  //               { code: "1D", material: "plywood", description: "Plywood drum for air bag inflators/modules/pretensioners" },
-  //               { code: "1G", material: "fiber", description: "Fiber drum for air bag inflators/modules/pretensioners" },
-  //               { code: "1H2", material: "plastic", description: "Removable head plastic drum for air bag inflators/modules/pretensioners" },
-  //               { code: "1N2", material: "other_metal", description: "Removable head metal drum other than steel or aluminum for air bag inflators/modules/pretensioners" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     },
-  //     {
-  //       id: "A13.15.jerricans",
-  //       type: "single",
-  //       description: "Air bag inflators, modules, and seat-belt pretensioners in jerricans without inner packaging",
-  //       innerPackaging: {
-  //         required: false
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "jerricans",
-  //             containers: [
-  //               { code: "3A2", material: "steel", description: "Removable head steel jerrican for air bag inflators/modules/pretensioners" },
-  //               { code: "3B2", material: "aluminum", description: "Removable head aluminum jerrican for air bag inflators/modules/pretensioners" },
-  //               { code: "3H2", material: "plastic", description: "Plastic removable head jerrican for air bag inflators/modules/pretensioners" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     }
-  //   ],
-
-  //   // conditionalRequirements: [
-  //   //   {
-  //   //     condition: "class9_classification",
-  //   //     description: "Items classified as Class 9 dangerous goods",
-  //   //     requirement: "Items are classified as Class 9",
-  //   //     applicableContainers: ["A13.15.boxes", "A13.15.drums", "A13.15.jerricans"]
-  //   //   },
-  //   //   {
-  //   //     condition: "dot_approval_49cfr173166",
-  //   //     description: "Must be approved by DOT per 49 CFR Section 173.166",
-  //   //     requirement: "Items must be approved by DOT according to 49 CFR Section 173.166",
-  //   //     applicableContainers: ["A13.15.boxes", "A13.15.drums", "A13.15.jerricans"]
-  //   //   },
-  //   //   {
-  //   //     condition: "no_inner_packaging_required",
-  //   //     description: "Inner packaging is not required",
-  //   //     requirement: "Inner packaging is not required for air bag inflators, modules, and seat-belt pretensioners",
-  //   //     applicableContainers: ["A13.15.boxes", "A13.15.drums", "A13.15.jerricans"]
-  //   //   },
-  //   //   {
-  //   //     condition: "specified_outer_packaging_only",
-  //   //     description: "Must use specified boxes, drums, or jerricans",
-  //   //     requirement: "Package in boxes, drums, or jerricans as specified in packaging table",
-  //   //     applicableContainers: ["A13.15.boxes", "A13.15.drums", "A13.15.jerricans"]
-  //   //   },
-  //   //   {
-  //   //     condition: "automotive_safety_device_applicability",
-  //   //     description: "Applicable to automotive safety devices",
-  //   //     requirement: "Apply to air bag inflators, air bag modules, and seat-belt pretensioners as automotive safety devices",
-  //   //     applicableContainers: ["A13.15.boxes", "A13.15.drums", "A13.15.jerricans"]
-  //   //   },
-  //   //   {
-  //   //     condition: "box_material_options",
-  //   //     description: "Box material options per specification",
-  //   //     requirement: "Boxes may be steel (4A), aluminum (4B), wooden (4C1 or 4C2), plywood (4D), reconstituted wood (4F), fiberboard (4G), plastic (4H1 or 4H2), or other metal (4N)",
-  //   //     applicableContainers: ["A13.15.boxes"]
-  //   //   },
-  //   //   {
-  //   //     condition: "drum_material_options",
-  //   //     description: "Drum material options per specification",
-  //   //     requirement: "Drums may be steel (1A2), aluminum (1B2), plywood (1D), fiber (1G), plastic (1H2), or other metal (1N2)",
-  //   //     applicableContainers: ["A13.15.drums"]
-  //   //   },
-  //   //   {
-  //   //     condition: "jerrican_material_options",
-  //   //     description: "Jerrican material options per specification",
-  //   //     requirement: "Jerricans may be steel (3A2), aluminum (3B2), or plastic (3H2)",
-  //   //     applicableContainers: ["A13.15.jerricans"]
-  //   //   }
-  //   // ],
-
-  //   referencedParagraphs: ["A13.15", "49 CFR Section 173.166"]
-  // },
-
-  // "A13.16.": {
-  //   title: "Package Asbestos (Hydrated Mineral Silicates)",
-  //   description: "Packaging requirements for asbestos including blue, brown, and white asbestos (chrysotile, crocidolite, amosite, anthophyllite, tremolite, actinolite) with occupational exposure minimization and dust containment requirements",
-  //   materials: ["Asbestos blue", "Asbestos brown", "Asbestos white", "Chrysotile", "Crocidolite", "Amosite", "Anthophyllite asbestos", "Tremolite asbestos", "Actinolite asbestos", "Products containing asbestos"],
-  //   hazardClasses: [9],
-
-  //   // specialRequirements: [
-  //   //   "Includes chrysotile, crocidolite, amosite, anthophyllite, tremolite, actinolite, and products containing these materials",
-  //   //   "Minimize occupational exposure to airborne particles during loading, handling, unloading, and aircraft decontamination",
-  //   //   "Use packaging meeting general requirements of A3.1",
-  //   //   "UN specification packaging is not required",
-  //   //   "Ensure dust and sift-proof packaging for non-rigid options",
-  //   //   "Palletize and unitize non-rigid packages with shrink-wrapping or strapping"
-  //   // ],
-
-  //   // quantityLimits: {
-  //   //   passengerAircraft: {
-  //   //     maxPerPackage: "Per A3.1 general packaging requirements",
-  //   //     maxPerInnerReceptacle: "Per individual packaging specifications for asbestos containment",
-  //   //     additionalRestrictions: [
-  //   //       "Must minimize occupational exposure to airborne particles",
-  //   //       "Packaging must be dust and sift-proof"
-  //   //     ]
-  //   //   },
-  //   //   cargoAircraft: {
-  //   //     maxPerPackage: "Per A3.1 general packaging requirements",
-  //   //     maxPerInnerReceptacle: "Per individual packaging specifications for asbestos containment",
-  //   //     additionalRestrictions: [
-  //   //       "Must minimize occupational exposure to airborne particles",
-  //   //       "Packaging must be dust and sift-proof"
-  //   //     ]
-  //   //   }
-  //   // },
-
-  //   packagingOptions: [
-  //     {
-  //       id: "A13.16.1.rigid_leak_tight",
-  //       type: "single",
-  //       description: "Rigid, leak-tight packaging such as metal, plastic, or fiber drums",
-  //       innerPackaging: {
-  //         required: false
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "rigid_leak_tight_drums",
-  //             containers: [
-  //               { code: "METAL_DRUM_RIGID", material: "metal", description: "Rigid, leak-tight metal drum for asbestos" },
-  //               { code: "PLASTIC_DRUM_RIGID", material: "plastic", description: "Rigid, leak-tight plastic drum for asbestos" },
-  //               { code: "FIBER_DRUM_RIGID", material: "fiber", description: "Rigid, leak-tight fiber drum for asbestos" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     },
-  //     {
-  //       id: "A13.16.2.palletized_nonrigid",
-  //       type: "single",
-  //       description: "Bags or nonrigid packaging that are dust and sift-proof, palletized and unitized",
-  //       innerPackaging: {
-  //         required: true,
-  //         description: "Dust and sift-proof bags or nonrigid packaging",
-  //         materials: ["Dust-proof materials", "Sift-proof materials"],
-  //         specialRequirements: [
-  //           "Must be dust and sift-proof",
-  //           "Ensure complete containment of asbestos particles",
-  //           "Prevent airborne particle release during transport"
-  //         ]
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "palletized_unitized",
-  //             containers: [
-  //               { code: "SHRINK_WRAPPED_PALLET", material: "plastic_wrapping", description: "Palletized asbestos packages shrink-wrapped in plastic" },
-  //               { code: "FIBERBOARD_WRAPPED_PALLET", material: "fiberboard_wrapping", description: "Palletized asbestos packages wrapped in fiberboard secured by strapping" },
-  //               { code: "UNITIZED_PALLET", material: "unitizing_material", description: "Palletized and unitized asbestos packages with secure wrapping" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     },
-  //     {
-  //       id: "A13.16.3.boxes_nonrigid",
-  //       type: "combination",
-  //       description: "Bags or nonrigid packaging that are dust and sift-proof in strong outer fiberboard or wooden boxes",
-  //       innerPackaging: {
-  //         required: true,
-  //         description: "Dust and sift-proof bags or nonrigid packaging",
-  //         materials: ["Dust-proof materials", "Sift-proof materials"],
-  //         specialRequirements: [
-  //           "Must be dust and sift-proof",
-  //           "Ensure complete containment of asbestos particles",
-  //           "Compatible with outer box requirements"
-  //         ]
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "strong_outer_boxes",
-  //             containers: [
-  //               { code: "STRONG_FIBERBOARD_BOX", material: "fiberboard", description: "Strong outer fiberboard box for dust/sift-proof asbestos bags" },
-  //               { code: "STRONG_WOODEN_BOX", material: "wood", description: "Strong outer wooden box for dust/sift-proof asbestos bags" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     }
-  //   ],
-
-  //   // conditionalRequirements: [
-  //   //   {
-  //   //     condition: "asbestos_types_covered",
-  //   //     description: "Covers all specified types of asbestos and products containing them",
-  //   //     requirement: "Includes chrysotile, crocidolite, amosite, anthophyllite, tremolite, actinolite asbestos, and products containing these materials",
-  //   //     applicableContainers: ["A13.16.1.rigid_leak_tight", "A13.16.2.palletized_nonrigid", "A13.16.3.boxes_nonrigid"]
-  //   //   },
-  //   //   {
-  //   //     condition: "occupational_exposure_minimization",
-  //   //     description: "Must minimize occupational exposure to airborne particles",
-  //   //     requirement: "Load, handle, unload, and remove aircraft contamination to minimize occupational exposure to airborne particles",
-  //   //     applicableContainers: ["A13.16.1.rigid_leak_tight", "A13.16.2.palletized_nonrigid", "A13.16.3.boxes_nonrigid"]
-  //   //   },
-  //   //   {
-  //   //     condition: "transportation_incident_protection",
-  //   //     description: "Minimize exposure during transportation incidents",
-  //   //     requirement: "Ensure packaging minimizes occupational exposure to airborne particles released incident to transportation",
-  //   //     applicableContainers: ["A13.16.1.rigid_leak_tight", "A13.16.2.palletized_nonrigid", "A13.16.3.boxes_nonrigid"]
-  //   //   },
-  //   //   {
-  //   //     condition: "a31_general_requirements",
-  //   //     description: "Must meet general packaging requirements of A3.1",
-  //   //     requirement: "Packaging meeting the general packaging requirements of A3.1 is required",
-  //   //     applicableContainers: ["A13.16.1.rigid_leak_tight", "A13.16.2.palletized_nonrigid", "A13.16.3.boxes_nonrigid"]
-  //   //   },
-  //   //   {
-  //   //     condition: "no_un_specification_required",
-  //   //     description: "UN specification packaging not required",
-  //   //     requirement: "UN specification packaging is not required for asbestos",
-  //   //     applicableContainers: ["A13.16.1.rigid_leak_tight", "A13.16.2.palletized_nonrigid", "A13.16.3.boxes_nonrigid"]
-  //   //   },
-  //   //   {
-  //   //     condition: "rigid_leak_tight_requirement",
-  //   //     description: "Rigid packaging must be leak-tight",
-  //   //     requirement: "Use rigid, leak-tight packaging such as metal, plastic, or fiber drums",
-  //   //     applicableContainers: ["A13.16.1.rigid_leak_tight"]
-  //   //   },
-  //   //   {
-  //   //     condition: "dust_sift_proof_requirement",
-  //   //     description: "Non-rigid packaging must be dust and sift-proof",
-  //   //     requirement: "Bags or other nonrigid packaging must be dust and sift-proof",
-  //   //     applicableContainers: ["A13.16.2.palletized_nonrigid", "A13.16.3.boxes_nonrigid"]
-  //   //   },
-  //   //   {
-  //   //     condition: "palletizing_unitizing_requirement",
-  //   //     description: "Non-rigid packages must be palletized and unitized",
-  //   //     requirement: "Ensure packages are palletized and unitized by shrink-wrapping in plastic or wrapping in fiberboard secured by strapping",
-  //   //     applicableContainers: ["A13.16.2.palletized_nonrigid"]
-  //   //   },
-  //   //   {
-  //   //     condition: "shrink_wrapping_methods",
-  //   //     description: "Acceptable unitizing methods for palletized packages",
-  //   //     requirement: "Use shrink-wrapping in plastic or wrapping in fiberboard secured by strapping for unitization",
-  //   //     applicableContainers: ["A13.16.2.palletized_nonrigid"]
-  //   //   },
-  //   //   {
-  //   //     condition: "strong_outer_box_requirement",
-  //   //     description: "Strong outer boxes required for non-rigid inner packaging",
-  //   //     requirement: "Use strong outer fiberboard or wooden boxes for dust/sift-proof bags or nonrigid packaging",
-  //   //     applicableContainers: ["A13.16.3.boxes_nonrigid"]
-  //   //   }
-  //   // ],
-
-  //   referencedParagraphs: ["A13.16", "A13.16.1", "A13.16.2", "A13.16.3", "A3.1"]
-  // },
-
-  // "A13.17.": {
-  //   title: "Package Polymeric Beads, Expandable and Plastic Molding Compound",
-  //   description: "Packaging requirements for polymeric beads or granules (expandable) and plastic molding compounds evolving flammable vapor, using sealed plastic liners with boxes/drums or vapor-tight drums without liners",
-  //   materials: ["Polymeric beads expandable", "Polymeric granules expandable", "Plastic molding compound in dough form", "Plastic molding compound in sheet form", "Plastic molding compound in extruded rope form", "Materials evolving flammable vapor"],
-  //   hazardClasses: [9],
-
-  //   // specialRequirements: [
-  //   //   "Apply to polymeric beads or granules (expandable) evolving flammable vapor",
-  //   //   "Apply to plastic molding compound in dough, sheet, or extruded rope form evolving flammable vapor",
-  //   //   "Use sealed plastic liner with boxes or specified drums",
-  //   //   "Vapor-tight metal or plastic drums may be used without liner",
-  //   //   "Package in boxes or drums as specified"
-  //   // ],
-
-  //   // quantityLimits: {
-  //   //   passengerAircraft: {
-  //   //     maxPerPackage: "Per packaging specifications for polymeric materials",
-  //   //     maxPerInnerReceptacle: "As contained within sealed plastic liner",
-  //   //     additionalRestrictions: [
-  //   //       "Must use sealed plastic liner except with vapor-tight drums",
-  //   //       "Package only in specified boxes or drums"
-  //   //     ]
-  //   //   },
-  //   //   cargoAircraft: {
-  //   //     maxPerPackage: "Per packaging specifications for polymeric materials",
-  //   //     maxPerInnerReceptacle: "As contained within sealed plastic liner",
-  //   //     additionalRestrictions: [
-  //   //       "Must use sealed plastic liner except with vapor-tight drums",
-  //   //       "Package only in specified boxes or drums"
-  //   //     ]
-  //   //   }
-  //   // },
-
-  //   packagingOptions: [
-  //     {
-  //       id: "A13.17.boxes_with_liner",
-  //       type: "combination",
-  //       description: "Polymeric beads/compounds in boxes with sealed plastic liner",
-  //       innerPackaging: {
-  //         required: true,
-  //         description: "Sealed plastic liner",
-  //         materials: ["Plastic liner materials"],
-  //         specialRequirements: [
-  //           "Must be sealed to contain flammable vapors",
-  //           "Provide vapor barrier for polymeric materials",
-  //           "Ensure proper sealing to prevent vapor escape"
-  //         ]
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "boxes",
-  //             containers: [
-  //               { code: "4A", material: "steel", description: "Steel box with sealed plastic liner for polymeric beads/compounds" },
-  //               { code: "4B", material: "aluminum", description: "Aluminum box with sealed plastic liner for polymeric beads/compounds" },
-  //               { code: "4C1", material: "natural_wood", description: "Ordinary natural wood box with sealed plastic liner for polymeric beads/compounds" },
-  //               { code: "4C2", material: "natural_wood", description: "Sift-proof natural wood box with sealed plastic liner for polymeric beads/compounds" },
-  //               { code: "4D", material: "plywood", description: "Plywood box with sealed plastic liner for polymeric beads/compounds" },
-  //               { code: "4F", material: "reconstituted_wood", description: "Reconstituted wood box with sealed plastic liner for polymeric beads/compounds" },
-  //               { code: "4G", material: "fiberboard", description: "Fiberboard box with sealed plastic liner for polymeric beads/compounds" },
-  //               { code: "4H1", material: "plastic", description: "Expanded plastic box with sealed plastic liner for polymeric beads/compounds" },
-  //               { code: "4H2", material: "plastic", description: "Solid plastic box with sealed plastic liner for polymeric beads/compounds" },
-  //               { code: "4N", material: "other_metal", description: "Other metal box with sealed plastic liner for polymeric beads/compounds" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     },
-  //     {
-  //       id: "A13.17.drums_with_liner",
-  //       type: "combination",
-  //       description: "Polymeric beads/compounds in plywood or fiber drums with sealed plastic liner",
-  //       innerPackaging: {
-  //         required: true,
-  //         description: "Sealed plastic liner",
-  //         materials: ["Plastic liner materials"],
-  //         specialRequirements: [
-  //           "Must be sealed to contain flammable vapors",
-  //           "Provide vapor barrier for polymeric materials",
-  //           "Compatible with plywood or fiber drum construction"
-  //         ]
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "non_metal_drums",
-  //             containers: [
-  //               { code: "1D", material: "plywood", description: "Plywood drum with sealed plastic liner for polymeric beads/compounds" },
-  //               { code: "1G", material: "fiber", description: "Fiber drum with sealed plastic liner for polymeric beads/compounds" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     },
-  //     {
-  //       id: "A13.17.vapor_tight_drums_no_liner",
-  //       type: "single",
-  //       description: "Polymeric beads/compounds in vapor-tight metal or plastic drums without liner",
-  //       innerPackaging: {
-  //         required: false
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "vapor_tight_drums",
-  //             containers: [
-  //               { code: "1A1", material: "steel", description: "Non-removable head steel drum (vapor-tight) for polymeric beads/compounds" },
-  //               { code: "1A2", material: "steel", description: "Removable head steel drum (vapor-tight) for polymeric beads/compounds" },
-  //               { code: "1B1", material: "aluminum", description: "Non-removable head aluminum drum (vapor-tight) for polymeric beads/compounds" },
-  //               { code: "1B2", material: "aluminum", description: "Removable head aluminum drum (vapor-tight) for polymeric beads/compounds" },
-  //               { code: "1H1", material: "plastic", description: "Non-removable head plastic drum (vapor-tight) for polymeric beads/compounds" },
-  //               { code: "1H2", material: "plastic", description: "Removable head plastic drum (vapor-tight) for polymeric beads/compounds" },
-  //               { code: "1N1", material: "other_metal", description: "Non-removable head metal drum other than steel/aluminum (vapor-tight) for polymeric beads/compounds" },
-  //               { code: "1N2", material: "other_metal", description: "Removable head metal drum other than steel/aluminum (vapor-tight) for polymeric beads/compounds" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     }
-  //   ],
-
-  //   // conditionalRequirements: [
-  //   //   {
-  //   //     condition: "polymeric_beads_granules_applicability",
-  //   //     description: "Applicable to expandable polymeric beads or granules evolving flammable vapor",
-  //   //     requirement: "Apply to polymeric beads or granules, expandable, evolving flammable vapor",
-  //   //     applicableContainers: ["A13.17.boxes_with_liner", "A13.17.drums_with_liner", "A13.17.vapor_tight_drums_no_liner"]
-  //   //   },
-  //   //   {
-  //   //     condition: "plastic_molding_compound_applicability",
-  //   //     description: "Applicable to plastic molding compounds in various forms evolving flammable vapor",
-  //   //     requirement: "Apply to plastic molding compound in dough, sheet, or extruded rope form, evolving flammable vapor",
-  //   //     applicableContainers: ["A13.17.boxes_with_liner", "A13.17.drums_with_liner", "A13.17.vapor_tight_drums_no_liner"]
-  //   //   },
-  //   //   {
-  //   //     condition: "flammable_vapor_evolution",
-  //   //     description: "Materials must be those that evolve flammable vapor",
-  //   //     requirement: "Applicable only to materials evolving flammable vapor during transport or storage",
-  //   //     applicableContainers: ["A13.17.boxes_with_liner", "A13.17.drums_with_liner", "A13.17.vapor_tight_drums_no_liner"]
-  //   //   },
-  //   //   {
-  //   //     condition: "sealed_plastic_liner_requirement",
-  //   //     description: "Sealed plastic liner required for boxes and specified drums",
-  //   //     requirement: "Use sealed plastic liner with boxes and plywood/fiber drums",
-  //   //     applicableContainers: ["A13.17.boxes_with_liner", "A13.17.drums_with_liner"]
-  //   //   },
-  //   //   {
-  //   //     condition: "vapor_containment_requirement",
-  //   //     description: "Packaging must contain flammable vapors",
-  //   //     requirement: "Ensure packaging contains flammable vapors evolved by polymeric materials",
-  //   //     applicableContainers: ["A13.17.boxes_with_liner", "A13.17.drums_with_liner", "A13.17.vapor_tight_drums_no_liner"]
-  //   //   },
-  //   //   {
-  //   //     condition: "box_material_options",
-  //   //     description: "Box material options per specification",
-  //   //     requirement: "Boxes may be steel (4A), aluminum (4B), wood (4C1 or 4C2), plywood (4D), fiberboard (4G), reconstituted wood (4F), plastic (4H1 or 4H2), or other metal (4N)",
-  //   //     applicableContainers: ["A13.17.boxes_with_liner"]
-  //   //   },
-  //   //   {
-  //   //     condition: "drum_with_liner_options",
-  //   //     description: "Drum options requiring liner",
-  //   //     requirement: "Drums requiring liner are limited to plywood (1D) or fiber (1G)",
-  //   //     applicableContainers: ["A13.17.drums_with_liner"]
-  //   //   },
-  //   //   {
-  //   //     condition: "vapor_tight_drum_exemption",
-  //   //     description: "Vapor-tight drums do not require liner",
-  //   //     requirement: "Vapor-tight metal or plastic drums (1A1, 1A2, 1B1, 1B2, 1H1, 1H2, 1N1, or 1N2) may be used without liner",
-  //   //     applicableContainers: ["A13.17.vapor_tight_drums_no_liner"]
-  //   //   },
-  //   //   {
-  //   //     condition: "vapor_tight_requirement",
-  //   //     description: "Drums used without liner must be vapor-tight",
-  //   //     requirement: "Drums used without liner must be vapor-tight to contain flammable vapors",
-  //   //     applicableContainers: ["A13.17.vapor_tight_drums_no_liner"]
-  //   //   },
-  //   //   {
-  //   //     condition: "material_form_specifications",
-  //   //     description: "Specific forms of materials covered",
-  //   //     requirement: "Covers beads/granules (expandable) and molding compounds in dough, sheet, or extruded rope form",
-  //   //     applicableContainers: ["A13.17.boxes_with_liner", "A13.17.drums_with_liner", "A13.17.vapor_tight_drums_no_liner"]
-  //   //   }
-  //   // ],
-
-  //   referencedParagraphs: ["A13.17"]
-  // },
-
-  // "A13.18.": {
-  //   title: "Package Chemical or First Aid Kits",
-  //   description: "Packaging requirements for boxes, cases, etc. containing small amounts of various hazardous materials used for medical, analytical, or testing purposes with quantity limits and compatibility requirements",
-  //   materials: ["Chemical kits", "First aid kits", "Medical testing materials", "Analytical testing materials", "Limited quantity hazardous materials", "Excepted quantity materials", "Division 5.2 organic peroxides Type D, E, F"],
-  //   hazardClasses: [1, 2, 3, 4, 5, 6, 8, 9],
-
-  //   // specialRequirements: [
-  //   //   "Intended for boxes/cases containing small amounts of hazardous materials for medical, analytical, or testing purposes",
-  //   //   "Kit PG assignment must be most stringent PG of any individual substance in kit",
-  //   //   "Contents must be packed to prevent dangerous evolution of heat or gas from mixture",
-  //   //   "Only limited quantities per A19.3.2 and excepted quantities per A19.2 authorized",
-  //   //   "Must meet inner packaging requirements of A19.2.3 for excepted quantities",
-  //   //   "Protect inner receptacles from other materials in the kit"
-  //   // ],
-
-  //   // quantityLimits: {
-  //   //   passengerAircraft: {
-  //   //     maxPerPackage: "10kg (22 lbs) total dangerous goods per package",
-  //   //     maxPerInnerReceptacle: "General: 250mL liquids/250g solids; Division 5.2 Type D,E,F: 125mL liquids/250g solids",
-  //   //     additionalRestrictions: [
-  //   //       "Maximum 1L (1 quart) liquids or 1kg (2.2 lbs) solids hazardous material per kit",
-  //   //       "Only limited quantities and excepted quantities authorized"
-  //   //     ]
-  //   //   },
-  //   //   cargoAircraft: {
-  //   //     maxPerPackage: "10kg (22 lbs) total dangerous goods per package",
-  //   //     maxPerInnerReceptacle: "General: 250mL liquids/250g solids; Division 5.2 Type D,E,F: 125mL liquids/250g solids",
-  //   //     additionalRestrictions: [
-  //   //       "Maximum 1L (1 quart) liquids or 1kg (2.2 lbs) solids hazardous material per kit",
-  //   //       "Only limited quantities and excepted quantities authorized"
-  //   //     ]
-  //   //   }
-  //   // },
-
-  //   packagingOptions: [
-  //     {
-  //       id: "A13.18.2.general_chemical_kits",
-  //       type: "combination",
-  //       description: "Chemical or first aid kits with protected inner receptacles in specified boxes",
-  //       innerPackaging: {
-  //         required: true,
-  //         description: "Inner receptacles protected from other materials in kit, meeting quantity limits",
-  //         materials: ["Suitable receptacle materials", "Compatible materials"],
-  //         specialRequirements: [
-  //           "Inner receptacles max 250mL for liquids or 250g for solids (general)",
-  //           "Division 5.2 Type D,E,F: max 125mL liquids or 250g solids",
-  //           "Must be protected from other materials in kit",
-  //           "Meet A19.2.3 inner packaging requirements for excepted quantities"
-  //         ]
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "kit_boxes",
-  //             containers: [
-  //               { code: "4C1", material: "natural_wood", description: "Ordinary natural wood box for chemical/first aid kits" },
-  //               { code: "4C2", material: "natural_wood", description: "Sift-proof natural wood box for chemical/first aid kits" },
-  //               { code: "4D", material: "plywood", description: "Plywood box for chemical/first aid kits" },
-  //               { code: "4F", material: "reconstituted_wood", description: "Reconstituted wood box for chemical/first aid kits" },
-  //               { code: "4H1", material: "plastic", description: "Expanded plastic box for chemical/first aid kits" },
-  //               { code: "4H2", material: "plastic", description: "Solid plastic box for chemical/first aid kits" },
-  //               { code: "4G", material: "fiberboard", description: "Fiberboard box for chemical/first aid kits" },
-  //               { code: "4A", material: "steel", description: "Steel box for chemical/first aid kits" },
-  //               { code: "4B", material: "aluminum", description: "Aluminum box for chemical/first aid kits" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     },
-  //     {
-  //       id: "A13.18.2.division52_organic_peroxide_kits",
-  //       type: "combination",
-  //       description: "Chemical kits containing Division 5.2 organic peroxides Type D, E, F with reduced quantity limits",
-  //       innerPackaging: {
-  //         required: true,
-  //         description: "Inner receptacles for Division 5.2 organic peroxides with reduced quantity limits",
-  //         materials: ["Compatible materials for organic peroxides", "Non-reactive materials"],
-  //         specialRequirements: [
-  //           "Division 5.2 Type D, E, F only",
-  //           "Max 125mL for liquids or 250g for solids",
-  //           "Must be protected from other materials in kit",
-  //           "Must prevent dangerous evolution of heat or gas"
-  //         ]
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "organic_peroxide_kit_boxes",
-  //             containers: [
-  //               { code: "4C1", material: "natural_wood", description: "Ordinary natural wood box for organic peroxide kits" },
-  //               { code: "4C2", material: "natural_wood", description: "Sift-proof natural wood box for organic peroxide kits" },
-  //               { code: "4D", material: "plywood", description: "Plywood box for organic peroxide kits" },
-  //               { code: "4F", material: "reconstituted_wood", description: "Reconstituted wood box for organic peroxide kits" },
-  //               { code: "4H1", material: "plastic", description: "Expanded plastic box for organic peroxide kits" },
-  //               { code: "4H2", material: "plastic", description: "Solid plastic box for organic peroxide kits" },
-  //               { code: "4G", material: "fiberboard", description: "Fiberboard box for organic peroxide kits" },
-  //               { code: "4A", material: "steel", description: "Steel box for organic peroxide kits" },
-  //               { code: "4B", material: "aluminum", description: "Aluminum box for organic peroxide kits" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     }
-  //   ],
-
-  //   // conditionalRequirements: [
-  //   //   {
-  //   //     condition: "medical_analytical_testing_purpose",
-  //   //     description: "Intended for medical, analytical, or testing purposes",
-  //   //     requirement: "Description intended for boxes, cases, etc. containing small amounts of hazardous materials for medical, analytical, or testing purposes",
-  //   //     applicableContainers: ["A13.18.2.general_chemical_kits", "A13.18.2.division52_organic_peroxide_kits"]
-  //   //   },
-  //   //   {
-  //   //     condition: "most_stringent_packing_group",
-  //   //     description: "Kit PG must be most stringent of individual substances",
-  //   //     requirement: "Ensure PG assigned to kit as a whole is the most stringent PG assigned to any individual substance in kit",
-  //   //     applicableContainers: ["A13.18.2.general_chemical_kits", "A13.18.2.division52_organic_peroxide_kits"]
-  //   //   },
-  //   //   {
-  //   //     condition: "no_dangerous_mixture_reaction",
-  //   //     description: "Contents must not cause dangerous evolution of heat or gas when mixed",
-  //   //     requirement: "Ensure contents are packed so there is no possibility of mixture causing dangerous evolution of heat or gas",
-  //   //     applicableContainers: ["A13.18.2.general_chemical_kits", "A13.18.2.division52_organic_peroxide_kits"]
-  //   //   },
-  //   //   {
-  //   //     condition: "limited_excepted_quantities_only",
-  //   //     description: "Only limited quantities and excepted quantities authorized",
-  //   //     requirement: "Only hazardous materials authorized as limited quantities per A19.3.2 and excepted quantities per A19.2 are permitted",
-  //   //     applicableContainers: ["A13.18.2.general_chemical_kits", "A13.18.2.division52_organic_peroxide_kits"]
-  //   //   },
-  //   //   {
-  //   //     condition: "inner_packaging_a1923_compliance",
-  //   //     description: "Must meet A19.2.3 inner packaging requirements for excepted quantities",
-  //   //     requirement: "Excepted quantities must meet inner packaging requirements of A19.2.3",
-  //   //     applicableContainers: ["A13.18.2.general_chemical_kits", "A13.18.2.division52_organic_peroxide_kits"]
-  //   //   },
-  //   //   {
-  //   //     condition: "general_inner_receptacle_limits",
-  //   //     description: "General inner receptacle quantity limits",
-  //   //     requirement: "Except Division 5.2: inner receptacles max 250mL (8.5 fl oz) liquids or 250g (9 oz) solids",
-  //   //     applicableContainers: ["A13.18.2.general_chemical_kits"]
-  //   //   },
-  //   //   {
-  //   //     condition: "division52_reduced_limits",
-  //   //     description: "Reduced limits for Division 5.2 organic peroxides",
-  //   //     requirement: "Division 5.2 Type D, E, F only: inner receptacles max 125mL liquids or 250g solids",
-  //   //     applicableContainers: ["A13.18.2.division52_organic_peroxide_kits"]
-  //   //   },
-  //   //   {
-  //   //     condition: "total_hazmat_per_kit_limit",
-  //   //     description: "Total hazardous material limit per kit",
-  //   //     requirement: "Total quantity of hazardous material in any one kit may not exceed 1L (1 quart) liquids or 1kg (2.2 lbs) solids",
-  //   //     applicableContainers: ["A13.18.2.general_chemical_kits", "A13.18.2.division52_organic_peroxide_kits"]
-  //   //   },
-  //   //   {
-  //   //     condition: "total_dangerous_goods_per_package_limit",
-  //   //     description: "Total dangerous goods limit per package",
-  //   //     requirement: "Total quantity of dangerous goods in any one package may not exceed 10kg (22 lbs)",
-  //   //     applicableContainers: ["A13.18.2.general_chemical_kits", "A13.18.2.division52_organic_peroxide_kits"]
-  //   //   },
-  //   //   {
-  //   //     condition: "inner_receptacle_protection",
-  //   //     description: "Inner receptacles must be protected from other kit materials",
-  //   //     requirement: "Protect inner receptacles from other materials in the kit",
-  //   //     applicableContainers: ["A13.18.2.general_chemical_kits", "A13.18.2.division52_organic_peroxide_kits"]
-  //   //   },
-  //   //   {
-  //   //     condition: "specified_box_materials_only",
-  //   //     description: "Must use specified box materials",
-  //   //     requirement: "Pack in wood (4C1 or 4C2), plywood (4D), reconstituted wood (4F), expanded plastic (4H1), solid plastic (4H2), fiberboard (4G), steel (4A), or aluminum (4B) box",
-  //   //     applicableContainers: ["A13.18.2.general_chemical_kits", "A13.18.2.division52_organic_peroxide_kits"]
-  //   //   },
-  //   //   {
-  //   //     condition: "table_a192_reference",
-  //   //     description: "Reference to Table A19.2 for limited quantities",
-  //   //     requirement: "Refer to Table A19.2, Note 1 for limited quantities of hazardous material in Chemical or First Aid Kits",
-  //   //     applicableContainers: ["A13.18.2.general_chemical_kits", "A13.18.2.division52_organic_peroxide_kits"]
-  //   //   },
-  //   //   {
-  //   //     condition: "organic_peroxide_type_restriction",
-  //   //     description: "Only specific organic peroxide types authorized",
-  //   //     requirement: "For Division 5.2 organic peroxides, only Type D, E and F are authorized",
-  //   //     applicableContainers: ["A13.18.2.division52_organic_peroxide_kits"]
-  //   //   }
-  //   // ],
-
-  //   referencedParagraphs: ["A13.18", "A13.18.1", "A13.18.1.1", "A13.18.1.2", "A13.18.1.3", "A13.18.2", "A13.18.2.1", "A13.18.2.2", "A13.18.2.3", "A13.18.3", "A19.3.2", "A19.2", "A19.2.3", "Table A19.2"]
-  // },
-
-  // "A13.19.": {
-  //   title: "Capacitors",
-  //   description: "Packaging and safety requirements for capacitors including those with hazardous and non-hazardous electrolytes, covering energy storage capacity limits, short circuit protection, pressure relief, and installation considerations",
-  //   materials: ["Capacitors with non-hazardous electrolyte", "Capacitors with hazardous electrolyte", "Capacitor modules", "Capacitors installed in equipment", "Large robust equipment with capacitors"],
-  //   hazardClasses: [9],
-
-  //   // specialRequirements: [
-  //   //   "Transport capacitors not installed in equipment in uncharged state",
-  //   //   "Protect against short circuit hazards with appropriate methods based on energy storage capacity",
-  //   //   "Design capacitors with hazardous electrolyte to withstand 95 kPa pressure differential",
-  //   //   "Include pressure relief mechanism (vent or weak point) with liquid containment",
-  //   //   "Mark capacitors with energy storage capacity in Wh",
-  //   //   "Securely cushion and pack in strong outer packaging"
-  //   // ],
-
-  //   // quantityLimits: {
-  //   //   passengerAircraft: {
-  //   //     maxPerPackage: "Per energy storage capacity and electrolyte hazard classification",
-  //   //     maxPerInnerReceptacle: "Individual capacitor energy storage capacity in Wh",
-  //   //     additionalRestrictions: [
-  //   //       "≤10 Wh capacitors with non-hazardous electrolyte: minimal requirements",
-  //   //       ">10 Wh capacitors with hazardous electrolyte: full manual requirements apply"
-  //   //     ]
-  //   //   },
-  //   //   cargoAircraft: {
-  //   //     maxPerPackage: "Per energy storage capacity and electrolyte hazard classification",
-  //   //     maxPerInnerReceptacle: "Individual capacitor energy storage capacity in Wh",
-  //   //     additionalRestrictions: [
-  //   //       "≤10 Wh capacitors with non-hazardous electrolyte: minimal requirements",
-  //   //       ">10 Wh capacitors with hazardous electrolyte: full manual requirements apply"
-  //   //     ]
-  //   //   }
-  //   // },
-
-  //   packagingOptions: [
-  //     {
-  //       id: "A13.19.2.standalone_capacitors",
-  //       type: "single",
-  //       description: "Capacitors not installed in equipment, securely cushioned in strong outer packaging",
-  //       innerPackaging: {
-  //         required: true,
-  //         description: "Secure cushioning for capacitors with short circuit protection",
-  //         materials: ["Cushioning materials", "Protective materials"],
-  //         specialRequirements: [
-  //           "Must be in uncharged state if not installed in equipment",
-  //           "Provide short circuit protection per energy storage capacity",
-  //           "≤10 Wh: short circuit protection OR metal strap connecting terminals",
-  //           ">10 Wh: metal strap connecting terminals required"
-  //         ]
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "strong_outer_packaging",
-  //             containers: [
-  //               { code: "STRONG_BOX", material: "strong_material", description: "Strong outer packaging for standalone capacitors" },
-  //               { code: "PROTECTIVE_CONTAINER", material: "protective_material", description: "Protective container with cushioning for capacitors" },
-  //               { code: "SECURE_PACKAGING", material: "secure_material", description: "Secure packaging preventing capacitor movement and damage" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     },
-  //     {
-  //       id: "A13.19.2.equipment_installed_packaged",
-  //       type: "single",
-  //       description: "Capacitors installed in equipment packaged to prevent accidental functioning",
-  //       innerPackaging: {
-  //         required: false
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "equipment_packaging",
-  //             containers: [
-  //               { code: "EQUIPMENT_STRONG_BOX", material: "strong_material", description: "Strong outer packaging for equipment containing capacitors" },
-  //               { code: "EQUIPMENT_PROTECTIVE_CONTAINER", material: "protective_material", description: "Protective container for equipment with capacitors preventing accidental functioning" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     },
-  //     {
-  //       id: "A13.19.2.equipment_unpackaged",
-  //       type: "single",
-  //       description: "Large robust equipment with capacitors offered unpackaged or on pallets",
-  //       innerPackaging: {
-  //         required: false
-  //       },
-  //       outerPackaging: {
-  //         categories: [
-  //           {
-  //             type: "equivalent_protection",
-  //             containers: [
-  //               { code: "UNPACKAGED_EQUIPMENT", material: "equipment_housing", description: "Large robust equipment providing equivalent protection for contained capacitors" },
-  //               { code: "PALLETIZED_EQUIPMENT", material: "pallet_platform", description: "Equipment on pallets with capacitors afforded equivalent protection" }
-  //             ]
-  //           }
-  //         ]
-  //       },
-  //       isComplete: true
-  //     }
-  //   ],
-
-  //   // conditionalRequirements: [
-  //   //   {
-  //   //     condition: "uncharged_state_requirement",
-  //   //     description: "Capacitors not installed in equipment must be transported uncharged",
-  //   //     requirement: "Ensure capacitors not installed in equipment are transported in uncharged state",
-  //   //     applicableContainers: ["A13.19.2.standalone_capacitors"]
-  //   //   },
-  //   //   {
-  //   //     condition: "short_circuit_protection_10wh_or_less",
-  //   //     description: "Short circuit protection for capacitors ≤10 Wh energy storage",
-  //   //     requirement: "When energy storage ≤10 Wh, protect against short circuit OR fit with metal strap connecting terminals",
-  //   //     applicableContainers: ["A13.19.2.standalone_capacitors", "A13.19.2.equipment_installed_packaged"]
-  //   //   },
-  //   //   {
-  //   //     condition: "metal_strap_requirement_over_10wh",
-  //   //     description: "Metal strap required for capacitors >10 Wh energy storage",
-  //   //     requirement: "When energy storage >10 Wh, fit capacitor with metal strap connecting terminals",
-  //   //     applicableContainers: ["A13.19.2.standalone_capacitors", "A13.19.2.equipment_installed_packaged"]
-  //   //   },
-  //   //   {
-  //   //     condition: "pressure_differential_design_hazardous_electrolyte",
-  //   //     description: "Pressure differential design requirement for hazardous electrolyte capacitors",
-  //   //     requirement: "Capacitors with hazardous electrolyte must withstand 95 kPa (0.95 bar, 14 psi) pressure differential",
-  //   //     applicableContainers: ["A13.19.2.standalone_capacitors", "A13.19.2.equipment_installed_packaged", "A13.19.2.equipment_unpackaged"]
-  //   //   },
-  //   //   {
-  //   //     condition: "pressure_relief_mechanism",
-  //   //     description: "Pressure relief and liquid containment requirements",
-  //   //     requirement: "Design capacitors to safely relieve pressure through vent or weak point, with liquid containment by packaging or equipment",
-  //   //     applicableContainers: ["A13.19.2.standalone_capacitors", "A13.19.2.equipment_installed_packaged", "A13.19.2.equipment_unpackaged"]
-  //   //   },
-  //   //   {
-  //   //     condition: "energy_storage_marking",
-  //   //     description: "Energy storage capacity marking requirement",
-  //   //     requirement: "Mark capacitors with energy storage capacity in Wh",
-  //   //     applicableContainers: ["A13.19.2.standalone_capacitors", "A13.19.2.equipment_installed_packaged", "A13.19.2.equipment_unpackaged"]
-  //   //   },
-  //   //   {
-  //   //     condition: "non_hazardous_electrolyte_exemption",
-  //   //     description: "Limited requirements for capacitors with non-hazardous electrolyte",
-  //   //     requirement: "Capacitors with non-hazardous electrolyte subject only to A13.19.1 requirements",
-  //   //     applicableContainers: ["A13.19.2.standalone_capacitors", "A13.19.2.equipment_installed_packaged", "A13.19.2.equipment_unpackaged"]
-  //   //   },
-  //   //   {
-  //   //     condition: "10wh_or_less_hazardous_drop_test_exemption",
-  //   //     description: "Drop test exemption for ≤10 Wh hazardous electrolyte capacitors",
-  //   //     requirement: "Capacitors with hazardous electrolyte ≤10 Wh subject only to A13.19.1 if passing 1.2m drop test without content loss",
-  //   //     applicableContainers: ["A13.19.2.standalone_capacitors"]
-  //   //   },
-  //   //   {
-  //   //     condition: "over_10wh_hazardous_full_requirements",
-  //   //     description: "Full manual requirements for >10 Wh hazardous electrolyte capacitors not in equipment",
-  //   //     requirement: "Capacitors with hazardous electrolyte >10 Wh not in equipment subject to full manual requirements",
-  //   //     applicableContainers: ["A13.19.2.standalone_capacitors"]
-  //   //   },
-  //   //   {
-  //   //     condition: "equipment_installed_exemption",
-  //   //     description: "Limited requirements for capacitors installed in equipment",
-  //   //     requirement: "Equipment-installed capacitors with hazardous electrolyte subject only to A13.19.1 when packaged to prevent accidental functioning",
-  //   //     applicableContainers: ["A13.19.2.equipment_installed_packaged"]
-  //   //   },
-  //   //   {
-  //   //     condition: "accidental_functioning_prevention",
-  //   //     description: "Equipment packaging must prevent accidental capacitor functioning",
-  //   //     requirement: "Package equipment to prevent accidental functioning of capacitors during transport",
-  //   //     applicableContainers: ["A13.19.2.equipment_installed_packaged"]
-  //   //   },
-  //   //   {
-  //   //     condition: "equivalent_protection_requirement",
-  //   //     description: "Equipment must provide equivalent protection for unpackaged transport",
-  //   //     requirement: "Large robust equipment may be unpackaged/palletized when equipment affords equivalent protection for capacitors",
-  //   //     applicableContainers: ["A13.19.2.equipment_unpackaged"]
-  //   //   },
-  //   //   {
-  //   //     condition: "secure_cushioning_requirement",
-  //   //     description: "Standalone capacitors must be securely cushioned",
-  //   //     requirement: "Securely cushion and pack capacitors within strong outer packagings",
-  //   //     applicableContainers: ["A13.19.2.standalone_capacitors"]
-  //   //   }
-  //   // ],
-
-  //   referencedParagraphs: ["A13.19", "A13.19.1", "A13.19.1.1", "A13.19.1.2", "A13.19.1.2.1", "A13.19.1.2.2", "A13.19.1.3", "A13.19.1.4", "A13.19.1.5", "A13.19.2", "A13.19.3", "A13.19.4", "A13.19.5", "A13.19.6"]
-  // },
-
-  // "A13.20.": {
-  //   title: "UN3530, Engine, internal combustion, or Machinery, internal combustion",
-  //   description: "Packaging and preparation requirements for engines and machines with internal combustion engines powered by fuels that are marine pollutants but do not meet the criteria of any other Class or Division, including fuel draining, purging, orientation, and accessorial hazard management",
-  //   materials: ["Internal combustion engines", "Internal combustion machinery", "Engine-powered support equipment", "Wheeled engine-powered equipment", "Non-wheeled engine-powered equipment", "Single axle equipment", "Equipment with fuel systems", "Damaged or inoperable engines"],
-  //   hazardClasses: [9],
-  //   // specialRequirements: [
-  //   //   "Use equipment service technical manual to prepare items for shipment",
-  //   //   "Completely drain engine-powered SE of fuel with up to 500 ml (17 ounces) residual permitted in components and fuel lines",
-  //   //   "Securely close all fuel lines and fuel tanks to prevent leakage",
-  //   //   "Drain and purge when required by applicable technical manual",
-  //   //   "For large fuel systems unable to drain to 500 ml: drain to extent no free standing liquid remains in tank, lines, or system",
-  //   //   "For freight containers: drain fuel tanks and purge if required by technical directive or if fuel flash point <38°C (100°F)",
-  //   //   "Secure engines/machinery in strong rigid outer packaging to prevent accidental leakage and movement during transport",
-  //   //   "Install plugs, caps, and covers over all openings as required by technical directives for damaged/inoperable engines"
-  //   // ],
-  //   // quantityLimits: {
-  //   //   passengerAircraft: "No limit specified",
-  //   //   cargoAircraft: "No limit specified",
-  //   //   maxNetQuantity: "500 ml residual fuel permitted in components and fuel lines"
-  //   // },
-  //   packagingOptions: [
-  //     {
-  //       id: "A13.20.1.wheeled_equipment_chapter3",
-  //       type: "equipment",
-  //       description: "Wheeled engine-powered SE under Chapter 3 authority (up to half tank fuel permitted)",
-  //       innerPackaging: {
-  //         required: false,
-  //         description: "Equipment fuel system serves as containment"
-  //       },
-  //       outerPackaging: {
-  //         required: false,
-  //         categories: [],
-  //         // description: "Equipment serves as outer packaging when properly secured and prepared"
-  //       },
-  //       // specialInstructions: [
-  //       //   "May contain up to one-half tank of fuel when transported under Chapter 3 authority",
-  //       //   "Ship only minimum quantity of fuel consistent with operational requirements",
-  //       //   "Ensure tanks are securely closed"
-  //       // ]
-  //     },
-  //     {
-  //       id: "A13.20.2.standard_equipment",
-  //       type: "equipment",
-  //       description: "Standard engine-powered equipment with fuel drainage requirements",
-  //       innerPackaging: {
-  //         required: false,
-  //         description: "Equipment fuel system and components serve as containment"
-  //       },
-  //       outerPackaging: {
-  //         required: true,
-  //         categories: [],
-  //         // description: "Strong rigid outer packaging required when equipment could be handled in other than upright position",
-  //         // specialRequirements: [
-  //         //   "Secure in orientation to prevent accidental leakage",
-  //         //   "Prevent any movement during transport that would change orientation or cause damage"
-  //         // ]
-  //       }
-  //     },
-  //     {
-  //       id: "A13.20.3.freight_container_equipment",
-  //       type: "equipment",
-  //       description: "Equipment loaded in freight containers with enhanced fuel drainage and purging requirements",
-  //       innerPackaging: {
-  //         required: false,
-  //         description: "Equipment fuel system serves as containment after proper drainage and purging"
-  //       },
-  //       outerPackaging: {
-  //         required: true,
-  //          categories: [],
-  //         // description: "Freight container with proper securing and battery management",
-  //         // specialRequirements: [
-  //         //   "Remove acid or alkali batteries and package according to A12.4",
-  //         //   "Do not ship packaged wet-cell batteries inside freight container unless accessible during flight",
-  //         //   "Non-spillable and non-hazardous gel-type batteries may remain in equipment holder if upright with disconnected cables",
-  //         //   "Tape cable/terminal ends to prevent short circuit"
-  //         // ]
-  //       },
-  //       // specialInstructions: [
-  //       //   "Drain fuel tanks completely",
-  //       //   "Purge fuel tank and system if required by technical directive or if fuel flash point <38°C",
-  //       //   "Follow specific drainage/purging procedures: completely drain fuel, run engine until stalls, allow tanks/lines open 24 hours",
-  //       //   "Ensure installed batteries are non-spillable or non-regulated"
-  //       // ]
-  //     }
-  //   ],
-  //   // conditionalRequirements: [
-  //   //   {
-  //   //     condition: "technical_manual_compliance",
-  //   //     description: "Equipment service technical manual preparation requirements",
-  //   //     requirement: "Use the equipment service technical manual to prepare items for shipment",
-  //   //     applicableContainers: ["A13.20.1.wheeled_equipment_chapter3", "A13.20.2.standard_equipment", "A13.20.3.freight_container_equipment"]
-  //   //   },
-  //   //   {
-  //   //     condition: "standard_fuel_drainage",
-  //   //     description: "Standard fuel drainage requirements for most equipment",
-  //   //     requirement: "Completely drain engine-powered SE of fuel with up to 500 ml (17 ounces) permitted in components and fuel lines, securely close all lines and tanks",
-  //   //     applicableContainers: ["A13.20.2.standard_equipment"]
-  //   //   },
-  //   //   {
-  //   //     condition: "large_fuel_system_drainage",
-  //   //     description: "Enhanced drainage for large fuel systems unable to meet 500ml limit",
-  //   //     requirement: "Drain large fuel systems that cannot reach 500 ml limit to extent no free standing liquid remains in fuel tank, lines, or system",
-  //   //     applicableContainers: ["A13.20.2.standard_equipment"]
-  //   //   },
-  //   //   {
-  //   //     condition: "chapter3_wheeled_equipment_fuel",
-  //   //     description: "Fuel allowance for wheeled equipment under Chapter 3 authority",
-  //   //     requirement: "Wheeled engine-powered SE may contain up to one-half tank of fuel, ship minimum quantity consistent with operational requirements",
-  //   //     applicableContainers: ["A13.20.1.wheeled_equipment_chapter3"]
-  //   //   },
-  //   //   {
-  //   //     condition: "non_wheeled_drainage_requirement",
-  //   //     description: "Enhanced drainage for non-wheeled equipment under Chapter 3",
-  //   //     requirement: "Drain non-wheeled engine powered SE so no more than 500 ml (17 ounces) of residual fuel is remaining",
-  //   //     applicableContainers: ["A13.20.1.wheeled_equipment_chapter3"]
-  //   //   },
-  //   //   {
-  //   //     condition: "single_axle_complete_drainage",
-  //   //     description: "Complete drainage requirement for single axle equipment",
-  //   //     requirement: "Completely drain single axle equipment loaded with tongue resting on aircraft floor",
-  //   //     applicableContainers: ["A13.20.2.standard_equipment"]
-  //   //   },
-  //   //   {
-  //   //     condition: "damaged_engine_preparation",
-  //   //     description: "Special preparation for damaged or inoperable engines",
-  //   //     requirement: "For damaged/inoperable engines where purging cannot be accomplished: drain to maximum extent possible and install plugs, caps, and covers over all openings per technical directives",
-  //   //     applicableContainers: ["A13.20.2.standard_equipment"]
-  //   //   },
-  //   //   {
-  //   //     condition: "drained_purged_nonhazardous",
-  //   //     description: "Nonhazardous classification for properly prepared engines",
-  //   //     requirement: "Engines drained and purged according to technical manual containing no other hazardous material are nonhazardous for transportation (comply with A3.1.16.4)",
-  //   //     applicableContainers: ["A13.20.2.standard_equipment", "A13.20.3.freight_container_equipment"]
-  //   //   },
-  //   //   {
-  //   //     condition: "orientation_protection_requirement",
-  //   //     description: "Packaging requirements for equipment susceptible to orientation changes",
-  //   //     requirement: "Where equipment could be handled other than upright: secure in strong rigid outer packaging in orientation to prevent accidental leakage and movement",
-  //   //     applicableContainers: ["A13.20.2.standard_equipment"]
-  //   //   },
-  //   //   {
-  //   //     condition: "freight_container_fuel_drainage",
-  //   //     description: "Enhanced fuel drainage requirements for freight container loading",
-  //   //     requirement: "When loaded in freight container: drain fuel tanks and purge tank/system if required by technical directive or fuel flash point <38°C (100°F)",
-  //   //     applicableContainers: ["A13.20.3.freight_container_equipment"]
-  //   //   },
-  //   //   {
-  //   //     condition: "freight_container_purging_procedure",
-  //   //     description: "Specific purging procedures for freight container equipment without technical directive",
-  //   //     requirement: "In absence of specific procedures: completely drain fuel, run engine until stalls, allow tanks/lines open 24 hours, ensure installed batteries non-spillable/non-regulated",
-  //   //     applicableContainers: ["A13.20.3.freight_container_equipment"]
-  //   //   },
-  //   //   {
-  //   //     condition: "fuel_spill_susceptible_drainage",
-  //   //     description: "Special drainage for units susceptible to fuel spills or leakage",
-  //   //     requirement: "When unit susceptible to fuel spills or leakage (see A3.3.3.6): drain and cap unit",
-  //   //     applicableContainers: ["A13.20.2.standard_equipment"]
-  //   //   },
-  //   //   {
-  //   //     condition: "accessorial_hazards_configuration",
-  //   //     description: "Proper configuration of installed components and accessorial hazards",
-  //   //     requirement: "Ensure installed components, equipment, and accessorial hazards (fire extinguishers, jerricans, etc.) are in properly configured and approved holders designed for use with unit",
-  //   //     applicableContainers: ["A13.20.1.wheeled_equipment_chapter3", "A13.20.2.standard_equipment", "A13.20.3.freight_container_equipment"]
-  //   //   },
-  //   //   {
-  //   //     condition: "battery_security_requirements",
-  //   //     description: "Battery securing and terminal protection requirements",
-  //   //     requirement: "Secure batteries upright in designed holders (non-spillable batteries per Table A4.2 Special Provision A67 may be oriented to fit holder), protect terminals to prevent short circuit",
-  //   //     applicableContainers: ["A13.20.1.wheeled_equipment_chapter3", "A13.20.2.standard_equipment"]
-  //   //   },
-  //   //   {
-  //   //     condition: "freight_container_battery_management",
-  //   //     description: "Enhanced battery management for freight container loading",
-  //   //     requirement: "Remove acid/alkali batteries and package per A12.4, do not ship packaged wet-cell batteries unless accessible during flight, non-spillable/gel batteries may remain if upright with disconnected taped cables",
-  //   //     applicableContainers: ["A13.20.3.freight_container_equipment"]
-  //   //   }
-  //   // ],
-
-  //   referencedParagraphs: ["A13.20", "A13.20.1", "A13.20.2", "A13.20.2.1", "A13.20.2.2", "A13.20.2.3", "A13.20.2.4", "A13.20.2.5", "A13.20.2.6", "A13.20.2.7", "A13.20.2.7.1", "A13.20.2.7.2", "A13.20.2.7.3", "A13.20.2.7.4", "A13.20.2.8", "A13.20.3", "A13.20.3.1", "A13.20.3.2", "A3.1.16.4", "A3.3.3.6", "A12.4"]
-  // }
-  // Additional entries will be populated by migration scripts
+  // Phase 3, Week 14: Class 9 Miscellaneous Entry - A13.5 (UN3548, Articles containing miscellaneous dangerous goods, N.O.S.)
+  "A13.5.": {
+    paragraphId: "A13.5.",
+    hazardClass: 9,
+    description:
+      "UN3548, Articles containing miscellaneous dangerous goods, N.O.S. are authorized when classified per paragraph A4.2.3., maximum net quantity per package 60 L for liquids and 100 kg for solids, when packaged, or unpackaged as follows:",
+    lastUpdated: new Date().toISOString(),
+    entryType: "specialized",
+    materialTypes: ["articles_containing_miscellaneous_dangerous_goods", "un3548"],
+    applicableUNNumbers: ["UN3548"],
+
+    packagingOptions: [
+      {
+        id: "A13.5.1.packaged_articles_combination",
+        type: "combination",
+        description: "Packaged articles with internal receptacles (A13.5.1)",
+        innerPackaging: {
+          required: true,
+          materials: ["Various"],
+          specialRequirements: [
+            "Receptacles constructed of suitable materials and secured in the article in such a way that, under normal conditions of transport, they cannot break, be punctured or leak their contents into the article itself or the outer packaging",
+          ],
+        },
+        outerPackaging: {
+          categories: [
+            {
+              type: "drums",
+              containers: [
+                {
+                  code: "1A2",
+                  material: "steel",
+                  description: "Removable head steel drum",
+                },
+                {
+                  code: "1B2",
+                  material: "aluminum",
+                  description: "Removable head aluminum drum",
+                },
+                {
+                  code: "1N2",
+                  material: "other_metal",
+                  description:
+                    "Removable head metal drum other than steel or aluminum",
+                },
+                {
+                  code: "1D",
+                  material: "plywood",
+                  description: "Plywood drum",
+                },
+                { code: "1G", material: "fiber", description: "Fiber drum" },
+                {
+                  code: "1H2",
+                  material: "plastic",
+                  description: "Removable head plastic drum",
+                },
+              ],
+            },
+            {
+              type: "boxes",
+              containers: [
+                { code: "4A", material: "steel", description: "Steel box" },
+                {
+                  code: "4B",
+                  material: "aluminum",
+                  description: "Aluminum box",
+                },
+                {
+                  code: "4C1",
+                  material: "natural_wood",
+                  description: "Ordinary natural wood box",
+                },
+                {
+                  code: "4C2",
+                  material: "natural_wood",
+                  description: "Sift-proof natural wood box",
+                },
+                { code: "4D", material: "plywood", description: "Plywood box" },
+                {
+                  code: "4F",
+                  material: "reconstituted_wood",
+                  description: "Reconstituted wood box",
+                },
+                {
+                  code: "4G",
+                  material: "fiberboard",
+                  description: "Fiberboard box",
+                },
+                {
+                  code: "4H1",
+                  material: "plastic",
+                  description: "Expanded plastic box",
+                },
+                {
+                  code: "4H2",
+                  material: "plastic",
+                  description: "Solid plastic box",
+                },
+                {
+                  code: "4N",
+                  material: "other_metal",
+                  description: "Other metal box",
+                },
+              ],
+            },
+            {
+              type: "jerricans",
+              containers: [
+                {
+                  code: "3A2",
+                  material: "steel",
+                  description: "Removable head steel jerrican",
+                },
+                {
+                  code: "3H2",
+                  material: "plastic",
+                  description: "Plastic removable head jerrican",
+                },
+                {
+                  code: "3B2",
+                  material: "aluminum",
+                  description: "Aluminum removable head jerrican",
+                },
+              ],
+            },
+          ],
+        },
+        isComplete: true,
+      },
+      {
+        id: "A13.5.1.packaged_articles_single",
+        type: "single",
+        description: "Packaged articles with internal receptacles (A13.5.1)",
+        innerPackaging: {
+          required: false,
+        },
+        outerPackaging: {
+          categories: [
+            {
+              type: "drums",
+              containers: [
+                {
+                  code: "1A2",
+                  material: "steel",
+                  description: "Removable head steel drum",
+                },
+                {
+                  code: "1B2",
+                  material: "aluminum",
+                  description: "Removable head aluminum drum",
+                },
+                {
+                  code: "1N2",
+                  material: "other_metal",
+                  description:
+                    "Removable head metal drum other than steel or aluminum",
+                },
+                {
+                  code: "1D",
+                  material: "plywood",
+                  description: "Plywood drum",
+                },
+                { code: "1G", material: "fiber", description: "Fiber drum" },
+                {
+                  code: "1H2",
+                  material: "plastic",
+                  description: "Removable head plastic drum",
+                },
+              ],
+            },
+            {
+              type: "boxes",
+              containers: [
+                { code: "4A", material: "steel", description: "Steel box" },
+                {
+                  code: "4B",
+                  material: "aluminum",
+                  description: "Aluminum box",
+                },
+                {
+                  code: "4C1",
+                  material: "natural_wood",
+                  description: "Ordinary natural wood box",
+                },
+                {
+                  code: "4C2",
+                  material: "natural_wood",
+                  description: "Sift-proof natural wood box",
+                },
+                { code: "4D", material: "plywood", description: "Plywood box" },
+                {
+                  code: "4F",
+                  material: "reconstituted_wood",
+                  description: "Reconstituted wood box",
+                },
+                {
+                  code: "4G",
+                  material: "fiberboard",
+                  description: "Fiberboard box",
+                },
+                {
+                  code: "4H1",
+                  material: "plastic",
+                  description: "Expanded plastic box",
+                },
+                {
+                  code: "4H2",
+                  material: "plastic",
+                  description: "Solid plastic box",
+                },
+                {
+                  code: "4N",
+                  material: "other_metal",
+                  description: "Other metal box",
+                },
+              ],
+            },
+            {
+              type: "jerricans",
+              containers: [
+                {
+                  code: "3A2",
+                  material: "steel",
+                  description: "Removable head steel jerrican",
+                },
+                {
+                  code: "3H2",
+                  material: "plastic",
+                  description: "Plastic removable head jerrican",
+                },
+                {
+                  code: "3B2",
+                  material: "aluminum",
+                  description: "Aluminum removable head jerrican",
+                },
+              ],
+            },
+          ],
+        },
+        isComplete: true,
+      },
+      {
+        id: "A13.5.2.1.robust_articles_strong_packaging",
+        type: "specialized",
+        description: "Robust articles in strong outer packagings",
+        innerPackaging: {
+          required: false,
+        },
+        outerPackaging: {
+          categories: [
+            {
+              type: "strong_packaging",
+              containers: [
+                {
+                  code: "STRONG",
+                  material: "various",
+                  description:
+                    "Strong outer packagings constructed of suitable material and of adequate strength and design in relation to the packaging capacity and its intended use",
+                },
+              ],
+            },
+          ],
+        },
+        isComplete: true,
+      },
+      {
+        id: "A13.5.2.2.robust_articles_unpackaged",
+        type: "specialized",
+        description: "Robust articles transported unpackaged or on pallets",
+        innerPackaging: {
+          required: false,
+        },
+        outerPackaging: {
+          categories: [
+            {
+              type: "unpackaged_or_pallets",
+              containers: [
+                {
+                  code: "UNPACKAGED",
+                  material: "none",
+                  description:
+                    "Unpackaged transport when dangerous goods are afforded equivalent protection by the article in which they are contained",
+                },
+                {
+                  code: "PALLET",
+                  material: "various",
+                  description:
+                    "Transport on pallets when dangerous goods are afforded equivalent protection by the article in which they are contained",
+                },
+              ],
+            },
+          ],
+        },
+        isComplete: true,
+      },
+    ],
+
+    specialRequirements: [
+      {
+        type: "classification_requirement",
+        description: "Must be classified per paragraph A4.2.3",
+        mandatory: true,
+        applicableContainers: [
+          "A13.5.1.packaged_articles_combination",
+          "A13.5.1.packaged_articles_single",
+          "A13.5.2.1.robust_articles_strong_packaging",
+          "A13.5.2.2.robust_articles_unpackaged",
+        ],
+      },
+      {
+        type: "pg_ii_performance_standard",
+        description:
+          "Packagings meeting PG II performance standard is required when packaged",
+        mandatory: true,
+        applicableContainers: [
+          "A13.5.1.packaged_articles_combination",
+          "A13.5.1.packaged_articles_single",
+        ],
+      },
+      {
+        type: "article_movement_prevention",
+        description:
+          "Pack articles to prevent movement and inadvertent operation during normal conditions of transport",
+        mandatory: true,
+        applicableContainers: [
+          "A13.5.1.packaged_articles_combination",
+          "A13.5.1.packaged_articles_single",
+        ],
+      },
+      {
+        type: "liquid_closure_orientation",
+        description:
+          "Pack inner receptacles containing liquids with closures in outer packagings with their closures correctly oriented",
+        mandatory: true,
+        applicableContainers: [
+          "A13.5.1.packaged_articles_combination",
+          "A13.5.1.packaged_articles_single",
+        ],
+      },
+      {
+        type: "article_enclosure_requirement",
+        description:
+          "Where there is no receptacle within the article, ensure the article fully encloses the dangerous goods and prevent their release under normal conditions of transport",
+        mandatory: true,
+        applicableContainers: [
+          "A13.5.1.packaged_articles_combination",
+          "A13.5.1.packaged_articles_single",
+        ],
+      },
+      {
+        type: "suitable_material_construction",
+        description:
+          "Receptacles constructed of suitable materials and secured in article to prevent breakage, puncture, or leakage under normal transport conditions",
+        mandatory: true,
+        applicableContainers: [
+          "A13.5.1.packaged_articles_combination",
+          "A13.5.1.packaged_articles_single",
+        ],
+      },
+      {
+        type: "strong_packaging_suitability",
+        description:
+          "Strong outer packagings must be constructed of suitable material and of adequate strength and design in relation to packaging capacity and intended use",
+        mandatory: true,
+        applicableContainers: ["A13.5.2.1.robust_articles_strong_packaging"],
+      },
+      {
+        type: "equivalent_protection_requirement",
+        description:
+          "Dangerous goods must be afforded equivalent protection by the article in which they are contained when transported unpackaged or on pallets",
+        mandatory: true,
+        applicableContainers: ["A13.5.2.2.robust_articles_unpackaged"],
+      },
+    ],
+
+    quantityLimits: [
+      {
+        packingGroup: "II",
+        scope: "per_package",
+        value: 60,
+        unit: "L",
+        description: "Maximum net quantity per package 60 L for liquids",
+      },
+      {
+        packingGroup: "II",
+        scope: "per_package",
+        value: 100,
+        unit: "kg",
+        description: "Maximum net quantity per package 100 kg for solids",
+      },
+    ],
+
+    conditionalRequirements: [
+      {
+        condition: "packaging_required=true",
+        requirements: [
+          {
+            type: "pg_ii_compliance",
+            description:
+              "Packagings meeting PG II performance standard required when articles are packaged",
+            mandatory: true,
+            applicableContainers: [
+              "A13.5.1.packaged_articles_combination",
+              "A13.5.1.packaged_articles_single",
+            ],
+          },
+          {
+            type: "movement_prevention",
+            description:
+              "Articles must be packed to prevent movement and inadvertent operation",
+            mandatory: true,
+            applicableContainers: [
+              "A13.5.1.packaged_articles_combination",
+              "A13.5.1.packaged_articles_single",
+            ],
+          },
+          {
+            type: "closure_orientation",
+            description:
+              "Inner receptacles containing liquids must have closures correctly oriented in outer packaging",
+            mandatory: true,
+            applicableContainers: [
+              "A13.5.1.packaged_articles_combination",
+              "A13.5.1.packaged_articles_single",
+            ],
+          },
+        ],
+      },
+      {
+        condition: "article_type='robust'",
+        requirements: [
+          {
+            type: "strong_packaging_option",
+            description:
+              "Robust articles may be transported in strong outer packagings",
+            mandatory: false,
+            applicableContainers: [
+              "A13.5.2.1.robust_articles_strong_packaging",
+            ],
+          },
+          {
+            type: "unpackaged_option",
+            description:
+              "Robust articles may be transported unpackaged or on pallets when dangerous goods are afforded equivalent protection",
+            mandatory: false,
+            applicableContainers: ["A13.5.2.2.robust_articles_unpackaged"],
+          },
+        ],
+      },
+      {
+        condition: "material_state='liquid'",
+        requirements: [
+          {
+            type: "liquid_quantity_limit",
+            description: "Maximum net quantity per package 60 L for liquids",
+            mandatory: true,
+            applicableContainers: [
+              "A13.5.1.packaged_articles_combination",
+              "A13.5.1.packaged_articles_single",
+              "A13.5.2.1.robust_articles_strong_packaging",
+            ],
+          },
+          {
+            type: "closure_orientation_mandatory",
+            description:
+              "Closures must be correctly oriented for liquid-containing receptacles",
+            mandatory: true,
+            applicableContainers: [
+              "A13.5.1.packaged_articles_combination",
+              "A13.5.1.packaged_articles_single",
+            ],
+          },
+        ],
+      },
+      {
+        condition: "material_state='solid'",
+        requirements: [
+          {
+            type: "solid_quantity_limit",
+            description: "Maximum net quantity per package 100 kg for solids",
+            mandatory: true,
+            applicableContainers: [
+              "A13.5.1.packaged_articles_combination",
+              "A13.5.1.packaged_articles_single",
+              "A13.5.2.1.robust_articles_strong_packaging",
+            ],
+          },
+        ],
+      },
+      {
+        condition: "no_internal_receptacle=true",
+        requirements: [
+          {
+            type: "article_enclosure_mandatory",
+            description:
+              "Article must fully enclose dangerous goods and prevent their release under normal conditions",
+            mandatory: true,
+            applicableContainers: [
+              "A13.5.1.packaged_articles_combination",
+              "A13.5.1.packaged_articles_single",
+            ],
+          },
+        ],
+      },
+    ],
+
+    referencedParagraphs: [
+      "A13.5",
+      "A13.5.1",
+      "A13.5.1.1",
+      "A13.5.1.2",
+      "A13.5.1.3",
+      "A13.5.2",
+      "A13.5.2.1",
+      "A13.5.2.2",
+      "A4.2.3",
+    ],
+  },
+
+  // Phase 3, Week 14: Class 9 Miscellaneous Entry - A13.15 (Air Bag Inflators, Air Bag Modules, Seat-Belt Pretensioners)
+  "A13.15.": {
+    paragraphId: "A13.15.",
+    hazardClass: 9,
+    description:
+      "Package Air Bag Inflators, Air Bag Modules, and Seat-Belt Pretensioners as follows: Items are classified as Class 9 and are approved by DOT according to 49 CFR Section 173.166.",
+    lastUpdated: new Date().toISOString(),
+    entryType: "specialized",
+    materialTypes: ["safety_devices", "air_bag_inflators", "seat_belt_pretensioners"],
+    applicableUNNumbers: ["UN3268"],
+
+    packagingOptions: [
+      {
+        id: "A13.15.1.packaging_single",
+        type: "single",
+        description: "Single packaging in boxes, drums, or jerricans",
+        innerPackaging: {
+          required: false,
+        },
+        outerPackaging: {
+          categories: [
+            {
+              type: "boxes",
+              containers: [
+                { code: "4A", material: "steel", description: "Steel box" },
+                {
+                  code: "4B",
+                  material: "aluminum",
+                  description: "Aluminum box",
+                },
+                {
+                  code: "4C1",
+                  material: "natural_wood",
+                  description: "Ordinary natural wood box",
+                },
+                {
+                  code: "4C2",
+                  material: "natural_wood",
+                  description: "Sift-proof natural wood box",
+                },
+                { code: "4D", material: "plywood", description: "Plywood box" },
+                {
+                  code: "4F",
+                  material: "reconstituted_wood",
+                  description: "Reconstituted wood box",
+                },
+                {
+                  code: "4G",
+                  material: "fiberboard",
+                  description: "Fiberboard box",
+                },
+                {
+                  code: "4H1",
+                  material: "plastic",
+                  description: "Expanded plastic box",
+                },
+                {
+                  code: "4H2",
+                  material: "plastic",
+                  description: "Solid plastic box",
+                },
+                {
+                  code: "4N",
+                  material: "other_metal",
+                  description: "Other metal box",
+                },
+              ],
+            },
+            {
+              type: "drums",
+              containers: [
+                {
+                  code: "1A2",
+                  material: "steel",
+                  description: "Removable head steel drum",
+                },
+                {
+                  code: "1B2",
+                  material: "aluminum",
+                  description: "Removable head aluminum drum",
+                },
+                {
+                  code: "1D",
+                  material: "plywood",
+                  description: "Plywood drum",
+                },
+                { code: "1G", material: "fiber", description: "Fiber drum" },
+                {
+                  code: "1H2",
+                  material: "plastic",
+                  description: "Removable head plastic drum",
+                },
+                {
+                  code: "1N2",
+                  material: "other_metal",
+                  description:
+                    "Removable head metal drum other than steel or aluminum",
+                },
+              ],
+            },
+            {
+              type: "jerricans",
+              containers: [
+                {
+                  code: "3A2",
+                  material: "steel",
+                  description: "Removable head steel jerrican",
+                },
+                {
+                  code: "3B2",
+                  material: "aluminum",
+                  description: "Removable head aluminum jerrican",
+                },
+                {
+                  code: "3H2",
+                  material: "plastic",
+                  description: "Removable head plastic jerrican",
+                },
+              ],
+            },
+          ],
+        },
+        isComplete: true,
+      },
+      {
+        id: "A13.15.1.packaging_combination",
+        type: "combination",
+        description: "Combination packaging in boxes, drums, or jerricans",
+        innerPackaging: {
+          required: false,
+        },
+        outerPackaging: {
+          categories: [
+            {
+              type: "boxes",
+              containers: [
+                { code: "4A", material: "steel", description: "Steel box" },
+                {
+                  code: "4B",
+                  material: "aluminum",
+                  description: "Aluminum box",
+                },
+                {
+                  code: "4C1",
+                  material: "natural_wood",
+                  description: "Ordinary natural wood box",
+                },
+                {
+                  code: "4C2",
+                  material: "natural_wood",
+                  description: "Sift-proof natural wood box",
+                },
+                { code: "4D", material: "plywood", description: "Plywood box" },
+                {
+                  code: "4F",
+                  material: "reconstituted_wood",
+                  description: "Reconstituted wood box",
+                },
+                {
+                  code: "4G",
+                  material: "fiberboard",
+                  description: "Fiberboard box",
+                },
+                {
+                  code: "4H1",
+                  material: "plastic",
+                  description: "Expanded plastic box",
+                },
+                {
+                  code: "4H2",
+                  material: "plastic",
+                  description: "Solid plastic box",
+                },
+                {
+                  code: "4N",
+                  material: "other_metal",
+                  description: "Other metal box",
+                },
+              ],
+            },
+            {
+              type: "drums",
+              containers: [
+                {
+                  code: "1A2",
+                  material: "steel",
+                  description: "Removable head steel drum",
+                },
+                {
+                  code: "1B2",
+                  material: "aluminum",
+                  description: "Removable head aluminum drum",
+                },
+                {
+                  code: "1D",
+                  material: "plywood",
+                  description: "Plywood drum",
+                },
+                { code: "1G", material: "fiber", description: "Fiber drum" },
+                {
+                  code: "1H2",
+                  material: "plastic",
+                  description: "Removable head plastic drum",
+                },
+                {
+                  code: "1N2",
+                  material: "other_metal",
+                  description:
+                    "Removable head metal drum other than steel or aluminum",
+                },
+              ],
+            },
+            {
+              type: "jerricans",
+              containers: [
+                {
+                  code: "3A2",
+                  material: "steel",
+                  description: "Removable head steel jerrican",
+                },
+                {
+                  code: "3B2",
+                  material: "aluminum",
+                  description: "Removable head aluminum jerrican",
+                },
+                {
+                  code: "3H2",
+                  material: "plastic",
+                  description: "Removable head plastic jerrican",
+                },
+              ],
+            },
+          ],
+        },
+        isComplete: true,
+      },
+    ],
+
+    specialRequirements: [
+      {
+        type: "classification_requirement",
+        description:
+          "Items must be classified as Class 9 and approved by DOT according to 49 CFR 173.166",
+        mandatory: true,
+        applicableContainers: [
+          "A13.15.1.packaging_single",
+          "A13.15.1.packaging_combination",
+        ],
+      },
+    ],
+
+    quantityLimits: [],
+
+    referencedParagraphs: ["A13.15", "49 CFR 173.166"],
+  },
+
+  // Phase 3, Week 14: Class 9 Miscellaneous Entry - A13.17 (Polymeric Beads, Expandable; Plastic Molding Compound)
+  "A13.17.": {
+    paragraphId: "A13.17.",
+    hazardClass: 9,
+    description:
+      "Package Polymeric Beads, Expandable and Plastic Molding Compound as follows: Pack polymeric beads or granules, expandable, evolving flammable vapor and plastic molding compound in dough, sheet or extruded rope form, evolving flammable vapor in boxes or drums.",
+    lastUpdated: new Date().toISOString(),
+    entryType: "specialized",
+    materialTypes: [
+      "polymeric_beads_expandable",
+      "plastic_molding_compound",
+      "un2211",
+      "un3314",
+    ],
+    applicableUNNumbers: ["UN2211", "UN3314"],
+
+    packagingOptions: [
+      {
+        id: "A13.17.1.combination_with_liner",
+        type: "combination",
+        description: "Sealed plastic liner in boxes or drums",
+        innerPackaging: {
+          required: true,
+          materials: ["Sealed plastic liner"],
+        },
+        outerPackaging: {
+          categories: [
+            {
+              type: "boxes",
+              containers: [
+                { code: "4A", material: "steel", description: "Steel box" },
+                {
+                  code: "4B",
+                  material: "aluminum",
+                  description: "Aluminum box",
+                },
+                {
+                  code: "4C1",
+                  material: "natural_wood",
+                  description: "Ordinary natural wood box",
+                },
+                {
+                  code: "4C2",
+                  material: "natural_wood",
+                  description: "Sift-proof natural wood box",
+                },
+                { code: "4D", material: "plywood", description: "Plywood box" },
+                {
+                  code: "4F",
+                  material: "reconstituted_wood",
+                  description: "Reconstituted wood box",
+                },
+                {
+                  code: "4G",
+                  material: "fiberboard",
+                  description: "Fiberboard box",
+                },
+                {
+                  code: "4H1",
+                  material: "plastic",
+                  description: "Expanded plastic box",
+                },
+                {
+                  code: "4H2",
+                  material: "plastic",
+                  description: "Solid plastic box",
+                },
+                {
+                  code: "4N",
+                  material: "other_metal",
+                  description: "Other metal box",
+                },
+              ],
+            },
+            {
+              type: "drums",
+              containers: [
+                {
+                  code: "1D",
+                  material: "plywood",
+                  description: "Plywood drum",
+                },
+                { code: "1G", material: "fiber", description: "Fiber drum" },
+              ],
+            },
+          ],
+        },
+        isComplete: true,
+      },
+      {
+        id: "A13.17.2.single_vapor_tight_drums",
+        type: "single",
+        description: "Vapor tight metal or plastic drums (no liner required)",
+        innerPackaging: {
+          required: false,
+        },
+        outerPackaging: {
+          categories: [
+            {
+              type: "drums",
+              containers: [
+                { code: "1A1", material: "steel", description: "Steel drum" },
+                {
+                  code: "1A2",
+                  material: "steel",
+                  description: "Removable head steel drum",
+                },
+                {
+                  code: "1B1",
+                  material: "aluminum",
+                  description: "Aluminum drum",
+                },
+                {
+                  code: "1B2",
+                  material: "aluminum",
+                  description: "Removable head aluminum drum",
+                },
+                {
+                  code: "1H1",
+                  material: "plastic",
+                  description: "Plastic drum",
+                },
+                {
+                  code: "1H2",
+                  material: "plastic",
+                  description: "Removable head plastic drum",
+                },
+                {
+                  code: "1N1",
+                  material: "other_metal",
+                  description: "Metal drum other than steel or aluminum",
+                },
+                {
+                  code: "1N2",
+                  material: "other_metal",
+                  description:
+                    "Removable head metal drum other than steel or aluminum",
+                },
+              ],
+            },
+          ],
+        },
+        isComplete: true,
+      },
+    ],
+
+    specialRequirements: [],
+    quantityLimits: [],
+    referencedParagraphs: ["A13.17"],
+  },
 };
 
 /**

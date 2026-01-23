@@ -40,6 +40,7 @@ export type RootStackParamList = {
   InspectorHazmatQuantityEntryScreen: undefined;
   InspectorInitialQuestioningScreen: undefined;
   InspectorPackageMarkingsScreen: undefined;
+  InspectorLabelingExceptionsScreen: undefined;
   InspectorWrappedStack: {
     screen: string;
   };

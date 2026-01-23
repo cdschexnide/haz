@@ -1,4 +1,5 @@
 import { evaluateLabelingRequirements } from '../labelingRequirementsInspector';
+import { hazardousMaterialsList } from '@/hazardousMaterials/hazardousMaterialsList';
 import { SDDGInspectionContext, ExtractedSDDGContent } from '@//types/sddg';
 
 // Helper to create SDDGInspectionContext for Class 1 materials
@@ -463,6 +464,39 @@ describe('Labeling Requirements - Class 1 Explosives', () => {
 
       // Verifies orientation label requirement exists
       expect(result['Orientation (This Side Up with Arrows)']).toBeDefined();
+    });
+  });
+
+  describe('A15 exceptions and compatibility group', () => {
+    test('Manual compatibility group is applied when missing in database', () => {
+      const material = hazardousMaterialsList.find(item => item.unid === 'UN0224');
+      if (!material) {
+        throw new Error('Missing UN0224 fixture');
+      }
+
+      const originalHazClass = material.hazclassDiv;
+      material.hazclassDiv = '1.1';
+
+      try {
+        const context = createClass1Context('UN0224', '1.1', 'BARIUM AZIDE, DRY');
+        context.labelingContext = { class1CompatibilityGroupLetter: 'B' };
+        const result = evaluateLabelingRequirements(context);
+
+        expect(result['Primary Hazard']).toContain('Class 1.1B');
+      } finally {
+        material.hazclassDiv = originalHazClass;
+      }
+    });
+
+    test('Recoil/artillery label is required when flagged', () => {
+      const context = createClass1Context('UN0012', '1.4S', 'CARTRIDGES FOR WEAPONS, INERT PROJECTILE');
+      context.labelingContext = { isRecoilMechanismOrArtilleryMount: true };
+      const result = evaluateLabelingRequirements(context);
+
+      expect(result['Recoil Mechanism/Artillery Gun Mount']).toEqual([
+        'Recoil Mechanism',
+        'Artillery Gun Mount',
+      ]);
     });
   });
 });

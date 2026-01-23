@@ -181,11 +181,39 @@ const InteractiveSDDGComplianceScreenComponent: React.FC<
       }
     }
 
+    // UN1941: Dibromodifluoromethane handling instructions (Key 19)
+    if (unIdNo === "UN1941") {
+      const additionalHandlingInfo =
+        verificationCopy.additionalHandlingInfo || "";
+      if (!hasDibromodifluoromethaneHandlingInstructions(additionalHandlingInfo)) {
+        recommendations.set(
+          "additionalHandlingInfo",
+          "UN1941 Dibromodifluoromethane requires Key 19 handling instructions: avoid high temperatures; store in cool, ventilated area away from flame."
+        );
+      }
+    }
+
+    // UN3077/UN3082: Otto Fuel II handling instructions (Key 19)
+    if (unIdNo === "UN3077" || unIdNo === "UN3082") {
+      const additionalHandlingInfo =
+        verificationCopy.additionalHandlingInfo || "";
+      if (!hasOttoFuelHandlingInstructions(additionalHandlingInfo)) {
+        recommendations.set(
+          "additionalHandlingInfo",
+          "Environmentally hazardous substances (Otto Fuel II) require Key 19 handling instructions: avoid skin contact, ingestion, or inhalation of vapors."
+        );
+      }
+    }
+
     // General hazmat validation - validates all fields against database
     if (hazMatData && verificationCopy) {
       const generalRecommendations = getAllRecommendedFrustrations(
         verificationCopy,
-        hazMatData
+        hazMatData,
+        {
+          packagingType: inspection.packagePackagingType || null,
+          quantityAndPacking: verificationCopy.quantityAndPacking || null,
+        }
       );
 
       // Merge general recommendations with UN-specific ones
@@ -237,6 +265,31 @@ const InteractiveSDDGComplianceScreenComponent: React.FC<
       lowerText.includes("4g") ||
       lowerText.includes("polystyrene foam container")
     );
+  };
+
+  // Helper: Check for UN1941 Dibromodifluoromethane handling instructions
+  const hasDibromodifluoromethaneHandlingInstructions = (text: string): boolean => {
+    const lowerText = text.toLowerCase();
+    const requiredKeywords = [
+      "high temperature",
+      "cool",
+      "ventilated",
+      "away from flame",
+    ];
+    return requiredKeywords.every(keyword => lowerText.includes(keyword));
+  };
+
+  // Helper: Check for Otto Fuel II handling instructions
+  const hasOttoFuelHandlingInstructions = (text: string): boolean => {
+    const lowerText = text.toLowerCase();
+    const requiredKeywords = [
+      "otto fuel",
+      "skin contact",
+      "ingestion",
+      "inhalation",
+      "vapors",
+    ];
+    return requiredKeywords.every(keyword => lowerText.includes(keyword));
   };
 
   // Transform verificationCopy to form data structure

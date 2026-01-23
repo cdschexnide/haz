@@ -16,6 +16,7 @@ export {
   useReinspectionState,
   useMLAnalysisResults,
   usePackagePopMarking,
+  usePackagePackagingType,
   useInspectionId,
 } from './InspectionFormProvider';
 export type {

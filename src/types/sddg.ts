@@ -97,6 +97,28 @@ export interface PackagePopMarking {
   H: string; // Symbol of Manufacturer/Certifier
 }
 
+// Inspector labeling context for A15 edge cases
+export interface LabelingContext {
+  isUnenclosedEngineOrMachinery?: boolean;
+  isVehicleUN3166WithNoLabelsRequired?: boolean;
+  class1CompatibilityGroupLetter?: string;
+  isRecoilMechanismOrArtilleryMount?: boolean;
+  hasDiv42LabelApplied?: boolean;
+  isCorrosiveOnlyForClass8With6_1?: boolean;
+}
+
+export interface KitInspectionItem {
+  unid: string;
+  properShippingName: string;
+  hazardClass: string;
+  subsidiaryRisk?: string;
+}
+
+export interface KitInspectionData {
+  kitType: "CHEMICAL KIT" | "FIRST AID KIT";
+  contents: KitInspectionItem[];
+}
+
 // SDDG Compliance Validation State
 export interface SDDGInspectionContext {
   extractedContent: ExtractedSDDGContent | null;
@@ -108,7 +130,9 @@ export interface SDDGInspectionContext {
   resolvedPackageFrustrations: PackageFrustrationRecord[]; // Package frustrations that passed reinspection
   magnetizedMaterialInspection: InspectorMagnetizedMaterialData | null; // UN2807 specific inspection
   innerPackagingInspection: InnerPackagingInspectionData | null; // Combination packaging inner inspection
+  kitInspectionData?: KitInspectionData | null; // UN3316 kit contents for labeling
   packagePopMarking: PackagePopMarking | null; // POP marking data entry
+  labelingContext?: LabelingContext | null;
   mlAnalysisResults: AggregatedAnalysis | null; // ML detection + OCR analysis results
   quantityType?: "standard" | "excepted" | "limited";
   exceptedQuantityData?: ExceptedQuantityData | null;
@@ -229,11 +253,18 @@ export type PackageFrustrationCategory =
   | "life-saving"
   | "safety-device"
   | "battery-vehicle"
+  | "fuel-powered-vehicle"
   | "capacitor"
   | "engines-internal-combustion"
   | "first-aid-chemical-kit"
   | "lithium_battery"
+  | "lithium_battery_contained"
+  | "lithium_battery_packed"
   | "dangerous-goods-apparatus"
+  | "class9-general"
+  | "asbestos"
+  | "consumer-commodity"
+  | "misc-dangerous-goods-articles"
   | "inner-packaging";
 
 export interface PackageFrustrationRecord {

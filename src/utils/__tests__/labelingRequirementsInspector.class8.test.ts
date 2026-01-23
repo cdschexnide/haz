@@ -1,4 +1,5 @@
 import { evaluateLabelingRequirements } from '../labelingRequirementsInspector';
+import { hazardousMaterialsList } from '@/hazardousMaterials/hazardousMaterialsList';
 import { SDDGInspectionContext, ExtractedSDDGContent } from '@//types/sddg';
 
 // Helper to create SDDGInspectionContext for Class 8 materials
@@ -105,6 +106,26 @@ describe('Labeling Requirements - Class 8 Corrosives', () => {
 
         expect(result['Primary Hazard']).toBeDefined();
         expect(result['Primary Hazard']).toContain('Class 8');
+      });
+
+      test('Class 8 subsidiary 6.1 label is suppressed when corrosive-only is flagged', () => {
+        const material = hazardousMaterialsList.find(item => item.unid === 'UN2922');
+        if (!material) {
+          throw new Error('Missing UN2922 fixture');
+        }
+
+        const originalSubsidiary = material.subsidiaryRisk;
+        material.subsidiaryRisk = '6.1';
+
+        try {
+          const context = createClass8Context('UN2922', '8', 'CORROSIVE LIQUID, TOXIC, N.O.S.', 'I', 'CARGO AIRCRAFT ONLY');
+          context.labelingContext = { isCorrosiveOnlyForClass8With6_1: true };
+          const result = evaluateLabelingRequirements(context);
+
+          expect(result['Subsidiary Hazard']).toBeUndefined();
+        } finally {
+          material.subsidiaryRisk = originalSubsidiary;
+        }
       });
     });
 

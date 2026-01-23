@@ -23,6 +23,7 @@ module.exports = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
+  modulePathIgnorePatterns: ['<rootDir>/.worktrees/'],
   testEnvironment: 'node',
   // Ignore tests in node_modules and server directories
   testPathIgnorePatterns: ['/node_modules/', '/server/'],

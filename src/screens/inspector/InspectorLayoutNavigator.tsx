@@ -26,11 +26,20 @@ import InspectorMagnetizedMaterialsScreen from "./InspectorMagnetizedMaterialsSc
 import InspectorSafetyDevicesScreen from "./InspectorSafetyDevicesScreen";
 import InspectorLifeSavingAppliancesScreen from "./InspectorLifeSavingAppliancesScreen";
 import InspectorGeneticallyModifiedOrganismsScreen from "./InspectorGeneticallyModifiedOrganismsScreen";
+import InspectorInfectiousSubstancesScreen from "./InspectorInfectiousSubstancesScreen";
+import InspectorBiologicalSubstancesCategoryBScreen from "./InspectorBiologicalSubstancesCategoryBScreen";
 import InspectorEnginesInternalCombustionScreen from "./InspectorEnginesInternalCombustionScreen";
 import InspectorFirstAidChemicalKitScreen from "./InspectorFirstAidChemicalKitScreen";
 import InspectorDangerousGoodsInApparatusScreen from "./InspectorDangerousGoodsInApparatusScreen";
 import InspectorBatteryPoweredVehicleScreen from "./InspectorBatteryPoweredVehicleScreen";
+import InspectorFuelPoweredVehicleScreen from "./InspectorFuelPoweredVehicleScreen";
 import InspectorLithiumBatteriesScreen from "./InspectorLithiumBatteriesScreen";
+import InspectorLithiumBatteriesContainedInEquipmentScreen from "./InspectorLithiumBatteriesContainedInEquipmentScreen";
+import InspectorLithiumBatteriesPackedWithEquipmentScreen from "./InspectorLithiumBatteriesPackedWithEquipmentScreen";
+import InspectorClass9GeneralScreen from "./InspectorClass9GeneralScreen";
+import InspectorAsbestosScreen from "./InspectorAsbestosScreen";
+import InspectorConsumerCommodityScreen from "./InspectorConsumerCommodityScreen";
+import InspectorMiscDangerousGoodsArticlesScreen from "./InspectorMiscDangerousGoodsArticlesScreen";
 import InspectorCompressedGasesScreen from "./InspectorCompressedGasesScreen";
 import InspectorCylinderTypeSelectionScreen from "./InspectorCylinderTypeSelectionScreen";
 import InspectorPOPScannerScreen from "./InspectorPOPScannerScreen";
@@ -40,6 +49,7 @@ import MLDetectionScreen from "./MLDetectionScreen";
 import InspectorLabelingExceptionsScreen from "./InspectorLabelingExceptionsScreen";
 import InspectorMarkingsLabelsValidationScreen from "./InspectorMarkingsLabelsValidationScreen";
 import InspectorAttachment28WizardScreen from "./InspectorAttachment28WizardScreen";
+import InspectorSpecialProvisionsScreen from "./InspectorSpecialProvisionsScreen";
 
 // Inner packaging screens (./inner-packaging/*)
 import InnerPackagingConfirmation from "./inner-packaging/InnerPackagingConfirmation";
@@ -190,6 +200,14 @@ const InspectorWrappedStack = ({ navigation }: { navigation: any }) => (
         component={InspectorGeneticallyModifiedOrganismsScreen}
       />
       <MainStack.Screen
+        name="InspectorInfectiousSubstancesScreen"
+        component={InspectorInfectiousSubstancesScreen}
+      />
+      <MainStack.Screen
+        name="InspectorBiologicalSubstancesCategoryBScreen"
+        component={InspectorBiologicalSubstancesCategoryBScreen}
+      />
+      <MainStack.Screen
         name="InspectorSafetyDevicesScreen"
         component={InspectorSafetyDevicesScreen}
       />
@@ -214,8 +232,36 @@ const InspectorWrappedStack = ({ navigation }: { navigation: any }) => (
         component={InspectorBatteryPoweredVehicleScreen}
       />
       <MainStack.Screen
+        name="InspectorFuelPoweredVehicleScreen"
+        component={InspectorFuelPoweredVehicleScreen}
+      />
+      <MainStack.Screen
         name="InspectorLithiumBatteriesScreen"
         component={InspectorLithiumBatteriesScreen}
+      />
+      <MainStack.Screen
+        name="InspectorLithiumBatteriesContainedInEquipmentScreen"
+        component={InspectorLithiumBatteriesContainedInEquipmentScreen}
+      />
+      <MainStack.Screen
+        name="InspectorLithiumBatteriesPackedWithEquipmentScreen"
+        component={InspectorLithiumBatteriesPackedWithEquipmentScreen}
+      />
+      <MainStack.Screen
+        name="InspectorClass9GeneralScreen"
+        component={InspectorClass9GeneralScreen}
+      />
+      <MainStack.Screen
+        name="InspectorAsbestosScreen"
+        component={InspectorAsbestosScreen}
+      />
+      <MainStack.Screen
+        name="InspectorConsumerCommodityScreen"
+        component={InspectorConsumerCommodityScreen}
+      />
+      <MainStack.Screen
+        name="InspectorMiscDangerousGoodsArticlesScreen"
+        component={InspectorMiscDangerousGoodsArticlesScreen}
       />
       <MainStack.Screen
         name="InspectorCompressedGasesScreen"
@@ -256,6 +302,10 @@ const InspectorWrappedStack = ({ navigation }: { navigation: any }) => (
       <MainStack.Screen
         name="InspectorAttachment28WizardScreen"
         component={InspectorAttachment28WizardScreen}
+      />
+      <MainStack.Screen
+        name="InspectorSpecialProvisionsScreen"
+        component={InspectorSpecialProvisionsScreen}
       />
     </MainStack.Navigator>
   </InspectorMainLayout>

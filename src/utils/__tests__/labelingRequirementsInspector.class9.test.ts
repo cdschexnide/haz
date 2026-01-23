@@ -138,6 +138,22 @@ describe('Labeling Requirements - Class 9 Miscellaneous Dangerous Goods', () => 
         expect(result['Primary Hazard']).toContain('Class 9');
       });
 
+      test('UN3166 exemption suppresses labels when flagged', () => {
+        const context = createClass9Context('UN3166', 'VEHICLE, FLAMMABLE LIQUID POWERED');
+        context.labelingContext = { isVehicleUN3166WithNoLabelsRequired: true };
+        const result = evaluateLabelingRequirements(context);
+
+        expect(Object.keys(result)).toHaveLength(0);
+      });
+
+      test('UN3528 exemption suppresses labels when unenclosed', () => {
+        const context = createClass9Context('UN3528', 'ENGINE, INTERNAL COMBUSTION');
+        context.labelingContext = { isUnenclosedEngineOrMachinery: true };
+        const result = evaluateLabelingRequirements(context);
+
+        expect(Object.keys(result)).toHaveLength(0);
+      });
+
       test('Scenario 12: UN3171 - returns Class 9 label', () => {
         const context = createClass9Context('UN3171', 'BATTERY-POWERED VEHICLE');
         const result = evaluateLabelingRequirements(context);

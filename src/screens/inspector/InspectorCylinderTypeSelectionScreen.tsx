@@ -18,6 +18,7 @@ import {
   PARAGRAPH_TITLES,
   CylinderType,
 } from "../../data/cylinderTypesByParagraph";
+import { resolvePackingInstruction } from "@/utils/resolvePackingInstruction";
 
 interface InspectorCylinderTypeSelectionScreenProps {
   navigation: any;
@@ -33,10 +34,12 @@ export default function InspectorCylinderTypeSelectionScreen({
   const [showCoeCaaOptions, setShowCoeCaaOptions] = useState(false);
 
   // Get packing instruction from SDDG
-  const packingInstruction =
+  const packingInstruction = resolvePackingInstruction(
+    inspection?.verificationCopy?.unIdNo || inspection?.extractedContent?.unIdNo,
     inspection?.verificationCopy?.packingInstruction ||
-    inspection?.extractedContent?.packingInstruction ||
-    "";
+      inspection?.extractedContent?.packingInstruction ||
+      ""
+  );
 
   // Extract base paragraph and get title
   const baseParagraph = extractA6Paragraph(packingInstruction);

@@ -580,5 +580,11 @@
     "name": "environmentallyHazardousSubstanceMark",
     "path": "primaryHazardLabels/general_marking/environmentallyHazardousSubstanceMark.png",
     "category": "general_marking"
+  },
+  {
+    "id": 97,
+    "name": "militaryShippingLabel",
+    "path": "general_marking/militaryShippingLabel.png",
+    "category": "general_marking"
   }
 ]

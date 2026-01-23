@@ -128,6 +128,16 @@ export const markingMatchingPatterns: Record<string, RegExp[]> = {
   "Biological Substance": [/BIOLOGICAL\s*SUBSTANCE/i, /CATEGORY\s*B/i, /UN\s*3373/i],
   "Energy Storage Capacity": [/\d+\.?\d*\s*Wh/i, /WATT[\s-]*HOUR/i],
   "DRY ICE": [/DRY\s*ICE/i, /CARBON\s*DIOXIDE\s*SOLID/i],
+  "Limited Quantity Marking": [/LIMITED\s*QUANTITY/i, /LTD\.?\s*QTY/i],
+  "OVERPACK": [/OVERPACK/i],
+  "Flash Point": [/FLASH\s*POINT/i, /\b\d+\.?\d*\s*°?\s*[CF]\b/i],
+  "UN Specification Marking": [
+    /\bUN\s*[0-9A-Z]{1,3}\/[A-Z]/i,
+    /\b[0-9A-Z]{1,3}\/[A-Z]\b/i,
+  ],
+  "Chemical Kit Marking": [/CHEMICAL\s*KITS?/i],
+  "First Aid Kit Marking": [/FIRST\s*AID\s*KITS?/i],
+  "EX Number/NSN": [/EX\s*\d+/i, /\bNSN\b/i],
 };
 
 /**

@@ -15,6 +15,9 @@
 
 import { SDDGTemplate } from "../types/sddg-template";
 
+// Adjusted template - Generated 2026-01-22T20:41:58.015Z
+// Adjusted fields: shipper, air_waybill.awb_number, air_waybill.page_info, shipper_reference.tcn, consignee, inspector, transportation_details.airport_destination, transportation_details.cargo_aircraft_only, transportation_details.airport_departure, shipment_type.radioactive, shipment_type.non_radioactive, signature_block.signature, signature_block.signature_date, signature_block.place_date, signature_block.name_title, additional_handling, dangerous_goods.un_number, dangerous_goods.proper_shipping_name, dangerous_goods.class_division, dangerous_goods.packing_group, dangerous_goods.authorization, dangerous_goods.packing_inst, dangerous_goods.quantity_packing
+ 
 export const AMC_IMT_1033_TEMPLATE: SDDGTemplate = {
   "formType": "AMC_IMT_1033",
   "formName": "Air Mobility Command - Shipper's Declaration for Dangerous Goods",

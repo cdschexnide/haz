@@ -121,6 +121,132 @@ export const PACKAGE_TO_FORM1015_MAPPING: Record<string, string> = {
   "Chemical Kit Primary Hazard": "69", // Maps to 69. PRIMARY RISK LABEL
   "Cylinder Type Not Authorized": "39", // Maps to 39. CYLINDER TYPE
 
+  // UN3166 fuel-powered vehicle inspection (A13.4)
+  "Vehicle prepared per service/technical manual": "86",
+  "Fuel tank not over 1/2 full (unless exception applies)": "77",
+  "Drain/purge procedures followed (freight container/bulk fuel)": "82",
+  "Gaseous fuel systems secured or emptied": "86",
+  "Fuel cells protected; correct description used": "86",
+  "Battery posts protected and batteries secured upright": "84",
+  "Secondary loads certified and authorized": "81",
+
+  // UN3171 battery-powered equipment/vehicle inspection (A13.6)
+  "Prepared per service technical manuals": "86",
+  "Batteries secured upright in designed holders": "84",
+  "Battery terminals protected from short circuit": "84",
+  "Original installed equipment securely fastened": "86",
+  "No loose hazardous materials in racks or containers": "81",
+  "Wheelchair non-spillable battery requirements met": "84",
+  "Wheelchair spillable battery requirements met": "84",
+  "Lithium batteries secured and protected (if applicable)": "84",
+  "Lithium battery testing compliance verified (if applicable)": "86",
+
+  // UN3090/UN3480 lithium batteries inspection (A13.7)
+  "Compliance with A3.3.9.2 (except A3.3.9.2.3)": "86",
+  "Non-metallic inner packaging fully encloses batteries": "46",
+  "Outer packaging meets PG II performance": "41",
+  "Heavy batteries secured and protected (over 12 kg)": "86",
+  "Large packaging approved (if used)": "41",
+  "Segregation restrictions met": "86",
+
+  // UN3091/UN3481/UN3536 lithium batteries contained in equipment (A13.8)
+  "Strong outer packaging or equivalent protection": "41",
+
+  // UN1841/UN3334/UN3335 Class 9 general materials inspection (A13.14)
+  "Appropriate non-bulk packaging used": "41",
+  "Outage provided for liquid packagings": "41",
+  "Primary packaging withstands vapor pressure": "41",
+  "Water-reactive materials use waterproof packaging": "41",
+
+  // NA2212/UN2212/UN2590 asbestos inspection (A13.16)
+  "Exposure control during loading/handling": "86",
+  "Packaging meets A3.1 general requirements": "41",
+  "Rigid leak-tight drums used (if applicable)": "41",
+  "Dust/sift-proof bags palletized or boxed": "41",
+
+  // UN3316 chemical/first aid kit inspection (A13.18)
+  "Kit PG and compatibility verified": "86",
+  "Limited/excepted quantities compliance": "60",
+  "Inner receptacle size limits met": "41",
+  "Per kit and per package total limits": "41",
+  "Outer packaging protects inner receptacles": "41",
+  "Limited quantities table referenced (if applicable)": "60",
+
+  // UN3499/UN3508 capacitors inspection (A13.19)
+  "Uninstalled capacitors shipped uncharged": "86",
+  "Short circuit protection applied": "84",
+  "Pressure/venting requirements met": "86",
+  "Energy storage capacity marked": "86",
+  "Packaging protects capacitors": "41",
+  "Exemptions evaluated (if applicable)": "86",
+
+  // UN3528/UN3529 internal combustion engines/machinery inspection (A13.20)
+  "Prepared per service technical manual": "86",
+  "Fuel limits met": "82",
+  "Drain/purge damaged or inoperable engines": "82",
+  "Orientation secured when needed": "41",
+  "Freight container procedures followed": "82",
+  "Spill risk controls applied": "82",
+  "Battery and accessorial hazards controlled": "84",
+
+  // ID8000 consumer commodity inspection (A13.3)
+  "Commodity scope and classes allowed": "86",
+  "Limited quantity limits met": "60",
+  "Strong outer packaging used": "41",
+  "Gross mass does not exceed 30 kg": "41",
+  "Drop test for brittle inner packagings": "41",
+  "Aerosol limits and pressure requirements": "86",
+  "Biological/medical aerosol limits": "86",
+  "Liquid inner packaging limit": "41",
+  "Solid inner packaging limit": "41",
+
+  // UN3548 articles containing miscellaneous dangerous goods (A13.5)
+  "Classification and quantity limits verified": "86",
+  "Packaged articles meet PG II performance": "41",
+  "Articles without inner receptacles secured": "41",
+  "Robust articles protected in transport": "41",
+  "Movement and short-circuit prevention": "84",
+  "Additional batteries packaged per A13.7.2": "41",
+  "Correct proper shipping name when packed with equipment": "53",
+  "Equipment batteries secured and terminals protected": "84",
+  "Airdrop missions handled per A13.8 allowance": "86",
+
+  // UN3091/UN3481 lithium batteries packed with equipment (A13.9)
+  "Inner packaging fully encloses cells/batteries": "41",
+  "Outer packaging meets PG II performance": "41",
+  "Large packaging approved (if used)": "41",
+  "Airdrop missions handled per A13.9 allowance": "86",
+
+  // UN1845 dry ice inspection (A13.10)
+  "Handling and storage in ventilated areas": "86",
+  "No hermetically sealed containers": "41",
+  "Authorized vented packaging used": "41",
+  "Medical shipment prep verified (if applicable)": "86",
+  "Non-hazard shipments with dry ice use vented packaging": "41",
+
+  // UN2807 magnetized material inspection (A13.11)
+  "Handling separation from sensitive equipment": "86",
+  "Field strength within limits": "86",
+  "Blocking and bracing adequate": "41",
+  "Protective distance from container exterior": "41",
+  "Air eligibility confirmed": "86",
+
+  // UN2990/UN3072 life-saving appliances inspection (A13.12)
+  "Handling and storage precautions followed": "86",
+  "Weather-resistant strong outer packaging": "41",
+  "Inner packaging prevents accidental activation": "46",
+  "General packaging requirements met": "41",
+  "Individually assigned kits handled per exception (if applicable)": "86",
+
+  // UN3363 dangerous goods in apparatus/machinery inspection (A13.13)
+  "Contents limited to authorized types": "86",
+  "Contents compatible": "86",
+  "Quantity limits met": "86",
+  "Receptacles secured and cushioned": "46",
+  "Leakage control provided": "47",
+  "Class 2.2 gases in authorized cylinders": "39",
+  "Strong outer packaging or equivalent protection": "41",
+
   // Attachment 28 Packaging Inspection criteria
   "Drum Ullage": "41",
   "Inner Receptacle Ullage": "41",

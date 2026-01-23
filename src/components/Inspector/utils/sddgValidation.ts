@@ -3,6 +3,12 @@ import {
   hazardousMaterialsList,
 } from "../../../../src/hazardousMaterials/hazardousMaterialsList";
 import { ExtractedSDDGContent } from "@/types/sddg";
+import {
+  getInhalationHazardRequirement,
+  hasSpecialProvisionCode,
+  hasSpecialProvisionAlphaCode,
+} from "@/utils/specialProvisions";
+import { getPackagingTypeFromKey16 } from "@/utils/getPackagingTypeFromKey16";
 
 /**
  * Result of validating a single SDDG field
@@ -41,7 +47,11 @@ export function findHazMatByUnid(unid: string): HazardousMaterialItem | null {
  */
 export function validateAircraftType(
   material: HazardousMaterialItem | null,
-  actualValue: string
+  actualValue: string,
+  options?: {
+    packagingType?: "single" | "combination" | "composite" | null;
+    quantityAndPacking?: string | null;
+  }
 ): { isValid: boolean; expected?: string; recommendation?: string } {
   if (!material || !material.specialProvision) {
     return { isValid: true }; // Can't validate without data
@@ -50,17 +60,31 @@ export function validateAircraftType(
   const specialProvisions = material.specialProvision.toUpperCase();
   let expectedType: string | null = null;
   let relevantPCode: string | null = null;
+  const packagingType =
+    options?.packagingType ||
+    getPackagingTypeFromKey16(options?.quantityAndPacking || null);
+
+  const requiresCargoForSinglePackaging =
+    hasSpecialProvisionAlphaCode(material.specialProvision, "A1") &&
+    packagingType === "single";
+
+  if (requiresCargoForSinglePackaging) {
+    expectedType = "CARGO AIRCRAFT ONLY";
+    relevantPCode = "A1";
+  }
 
   // Check for P codes in special provisions and extract the relevant one
-  const pCodeMatch = specialProvisions.match(/\bP([12345])\b/);
-  if (pCodeMatch) {
-    const pNumber = pCodeMatch[1];
-    relevantPCode = `P${pNumber}`;
+  if (!expectedType) {
+    const pCodeMatch = specialProvisions.match(/\bP([12345])\b/);
+    if (pCodeMatch) {
+      const pNumber = pCodeMatch[1];
+      relevantPCode = `P${pNumber}`;
 
-    if (["5"].includes(pNumber)) {
-      expectedType = "PASSENGER AND CARGO AIRCRAFT";
-    } else if (["1", "2", "3", "4"].includes(pNumber)) {
-      expectedType = "CARGO AIRCRAFT ONLY";
+      if (["5"].includes(pNumber)) {
+        expectedType = "PASSENGER AND CARGO AIRCRAFT";
+      } else if (["1", "2", "3", "4"].includes(pNumber)) {
+        expectedType = "CARGO AIRCRAFT ONLY";
+      }
     }
   }
 
@@ -163,6 +187,37 @@ export function validateProperShippingName(
   return { isValid: true };
 }
 
+function getKey12InhalationHazardRecommendation(
+  material: HazardousMaterialItem | null,
+  actualValue: string
+): string | null {
+  if (!material) return null;
+
+  const requirement = getInhalationHazardRequirement(
+    material.specialProvision
+  );
+  if (!requirement.requiresInhalationHazard) return null;
+
+  const normalized = actualValue?.toUpperCase() || "";
+  const hasInhalationHazard = /INHALATION\s*HAZARD/i.test(normalized);
+
+  if (!hasInhalationHazard) {
+    const codes = requirement.codes.join(", ") || "special provision";
+    return `Key 12 must include "Inhalation Hazard" per special provision ${codes}.`;
+  }
+
+  if (requirement.zone) {
+    const zonePattern = new RegExp(`ZONE\\s*${requirement.zone}`, "i");
+    if (!zonePattern.test(normalized)) {
+      return `Key 12 must include "Zone ${requirement.zone}" with "Inhalation Hazard" per special provision ${requirement.codes.join(
+        ", "
+      )}.`;
+    }
+  }
+
+  return null;
+}
+
 /**
  * Validates hazard class/division
  */
@@ -250,6 +305,23 @@ export function validatePackingGroup(
   return { isValid: true };
 }
 
+function getSpecialProvision177PackingGroupRecommendation(
+  material: HazardousMaterialItem | null,
+  actualValue: string
+): string | null {
+  if (!material) return null;
+  if (!hasSpecialProvisionCode(material.specialProvision, "177")) {
+    return null;
+  }
+
+  const normalizedActual = actualValue?.trim()?.toUpperCase() || "";
+  if (normalizedActual === "II") {
+    return null;
+  }
+
+  return 'Packing Group must be "II" per special provision 177.';
+}
+
 /**
  * Validates packing instruction
  */
@@ -288,7 +360,11 @@ export function validatePackingInstruction(
 export function getRecommendedFrustration(
   fieldKey: string,
   material: HazardousMaterialItem | null,
-  actualValue: string
+  actualValue: string,
+  options?: {
+    packagingType?: "single" | "combination" | "composite" | null;
+    quantityAndPacking?: string | null;
+  }
 ): string | null {
   if (!material) return null;
 
@@ -296,7 +372,7 @@ export function getRecommendedFrustration(
 
   switch (fieldKey) {
     case "aircraftType":
-      validation = validateAircraftType(material, actualValue);
+      validation = validateAircraftType(material, actualValue, options);
       break;
     case "shipmentType":
       validation = validateShipmentType(material, actualValue);
@@ -328,7 +404,11 @@ export function getRecommendedFrustration(
  */
 export function getAllRecommendedFrustrations(
   extractedContent: any,
-  material: HazardousMaterialItem | null
+  material: HazardousMaterialItem | null,
+  options?: {
+    packagingType?: "single" | "combination" | "composite" | null;
+    quantityAndPacking?: string | null;
+  }
 ): Array<{ fieldKey: string; recommendation: string }> {
   if (!material || !extractedContent) return [];
 
@@ -346,11 +426,37 @@ export function getAllRecommendedFrustrations(
   ];
 
   fieldsToValidate.forEach(({ key, value }) => {
-    const recommendation = getRecommendedFrustration(key, material, value);
+    const recommendation = getRecommendedFrustration(key, material, value, {
+      packagingType: options?.packagingType,
+      quantityAndPacking:
+        options?.quantityAndPacking || extractedContent.quantityAndPacking,
+    });
     if (recommendation) {
       recommendations.push({ fieldKey: key, recommendation });
     }
   });
+
+  const sp177Recommendation = getSpecialProvision177PackingGroupRecommendation(
+    material,
+    extractedContent.packingGroup || ""
+  );
+  if (sp177Recommendation) {
+    recommendations.push({
+      fieldKey: "packingGroup",
+      recommendation: sp177Recommendation,
+    });
+  }
+
+  const inhalationRecommendation = getKey12InhalationHazardRecommendation(
+    material,
+    extractedContent.properShippingName || ""
+  );
+  if (inhalationRecommendation) {
+    recommendations.push({
+      fieldKey: "properShippingName",
+      recommendation: inhalationRecommendation,
+    });
+  }
 
   return recommendations;
 }
@@ -504,7 +610,9 @@ export function validateSDDGInspection(
       key: "aircraftType",
       fieldLabel: "Aircraft Type (Key 7)",
       validator: () =>
-        validateAircraftType(material, extractedContent.aircraftType || ""),
+        validateAircraftType(material, extractedContent.aircraftType || "", {
+          quantityAndPacking: extractedContent.quantityAndPacking || null,
+        }),
       actualValue: extractedContent.aircraftType || "",
     },
     {

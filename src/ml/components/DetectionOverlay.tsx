@@ -75,7 +75,6 @@ function BoundingBoxView({ detection, scaleX, scaleY }: BoundingBoxViewProps) {
   const height = box.height * scaleY;
 
   const labelText = formatClassName(className);
-  const confidenceText = `${Math.round(confidence * 100)}%`;
   const labelBelow = top < 32;
 
   return (
@@ -101,9 +100,6 @@ function BoundingBoxView({ detection, scaleX, scaleY }: BoundingBoxViewProps) {
         <Text style={styles.labelText}>
           {labelText}
         </Text>
-        <View style={styles.confidenceBadge}>
-          <Text style={styles.confidenceText}>{confidenceText}</Text>
-        </View>
       </View>
     </View>
   );

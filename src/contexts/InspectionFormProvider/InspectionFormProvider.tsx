@@ -15,8 +15,10 @@ import {
   InspectorShipment,
   PackagePopMarking,
   ReinspectionAttempt,
+  KitInspectionData,
+  LabelingContext,
 } from "@/types/sddg";
-import { Inspector } from "../../../types";
+import { ExceptedQuantityData, LimitedQuantityData, Inspector } from "../../../types";
 import { InnerPackagingInspectionData } from "@/types/innerPackaging";
 import { useDatabase } from "../DataProvider";
 import {
@@ -120,6 +122,16 @@ interface InspectionFormContextValue {
   ) => void;
   clearInnerPackagingInspection: () => void;
 
+  // UN3316 kit inspection data
+  setKitInspectionData: (data: KitInspectionData | null) => void;
+
+  // Labeling context (A15 edge cases)
+  setLabelingContext: (data: LabelingContext | null) => void;
+  updateLabelingContextField: <K extends keyof LabelingContext>(
+    field: K,
+    value: LabelingContext[K]
+  ) => void;
+
   // Package POP marking
   setPackagePopMarking: (data: PackagePopMarking) => void;
   updatePackagePopField: <K extends keyof PackagePopMarking>(
@@ -130,6 +142,14 @@ interface InspectionFormContextValue {
 
   // ML Analysis Results
   setMLAnalysisResults: (results: AggregatedAnalysis | null) => void;
+
+  // Attachment 19 quantity handling
+  setQuantityType: (quantityType: "standard" | "excepted" | "limited") => void;
+  setExceptedQuantityData: (data: ExceptedQuantityData | null) => void;
+  setLimitedQuantityData: (data: LimitedQuantityData | null) => void;
+  setPackagePackagingType: (
+    packagingType: "single" | "combination" | "composite" | null
+  ) => void;
 
   // Inspector management
   setInspector: (
@@ -238,6 +258,15 @@ export function InspectionFormProvider({
             loaded.inspectionContext.resolvedFrustrations || [],
           resolvedPackageFrustrations:
             loaded.inspectionContext.resolvedPackageFrustrations || [],
+          quantityType: loaded.inspectionContext.quantityType || "standard",
+          exceptedQuantityData:
+            loaded.inspectionContext.exceptedQuantityData || null,
+          limitedQuantityData:
+            loaded.inspectionContext.limitedQuantityData || null,
+          packagePackagingType:
+            loaded.inspectionContext.packagePackagingType || null,
+          labelingContext:
+            loaded.inspectionContext.labelingContext || null,
         });
 
         // Reset workflow to appropriate state based on inspection status
@@ -1239,6 +1268,41 @@ export function InspectionFormProvider({
     setHasUnsavedChanges(true);
   }, []);
 
+  const setKitInspectionData = useCallback((data: KitInspectionData | null) => {
+    console.log("📝 [InspectionForm] Setting kit inspection data");
+    setInspection(prev => ({
+      ...prev,
+      kitInspectionData: data ? { ...data, contents: [...data.contents] } : null,
+    }));
+    setHasUnsavedChanges(true);
+  }, []);
+
+  const setLabelingContext = useCallback((data: LabelingContext | null) => {
+    console.log("📝 [InspectionForm] Setting labeling context");
+    setInspection(prev => ({
+      ...prev,
+      labelingContext: data ? { ...data } : null,
+    }));
+    setHasUnsavedChanges(true);
+  }, []);
+
+  const updateLabelingContextField = useCallback(
+    <K extends keyof LabelingContext>(field: K, value: LabelingContext[K]) => {
+      console.log("📝 [InspectionForm] Updating labeling context field:", field);
+      setInspection(prev => ({
+        ...prev,
+        labelingContext: prev.labelingContext
+          ? {
+              ...prev.labelingContext,
+              [field]: value,
+            }
+          : { [field]: value },
+      }));
+      setHasUnsavedChanges(true);
+    },
+    []
+  );
+
   const setPackagePopMarking = useCallback((data: PackagePopMarking) => {
     console.log("📝 [InspectionForm] Setting package POP marking");
     setInspection(prev => ({
@@ -1292,6 +1356,54 @@ export function InspectionFormProvider({
       setInspection(prev => ({
         ...prev,
         mlAnalysisResults: results,
+      }));
+      setHasUnsavedChanges(true);
+    },
+    []
+  );
+
+  const setQuantityType = useCallback(
+    (quantityType: "standard" | "excepted" | "limited") => {
+      console.log("📝 [InspectionForm] Setting quantity type:", quantityType);
+      setInspection(prev => ({
+        ...prev,
+        quantityType,
+      }));
+      setHasUnsavedChanges(true);
+    },
+    []
+  );
+
+  const setExceptedQuantityData = useCallback(
+    (data: ExceptedQuantityData | null) => {
+      console.log("📝 [InspectionForm] Setting excepted quantity data");
+      setInspection(prev => ({
+        ...prev,
+        exceptedQuantityData: data ? { ...data } : null,
+      }));
+      setHasUnsavedChanges(true);
+    },
+    []
+  );
+
+  const setLimitedQuantityData = useCallback(
+    (data: LimitedQuantityData | null) => {
+      console.log("📝 [InspectionForm] Setting limited quantity data");
+      setInspection(prev => ({
+        ...prev,
+        limitedQuantityData: data ? { ...data } : null,
+      }));
+      setHasUnsavedChanges(true);
+    },
+    []
+  );
+
+  const setPackagePackagingType = useCallback(
+    (packagingType: "single" | "combination" | "composite" | null) => {
+      console.log("📝 [InspectionForm] Setting packaging type:", packagingType);
+      setInspection(prev => ({
+        ...prev,
+        packagePackagingType: packagingType,
       }));
       setHasUnsavedChanges(true);
     },
@@ -1358,10 +1470,17 @@ export function InspectionFormProvider({
       updateInnerPackagingField,
       updateInnerPackagingInspectionItem,
       clearInnerPackagingInspection,
+      setKitInspectionData,
+      setLabelingContext,
+      updateLabelingContextField,
       setPackagePopMarking,
       updatePackagePopField,
       resetPackagePopMarking,
       setMLAnalysisResults,
+      setQuantityType,
+      setExceptedQuantityData,
+      setLimitedQuantityData,
+      setPackagePackagingType,
       setInspector,
     }),
     [
@@ -1404,10 +1523,17 @@ export function InspectionFormProvider({
       updateInnerPackagingField,
       updateInnerPackagingInspectionItem,
       clearInnerPackagingInspection,
+      setKitInspectionData,
+      setLabelingContext,
+      updateLabelingContextField,
       setPackagePopMarking,
       updatePackagePopField,
       resetPackagePopMarking,
       setMLAnalysisResults,
+      setQuantityType,
+      setExceptedQuantityData,
+      setLimitedQuantityData,
+      setPackagePackagingType,
       setInspector,
     ]
   );
@@ -1487,10 +1613,17 @@ export function useInspectionFormActions() {
     updateInnerPackagingField: context.updateInnerPackagingField,
     updateInnerPackagingInspectionItem: context.updateInnerPackagingInspectionItem,
     clearInnerPackagingInspection: context.clearInnerPackagingInspection,
+    setKitInspectionData: context.setKitInspectionData,
+    setLabelingContext: context.setLabelingContext,
+    updateLabelingContextField: context.updateLabelingContextField,
     setPackagePopMarking: context.setPackagePopMarking,
     updatePackagePopField: context.updatePackagePopField,
     resetPackagePopMarking: context.resetPackagePopMarking,
     setMLAnalysisResults: context.setMLAnalysisResults,
+    setQuantityType: context.setQuantityType,
+    setExceptedQuantityData: context.setExceptedQuantityData,
+    setLimitedQuantityData: context.setLimitedQuantityData,
+    setPackagePackagingType: context.setPackagePackagingType,
     setInspector: context.setInspector,
   };
 }
@@ -1561,6 +1694,14 @@ export function useMLAnalysisResults() {
 export function usePackagePopMarking() {
   const { inspection } = useInspectionForm();
   return inspection.packagePopMarking;
+}
+
+/**
+ * Selector hook for package packaging type.
+ */
+export function usePackagePackagingType() {
+  const { inspection } = useInspectionForm();
+  return inspection.packagePackagingType;
 }
 
 /**

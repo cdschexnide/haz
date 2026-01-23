@@ -15,6 +15,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useInspectionForm } from "../../contexts/InspectionFormProvider";
 import { PackageFrustrationRecord } from "../../types/sddg";
 import { useHazProStore } from "../../stores/useHazProStore";
+import { navigateToPackageOutcome } from "../../utils/navigateToPackageOutcome";
 
 interface InspectorGeneticallyModifiedOrganismsScreenProps {
   navigation: any;
@@ -253,14 +254,12 @@ export default function InspectorGeneticallyModifiedOrganismsScreen({
             style: "default",
             onPress: () => {
               // Navigate to Package Markings Screen
-              navigation.navigate("InspectorAttachment28WizardScreen");
             },
           },
         ]
       );
     } else {
       // Has frustrations - navigate to package markings screen
-      navigation.navigate("InspectorAttachment28WizardScreen");
     }
   };
 

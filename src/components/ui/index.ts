@@ -23,3 +23,4 @@ export * from './KeyValueRow';
 export * from './ChecklistItem';
 export * from './LoadingOverlay';
 export * from './DocumentModal';
+export * from './SelectableCard';

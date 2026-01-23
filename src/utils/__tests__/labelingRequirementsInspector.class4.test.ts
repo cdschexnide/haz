@@ -116,6 +116,14 @@ describe('Class 4 (Flammable Solids) Labeling Requirements', () => {
         expect(result['Primary Hazard']).toBeDefined();
         expect(result['Primary Hazard']).toContain('Class 4.1');
       });
+
+      test('Division 4.1 label is suppressed when a 4.2 label is applied', () => {
+        const context = createClass4Context('UN1325', '4.1', 'FLAMMABLE SOLIDS, ORGANIC, N.O.S.', 'II', 'PASSENGER AND CARGO');
+        context.labelingContext = { hasDiv42LabelApplied: true };
+        const result = evaluateLabelingRequirements(context);
+
+        expect(result['Primary Hazard']).toBeUndefined();
+      });
     });
 
     describe('Division 4.2 - Spontaneously Combustible Labels', () => {

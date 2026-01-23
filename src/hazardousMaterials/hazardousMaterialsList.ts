@@ -4028,7 +4028,7 @@ export const hazardousMaterialsList: HazardousMaterialItem[] = [
     subsidiaryRisk: "",
     packingGroup: "III",
     specialProvision: "P5, 156",
-    packagingParagraph: "A13.15",
+    packagingParagraph: "A13.16.",
   },
   {
     isFixed: "false",
@@ -4041,7 +4041,7 @@ export const hazardousMaterialsList: HazardousMaterialItem[] = [
     subsidiaryRisk: "",
     packingGroup: "II",
     specialProvision: "P5, 156",
-    packagingParagraph: "A13.15",
+    packagingParagraph: "A13.16.",
   },
   {
     isFixed: "false",
@@ -4053,7 +4053,7 @@ export const hazardousMaterialsList: HazardousMaterialItem[] = [
     subsidiaryRisk: "",
     packingGroup: "III",
     specialProvision: "P5, 156",
-    packagingParagraph: "A13.15",
+    packagingParagraph: "A13.16.",
   },
   {
     isFixed: "false",
@@ -38709,7 +38709,7 @@ export const hazardousMaterialsList: HazardousMaterialItem[] = [
     subsidiaryRisk: "",
     packingGroup: "III",
     specialProvision: "P5",
-    packagingParagraph: "A13.16.",
+    packagingParagraph: "A13.16",
   },
   {
     isFixed: "false",

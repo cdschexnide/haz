@@ -288,6 +288,21 @@ export function decodeYOLOXOutput(
  * Format class name for display (convert camelCase to readable format)
  */
 export function formatClassName(name: string): string {
+  // Special handling for explosives with compatibility group (e.g., "explosives1.1B" -> "Explosives 1.1B")
+  const explosivesMatch = name.match(/^explosives(\d+\.?\d*)([A-Z])?(_.*)?$/i);
+  if (explosivesMatch) {
+    const division = explosivesMatch[1];
+    const compatGroup = explosivesMatch[2] || "";
+    const suffix = explosivesMatch[3]
+      ? explosivesMatch[3]
+          .replace(/_/g, " ")
+          .replace(/([A-Z])/g, " $1")
+          .trim()
+      : "";
+    return `Explosives ${division}${compatGroup}${suffix ? " " + suffix : ""}`;
+  }
+
+  // Default formatting for other class names
   let formatted = name.replace(/([A-Z])/g, ' $1').replace(/([0-9]+)/g, ' $1');
   formatted = formatted.charAt(0).toUpperCase() + formatted.slice(1);
   formatted = formatted.replace(/\s+/g, ' ').trim();

@@ -14,6 +14,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useInspectionForm } from "../../contexts/InspectionFormProvider";
 import { useHazProStore } from "../../stores/useHazProStore";
+import { resolvePackingInstruction } from "@/utils/resolvePackingInstruction";
 import {
   getChecklistForParagraph,
   extractA6Paragraph,
@@ -37,10 +38,12 @@ export default function InspectorCompressedGasesScreen({
   const [additionalComments, setAdditionalComments] = useState("");
 
   // Get packing instruction from SDDG
-  const packingInstruction =
+  const packingInstruction = resolvePackingInstruction(
+    inspection?.verificationCopy?.unIdNo || inspection?.extractedContent?.unIdNo,
     inspection?.verificationCopy?.packingInstruction ||
-    inspection?.extractedContent?.packingInstruction ||
-    "";
+      inspection?.extractedContent?.packingInstruction ||
+      ""
+  );
 
   // Get hazard class for display
   const hazardClass =
@@ -179,7 +182,7 @@ export default function InspectorCompressedGasesScreen({
 
   const navigateToNext = () => {
     // Navigate to markings/labels validation screen
-    navigation.navigate("InspectorMarkingsLabelsValidationScreen");
+    navigation.navigate("InspectorLabelingExceptionsScreen");
   };
 
   const handleFinalSubmit = () => {

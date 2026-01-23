@@ -236,7 +236,11 @@ export default function SDDGComplianceValidation({
         const recommendation = getRecommendedFrustration(
           currentField.key,
           hazMatData,
-          fieldValue
+          fieldValue,
+          {
+            packagingType: inspection.packagePackagingType || null,
+            quantityAndPacking: inspection.verificationCopy?.quantityAndPacking || null,
+          }
         );
         setRecommendedFrustration(recommendation);
       } else {
