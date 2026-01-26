@@ -471,18 +471,17 @@ export default function PackageFrustrationSummary({
         <View style={styles.itemRow}>
           <Text style={styles.itemTitle}>{frustration.itemLabel}</Text>
           {showDescription && (
-            <View style={styles.metaRow}>
-              <Text style={styles.metaLabel}>Description</Text>
-              <Text style={styles.metaValue}>{frustration.additionalComments}</Text>
-            </View>
+            <Text style={styles.itemDescription}>{frustration.additionalComments}</Text>
           )}
-          <View style={styles.metaRow}>
-            <Text style={styles.metaLabel}>Date/Time</Text>
-            <Text style={styles.metaValue}>{formatDateTime(frustration.frustrationDate)}</Text>
-          </View>
-          <View style={styles.metaRow}>
-            <Text style={styles.metaLabel}>Inspector</Text>
-            <Text style={styles.metaValue}>{formatInspectorName(frustration.inspector)}</Text>
+          <View style={styles.metaInlineRow}>
+            <Text style={styles.metaInline}>
+              <Text style={styles.metaInlineLabel}>Date/Time </Text>
+              <Text style={styles.metaInlineValue}>{formatDateTime(frustration.frustrationDate)}</Text>
+            </Text>
+            <Text style={styles.metaInline}>
+              <Text style={styles.metaInlineLabel}>Inspector </Text>
+              <Text style={styles.metaInlineValue}>{formatInspectorName(frustration.inspector)}</Text>
+            </Text>
           </View>
         </View>
         {!isLast && <View style={styles.itemDivider} />}
@@ -631,22 +630,28 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "700",
     color: colors.textPrimary,
-    marginBottom: spacing.xs,
+    marginBottom: 4,
   },
-  metaRow: {
+  itemDescription: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginBottom: 6,
+    fontStyle: "italic",
+  },
+  metaInlineRow: {
     flexDirection: "row",
-    marginBottom: 2,
+    flexWrap: "wrap",
+    gap: spacing.md,
   },
-  metaLabel: {
+  metaInline: {
     fontSize: 13,
+  },
+  metaInlineLabel: {
     fontWeight: "600",
     color: colors.textSecondary,
-    width: 80,
   },
-  metaValue: {
-    fontSize: 13,
+  metaInlineValue: {
     color: colors.textPrimary,
-    flex: 1,
   },
   itemDivider: {
     borderBottomWidth: 1,
