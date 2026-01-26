@@ -470,18 +470,23 @@ export default function PackageFrustrationSummary({
       <View key={frustration.id}>
         <View style={styles.itemRow}>
           <Text style={styles.itemTitle}>{frustration.itemLabel}</Text>
+
           {showDescription && (
-            <Text style={styles.itemDescription}>{frustration.additionalComments}</Text>
+            <View style={styles.descriptionBox}>
+              <Text style={styles.descriptionLabel}>DESCRIPTION</Text>
+              <Text style={styles.descriptionValue}>{frustration.additionalComments}</Text>
+            </View>
           )}
-          <View style={styles.metaInlineRow}>
-            <Text style={styles.metaInline}>
-              <Text style={styles.metaInlineLabel}>Date/Time </Text>
-              <Text style={styles.metaInlineValue}>{formatDateTime(frustration.frustrationDate)}</Text>
-            </Text>
-            <Text style={styles.metaInline}>
-              <Text style={styles.metaInlineLabel}>Inspector </Text>
-              <Text style={styles.metaInlineValue}>{formatInspectorName(frustration.inspector)}</Text>
-            </Text>
+
+          <View style={styles.metaColumns}>
+            <View style={styles.metaColumn}>
+              <Text style={styles.metaLabel}>DATE/TIME</Text>
+              <Text style={styles.metaValue}>{formatDateTime(frustration.frustrationDate)}</Text>
+            </View>
+            <View style={styles.metaColumn}>
+              <Text style={styles.metaLabel}>INSPECTOR</Text>
+              <Text style={styles.metaValue}>{formatInspectorName(frustration.inspector)}</Text>
+            </View>
           </View>
         </View>
         {!isLast && <View style={styles.itemDivider} />}
@@ -578,7 +583,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    padding: spacing.sm,
+    padding: spacing.md,
     paddingBottom: spacing.xxl,
   },
   emptyState: {
@@ -619,45 +624,57 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   categoryBody: {
-    paddingVertical: spacing.xs,
+    paddingVertical: spacing.sm,
   },
   // Item Row Styles
   itemRow: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
   },
   itemTitle: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: "700",
     color: colors.textPrimary,
-    marginBottom: 4,
+    marginBottom: spacing.md,
   },
-  itemDescription: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    marginBottom: 6,
-    fontStyle: "italic",
+  descriptionBox: {
+    marginBottom: spacing.md,
   },
-  metaInlineRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: spacing.md,
-  },
-  metaInline: {
-    fontSize: 13,
-  },
-  metaInlineLabel: {
+  descriptionLabel: {
+    fontSize: 11,
     fontWeight: "600",
     color: colors.textSecondary,
+    letterSpacing: 0.5,
+    marginBottom: 4,
   },
-  metaInlineValue: {
+  descriptionValue: {
+    fontSize: 15,
+    color: colors.textPrimary,
+    lineHeight: 22,
+  },
+  metaColumns: {
+    flexDirection: "row",
+    gap: spacing.xl,
+  },
+  metaColumn: {
+    flex: 1,
+  },
+  metaLabel: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: colors.textSecondary,
+    letterSpacing: 0.5,
+    marginBottom: 4,
+  },
+  metaValue: {
+    fontSize: 15,
     color: colors.textPrimary,
   },
   itemDivider: {
     borderBottomWidth: 1,
     borderStyle: "dashed",
     borderColor: colors.border,
-    marginHorizontal: spacing.md,
-    marginVertical: spacing.xs,
+    marginHorizontal: spacing.lg,
+    marginVertical: spacing.sm,
   },
 });
