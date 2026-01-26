@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
   View,
   Text,
@@ -6,7 +6,6 @@ import {
   ScrollView,
   Alert,
 } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
 import {
   useInspectionFormActions,
   useInspectionFrustrations,
@@ -108,15 +107,82 @@ export default function PackageFrustrationSummary({
     );
   }, [packageFrustrations.length]);
 
-  const formatDate = (date: Date): string => {
+  const formatTime = (date: Date): string => {
     return new Intl.DateTimeFormat("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-      hour: "2-digit",
+      hour: "numeric",
       minute: "2-digit",
     }).format(new Date(date));
   };
+
+  const formatInspectorName = (inspector: PackageFrustrationRecord["inspector"]): string => {
+    if (typeof inspector === "string") {
+      return inspector;
+    }
+    const name = `${inspector?.inspectorRank || ""} ${inspector?.inspectorName || ""}`.trim();
+    return name || "Unknown";
+  };
+
+  const getCategoryLabel = (category: string): string => {
+    switch (category) {
+      case "marking":
+        return "Package Marking";
+      case "label":
+        return "Package Label";
+      case "packaging":
+        return "Packaging";
+      case "magnetized":
+        return "Magnetized Material";
+      case "dryice":
+        return "Dry Ice";
+      case "first-aid-chemical-kit":
+        return "First Aid / Chemical Kit";
+      case "life-saving":
+        return "Life-Saving Appliances";
+      case "dangerous-goods-apparatus":
+        return "Dangerous Goods in Apparatus";
+      case "class9-general":
+        return "Class 9 General";
+      case "asbestos":
+        return "Asbestos";
+      case "capacitor":
+        return "Capacitors";
+      case "engines-internal-combustion":
+        return "Internal Combustion Engines";
+      case "consumer-commodity":
+        return "Consumer Commodity";
+      case "misc-dangerous-goods-articles":
+        return "Misc Dangerous Goods Articles";
+      case "fuel-powered-vehicle":
+        return "Fuel-Powered Vehicle";
+      case "battery-vehicle":
+        return "Battery-Powered Vehicle";
+      case "lithium_battery":
+        return "Lithium Batteries";
+      case "lithium_battery_contained":
+        return "Lithium Batteries (Contained)";
+      case "lithium_battery_packed":
+        return "Lithium Batteries (Packed)";
+      case "infectious-substances":
+        return "Infectious Substances";
+      case "biological-category-b":
+        return "Biological Category B";
+      default:
+        return "Package";
+    }
+  };
+
+  // Group frustrations by category
+  const groupedFrustrations = useMemo(() => {
+    const groups: Record<string, PackageFrustrationRecord[]> = {};
+    packageFrustrations.forEach((frustration) => {
+      const category = frustration.category || "other";
+      if (!groups[category]) {
+        groups[category] = [];
+      }
+      groups[category].push(frustration);
+    });
+    return groups;
+  }, [packageFrustrations]);
 
   const handleCancel = () => {
     // Go back to POP marking screen
@@ -390,88 +456,45 @@ export default function PackageFrustrationSummary({
     }
   };
 
-  const renderPackageFrustrationCard = (
+  const renderItemRow = (
     frustration: PackageFrustrationRecord,
-    index: number
+    index: number,
+    isLast: boolean
   ) => {
-    // Create SDDG-style field label with category distinction
-    const categoryLabel =
-      frustration.category === "marking"
-        ? "Package Marking"
-        : frustration.category === "label"
-        ? "Package Label"
-        : frustration.category === "packaging"
-        ? "Packaging"
-        : "Dry Ice Inspection";
-    const fieldLabel = `${frustration.itemLabel.toUpperCase()} (${categoryLabel})`;
-
-    // Determine field value display
-    const fieldValue =
-      frustration.verificationStatus === "missing"
-        ? "Missing"
-        : frustration.expectedValues.length > 0
-        ? `Expected: ${frustration.expectedValues.join(", ")}`
-        : "No data";
-
-    // Determine colors based on verification status
-    const iconColor =
-      frustration.verificationStatus === "missing" ? colors.error : colors.warning;
-    const borderColor =
-      frustration.verificationStatus === "missing" ? colors.errorLight : "#FFE5CC";
+    const showDescription = Boolean(frustration.additionalComments);
 
     return (
-      <View
-        key={frustration.id}
-        style={[styles.frustrationCard, { borderColor }]}
-      >
-        <View style={styles.frustrationHeader}>
-          <MaterialIcons name="error" size={24} color={iconColor} />
-          <Text style={styles.frustrationFieldLabel}>{fieldLabel}</Text>
-        </View>
-
-        <View style={styles.frustrationDetails}>
-          {/* Only show Field Value for marking and label frustrations, not dry ice */}
-          {frustration.category !== "dryice" && (
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Field Value:</Text>
-              <Text style={[styles.detailValue, styles.fieldValueText]}>
-                {fieldValue}
-              </Text>
-            </View>
+      <View key={frustration.id}>
+        <View style={styles.itemRow}>
+          <Text style={styles.itemTitle}>{frustration.itemLabel}</Text>
+          {showDescription && (
+            <Text style={styles.itemDescription}>
+              {frustration.additionalComments}
+            </Text>
           )}
+          <Text style={styles.itemMeta}>
+            {formatTime(frustration.frustrationDate)} · {formatInspectorName(frustration.inspector)}
+          </Text>
+        </View>
+        {!isLast && <View style={styles.itemDivider} />}
+      </View>
+    );
+  };
 
-          <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Date/Time:</Text>
-            <Text style={styles.detailValue}>
-              {formatDate(frustration.frustrationDate)}
-            </Text>
-          </View>
+  const renderCategoryCard = (category: string, frustrations: PackageFrustrationRecord[]) => {
+    const categoryLabel = getCategoryLabel(category);
+    const itemCount = frustrations.length;
+    const itemText = itemCount === 1 ? "1 item" : `${itemCount} items`;
 
-          <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Inspector:</Text>
-            <Text style={styles.detailValue}>
-              {typeof frustration.inspector === "string"
-                ? frustration.inspector
-                : `${frustration.inspector?.inspectorRank || ""} ${
-                    frustration.inspector?.inspectorName || ""
-                  }`.trim() || "Unknown"}
-            </Text>
-          </View>
-
-          <View style={styles.messageContainer}>
-            <Text style={styles.detailLabel}>Frustration Message:</Text>
-            <Text style={styles.frustrationMessage}>
-              {frustration.defaultMessage}
-            </Text>
-          </View>
-
-          {frustration.additionalComments && (
-            <View style={styles.messageContainer}>
-              <Text style={styles.detailLabel}>Additional Comments:</Text>
-              <Text style={styles.additionalComments}>
-                {frustration.additionalComments}
-              </Text>
-            </View>
+    return (
+      <View key={category} style={styles.categoryCard}>
+        <View style={styles.categoryHeader}>
+          <Text style={styles.categoryHeaderText}>{categoryLabel.toUpperCase()}</Text>
+          <Text style={styles.categoryItemCount}>{itemText}</Text>
+        </View>
+        <View style={styles.categoryBody}>
+          {frustrations.map((frustration, index) =>
+            renderItemRow(frustration, index, index === frustrations.length - 1)
           )}
         </View>
       </View>
@@ -483,8 +506,6 @@ export default function PackageFrustrationSummary({
       <ScreenHeader
         title="Package Frustration Summary"
         onClose={handleCancel}
-        rightIcon="error"
-        rightBadgeCount={packageFrustrations.length}
       />
 
       <View style={styles.mainContent}>
@@ -495,7 +516,6 @@ export default function PackageFrustrationSummary({
         >
           {packageFrustrations.length === 0 ? (
             <View style={styles.emptyState}>
-              <MaterialIcons name="check-circle" size={64} color={colors.success} />
               <Text style={styles.emptyStateTitle}>
                 No Package Issues Found
               </Text>
@@ -504,8 +524,8 @@ export default function PackageFrustrationSummary({
               </Text>
             </View>
           ) : (
-            packageFrustrations.map((frustration, index) =>
-              renderPackageFrustrationCard(frustration, index)
+            Object.entries(groupedFrustrations).map(([category, frustrations]) =>
+              renderCategoryCard(category, frustrations)
             )
           )}
         </ScrollView>
@@ -574,70 +594,61 @@ const styles = StyleSheet.create({
     textAlign: "center",
     paddingHorizontal: 32,
   },
-  frustrationCard: {
+  // Category Card Styles
+  categoryCard: {
     backgroundColor: colors.surface,
     borderRadius: borderRadius.lg,
-    padding: spacing.lg,
     marginBottom: spacing.md,
     ...shadows.light,
-    borderWidth: 1,
-    borderColor: colors.errorLight,
+    overflow: "hidden",
   },
-  frustrationHeader: {
+  categoryHeader: {
+    backgroundColor: "#FEE2E2",
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
     flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: spacing.md,
   },
-  frustrationFieldLabel: {
-    fontSize: 16,
+  categoryHeaderText: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: colors.textPrimary,
+    letterSpacing: 0.5,
+  },
+  categoryItemCount: {
+    fontSize: 13,
+    color: colors.textSecondary,
+  },
+  categoryBody: {
+    paddingVertical: spacing.sm,
+  },
+  // Item Row Styles
+  itemRow: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  itemTitle: {
+    fontSize: 15,
     fontWeight: "600",
     color: colors.textPrimary,
-    marginLeft: spacing.sm,
-    flex: 1,
+    marginBottom: 2,
   },
-  frustrationDetails: {
-    marginLeft: 32,
-  },
-  detailRow: {
-    flexDirection: "row",
-    marginBottom: spacing.sm,
-    alignItems: "flex-start",
-  },
-  detailLabel: {
+  itemDescription: {
     fontSize: 14,
     color: colors.textSecondary,
-    fontWeight: "500",
-    width: 100,
-  },
-  detailValue: {
-    fontSize: 14,
-    color: colors.textPrimary,
-    flex: 1,
-  },
-  fieldValueText: {
-    fontWeight: "600",
-    color: colors.primary,
-  },
-  messageContainer: {
-    marginTop: spacing.sm,
-  },
-  frustrationMessage: {
-    fontSize: 14,
-    color: colors.textPrimary,
-    marginTop: spacing.xs,
+    marginBottom: 4,
     lineHeight: 20,
-    backgroundColor: colors.background,
-    padding: spacing.md,
-    borderRadius: borderRadius.md,
   },
-  additionalComments: {
-    fontSize: 14,
-    color: colors.textPrimary,
-    marginTop: spacing.xs,
-    lineHeight: 20,
-    backgroundColor: colors.background,
-    padding: spacing.md,
-    borderRadius: borderRadius.md,
-    fontStyle: "italic",
+  itemMeta: {
+    fontSize: 13,
+    color: colors.textSecondary,
+  },
+  itemDivider: {
+    borderBottomWidth: 1,
+    borderStyle: "dashed",
+    borderColor: colors.border,
+    marginHorizontal: spacing.md,
+    marginVertical: spacing.xs,
   },
 });
