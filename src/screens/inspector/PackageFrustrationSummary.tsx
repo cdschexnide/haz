@@ -107,8 +107,11 @@ export default function PackageFrustrationSummary({
     );
   }, [packageFrustrations.length]);
 
-  const formatTime = (date: Date): string => {
+  const formatDateTime = (date: Date): string => {
     return new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
       hour: "numeric",
       minute: "2-digit",
     }).format(new Date(date));
@@ -468,13 +471,19 @@ export default function PackageFrustrationSummary({
         <View style={styles.itemRow}>
           <Text style={styles.itemTitle}>{frustration.itemLabel}</Text>
           {showDescription && (
-            <Text style={styles.itemDescription}>
-              {frustration.additionalComments}
-            </Text>
+            <View style={styles.metaRow}>
+              <Text style={styles.metaLabel}>Description</Text>
+              <Text style={styles.metaValue}>{frustration.additionalComments}</Text>
+            </View>
           )}
-          <Text style={styles.itemMeta}>
-            {formatTime(frustration.frustrationDate)} · {formatInspectorName(frustration.inspector)}
-          </Text>
+          <View style={styles.metaRow}>
+            <Text style={styles.metaLabel}>Date/Time</Text>
+            <Text style={styles.metaValue}>{formatDateTime(frustration.frustrationDate)}</Text>
+          </View>
+          <View style={styles.metaRow}>
+            <Text style={styles.metaLabel}>Inspector</Text>
+            <Text style={styles.metaValue}>{formatInspectorName(frustration.inspector)}</Text>
+          </View>
         </View>
         {!isLast && <View style={styles.itemDivider} />}
       </View>
@@ -483,14 +492,11 @@ export default function PackageFrustrationSummary({
 
   const renderCategoryCard = (category: string, frustrations: PackageFrustrationRecord[]) => {
     const categoryLabel = getCategoryLabel(category);
-    const itemCount = frustrations.length;
-    const itemText = itemCount === 1 ? "1 item" : `${itemCount} items`;
 
     return (
       <View key={category} style={styles.categoryCard}>
         <View style={styles.categoryHeader}>
           <Text style={styles.categoryHeaderText}>{categoryLabel.toUpperCase()}</Text>
-          <Text style={styles.categoryItemCount}>{itemText}</Text>
         </View>
         <View style={styles.categoryBody}>
           {frustrations.map((frustration, index) =>
@@ -573,7 +579,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    padding: spacing.lg,
+    padding: spacing.sm,
     paddingBottom: spacing.xxl,
   },
   emptyState: {
@@ -597,31 +603,24 @@ const styles = StyleSheet.create({
   // Category Card Styles
   categoryCard: {
     backgroundColor: colors.surface,
-    borderRadius: borderRadius.lg,
-    marginBottom: spacing.md,
+    borderRadius: borderRadius.md,
+    marginBottom: spacing.sm,
     ...shadows.light,
     overflow: "hidden",
   },
   categoryHeader: {
-    backgroundColor: "#FEE2E2",
+    backgroundColor: colors.error,
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
   },
   categoryHeaderText: {
     fontSize: 14,
     fontWeight: "700",
-    color: colors.textPrimary,
+    color: colors.white,
     letterSpacing: 0.5,
   },
-  categoryItemCount: {
-    fontSize: 13,
-    color: colors.textSecondary,
-  },
   categoryBody: {
-    paddingVertical: spacing.sm,
+    paddingVertical: spacing.xs,
   },
   // Item Row Styles
   itemRow: {
@@ -629,20 +628,25 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
   },
   itemTitle: {
-    fontSize: 15,
-    fontWeight: "600",
+    fontSize: 16,
+    fontWeight: "700",
     color: colors.textPrimary,
+    marginBottom: spacing.xs,
+  },
+  metaRow: {
+    flexDirection: "row",
     marginBottom: 2,
   },
-  itemDescription: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    marginBottom: 4,
-    lineHeight: 20,
-  },
-  itemMeta: {
+  metaLabel: {
     fontSize: 13,
+    fontWeight: "600",
     color: colors.textSecondary,
+    width: 80,
+  },
+  metaValue: {
+    fontSize: 13,
+    color: colors.textPrimary,
+    flex: 1,
   },
   itemDivider: {
     borderBottomWidth: 1,
