@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
+  Platform,
+  KeyboardAvoidingView,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import * as FileSystem from "expo-file-system";
@@ -14,11 +16,14 @@ import * as Print from "expo-print";
 import * as Sharing from "expo-sharing";
 import legacyColors from "../../theming/colors";
 import { useInspectionForm } from "../../contexts/InspectionFormProvider";
+import { useNavigationRef } from "../../contexts/NavigationRefProvider/useNavigationRef";
 import {
   mapFrustrationsToForm1015WithResolved,
   getForm1015FrustrationDescription,
   PACKAGE_TO_FORM1015_MAPPING,
+  getPackageFrustrationField,
 } from "../../utils/sddgToForm1015Mapping";
+import { getLatestReinspectionInfo } from "../../utils/reinspectionInfo";
 import { Form1015CheckBoxWithStatus } from "../../components/Inspector/Form1015CheckboxWithStatus";
 import { useHazProActions } from "../../stores/useHazProStore";
 import { DevBenchmarkButton } from "../../components/dev/DevBenchmarkButton";
@@ -27,12 +32,15 @@ import { hazardousMaterialsA13List } from "@/hazardousMaterials/hazardousMateria
 
 interface InspectorAMC1015FormProps {
   navigation?: any;
+  isModal?: boolean;
 }
 
 export const InspectorAMC1015Form = ({
   navigation,
+  isModal = false,
 }: InspectorAMC1015FormProps) => {
-  const { inspection, completeInspection } = useInspectionForm();
+  const { inspection, finalizeInspection } = useInspectionForm();
+  const { navigationRef } = useNavigationRef();
   const actions = useHazProActions();
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
@@ -53,14 +61,13 @@ export const InspectorAMC1015Form = ({
   // Helper to format inspector for display
   const formatInspector = (inspectorData: any): string => {
     if (typeof inspectorData === "string") {
-      return inspectorData;
+      return inspectorData.replace(",", " ").replace(/\s+/g, " ").trim();
     }
     if (inspectorData && typeof inspectorData === "object") {
-      const rank = inspectorData.inspectorRank || "";
       const name = inspectorData.inspectorName || "";
-      return `${rank} ${name}`.trim() || "Unknown Inspector";
+      return name.replace(",", " ").replace(/\s+/g, " ").trim();
     }
-    return "Unknown Inspector";
+    return "";
   };
 
   const inspector = formatInspector(inspection.inspector);
@@ -101,45 +108,29 @@ export const InspectorAMC1015Form = ({
     resolvedSddgFrustrations.length > 0 || resolvedPackageFrustrations.length > 0;
   const correctiveActionsChecked = hasResolvedFrustrations && allPassed;
 
-  // Get the most recent reinspection info from resolved frustrations
-  const getLatestReinspectionInfo = (): { latestDate: Date | null; latestInspector: string } => {
-    let latestDate: Date | null = null;
-    let latestInspector: string = "";
-
-    // Check resolved SDDG frustrations
-    resolvedSddgFrustrations.forEach(frustration => {
-      if (frustration.reinspectionHistory?.length > 0) {
-        const lastAttempt = frustration.reinspectionHistory[frustration.reinspectionHistory.length - 1];
-        const attemptDate = new Date(lastAttempt.date);
-        if (!latestDate || attemptDate > latestDate) {
-          latestDate = attemptDate;
-          latestInspector = lastAttempt.inspector || "";
-        }
-      }
+  const { latestDate: reinspectionDate, latestInspector } =
+    getLatestReinspectionInfo({
+      sddgFrustrations,
+      packageFrustrations,
+      resolvedSddgFrustrations,
+      resolvedPackageFrustrations,
     });
-
-    // Check resolved package frustrations
-    resolvedPackageFrustrations.forEach(frustration => {
-      if (frustration.reinspectionHistory?.length > 0) {
-        const lastAttempt = frustration.reinspectionHistory[frustration.reinspectionHistory.length - 1];
-        const attemptDate = new Date(lastAttempt.date);
-        if (!latestDate || attemptDate > latestDate) {
-          latestDate = attemptDate;
-          latestInspector = lastAttempt.inspector || "";
-        }
-      }
-    });
-
-    return { latestDate, latestInspector };
-  };
-
-  const { latestDate: reinspectionDate, latestInspector: reinspectedByInspector } =
-    getLatestReinspectionInfo();
+  const normalizedLatestInspector = latestInspector
+    ? formatInspector(latestInspector)
+    : "";
 
   // Format the reinspection date as YYYYMMDD
   const reinspectedByDate = reinspectionDate
     ? reinspectionDate.toISOString().split("T")[0].replace(/-/g, "")
     : "";
+  const hasReinspectionAttempts = !!reinspectionDate;
+  const reinspectedByName = hasReinspectionAttempts
+    ? normalizedLatestInspector || inspector
+    : "N/A";
+  const correctedByName = correctiveActionsChecked
+    ? normalizedLatestInspector || inspector
+    : "N/A";
+  const inspectedByName = inspector || "N/A";
 
   // Format frustrations for comments section with complete reinspection history
   const formatFrustrationsForComments = () => {
@@ -244,7 +235,7 @@ export const InspectorAMC1015Form = ({
     allPackageFrustrations.forEach(frustration => {
       // Directly look up the form1015Id from the mapping using the frustration's itemLabel
       // This avoids the issue where multiple labels map to the same ID (e.g., multiple labels -> "59")
-      const form1015Id = PACKAGE_TO_FORM1015_MAPPING[frustration.itemLabel] ||
+      const form1015Id = getPackageFrustrationField(frustration) ||
         Array.from(frustratedForm1015Ids).find(id => {
           const description = getForm1015FrustrationDescription(
             id,
@@ -276,12 +267,18 @@ export const InspectorAMC1015Form = ({
       const { formattedDate, formattedTime } = formatDateTime(
         new Date(frustration.frustrationDate)
       );
+      const categoryComments =
+        (frustration.category === "magnetized" ||
+          frustration.category === "dryice") &&
+        frustration.additionalComments
+          ? ` – ${frustration.additionalComments}`
+          : "";
       allEntries.push({
         date: new Date(frustration.frustrationDate),
         lineNumber,
         formatted: `${lineNumber}. – ${formattedDate} @ ${formattedTime} – ${labelDisplay} – Inspector: ${formatInspector(
           frustration.inspector
-        )}`,
+        )}${categoryComments}`,
       });
 
       // Add all reinspection attempts
@@ -570,7 +567,6 @@ export const InspectorAMC1015Form = ({
             border-bottom: 1px solid black;
           }
           .comments-body {
-            min-height: 450px;
             padding: 15px;
           }
           .comments-text {
@@ -648,7 +644,7 @@ export const InspectorAMC1015Form = ({
             </div>
             <div class="flex-30">
               <div class="label">INSPECTED BY (NAME)</div>
-              <div class="value">${inspector}</div>
+              <div class="value">${inspectedByName}</div>
             </div>
             <div class="flex-20">
               <div class="label">DATE (YYYYMMDD)</div>
@@ -659,7 +655,7 @@ export const InspectorAMC1015Form = ({
             <div class="flex-30">
               <div class="label">CORRECTED BY (NAME)</div>
               <div class="value">${
-                correctiveActionsChecked ? reinspectedByInspector : "N/A"
+                correctedByName
               }</div>
             </div>
           </div>
@@ -669,13 +665,13 @@ export const InspectorAMC1015Form = ({
             <div class="flex-20">
               <div class="label">DATE (YYYYMMDD)</div>
               <div class="value">${
-                correctiveActionsChecked ? reinspectedByDate : "N/A"
+                hasReinspectionAttempts ? reinspectedByDate : "N/A"
               }</div>
             </div>
             <div class="flex-30">
               <div class="label">RE-INSPECTED BY (NAME)</div>
               <div class="value">${
-                correctiveActionsChecked ? reinspectedByInspector : "N/A"
+                reinspectedByName
               }</div>
             </div>
             <div class="flex-50">
@@ -1612,14 +1608,51 @@ export const InspectorAMC1015Form = ({
                 }
               );
 
-              const result = await completeInspection();
+              const result = await finalizeInspection();
 
               if (result?.success) {
                 console.log(
                   "✅ [AMC1015] Inspection completed and saved successfully"
                 );
 
-                if (navigation) {
+                if (navigation?.getState) {
+                  const currentState = navigation.getState();
+                  const currentRoutes = currentState?.routes ?? [];
+                  console.log(
+                    "🧭 [AMC1015] MainStack routes:",
+                    currentRoutes.map(route => route.name)
+                  );
+                }
+
+                const rootState = navigationRef?.getRootState?.();
+                const inspectorRoute = rootState?.routes?.find(
+                  route => route.name === "Hazardous Material Inspector"
+                ) as { state?: { routes?: Array<{ name: string; state?: unknown }> } } | undefined;
+                const inspectorState = inspectorRoute?.state;
+                const wrappedRoute = inspectorState?.routes?.find(
+                  route => route.name === "InspectorWrappedStack"
+                ) as { state?: { routes?: Array<{ name: string }> } } | undefined;
+                const routeCount = wrappedRoute?.state?.routes?.length ?? 0;
+                const routeNames = wrappedRoute?.state?.routes?.map(
+                  route => route.name
+                ) ?? [];
+                console.log(
+                  "🧭 [AMC1015] InspectorWrappedStack depth:",
+                  routeCount,
+                  routeNames
+                );
+
+                if (navigation?.reset) {
+                  navigation.reset({
+                    index: 0,
+                    routes: [
+                      {
+                        name: "InspectorHomeStack",
+                        params: { screen: "InspectorHome" },
+                      },
+                    ],
+                  });
+                } else if (navigation) {
                   navigation.navigate("InspectorHomeStack", {
                     screen: "InspectorHome",
                   });
@@ -1659,6 +1692,10 @@ export const InspectorAMC1015Form = ({
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={true}
+        keyboardShouldPersistTaps="handled"
+        nestedScrollEnabled={true}
+        scrollEnabled={true}
       >
         <View style={styles.formContainer}>
           <View style={styles.row}>
@@ -1708,7 +1745,7 @@ export const InspectorAMC1015Form = ({
             </View>
             <View style={styles.flex30}>
               <Text style={styles.label}>INSPECTED BY (NAME)</Text>
-              <Text style={styles.value}>{inspector}</Text>
+              <Text style={styles.value}>{inspectedByName}</Text>
             </View>
             <View style={styles.flex20}>
               <Text style={styles.label}>DATE (YYYYMMDD)</Text>
@@ -1719,7 +1756,7 @@ export const InspectorAMC1015Form = ({
             <View style={styles.flex30}>
               <Text style={styles.label}>CORRECTED BY (NAME)</Text>
               <Text style={styles.value}>
-                {correctiveActionsChecked ? reinspectedByInspector : "N/A"}
+                {correctedByName}
               </Text>
             </View>
           </View>
@@ -1727,13 +1764,13 @@ export const InspectorAMC1015Form = ({
             <View style={styles.flex20}>
               <Text style={styles.label}>DATE (YYYYMMDD)</Text>
               <Text style={styles.value}>
-                {correctiveActionsChecked ? reinspectedByDate : "N/A"}
+                {hasReinspectionAttempts ? reinspectedByDate : "N/A"}
               </Text>
             </View>
             <View style={styles.flex30}>
               <Text style={styles.label}>RE-INSPECTED BY (NAME)</Text>
               <Text style={styles.value}>
-                {correctiveActionsChecked ? reinspectedByInspector : "N/A"}
+                {reinspectedByName}
               </Text>
             </View>
             <View style={styles.flex50Row}>
@@ -2715,18 +2752,16 @@ export const InspectorAMC1015Form = ({
               </Text>
             </View>
             <View style={styles.commentsBody}>
-              <View style={styles.commentsBody}>
-                {failedItems.map((item, index) => {
-                  return (
-                    <Text
-                      key={`${item.formatted}-${index}`}
-                      style={styles.commentsText}
-                    >
-                      {item.formatted}
-                    </Text>
-                  );
-                })}
-              </View>
+              {failedItems.map((item, index) => {
+                return (
+                  <Text
+                    key={`${item.formatted}-${index}`}
+                    style={styles.commentsText}
+                  >
+                    {item.formatted}
+                  </Text>
+                );
+              })}
             </View>
           </View>
           <View style={styles.finalRow}>
@@ -2791,8 +2826,8 @@ export const InspectorAMC1015Form = ({
         ]}
       />
 
-      {/* Dev Benchmark Button - only visible in __DEV__ */}
-      <DevBenchmarkButton position="bottom-right" />
+      {/* Dev Benchmark Button - only visible in __DEV__ and not in modal */}
+      {!isModal && <DevBenchmarkButton position="bottom-right" />}
     </View>
   );
 };
@@ -2800,7 +2835,7 @@ export const InspectorAMC1015Form = ({
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.surface },
   scrollView: { flex: 1 },
-  scrollContent: { flexGrow: 1 },
+  scrollContent: { paddingBottom: 20 },
   formContainer: { padding: 10 },
   title: { fontWeight: "bold", fontSize: 19 },
   input: {
@@ -3052,7 +3087,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
   },
   commentsBody: {
-    height: 450,
+    padding: 15,
   },
   commentsPlaceholder: {
     padding: 6,

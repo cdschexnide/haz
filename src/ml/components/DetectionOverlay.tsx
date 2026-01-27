@@ -74,6 +74,18 @@ function BoundingBoxView({ detection, scaleX, scaleY }: BoundingBoxViewProps) {
   const width = box.width * scaleX;
   const height = box.height * scaleY;
 
+  // Debug logging for mock detections
+  if (className === 'militaryShippingLabel') {
+    console.log('[DetectionOverlay] MSL box debug:', {
+      className,
+      originalBox: box,
+      scaleX,
+      scaleY,
+      computed: { left, top, width, height },
+      color,
+    });
+  }
+
   const labelText = formatClassName(className);
   const labelBelow = top < 32;
 

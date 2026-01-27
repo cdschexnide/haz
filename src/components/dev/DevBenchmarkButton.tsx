@@ -35,7 +35,7 @@ interface DevBenchmarkButtonProps {
 export const DevBenchmarkButton: React.FC<DevBenchmarkButtonProps> = ({
   position = 'bottom-right',
 }) => {
-  // TEMPORARILY DISABLED FOR DEMO - uncomment below to re-enable
+  // // TEMPORARILY DISABLED FOR DEMO - uncomment below to re-enable
   return null;
 
   const [modalVisible, setModalVisible] = useState(false);

@@ -49,7 +49,7 @@ export interface InteractiveSDDGFormProps {
     signature: string;
   };
   frustratedFields: Set<string>;
-  recommendedFrustrations: Map<string, string>;
+  recommendedFrustrations: Map<string, { message: string; expectedValue?: string }>;
   onFieldPress: (
     fieldKey: string,
     fieldLabel: string,
@@ -530,7 +530,7 @@ const InteractiveSDDGForm: React.FC<InteractiveSDDGFormProps> = ({
               {
                 key: "properShippingName",
                 label: "PROPER SHIPPING NAME (Key 12)",
-                value: hazmat.properShippingName || "",
+                value: hazmat.properShippingName.toUpperCase() || "",
               },
               {
                 key: "hazardClass",
@@ -545,7 +545,7 @@ const InteractiveSDDGForm: React.FC<InteractiveSDDGFormProps> = ({
               {
                 key: "quantityAndPacking",
                 label: "QUANTITY AND TYPE OF PACKING (Key 16)",
-                value: hazmat.quantityAndPacking || "",
+                value: hazmat.quantityAndPacking.toUpperCase() || "",
                 // Special: has subFields for Form 1015 Fields 18 & 19
                 subFields: QUANTITY_AND_PACKING_SUBFIELDS,
               },
@@ -566,7 +566,7 @@ const InteractiveSDDGForm: React.FC<InteractiveSDDGFormProps> = ({
                   fieldLabel={field.label}
                   fieldValue={field.value}
                   isFrustrated={frustratedFields.has(field.key)}
-                  isRecommended={recommendedFrustrations.has(field.key)}
+                  isRecommended={recommendedFrustrations.has(field.key) && field.key !== "quantityAndPacking"}
                   onPress={onFieldPress}
                   subFields={"subFields" in field ? field.subFields : undefined}
                   frustratedSubFields={frustratedFields}

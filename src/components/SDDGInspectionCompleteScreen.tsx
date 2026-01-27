@@ -17,13 +17,7 @@ import { getPackagingTypeFromKey16 } from "@/utils/getPackagingTypeFromKey16";
 import { hazardousMaterialsList } from "@/hazardousMaterials/hazardousMaterialsList";
 import { hasSpecialProvisionAlphaCode } from "@/utils/specialProvisions";
 import { getPostSddgStartRoute } from "@/utils/inspectorWorkflowRouting";
-import {
-  ScreenHeader,
-  ActionFooter,
-  DetailCard,
-  colors,
-  spacing,
-} from "./ui";
+import { ScreenHeader, ActionFooter, colors, spacing } from "./ui";
 
 interface SDDGInspectionCompleteScreenProps {
   navigation: any;
@@ -214,42 +208,15 @@ export default function SDDGInspectionCompleteScreen({
       />
 
       <View style={styles.content}>
-        {/* Success Header */}
-        <View style={styles.successHeader}>
-          <MaterialIcons name="check-circle" size={48} color={colors.success} />
-          <Text style={styles.successTitle}>SDDG Verified</Text>
-          <Text style={styles.successSubtitle}>
-            All fields validated with no compliance issues
+        <View style={styles.heroCard}>
+          <View style={styles.heroIconContainer}>
+            <MaterialIcons name="check-circle" size={64} color={colors.success} />
+          </View>
+          <Text style={styles.heroTitle}>SDDG Verified</Text>
+          <Text style={styles.heroSubtitle}>
+            Ready for package inspection
           </Text>
         </View>
-
-        {/* SDDG Summary Card */}
-        <DetailCard
-          title="Inspection Summary"
-          fields={[
-            {
-              label: "TRANSPORTATION CONTROL NUMBER",
-              value: sddgData?.shippersReferenceNumber || "N/A",
-              accent: true,
-            },
-            {
-              label: "UN/NA/ID NUMBER",
-              value: sddgData?.unIdNo || "N/A",
-            },
-            {
-              label: "PROPER SHIPPING NAME",
-              value: sddgData?.properShippingName || "N/A",
-            },
-            {
-              label: "HAZARD CLASS",
-              value: sddgData?.hazardClass || "N/A",
-            },
-            {
-              label: "INSPECTOR",
-              value: inspection.inspector.inspectorName || "N/A",
-            },
-          ]}
-        />
       </View>
 
       {/* Action Buttons */}
@@ -295,25 +262,33 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: spacing.md,
-  },
-  successHeader: {
+    padding: spacing.lg,
+    justifyContent: "center",
     alignItems: "center",
-    marginBottom: spacing.lg,
-    paddingVertical: spacing.sm,
-    gap: spacing.sm,
   },
-  successTitle: {
-    fontSize: 20,
+  heroCard: {
+    alignItems: "center",
+    justifyContent: "center",
+    padding: spacing.xxl,
+    borderRadius: 16,
+    backgroundColor: "#E8F5E9",
+    width: "100%",
+    maxWidth: 400,
+  },
+  heroIconContainer: {
+    marginBottom: spacing.lg,
+  },
+  heroTitle: {
+    fontSize: 28,
     fontWeight: "700",
     color: colors.success,
+    textAlign: "center",
   },
-  successSubtitle: {
-    fontSize: 14,
+  heroSubtitle: {
+    marginTop: spacing.sm,
+    fontSize: 16,
     color: colors.textSecondary,
     textAlign: "center",
-    paddingHorizontal: spacing.xxl,
-    lineHeight: 20,
   },
   footer: {
     paddingBottom: spacing.lg,

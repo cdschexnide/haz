@@ -13,8 +13,8 @@ interface FrustrationDetailsViewProps {
   fieldLabel: string;
   frustration: FrustrationRecord;
   onEditValue: () => void;
-  onEditComments: () => void;
   onResolve: () => void;
+  onKeepFrustrated: () => void;
   isReinspectionMode?: boolean;
 }
 
@@ -31,8 +31,8 @@ const FrustrationDetailsView: React.FC<FrustrationDetailsViewProps> = ({
   fieldLabel,
   frustration,
   onEditValue,
-  onEditComments,
   onResolve,
+  onKeepFrustrated,
   isReinspectionMode = false,
 }) => {
   const formatDate = (date: Date) => {
@@ -60,64 +60,30 @@ const FrustrationDetailsView: React.FC<FrustrationDetailsViewProps> = ({
 
         {/* Current Frustration Details */}
         <View style={styles.frustrationBox}>
-          {/* Incorrect vs Correct Value Comparison - Compact Horizontal Layout */}
-          <View style={styles.valueComparisonSection}>
-            <View style={styles.valueComparisonContainer}>
-              {/* Incorrect Value */}
-              <View style={styles.valueColumn}>
-                <View style={styles.valueRow}>
-                  <MaterialIcons name="close" size={14} color="#FF3B30" />
-                  <Text style={styles.incorrectValueLabel}>Incorrect:</Text>
-                </View>
-                <Text style={styles.incorrectValueText}>
-                  {frustration.fieldValue || "No data"}
-                </Text>
-              </View>
-
-              {/* Arrow Separator */}
-              {frustration.correctValue && (
-                <View style={styles.arrowSeparator}>
-                  <MaterialIcons
-                    name="arrow-forward"
-                    size={20}
-                    color="#8E8E93"
-                  />
-                </View>
-              )}
-
-              {/* Correct Value */}
-              {frustration.correctValue && (
-                <View style={styles.valueColumn}>
-                  <View style={styles.valueRow}>
-                    <MaterialIcons name="check" size={14} color="#34C759" />
-                    <Text style={styles.correctValueLabel}>Correct:</Text>
-                  </View>
-                  <Text style={styles.correctValueText}>
-                    {frustration.correctValue}
-                  </Text>
-                </View>
-              )}
+          <View style={styles.valueRow}>
+            <View style={styles.valueCard}>
+              <Text style={styles.valueLabel}>Incorrect Value</Text>
+              <Text style={styles.incorrectValueText}>
+                {frustration.fieldValue || "No data"}
+              </Text>
+            </View>
+            <View style={[styles.valueCard, styles.valueCardCorrect]}>
+              <Text style={styles.valueLabel}>Should Be</Text>
+              <Text style={styles.correctValueText}>
+                {frustration.correctValue || "N/A"}
+              </Text>
             </View>
           </View>
 
-          {frustration.additionalComments && (
-            <View style={styles.commentsSection}>
-              <Text style={styles.commentsLabel}>Additional Comments:</Text>
-              <Text style={styles.commentsText}>
-                "{frustration.additionalComments}"
-              </Text>
-            </View>
-          )}
-
           <View style={styles.metadataRow}>
             <View style={styles.metadataItem}>
-              <Text style={styles.metadataLabel}>Reported:</Text>
+              <Text style={styles.metadataLabel}>Date/Time</Text>
               <Text style={styles.metadataValue}>
                 {formatDate(frustration.frustrationDate)}
               </Text>
             </View>
             <View style={styles.metadataItem}>
-              <Text style={styles.metadataLabel}>Inspector:</Text>
+              <Text style={styles.metadataLabel}>Inspector</Text>
               <Text style={styles.metadataValue}>
                 {typeof frustration.inspector === "string"
                   ? frustration.inspector
@@ -182,28 +148,30 @@ const FrustrationDetailsView: React.FC<FrustrationDetailsViewProps> = ({
           </TouchableOpacity>
         )}
 
-        {/* Action 2: Update Compliance Report */}
-        <TouchableOpacity
-          style={[styles.actionCard, styles.updateCard]}
-          onPress={onEditComments}
-          activeOpacity={0.7}
-        >
-          <View style={styles.actionCardHeader}>
-            <View style={[styles.actionIconCircle, styles.updateIconCircle]}>
-              <MaterialIcons name="description" size={18} color="#FF9500" />
+        {/* Action 2: Still Frustrated */}
+        {isReinspectionMode && (
+          <TouchableOpacity
+            style={[styles.actionCard, styles.refrustrateCard]}
+            onPress={onKeepFrustrated}
+            activeOpacity={0.7}
+          >
+            <View style={styles.actionCardHeader}>
+              <View style={[styles.actionIconCircle, styles.refrustrateIconCircle]}>
+                <MaterialIcons name="warning" size={18} color="#FF3B30" />
+              </View>
+              <Text style={styles.actionCardTitle}>STILL FRUSTRATED</Text>
             </View>
-            <Text style={styles.actionCardTitle}>UPDATE REPORT</Text>
-          </View>
-          <Text style={styles.actionCardDescription}>
-            Modify the compliance notes or add additional details
-          </Text>
-          <View style={styles.actionCardFooter}>
-            <Text style={styles.updateActionText}>Edit Comments</Text>
-            <MaterialIcons name="arrow-forward" size={14} color="#FF9500" />
-          </View>
-        </TouchableOpacity>
+            <Text style={styles.actionCardDescription}>
+              Keep this field frustrated and record this reinspection attempt
+            </Text>
+            <View style={styles.actionCardFooter}>
+              <Text style={styles.refrustrateActionText}>Keep Frustrated</Text>
+              <MaterialIcons name="arrow-forward" size={14} color="#FF3B30" />
+            </View>
+          </TouchableOpacity>
+        )}
 
-        {/* Action 3: Resolve Issue */}
+        {/* Action 3: Resolve Frustration */}
         <TouchableOpacity
           style={[styles.actionCard, styles.resolveCard]}
           onPress={onResolve}
@@ -213,7 +181,7 @@ const FrustrationDetailsView: React.FC<FrustrationDetailsViewProps> = ({
             <View style={[styles.actionIconCircle, styles.resolveIconCircle]}>
               <MaterialIcons name="check-circle" size={18} color="#34C759" />
             </View>
-            <Text style={styles.actionCardTitle}>RESOLVE ISSUE</Text>
+            <Text style={styles.actionCardTitle}>RESOLVE FRUSTRATION</Text>
           </View>
           <Text style={styles.actionCardDescription}>
             Mark this field as compliant and remove the frustration
@@ -246,8 +214,8 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   fieldLabel: {
-    fontSize: 15,
-    fontWeight: "600",
+    fontSize: 16,
+    fontWeight: "700",
     color: "#1D1D1F",
     flex: 1,
   },
@@ -267,89 +235,67 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   frustrationBox: {
-    backgroundColor: "#FFF5F5",
-    borderLeftWidth: 4,
-    borderLeftColor: "#FF3B30",
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
+    borderColor: "#E5E5EA",
     borderRadius: 8,
     padding: 14,
     marginBottom: 16,
   },
-  commentsSection: {
-    marginBottom: 12,
-  },
-  commentsLabel: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: "#1D1D1F",
-    marginBottom: 4,
-  },
-  commentsText: {
-    fontSize: 14,
-    color: "#3C3C43",
-    fontStyle: "italic",
-    lineHeight: 20,
-  },
-  valueComparisonSection: {
-    marginBottom: 12,
-  },
-  valueComparisonContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  valueColumn: {
-    gap: 4,
-  },
   valueRow: {
     flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
+    gap: 12,
+    flexWrap: "wrap",
+    marginBottom: 12,
   },
-  arrowSeparator: {
-    paddingHorizontal: 4,
-    alignItems: "center",
-    justifyContent: "center",
+  valueCard: {
+    flexGrow: 1,
+    minWidth: 150,
+    backgroundColor: "#F2F2F7",
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#E5E5EA",
   },
-  incorrectValueLabel: {
+  valueCardCorrect: {
+    borderColor: "#34C759",
+    backgroundColor: "#F0FFF4",
+  },
+  valueLabel: {
     fontSize: 12,
     fontWeight: "600",
-    color: "#FF3B30",
+    color: "#6B6B73",
+    textTransform: "uppercase",
   },
   incorrectValueText: {
-    fontSize: 14,
+    fontSize: 15,
     color: "#FF3B30",
-    fontWeight: "600",
-    textDecorationLine: "line-through",
-  },
-  correctValueLabel: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#34C759",
+    fontWeight: "700",
+    marginTop: 6,
   },
   correctValueText: {
-    fontSize: 14,
+    fontSize: 15,
     color: "#34C759",
     fontWeight: "700",
+    marginTop: 6,
   },
   metadataRow: {
     flexDirection: "row",
-    gap: 32,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: "#FFD1D1",
+    gap: 24,
+    paddingTop: 8,
   },
   metadataItem: {
     // Removed flex: 1 to prevent spreading
   },
   metadataLabel: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: "600",
     color: "#8E8E93",
     textTransform: "uppercase",
-    marginBottom: 2,
+    marginBottom: 4,
   },
   metadataValue: {
-    fontSize: 13,
+    fontSize: 14,
     color: "#1D1D1F",
   },
   historySection: {
@@ -390,9 +336,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#F0F8FF",
     borderColor: "#007AFF",
   },
-  updateCard: {
-    backgroundColor: "#FFF9F0",
-    borderColor: "#FF9500",
+  refrustrateCard: {
+    backgroundColor: "#FFF5F5",
+    borderColor: "#FF3B30",
   },
   resolveCard: {
     backgroundColor: "#F0FFF4",
@@ -414,7 +360,7 @@ const styles = StyleSheet.create({
   editIconCircle: {
     backgroundColor: "#FFFFFF",
   },
-  updateIconCircle: {
+  refrustrateIconCircle: {
     backgroundColor: "#FFFFFF",
   },
   resolveIconCircle: {
@@ -442,10 +388,10 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#007AFF",
   },
-  updateActionText: {
+  refrustrateActionText: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#FF9500",
+    color: "#FF3B30",
   },
   resolveActionText: {
     fontSize: 14,

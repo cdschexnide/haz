@@ -6,18 +6,15 @@ import {
   Alert,
   FlatList,
   KeyboardAvoidingView,
+  Modal,
   Platform,
-  Pressable,
   RefreshControl,
-  ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
   Animated,
-  Modal,
-  SafeAreaView,
 } from "react-native";
 import {
   GestureHandlerRootView,
@@ -40,9 +37,9 @@ import { InspectorShipment } from "../../types/sddg";
 import { useDatabase } from "../../contexts/DataProvider";
 import { useInspectionFormActions } from "../../contexts/InspectionFormProvider";
 import { useFocusEffect } from "@react-navigation/native";
-import { InspectorAMC1015Form } from "./InspectorAMC1015Form";
 import { MLDetectionScreen } from "./MLDetectionScreen";
 import { DevBenchmarkButton } from "../../components/dev/DevBenchmarkButton";
+import { Form1015Viewer } from "../../components/Inspector/Form1015Viewer";
 import { useRenderTracker, useContextRenderTracker } from "@/hooks/useRenderTracker";
 import { hazardousMaterialsList } from "@/hazardousMaterials/hazardousMaterialsList";
 import {
@@ -64,9 +61,9 @@ function InspectorHomeScreenComponent({
   const { dispatch } = preparerContext;
   const inspectorContext = useContext(HazProInspectorContext);
   const { dispatch: inspectorDispatch } = inspectorContext;
-  const { navigate } = useNavigationRef();
+  const { navigate, reset, navigationRef } = useNavigationRef();
   const database = useDatabase();
-  const { loadInspectionForEdit } = useInspectionFormActions();
+  const { loadInspectionForEdit, startNewInspection } = useInspectionFormActions();
 
   // === LOCAL STATE ===
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -81,8 +78,9 @@ function InspectorHomeScreenComponent({
     useState<boolean>(false);
   const [compatibilityModalVisible, setCompatibilityModalVisible] =
     useState<boolean>(false);
-  const [form1015ModalVisible, setForm1015ModalVisible] =
-    useState<boolean>(false);
+  // Form 1015 viewer modal (FlatList-based, works on Android)
+  const [form1015ModalVisible, setForm1015ModalVisible] = useState<boolean>(false);
+  const [selectedInspectionForForm, setSelectedInspectionForForm] = useState<InspectorShipment | null>(null);
   const [mlModalVisible, setMlModalVisible] = useState<boolean>(false);
 
   const [bottomSheetVisible, setBottomSheetVisible] = useState<boolean>(false);
@@ -90,27 +88,46 @@ function InspectorHomeScreenComponent({
     useState<InspectorShipment>();
   const [inspections, setInspections] = useState<InspectorShipment[]>([]);
 
-  // === RENDER TRACKING ===
-  useRenderTracker('InspectorHomeScreen', { navigation }, {
-    searchQuery,
-    refreshing,
-    gasModalVisible,
-    dryIceModalVisible,
-    unitConversionModalVisible,
-    placardingModalVisible,
-    placardingModalExpanded,
-    compatibilityModalVisible,
-    form1015ModalVisible,
-    mlModalVisible,
-    bottomSheetVisible,
-    inspectionsCount: inspections.length,
-    dbInitialized: database.isInitialized,
-  });
+  const logWrappedStackDepth = () => {
+    const rootState = navigationRef?.getRootState?.();
+    const inspectorRoute = rootState?.routes?.find(
+      route => route.name === "Hazardous Material Inspector"
+    ) as { state?: { routes?: Array<{ name: string; state?: unknown }> } } | undefined;
+    const inspectorState = inspectorRoute?.state;
+    const wrappedRoute = inspectorState?.routes?.find(
+      route => route.name === "InspectorWrappedStack"
+    ) as { state?: { routes?: Array<{ name: string }> } } | undefined;
+    const routeCount = wrappedRoute?.state?.routes?.length ?? 0;
+    const routeNames = wrappedRoute?.state?.routes?.map(route => route.name) ?? [];
+
+    console.log(
+      "🧭 [InspectorHome] InspectorWrappedStack depth:",
+      routeCount,
+      routeNames
+    );
+  };
+
+  // // === RENDER TRACKING ===
+  // useRenderTracker('InspectorHomeScreen', { navigation }, {
+  //   searchQuery,
+  //   refreshing,
+  //   gasModalVisible,
+  //   dryIceModalVisible,
+  //   unitConversionModalVisible,
+  //   placardingModalVisible,
+  //   placardingModalExpanded,
+  //   compatibilityModalVisible,
+  //   form1015ModalVisible,
+  //   mlModalVisible,
+  //   bottomSheetVisible,
+  //   inspectionsCount: inspections.length,
+  //   dbInitialized: database.isInitialized,
+  // });
 
   // Track context changes
-  useContextRenderTracker('InspectorHomeScreen', 'HazProPreparerContext', preparerContext);
-  useContextRenderTracker('InspectorHomeScreen', 'HazProInspectorContext', inspectorContext);
-  useContextRenderTracker('InspectorHomeScreen', 'Database', { isInitialized: database.isInitialized });
+  // useContextRenderTracker('InspectorHomeScreen', 'HazProPreparerContext', preparerContext);
+  // useContextRenderTracker('InspectorHomeScreen', 'HazProInspectorContext', inspectorContext);
+  // useContextRenderTracker('InspectorHomeScreen', 'Database', { isInitialized: database.isInitialized });
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -333,11 +350,14 @@ function InspectorHomeScreenComponent({
     );
 
     if (inspection.packageStatus === "verified") {
-      Alert.alert(
-        "Package Verified",
-        "All package markings and labels have been verified for this inspection.",
-        [{ text: "OK" }]
-      );
+      try {
+        await loadInspectionForEdit(inspection.id);
+        navigate("InspectorWrappedStack", {
+          screen: "PackageInspectionCompleteScreen",
+        });
+      } catch (error) {
+        Alert.alert("Error", "Failed to load inspection data. Please try again.");
+      }
       return;
     }
 
@@ -384,7 +404,7 @@ function InspectorHomeScreenComponent({
     // Package verified -> Show detail view (existing logic handled above)
   };
 
-  // Function to handle View Form 1015 click - load inspection and open modal
+  // Function to handle View Form 1015 click - load inspection and show modal
   const handleViewForm1015 = async (inspection: InspectorShipment) => {
     console.log(
       "📋 [InspectorHome] View Form 1015 clicked for inspection:",
@@ -392,11 +412,16 @@ function InspectorHomeScreenComponent({
     );
 
     try {
-      console.log("📋 [InspectorHome] Loading inspection for form view...");
-      await loadInspectionForEdit(inspection.id);
-      console.log(
-        "📋 [InspectorHome] Inspection loaded successfully, opening modal..."
-      );
+      console.log("📋 [InspectorHome] Loading full inspection for form view...");
+      const fullInspection = await database.loadInspection(inspection.id);
+
+      if (!fullInspection) {
+        Alert.alert("Error", "Inspection not found.");
+        return;
+      }
+
+      console.log("📋 [InspectorHome] Inspection loaded, showing modal...");
+      setSelectedInspectionForForm(fullInspection);
       setForm1015ModalVisible(true);
     } catch (error) {
       console.error(
@@ -409,17 +434,6 @@ function InspectorHomeScreenComponent({
         [{ text: "OK" }]
       );
     }
-  };
-
-  // Mock navigation object for modal context - closes modal instead of navigating
-  const mockNavigationForModal = {
-    navigate: (stack: string, params: any) => {
-      console.log(
-        "📋 [InspectorHome] Modal navigation called, closing modal and refreshing..."
-      );
-      setForm1015ModalVisible(false);
-      onRefresh(); // Refresh the inspections list
-    },
   };
 
   // Render functions for Swipeable actions
@@ -614,11 +628,20 @@ function InspectorHomeScreenComponent({
             />
             <TouchableOpacity
               style={styles.createButton}
-              onPress={() =>
-                navigate("InspectorWrappedStack", {
-                  screen: "SDDGUploadAndParse",
-                })
-              }
+              onPress={() => {
+                console.log("🧭 [InspectorHome] Start New Inspection pressed");
+                startNewInspection();
+                logWrappedStackDepth();
+                reset({
+                  index: 0,
+                  routes: [
+                    {
+                      name: "InspectorWrappedStack",
+                      params: { screen: "SDDGUploadAndParse" },
+                    },
+                  ],
+                });
+              }}
             >
               <Text style={styles.createButtonText}>Start New Inspection</Text>
             </TouchableOpacity>
@@ -796,7 +819,7 @@ function InspectorHomeScreenComponent({
                     >
                       <MaterialCommunityIcons
                         name="file-document"
-                        size={20}
+                        size={30}
                         color="#007AFF"
                       />
                     </TouchableOpacity>
@@ -875,38 +898,6 @@ function InspectorHomeScreenComponent({
           onClose={() => setCompatibilityModalVisible(false)}
         />
 
-        {/* === AMC FORM 1015 MODAL === */}
-        <Modal
-          visible={form1015ModalVisible}
-          animationType="slide"
-          presentationStyle="fullScreen"
-          onRequestClose={() => setForm1015ModalVisible(false)}
-        >
-          <SafeAreaView style={styles.modalContainer}>
-            {/* Modal Header */}
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>
-                AMC Form 1015 - Inspection Report
-              </Text>
-              <TouchableOpacity
-                onPress={() => setForm1015ModalVisible(false)}
-                style={styles.modalCloseButton}
-              >
-                <MaterialCommunityIcons
-                  name="close"
-                  size={28}
-                  color={legacyColors.black}
-                />
-              </TouchableOpacity>
-            </View>
-
-            {/* Form Content - Wrapper provides bounded height for ScrollView */}
-            <View style={styles.modalFormContainer}>
-              <InspectorAMC1015Form navigation={mockNavigationForModal} />
-            </View>
-          </SafeAreaView>
-        </Modal>
-
         {/* === ML DETECTION MODAL === */}
         <Modal
           visible={mlModalVisible}
@@ -915,6 +906,24 @@ function InspectorHomeScreenComponent({
           onRequestClose={() => setMlModalVisible(false)}
         >
           <MLDetectionScreen onClose={() => setMlModalVisible(false)} />
+        </Modal>
+
+        {/* === FORM 1015 VIEWER MODAL === */}
+        <Modal
+          visible={form1015ModalVisible}
+          animationType="slide"
+          presentationStyle="fullScreen"
+          onRequestClose={() => setForm1015ModalVisible(false)}
+        >
+          {selectedInspectionForForm && (
+            <Form1015Viewer
+              inspection={selectedInspectionForForm}
+              onClose={() => {
+                setForm1015ModalVisible(false);
+                setSelectedInspectionForForm(null);
+              }}
+            />
+          )}
         </Modal>
 
         {/* Dev Benchmark Button - only visible in __DEV__ */}
@@ -1185,33 +1194,6 @@ const styles = StyleSheet.create({
     color: colors.white,
     fontWeight: "600",
     fontSize: 16,
-  },
-  modalContainer: {
-    flex: 1,
-    backgroundColor: colors.surface,
-  },
-  modalHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.lg,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    backgroundColor: colors.surface,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: colors.textPrimary,
-    flex: 1,
-  },
-  modalCloseButton: {
-    padding: spacing.sm,
-    marginLeft: spacing.lg,
-  },
-  modalFormContainer: {
-    flex: 1,
   },
 });
 

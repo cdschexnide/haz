@@ -118,6 +118,7 @@ export const PACKAGE_TO_FORM1015_MAPPING: Record<string, string> = {
   "Package Orientation": "59", // Maps to 59. "ORIENTATION ARROWS"
   "Package Orientation Labels (applied to opposite vertical sides)": "59", // Maps to 59. "ORIENTATION ARROWS" (UN3363)
   "Orientation (This Side Up with Arrows)": "59", // Maps to 59. "ORIENTATION ARROWS" (UN0247 - Class 1 liquid requiring both THIS SIDE UP and orientation arrows)
+  "Magnetized Material": "73", // Maps to 73. "MAGNETIZED MATERIAL"
   "Chemical Kit Primary Hazard": "69", // Maps to 69. PRIMARY RISK LABEL
   "Cylinder Type Not Authorized": "39", // Maps to 39. CYLINDER TYPE
 
@@ -219,10 +220,10 @@ export const PACKAGE_TO_FORM1015_MAPPING: Record<string, string> = {
 
   // UN1845 dry ice inspection (A13.10)
   "Handling and storage in ventilated areas": "86",
-  "No hermetically sealed containers": "41",
-  "Authorized vented packaging used": "41",
+  "No hermetically sealed containers": "40",
+  "Authorized vented packaging used": "40",
   "Medical shipment prep verified (if applicable)": "86",
-  "Non-hazard shipments with dry ice use vented packaging": "41",
+  "Non-hazard shipments with dry ice use vented packaging": "40",
 
   // UN2807 magnetized material inspection (A13.11)
   "Handling separation from sensitive equipment": "86",
@@ -277,6 +278,11 @@ export function getPackageFrustrationField(
     return "39";
   }
 
+  // 3. Magnetized material inspection steps map to Field 73
+  if (frustration.category === "magnetized") {
+    return "73";
+  }
+
   // 3. Fall back to label-based mapping (existing behavior)
   return PACKAGE_TO_FORM1015_MAPPING[frustration.itemLabel] || null;
 }
@@ -295,8 +301,12 @@ export function mapFrustrationsToForm1015(
 ): Set<string> {
   const form1015Ids = new Set<string>();
 
+  // Defensive checks for undefined arrays
+  const safeSddgFrustrations = Array.isArray(sddgFrustrations) ? sddgFrustrations : [];
+  const safePackageFrustrations = Array.isArray(packageFrustrations) ? packageFrustrations : [];
+
   // Map SDDG frustrations
-  sddgFrustrations.forEach(frustration => {
+  safeSddgFrustrations.forEach(frustration => {
     const form1015Id = SDDG_TO_FORM1015_MAPPING[frustration.key];
     if (form1015Id) {
       form1015Ids.add(form1015Id);
@@ -304,7 +314,7 @@ export function mapFrustrationsToForm1015(
   });
 
   // Map package frustrations (markings, labels, and class2)
-  packageFrustrations.forEach(frustration => {
+  safePackageFrustrations.forEach(frustration => {
     // Only include frustrated items (missing or incorrect)
     if (
       frustration.verificationStatus === "missing" ||
@@ -345,6 +355,10 @@ export function mapFrustrationsToForm1015WithResolved(
   resolvedPackageFrustrations: PackageFrustrationRecord[],
   verificationCopy: any
 ): { currentlyFrustrated: Set<string>; resolved: Set<string> } {
+  // Defensive checks for undefined arrays
+  const safeResolvedSddg = Array.isArray(resolvedSddgFrustrations) ? resolvedSddgFrustrations : [];
+  const safeResolvedPackage = Array.isArray(resolvedPackageFrustrations) ? resolvedPackageFrustrations : [];
+
   // Map current frustrations (regular X)
   const currentlyFrustrated = mapFrustrationsToForm1015(
     sddgFrustrations,
@@ -356,7 +370,7 @@ export function mapFrustrationsToForm1015WithResolved(
   const resolved = new Set<string>();
 
   // Map resolved SDDG frustrations
-  resolvedSddgFrustrations.forEach(frustration => {
+  safeResolvedSddg.forEach(frustration => {
     const form1015Id = SDDG_TO_FORM1015_MAPPING[frustration.key];
     if (form1015Id && !currentlyFrustrated.has(form1015Id)) {
       // Only add to resolved if not currently frustrated (current takes precedence)
@@ -365,7 +379,7 @@ export function mapFrustrationsToForm1015WithResolved(
   });
 
   // Map resolved package frustrations
-  resolvedPackageFrustrations.forEach(frustration => {
+  safeResolvedPackage.forEach(frustration => {
     if (
       frustration.verificationStatus === "missing" ||
       frustration.verificationStatus === "incorrect"

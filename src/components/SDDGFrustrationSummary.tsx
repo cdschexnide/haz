@@ -6,7 +6,6 @@ import {
   ScrollView,
   Alert,
 } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
 import { useInspectionForm } from "@/contexts/InspectionFormProvider";
 import { useDatabase } from "@/contexts/DataProvider";
 import { FrustrationRecord, InspectorShipment } from "@/types/sddg";
@@ -318,70 +317,59 @@ export default function SDDGFrustrationSummary({
     }
   };
 
+  const formatInspectorName = (inspector: typeof inspection.inspector): string => {
+    if (typeof inspector === "string") {
+      return inspector;
+    }
+    const name = inspector.inspectorName?.trim() || "";
+    const title = inspector.inspectorTitle?.trim() || "";
+    if (name && title) {
+      return `${name}, ${title}`;
+    }
+    return name || title || "Unknown";
+  };
+
   const renderFrustrationCard = (
     frustration: FrustrationRecord,
     index: number
   ) => (
     <View key={`${frustration.key}-${index}`} style={styles.frustrationCard}>
-      <View style={styles.frustrationHeader}>
-        <MaterialIcons name="error" size={24} color={colors.error} />
-        <Text style={styles.frustrationFieldLabel}>
-          {frustration.fieldLabel}
+      <View style={styles.cardHeader}>
+        <Text style={styles.cardHeaderText}>
+          {frustration.fieldLabel.toUpperCase()}
         </Text>
       </View>
 
-      <View style={styles.frustrationDetails}>
-        <View style={styles.valueComparisonContainer}>
-          <View style={styles.detailRow}>
-            <MaterialIcons name="close" size={16} color={colors.error} />
-            <Text style={styles.detailLabel}>Incorrect Value:</Text>
-            <Text style={[styles.detailValue, styles.incorrectValueText]}>
+      <View style={styles.cardContent}>
+        <View style={styles.valueComparisonRow}>
+          <View style={styles.valueCard}>
+            <Text style={styles.valueLabel}>INCORRECT</Text>
+            <Text style={styles.incorrectValueText}>
               {frustration.fieldValue || "No data"}
             </Text>
           </View>
-
-          {frustration.correctValue && (
-            <View style={[styles.detailRow, styles.correctValueRow]}>
-              <MaterialIcons name="check" size={16} color={colors.success} />
-              <Text style={styles.detailLabel}>Should be:</Text>
-              <Text style={[styles.detailValue, styles.correctValueText]}>
-                {frustration.correctValue}
-              </Text>
-            </View>
-          )}
-        </View>
-
-        <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>Date/Time:</Text>
-          <Text style={styles.detailValue}>
-            {formatDate(frustration.frustrationDate)}
-          </Text>
-        </View>
-
-        <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>Inspector:</Text>
-          <Text style={styles.detailValue}>
-            {typeof inspection.inspector === "string"
-              ? inspection.inspector
-              : `${inspection.inspector.inspectorName.trim()}, ${inspection.inspector.inspectorTitle.trim()}`}
-          </Text>
-        </View>
-
-        <View style={styles.messageContainer}>
-          <Text style={styles.detailLabel}>Frustration Message:</Text>
-          <Text style={styles.frustrationMessage}>
-            {frustration.defaultMessage}
-          </Text>
-        </View>
-
-        {frustration.additionalComments && (
-          <View style={styles.messageContainer}>
-            <Text style={styles.detailLabel}>Additional Comments:</Text>
-            <Text style={styles.additionalComments}>
-              {frustration.additionalComments}
+          <View style={[styles.valueCard, styles.valueCardCorrect]}>
+            <Text style={styles.valueLabel}>SHOULD BE</Text>
+            <Text style={styles.correctValueText}>
+              {frustration.correctValue || "N/A"}
             </Text>
           </View>
-        )}
+        </View>
+
+        <View style={styles.metaColumns}>
+          <View style={styles.metaColumn}>
+            <Text style={styles.metaLabel}>DATE/TIME</Text>
+            <Text style={styles.metaValue}>
+              {formatDate(frustration.frustrationDate)}
+            </Text>
+          </View>
+          <View style={styles.metaColumn}>
+            <Text style={styles.metaLabel}>INSPECTOR</Text>
+            <Text style={styles.metaValue}>
+              {formatInspectorName(inspection.inspector)}
+            </Text>
+          </View>
+        </View>
       </View>
     </View>
   );
@@ -391,8 +379,6 @@ export default function SDDGFrustrationSummary({
       <ScreenHeader
         title="SDDG Frustration Summary"
         onClose={handleCancel}
-        rightIcon="error"
-        rightBadgeCount={frustrations.length}
       />
 
       <ScrollView
@@ -425,14 +411,14 @@ export default function SDDGFrustrationSummary({
           {
             label: "Reinspect",
             onPress: handleReinspectFrustrations,
-            variant: "secondary",
+            variant: "primary",
             icon: "refresh",
             disabled: isSaving,
           },
           {
-            label: "Continue",
+            label: "Continue to Package",
             onPress: handleCompleteWithFrustration,
-            variant: "destructive",
+            variant: "primary",
             disabled: isSaving,
           },
         ]}
@@ -459,88 +445,76 @@ const styles = StyleSheet.create({
   frustrationCard: {
     backgroundColor: colors.surface,
     borderRadius: borderRadius.lg,
-    padding: spacing.lg,
     marginBottom: spacing.md,
     ...shadows.light,
     borderWidth: 1,
-    borderColor: colors.errorLight,
+    borderColor: colors.border,
+    overflow: "hidden",
   },
-  frustrationHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: spacing.md,
+  cardHeader: {
+    backgroundColor: colors.error,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
   },
-  frustrationFieldLabel: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: colors.textPrimary,
-    marginLeft: spacing.sm,
-    flex: 1,
-  },
-  frustrationDetails: {
-    marginLeft: 32,
-  },
-  detailRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: spacing.sm,
-    gap: 6,
-  },
-  detailLabel: {
+  cardHeaderText: {
     fontSize: 14,
-    color: colors.textSecondary,
-    fontWeight: "500",
-    minWidth: 90,
+    fontWeight: "700",
+    color: colors.white,
+    letterSpacing: 0.5,
   },
-  detailValue: {
-    fontSize: 14,
-    color: colors.textPrimary,
+  cardContent: {
+    padding: spacing.lg,
+  },
+  valueComparisonRow: {
+    flexDirection: "row",
+    gap: spacing.md,
+    marginBottom: spacing.lg,
+  },
+  valueCard: {
     flex: 1,
-  },
-  valueComparisonContainer: {
     backgroundColor: colors.background,
     padding: spacing.md,
     borderRadius: borderRadius.md,
-    marginBottom: spacing.md,
-    borderLeftWidth: 3,
-    borderLeftColor: colors.error,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: "center",
+  },
+  valueCardCorrect: {
+    borderColor: colors.success,
+  },
+  valueLabel: {
+    fontSize: 11,
+    color: colors.textSecondary,
+    fontWeight: "600",
+    letterSpacing: 0.5,
+    marginBottom: 4,
   },
   incorrectValueText: {
-    fontWeight: "600",
+    fontWeight: "700",
     color: colors.error,
-    textDecorationLine: "line-through",
-  },
-  correctValueRow: {
-    marginTop: spacing.sm,
-    paddingTop: spacing.sm,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
+    fontSize: 15,
   },
   correctValueText: {
     fontWeight: "700",
     color: colors.success,
     fontSize: 15,
   },
-  messageContainer: {
-    marginTop: spacing.sm,
+  metaColumns: {
+    flexDirection: "row",
+    gap: spacing.xl,
   },
-  frustrationMessage: {
+  metaColumn: {
+    flex: 1,
+  },
+  metaLabel: {
+    fontSize: 11,
+    color: colors.textSecondary,
+    fontWeight: "600",
+    letterSpacing: 0.5,
+    marginBottom: 4,
+  },
+  metaValue: {
     fontSize: 14,
     color: colors.textPrimary,
-    marginTop: spacing.xs,
-    lineHeight: 20,
-    backgroundColor: colors.errorLight,
-    padding: spacing.md,
-    borderRadius: borderRadius.md,
-  },
-  additionalComments: {
-    fontSize: 14,
-    color: colors.textPrimary,
-    marginTop: spacing.xs,
-    lineHeight: 20,
-    backgroundColor: colors.background,
-    padding: spacing.md,
-    borderRadius: borderRadius.md,
-    fontStyle: "italic",
   },
 });

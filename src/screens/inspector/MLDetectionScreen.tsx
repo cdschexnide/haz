@@ -327,7 +327,12 @@ export function MLDetectionScreen({
       const mockDetections = getMockDetectionsForUN(unNumber);
 
       if (mockDetections && resultsCopy.length > 0) {
-        console.log("[MLDetectionScreen] Injecting mock detections for", unNumber);
+        console.log("[MLDetectionScreen] Injecting mock detections for", unNumber, {
+          mockCount: mockDetections.length,
+          mocks: mockDetections,
+          imageWidth: resultsCopy[0].imageWidth,
+          imageHeight: resultsCopy[0].imageHeight,
+        });
         const mocksWithIds = mockDetections.map((mock, idx) => ({
           ...mock,
           id: `mock-${Date.now()}-${idx}`,
@@ -337,6 +342,10 @@ export function MLDetectionScreen({
           ...resultsCopy[0].detections,
           ...mocksWithIds,
         ];
+        console.log("[MLDetectionScreen] After injection, detections:", resultsCopy[0].detections.map(d => ({
+          className: d.className,
+          box: d.box,
+        })));
       }
 
       setCorrectedResults(resultsCopy);

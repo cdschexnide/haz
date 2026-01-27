@@ -26,8 +26,7 @@ type ModalState =
   | "editing" // Edit mode active
   | "reporting" // Report issue mode
   | "viewing-frustration" // Existing frustration view
-  | "recommended-issue" // Automated detection
-  | "edit-comments"; // Edit existing frustration comments
+  | "recommended-issue"; // Automated detection
 
 interface SDDGFieldModalProps {
   visible: boolean;
@@ -37,6 +36,7 @@ interface SDDGFieldModalProps {
   fieldValue: string;
   existingFrustration?: FrustrationRecord | null;
   recommendedMessage?: string;
+  recommendedExpectedValue?: string;
   onSave: (
     fieldKey: string,
     correctValue: string,
@@ -68,6 +68,7 @@ const SDDGFieldModal: React.FC<SDDGFieldModalProps> = ({
   fieldValue,
   existingFrustration,
   recommendedMessage,
+  recommendedExpectedValue,
   onSave,
   onRemove,
   onValueUpdate,
@@ -119,14 +120,14 @@ const SDDGFieldModal: React.FC<SDDGFieldModalProps> = ({
     handleClose();
   };
 
-  // Edit existing frustration comments
-  const handleEditComments = () => {
-    setModalState("edit-comments");
-  };
-
-  const handleUpdateComments = (correctValue: string, comments?: string) => {
-    onSave(fieldKey, correctValue, comments);
-    setModalState("viewing-frustration");
+  const handleKeepFrustrated = () => {
+    if (!existingFrustration) return;
+    onSave(
+      fieldKey,
+      existingFrustration.correctValue || "",
+      existingFrustration.additionalComments
+    );
+    handleClose();
   };
 
   // Resolve frustration handler
@@ -140,6 +141,14 @@ const SDDGFieldModal: React.FC<SDDGFieldModalProps> = ({
   // Dismiss recommended issue
   const handleDismiss = () => {
     handleClose();
+  };
+
+  // One-click apply recommended frustration with expected value
+  const handleApplyRecommendedFrustration = () => {
+    if (recommendedExpectedValue) {
+      onSave(fieldKey, recommendedExpectedValue, recommendedMessage);
+      handleClose();
+    }
   };
 
   // Close modal and reset state
@@ -161,8 +170,6 @@ const SDDGFieldModal: React.FC<SDDGFieldModalProps> = ({
         return "Compliance Issue";
       case "recommended-issue":
         return "Potential Compliance Issue";
-      case "edit-comments":
-        return "Update Report";
       default:
         return "Field Options";
     }
@@ -226,8 +233,8 @@ const SDDGFieldModal: React.FC<SDDGFieldModalProps> = ({
             fieldLabel={fieldLabel}
             frustration={existingFrustration}
             onEditValue={handleChooseEdit}
-            onEditComments={handleEditComments}
             onResolve={handleResolve}
+            onKeepFrustrated={handleKeepFrustrated}
             isReinspectionMode={isReinspectionMode}
           />
         );
@@ -238,22 +245,11 @@ const SDDGFieldModal: React.FC<SDDGFieldModalProps> = ({
             fieldLabel={fieldLabel}
             fieldValue={fieldValue}
             recommendedMessage={recommendedMessage || ""}
+            expectedValue={recommendedExpectedValue}
             onEdit={handleChooseEdit}
             onReport={handleChooseReport}
+            onApplyRecommended={handleApplyRecommendedFrustration}
             onDismiss={handleDismiss}
-          />
-        );
-
-      case "edit-comments":
-        return (
-          <ReportIssueView
-            fieldKey={fieldKey}
-            fieldLabel={fieldLabel}
-            fieldValue={fieldValue}
-            recommendedMessage={existingFrustration?.additionalComments}
-            initialCorrectValue={existingFrustration?.correctValue}
-            onSubmit={handleUpdateComments}
-            onBack={handleBackToFrustrationView}
           />
         );
 

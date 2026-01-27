@@ -22,7 +22,7 @@ test("general materials route to POP after ML", () => {
   );
 });
 
-test("special materials route after SDDG and go to POP after ML (general path)", () => {
+test("special materials route after SDDG and skip POP after ML (general path)", () => {
   const inspection = baseInspection({
     verificationCopy: { unIdNo: "UN2807", packingInstruction: "A1.1" },
   });
@@ -30,7 +30,7 @@ test("special materials route after SDDG and go to POP after ML (general path)",
     "InspectorMagnetizedMaterialsScreen"
   );
   expect(getPostMlDetectionRoute(inspection).screen).toBe(
-    "InspectorPOPMarkingDataEntry"
+    "InspectorMarkingsLabelsValidationScreen"
   );
 });
 
@@ -67,7 +67,7 @@ test("routes all special materials to their dedicated screens", () => {
     });
     expect(getPostSddgStartRoute(inspection).screen).toBe(expected);
     expect(getPostMlDetectionRoute(inspection).screen).toBe(
-      "InspectorPOPMarkingDataEntry"
+      "InspectorMarkingsLabelsValidationScreen"
     );
   });
 });

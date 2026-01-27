@@ -180,18 +180,18 @@ export const hazardousMaterialsA13List: HazardousMaterialItem[] = [
     "specialProvision": "P5",
     "packagingParagraph": "A13.10."
   },
-  {
-    "isFixed": "false",
-    "isDomesticShipment": false,
-    "isTechnicalNameRequired": false,
-    "unid": "UN1845",
-    "properShippingName": "CARBON DIOXIDE, DRY ICE",
-    "hazclassDiv": "9",
-    "subsidiaryRisk": "",
-    "packingGroup": "",
-    "specialProvision": "P5",
-    "packagingParagraph": "A13.10."
-  },
+  // {
+  //   "isFixed": "false",
+  //   "isDomesticShipment": false,
+  //   "isTechnicalNameRequired": false,
+  //   "unid": "UN1845",
+  //   "properShippingName": "CARBON DIOXIDE, DRY ICE",
+  //   "hazclassDiv": "9",
+  //   "subsidiaryRisk": "",
+  //   "packingGroup": "",
+  //   "specialProvision": "P5",
+  //   "packagingParagraph": "A13.10."
+  // },
   {
     "isFixed": "false",
     "isDomesticShipment": false,

@@ -1,4 +1,5 @@
 import { hazardousMaterialsList } from "@/hazardousMaterials/hazardousMaterialsList";
+import { parseQuantityAndPacking } from "@/utils/sddgQuantityAndPackingParser";
 
 export function evaluateMarkingRequirementsInspector(
   sddgInspectionContext: any
@@ -28,6 +29,20 @@ export function evaluateMarkingRequirementsInspector(
   );
   const authoritativeHazardClass =
     hazmatItem?.hazclassDiv || extractedContentFromSddg.hazardClass;
+
+  const formatKg = (value: number) => {
+    const rounded = Math.round(value * 1000) / 1000;
+    return Number.isInteger(rounded) ? `${rounded}` : `${rounded}`.replace(/\.?0+$/, "");
+  };
+
+  const getKey16NetMassKg = () => {
+    const parsed = parseQuantityAndPacking(extractedContentFromSddg.quantityAndPacking);
+    const quantity = parsed.quantityPerPackage || parsed.totalQuantity;
+    if (!quantity) return null;
+    if (quantity.unit === "kg") return quantity.value;
+    if (quantity.unit === "g") return quantity.value / 1000;
+    return null;
+  };
 
   // Required for ALL shipments: Military Shipping Label (MSL) or DD Form 1387
   markings["Military Shipping Label (MSL) or DD Form 1387"] = [
@@ -72,7 +87,7 @@ export function evaluateMarkingRequirementsInspector(
   // TODO - POP Marking Inspector Screen
   if (extractedContentFromSddg.unIdNo !== "UN3166") {
     markings["PSN and UN Number"] = [
-      `${extractedContentFromSddg.properShippingName} ${extractedContentFromSddg.unIdNo}`,
+      `${extractedContentFromSddg.properShippingName.toUpperCase()} ${extractedContentFromSddg.unIdNo}`,
     ];
 
     // TODO - POP Marking
@@ -257,15 +272,11 @@ export function evaluateMarkingRequirementsInspector(
   //   markings["Machinery PSN UN"] = [extractedContentFromSddg.properShippingName, extractedContentFromSddg.unIdNo];
   // }
 
-  //   if (extractedContentFromSddg.unIdNo === "UN1845") {
-  //     const dryIceMarkings = ["DRY ICE"];
-  //     if (context.dryIceData?.quantity) {
-  //       const quantity = context.dryIceData.quantity;
-  //       const poundsWeight = (parseFloat(quantity) * 2.20462262).toFixed(2);
-  //       dryIceMarkings.push(`${quantity} KG (${poundsWeight}LBS)`);
-  //     }
-  //     markings["DRY ICE"] = dryIceMarkings;
-  //   }
+  if (extractedContentFromSddg.unIdNo === "UN1845") {
+    const netMassKg = getKey16NetMassKg();
+    const expectedValue = netMassKg !== null ? `${formatKg(netMassKg)} KG` : "Net mass in KG (see Key 16)";
+    markings["Net Mass of Carbon Dioxide, Solid in KG"] = [expectedValue];
+  }
 
   //   if (["UN3090", "UN3480"].includes(extractedContentFromSddg.unIdNo) && context.isExceptedQuantity === true) {
   //     markings["Lithium Battery Mark"] = ["lithium battery mark"];

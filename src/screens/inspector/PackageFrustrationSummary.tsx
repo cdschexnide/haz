@@ -552,7 +552,7 @@ export default function PackageFrustrationSummary({
           {
             label: "Reinspect",
             onPress: handleReinspectFrustrations,
-            variant: "secondary",
+            variant: "primary",
             icon: "refresh",
           },
           {

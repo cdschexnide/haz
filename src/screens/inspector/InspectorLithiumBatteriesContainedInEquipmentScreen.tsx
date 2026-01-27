@@ -263,9 +263,6 @@ export default function InspectorLithiumBatteriesContainedInEquipmentScreen({
               ]}
             />
           </View>
-          <Text style={styles.progressText}>
-            Validated: {validatedCount} | Frustrated: {frustratedCount}
-          </Text>
         </View>
 
         <View style={styles.mainContent}>
@@ -293,13 +290,6 @@ export default function InspectorLithiumBatteriesContainedInEquipmentScreen({
                         {currentCondition.description}
                       </Text>
                     </View>
-
-                    {currentFrustration && (
-                      <InfoBox
-                        variant="error"
-                        message="Previously Frustrated"
-                      />
-                    )}
                   </View>
 
                   <View style={styles.complianceButtons}>

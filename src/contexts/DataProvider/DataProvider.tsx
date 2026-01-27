@@ -112,7 +112,32 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   };
 
   /**
-   * Get database instance
+   * Ensure database connection is valid, reconnect if needed (Android issue)
+   */
+  const ensureConnection = async (): Promise<SQLite.SQLiteDatabase> => {
+    // If no database reference, try to open it
+    if (!dbRef.current) {
+      console.log("📊 [DataProvider] No database reference, opening...");
+      const db = await SQLite.openDatabaseAsync(DATABASE_NAME);
+      dbRef.current = db;
+      return db;
+    }
+
+    // Test if connection is still valid by running a simple query
+    try {
+      await dbRef.current.getAllAsync("SELECT 1");
+      return dbRef.current;
+    } catch (err) {
+      console.log("📊 [DataProvider] Database connection stale, reconnecting...");
+      // Connection is stale, reopen
+      const db = await SQLite.openDatabaseAsync(DATABASE_NAME);
+      dbRef.current = db;
+      return db;
+    }
+  };
+
+  /**
+   * Get database instance (sync version for backwards compatibility)
    */
   const getDb = (): SQLite.SQLiteDatabase => {
     if (!dbRef.current) {
@@ -313,7 +338,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       const perfId = perfTracker.start("loadInspection", { id });
 
       try {
-        const db = getDb();
+        // Use ensureConnection to handle stale database connections on Android
+        const db = await ensureConnection();
         console.log("📊 [DataProvider] Loading inspection:", id);
 
         // Measure SQLite read time

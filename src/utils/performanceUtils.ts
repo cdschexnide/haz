@@ -9,7 +9,8 @@
  */
 
 // Feature flag - enable during performance analysis
-export const PERFORMANCE_TRACKING_ENABLED = __DEV__ || false;
+// export const PERFORMANCE_TRACKING_ENABLED = __DEV__ || false;
+export const PERFORMANCE_TRACKING_ENABLED = false;
 
 /**
  * Individual performance metric

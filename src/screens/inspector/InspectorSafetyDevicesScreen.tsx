@@ -274,9 +274,6 @@ export default function InspectorSafetyDevicesScreen({
               ]}
             />
           </View>
-          <Text style={styles.progressText}>
-            Validated: {validatedCount} | Frustrated: {frustratedCount}
-          </Text>
         </View>
 
         <View style={styles.mainContent}>
@@ -314,13 +311,6 @@ export default function InspectorSafetyDevicesScreen({
                         {currentCondition.afmanRef}
                       </Text>
                     </View>
-
-                    {currentFrustration && (
-                      <InfoBox
-                        variant="error"
-                        message="Previously Frustrated"
-                      />
-                    )}
                   </View>
 
                   <View style={styles.complianceButtons}>

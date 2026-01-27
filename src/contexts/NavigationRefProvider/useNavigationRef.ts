@@ -1,4 +1,5 @@
 import { useContext } from "react";
+import { NavigationContainerRefWithCurrent } from "@react-navigation/native";
 import {
   NavigationRefContext,
   RootStackParamList,
@@ -11,6 +12,7 @@ export const useNavigationRef = () => {
     name: T,
     params?: RootStackParamList[T]
   ) => {
+    console.log("🧭 [NavigationRef] navigate called:", name, params);
     if (navigationRef?.current?.navigate) {
       navigationRef.current.navigate(name, params);
     } else {
@@ -28,9 +30,21 @@ export const useNavigationRef = () => {
     }
   };
 
+  const reset = (state: Parameters<
+    NavigationContainerRefWithCurrent<RootStackParamList>["reset"]
+  >[0]) => {
+    console.log("🧭 [NavigationRef] reset called:", state);
+    if (navigationRef?.current?.reset) {
+      navigationRef.current.reset(state);
+    } else {
+      console.warn("NavigationRef is not ready. Tried to reset navigation.");
+    }
+  };
+
   return {
     navigate,
     goBack,
+    reset,
     navigationRef: navigationRef?.current,
   };
 };

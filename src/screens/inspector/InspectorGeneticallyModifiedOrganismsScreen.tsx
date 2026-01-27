@@ -365,15 +365,6 @@ export default function InspectorGeneticallyModifiedOrganismsScreen({
                         {currentCondition.afmanRef}
                       </Text>
                     </View>
-
-                    {currentFrustration && (
-                      <View style={styles.frustrationIndicator}>
-                        <MaterialIcons name="error" size={20} color="#FF3B30" />
-                        <Text style={styles.frustrationText}>
-                          Previously Frustrated
-                        </Text>
-                      </View>
-                    )}
                   </View>
 
                   <View style={styles.complianceButtons}>

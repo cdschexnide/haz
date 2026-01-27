@@ -126,5 +126,9 @@ export const getPostMlDetectionRoute = (inspection: InspectionLike): NextRoute =
     };
   }
 
+  if (shouldSkipPopMarking(inspection)) {
+    return { screen: "InspectorMarkingsLabelsValidationScreen" };
+  }
+
   return { screen: "InspectorPOPMarkingDataEntry" };
 };

@@ -5,6 +5,7 @@ import { hazardousMaterialsList } from "@/hazardousMaterials/hazardousMaterialsL
 import { hasSpecialProvisionAlphaCode } from "@/utils/specialProvisions";
 import { parseQuantityAndPacking } from "@/utils/sddgQuantityAndPackingParser";
 import { getAllowedPackagingTypes } from "@/utils/getAllowedPackagingTypes";
+import { useHazProActions } from "@/stores/useHazProStore";
 import {
   ActionFooter,
   Button,
@@ -82,6 +83,7 @@ const InspectorPackagingTypeSelectionScreen = ({
     resolvePackageFrustration,
     refrustratePackageFrustration,
   } = useInspectionForm();
+  const actions = useHazProActions();
   const nextRoute = route.params?.nextRoute || "MLDetectionScreen";
   const nextParams = route.params?.nextParams;
   const key16Value = inspection.verificationCopy?.quantityAndPacking || "";
@@ -118,6 +120,10 @@ const InspectorPackagingTypeSelectionScreen = ({
 
   const mismatchItemId = "packaging-key16-mismatch";
   const mismatchLabel = "Package does not match Key 16 of SDDG";
+
+  useEffect(() => {
+    actions.setCurrentChevron("package");
+  }, [actions]);
   const existingMismatch = inspection.packageFrustrations.find(
     (frustration) => frustration.itemId === mismatchItemId
   );

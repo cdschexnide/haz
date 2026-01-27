@@ -27,6 +27,7 @@ import { extractText } from "./paddleOCREngine";
 import { alignTemplate, validateAlignment } from "./templateAlignment";
 import { getTemplate } from "@/templates";
 import { validateFormData, ValidationResult } from "./validators";
+import { hazardousMaterialsList } from "@/hazardousMaterials/hazardousMaterialsList";
 
 export interface FieldExtractionResult {
   fieldPath: string;
@@ -303,6 +304,28 @@ export async function extractFormData(
       } catch (error) {
         errors.push(`Failed to extract checkbox ${path}: ${error}`);
         console.error(`Checkbox extraction error (${path}):`, error);
+      }
+    }
+
+    // 4a. Cross-validate class_division against hazmat database
+    // This corrects common OCR digit confusions (e.g., "6" misread as "9")
+    if (data.un_number && data.class_division) {
+      const correctedClass = correctClassDivisionFromHazmatDb(
+        data.un_number,
+        data.class_division
+      );
+      if (correctedClass !== data.class_division) {
+        console.log(
+          `🔧 [OCR Correction] class_division corrected from "${data.class_division}" to "${correctedClass}" based on UN ${data.un_number}`
+        );
+        data.class_division = correctedClass;
+        // Also update fieldResults for consistency
+        const fieldResult = fieldResults.find(
+          f => f.fieldPath === "dangerous_goods.class_division"
+        );
+        if (fieldResult) {
+          fieldResult.value = correctedClass;
+        }
       }
     }
 
@@ -770,4 +793,91 @@ async function extractCheckboxValue(
   // Simple heuristic: if OCR finds X or check-like text, it's checked
   const text = ocrResult.text.toLowerCase().trim();
   return text.includes("x") || text.includes("✓") || text.includes("✔");
+}
+
+/**
+ * Corrects class_division OCR errors by validating against the hazmat database
+ *
+ * Common OCR confusions for single digits:
+ * - "6" ↔ "9" (upside down)
+ * - "0" ↔ "8" (similar shapes)
+ * - "1" ↔ "7" (depending on font)
+ *
+ * If the extracted value doesn't match the expected value but could be
+ * an OCR confusion, we trust the hazmat database.
+ */
+function correctClassDivisionFromHazmatDb(
+  unNumber: string,
+  extractedClass: string
+): string {
+  if (!unNumber || !extractedClass) return extractedClass;
+
+  // Normalize UN number (handle with/without "UN" prefix)
+  const normalizedUn = unNumber.toUpperCase().startsWith("UN")
+    ? unNumber.toUpperCase()
+    : `UN${unNumber.toUpperCase()}`;
+
+  // Look up in hazmat database
+  const material = hazardousMaterialsList.find(
+    item => item.unid && item.unid.toUpperCase() === normalizedUn
+  );
+
+  if (!material || !material.hazclassDiv) {
+    return extractedClass; // Can't validate, keep original
+  }
+
+  const expectedClass = material.hazclassDiv.trim();
+  const actualClass = extractedClass.trim();
+
+  // If they already match, no correction needed
+  if (actualClass === expectedClass) {
+    return extractedClass;
+  }
+
+  // Define common OCR digit confusions
+  const ocrConfusions: Record<string, string[]> = {
+    "6": ["9"],
+    "9": ["6"],
+    "0": ["8", "O"],
+    "8": ["0", "B"],
+    "1": ["7", "I", "l"],
+    "7": ["1"],
+  };
+
+  // Check if the mismatch could be an OCR confusion
+  // For class/division like "9", "2.1", "6.1", etc.
+  const actualPrimary = actualClass.split(".")[0];
+  const expectedPrimary = expectedClass.split(".")[0];
+
+  // If primary class digits could be confused
+  if (
+    ocrConfusions[actualPrimary]?.includes(expectedPrimary) ||
+    ocrConfusions[expectedPrimary]?.includes(actualPrimary)
+  ) {
+    console.log(
+      `🔍 [OCR Correction] Detected likely OCR confusion: extracted "${actualClass}" vs expected "${expectedClass}" for ${normalizedUn}`
+    );
+    return expectedClass;
+  }
+
+  // For subdivision matches (e.g., "6.1" misread as "9.1")
+  if (actualClass.includes(".") && expectedClass.includes(".")) {
+    const [actualMain, actualSub] = actualClass.split(".");
+    const [expectedMain, expectedSub] = expectedClass.split(".");
+
+    if (
+      actualSub === expectedSub &&
+      (ocrConfusions[actualMain]?.includes(expectedMain) ||
+        ocrConfusions[expectedMain]?.includes(actualMain))
+    ) {
+      console.log(
+        `🔍 [OCR Correction] Detected likely OCR confusion in subdivision: extracted "${actualClass}" vs expected "${expectedClass}" for ${normalizedUn}`
+      );
+      return expectedClass;
+    }
+  }
+
+  // No recognized confusion pattern - keep original
+  // (User will see the mismatch as a recommended frustration)
+  return extractedClass;
 }

@@ -308,7 +308,7 @@ export default function InspectorAttachment28WizardScreen({
         </View>
 
         {/* Progress Bar */}
-        {/* <View style={styles.progressBarContainer}>
+        <View style={styles.progressBarContainer}>
           <View style={styles.progressBarBackground}>
             <View
               style={[
@@ -317,10 +317,7 @@ export default function InspectorAttachment28WizardScreen({
               ]}
             />
           </View>
-          <Text style={styles.progressText}>
-            Validated: {validatedCount} | Frustrated: {frustratedCount}
-          </Text>
-        </View> */}
+        </View>
 
         {/* Main Content */}
         <View style={styles.mainContent}>

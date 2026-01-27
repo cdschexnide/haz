@@ -311,9 +311,6 @@ export default function InspectorCompressedGasesScreen({
               ]}
             />
           </View>
-          <Text style={styles.progressText}>
-            Validated: {validatedCount} | Frustrated: {frustratedCount}
-          </Text>
         </View>
 
         <View style={styles.mainContent}>
@@ -350,15 +347,6 @@ export default function InspectorCompressedGasesScreen({
                         {currentCondition.afmanRef}
                       </Text>
                     </View>
-
-                    {currentFrustration && (
-                      <View style={styles.frustrationIndicator}>
-                        <MaterialIcons name="error" size={20} color="#FF3B30" />
-                        <Text style={styles.frustrationText}>
-                          Previously Frustrated
-                        </Text>
-                      </View>
-                    )}
                   </View>
 
                   <View style={styles.complianceButtons}>

@@ -242,9 +242,6 @@ export default function InspectorMiscDangerousGoodsArticlesScreen({
               ]}
             />
           </View>
-          <Text style={styles.progressText}>
-            Validated: {validatedCount} | Frustrated: {frustratedCount}
-          </Text>
         </View>
 
         <View style={styles.mainContent}>
@@ -272,13 +269,6 @@ export default function InspectorMiscDangerousGoodsArticlesScreen({
                         {currentCondition.description}
                       </Text>
                     </View>
-
-                    {currentFrustration && (
-                      <InfoBox
-                        variant="error"
-                        message="Previously Frustrated"
-                      />
-                    )}
                   </View>
 
                   <View style={styles.complianceButtons}>

@@ -30,8 +30,11 @@ jest.mock('../../../contexts/HazProInspectorProvider/HazProInspectorContext', ()
   };
 });
 
+const mockNavigate = jest.fn();
+const mockReset = jest.fn();
+
 jest.mock('../../../contexts/NavigationRefProvider/useNavigationRef', () => ({
-  useNavigationRef: () => ({ navigate: jest.fn() }),
+  useNavigationRef: () => ({ navigate: mockNavigate, reset: mockReset }),
 }));
 
 jest.mock('../../../contexts/DataProvider', () => ({
@@ -47,9 +50,11 @@ jest.mock('../../../contexts/DataProvider', () => ({
 jest.mock('../../../contexts/InspectionFormProvider', () => ({
   useInspectionForm: () => ({
     loadInspectionForEdit: jest.fn().mockResolvedValue(undefined),
+    startNewInspection: jest.fn(),
   }),
   useInspectionFormActions: () => ({
     loadInspectionForEdit: jest.fn().mockResolvedValue(undefined),
+    startNewInspection: jest.fn(),
   }),
 }));
 
@@ -123,7 +128,7 @@ jest.mock('../../../theming/colors', () => ({
 
 // Import React and testing utilities after all mocks are set up
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react-native';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import InspectorHomeScreen from '../../../screens/inspector/InspectorHomeScreen';
 
 // Helper function to safely serialize JSON while handling circular references
@@ -230,5 +235,14 @@ describe('InspectorHomeScreen', () => {
     await waitFor(() => {
       expect(screen.getByPlaceholderText('Search')).toBeTruthy();
     });
+  });
+
+  it('resets navigation when starting a new inspection', async () => {
+    render(<InspectorHomeScreen navigation={mockNavigation} />);
+
+    const startButton = await screen.findByText('Start New Inspection');
+    fireEvent.press(startButton);
+
+    expect(mockReset).toHaveBeenCalled();
   });
 });

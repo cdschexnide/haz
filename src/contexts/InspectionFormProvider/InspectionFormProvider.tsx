@@ -47,6 +47,7 @@ interface InspectionFormContextValue {
   loadInspectionForEdit: (id: string) => Promise<void>;
   saveCurrentInspection: () => Promise<string>;
   completeInspection: () => Promise<{ success: boolean; error?: string }>;
+  finalizeInspection: () => Promise<{ success: boolean; error?: string }>;
   cancelInspection: () => void;
   updateReinspectedInspection: () => Promise<{
     success: boolean;
@@ -189,7 +190,8 @@ export function InspectionFormProvider({
 
   const startNewInspection = useCallback(() => {
     console.log("📝 [InspectionForm] Starting new inspection");
-    setInspection({ ...initialInspectionContext });
+    const currentInspector = inspectionRef.current.inspector;
+    setInspection({ ...initialInspectionContext, inspector: currentInspector });
     setWorkflow({ ...initialWorkflowState });
     setInspectionId(null);
     setHasUnsavedChanges(false);
@@ -473,6 +475,38 @@ export function InspectionFormProvider({
       };
     }
   }, [saveCurrentInspection]);
+
+  const finalizeInspection = useCallback(async () => {
+    try {
+      console.log("📝 [InspectionForm] Finalizing inspection");
+
+      const updatedInspection = {
+        ...inspectionRef.current,
+        inspectionCompleteTime: new Date(),
+      };
+
+      inspectionRef.current = updatedInspection;
+      setInspection(updatedInspection);
+
+      if (inspectionId) {
+        const updateResult = await updateReinspectedInspection();
+        if (!updateResult.success) {
+          return { success: false, error: updateResult.error };
+        }
+      } else {
+        await saveCurrentInspection(updatedInspection);
+      }
+
+      startNewInspection();
+
+      return { success: true };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error occurred",
+      };
+    }
+  }, [inspectionId, saveCurrentInspection, startNewInspection, updateReinspectedInspection]);
 
   const cancelInspection = useCallback(() => {
     console.log("📝 [InspectionForm] Canceling inspection");
@@ -1033,9 +1067,8 @@ export function InspectionFormProvider({
 
   // Helper to format inspector for audit trail
   const formatInspector = (inspector: Inspector): string => {
-    const rank = inspector.inspectorRank || "";
     const name = inspector.inspectorName || "";
-    return `${rank} ${name}`.trim() || "Unknown Inspector";
+    return name.replace(",", " ").replace(/\s+/g, " ").trim() || "Unknown Inspector";
   };
 
   const resolvePackageFrustration = useCallback((
@@ -1440,6 +1473,7 @@ export function InspectionFormProvider({
       loadInspectionForEdit,
       saveCurrentInspection,
       completeInspection,
+      finalizeInspection,
       cancelInspection,
       updateReinspectedInspection,
       setExtractedSDDGContent,
@@ -1493,6 +1527,7 @@ export function InspectionFormProvider({
       loadInspectionForEdit,
       saveCurrentInspection,
       completeInspection,
+      finalizeInspection,
       cancelInspection,
       updateReinspectedInspection,
       setExtractedSDDGContent,
@@ -1583,6 +1618,7 @@ export function useInspectionFormActions() {
     loadInspectionForEdit: context.loadInspectionForEdit,
     saveCurrentInspection: context.saveCurrentInspection,
     completeInspection: context.completeInspection,
+    finalizeInspection: context.finalizeInspection,
     cancelInspection: context.cancelInspection,
     updateReinspectedInspection: context.updateReinspectedInspection,
     setExtractedSDDGContent: context.setExtractedSDDGContent,

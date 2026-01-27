@@ -151,6 +151,7 @@ export const createMockInspectionForm = (overrides: Record<string, any> = {}) =>
   loadInspectionForEdit: jest.fn().mockResolvedValue(undefined),
   saveCurrentInspection: jest.fn().mockResolvedValue(undefined),
   completeInspection: jest.fn(),
+  finalizeInspection: jest.fn(),
   ...overrides,
 });
 

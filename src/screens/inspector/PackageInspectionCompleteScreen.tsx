@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
   Alert,
+  TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useInspectionForm } from "../../contexts/InspectionFormProvider";
@@ -12,10 +13,6 @@ import { useHazProActions } from "../../stores/useHazProStore";
 import { DevBenchmarkButton } from "../../components/dev/DevBenchmarkButton";
 import {
   ScreenHeader,
-  ActionFooter,
-  DetailCard,
-  StatusBadge,
-  InfoBox,
   colors,
   spacing,
 } from "../../components/ui";
@@ -28,7 +25,6 @@ export default function PackageInspectionCompleteScreen({
   navigation,
 }: PackageInspectionCompleteScreenProps) {
   const {
-    inspection,
     workflow,
     updateReinspectedInspection,
     completeReinspection,
@@ -40,21 +36,9 @@ export default function PackageInspectionCompleteScreen({
   const [isSaving, setIsSaving] = useState(false);
 
   // Set active chevron when component mounts
-  React.useEffect(() => {
+  useEffect(() => {
     actions.setCurrentChevron("package");
   }, []);
-
-  // Get SDDG data from verification copy (source of truth)
-  const sddgData = inspection.verificationCopy;
-
-  // Calculate frustration counts
-  const sddgFrustrations = inspection.frustrations || [];
-  const packageFrustrations = inspection.packageFrustrations || [];
-  const totalFrustrations =
-    sddgFrustrations.length + packageFrustrations.length;
-
-  // Determine SDDG status
-  const sddgStatus = sddgFrustrations.length > 0 ? "frustrated" : "verified";
 
   // Handle Continue to Form 1015
   const handleContinueToForm1015 = async () => {
@@ -111,93 +95,36 @@ export default function PackageInspectionCompleteScreen({
         onClose={() => navigation.goBack()}
       />
 
-      <ScrollView
-        style={styles.content}
-        contentContainerStyle={styles.scrollContent}
-      >
-        {/* Success Header */}
-        <View style={styles.successHeader}>
-          <MaterialIcons name="check-circle" size={48} color={colors.success} />
-          <Text style={styles.successTitle}>Package Verified</Text>
-          <Text style={styles.successSubtitle}>
-            All markings and labels validated with no compliance issues
+      <View style={styles.content}>
+        <View style={styles.heroCard}>
+          <View style={styles.heroIconContainer}>
+            <MaterialIcons name="check-circle" size={64} color={colors.success} />
+          </View>
+          <Text style={styles.heroTitle}>Package Verified</Text>
+          <Text style={styles.heroSubtitle}>
+            Inspection complete
           </Text>
         </View>
+      </View>
 
-        {/* Inspection Summary Card */}
-        <DetailCard
-          title="Inspection Summary"
-          fields={[
-            {
-              label: "TRANSPORTATION CONTROL NUMBER",
-              value: sddgData?.shippersReferenceNumber || "N/A",
-              accent: true,
-            },
-            {
-              label: "UN/NA/ID NUMBER",
-              value: sddgData?.unIdNo || "N/A",
-            },
-            {
-              label: "PROPER SHIPPING NAME",
-              value: sddgData?.properShippingName || "N/A",
-            },
-            {
-              label: "SDDG STATUS",
-              value: (
-                <StatusBadge
-                  status={sddgStatus}
-                  label={
-                    sddgStatus === "verified"
-                      ? "Verified"
-                      : `Frustrated (${sddgFrustrations.length})`
-                  }
-                />
-              ),
-            },
-            {
-              label: "PACKAGE STATUS",
-              value: <StatusBadge status="verified" label="Verified" />,
-            },
-            {
-              label: "INSPECTOR",
-              value: inspection.inspector.inspectorName,
-            },
-          ]}
-        />
-
-        {/* Additional Info if SDDG has frustrations */}
-        {sddgFrustrations.length > 0 && (
-          <View style={styles.infoBoxContainer}>
-            <InfoBox
-              variant="info"
-              message={`SDDG has ${sddgFrustrations.length} frustration${
-                sddgFrustrations.length !== 1 ? "s" : ""
-              }. Package inspection passed with no issues.`}
-            />
-          </View>
-        )}
-      </ScrollView>
-
-      {/* Action Buttons */}
-      <ActionFooter
-        buttons={[
-          {
-            label: "Back",
-            onPress: () => navigation.goBack(),
-            variant: "secondary",
-            icon: "arrow-back",
-          },
-          {
-            label: "Continue to Form 1015",
-            onPress: handleContinueToForm1015,
-            variant: "primary",
-            icon: "arrow-forward",
-            iconPosition: "right",
-            loading: isSaving,
-            disabled: isSaving,
-          },
-        ]}
-      />
+      {/* CTA Button */}
+      <View style={styles.footer}>
+        <TouchableOpacity
+          style={[styles.ctaButton, isSaving && styles.ctaButtonDisabled]}
+          onPress={handleContinueToForm1015}
+          disabled={isSaving}
+          activeOpacity={0.8}
+        >
+          {isSaving ? (
+            <ActivityIndicator color={colors.white} size="small" />
+          ) : (
+            <>
+              <Text style={styles.ctaButtonText}>Continue to Form 1015</Text>
+              <MaterialIcons name="arrow-forward" size={20} color={colors.white} />
+            </>
+          )}
+        </TouchableOpacity>
+      </View>
 
       {/* Dev Benchmark Button - only visible in __DEV__ */}
       <DevBenchmarkButton position="bottom-right" />
@@ -212,30 +139,54 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-  },
-  scrollContent: {
-    padding: spacing.md,
-    paddingBottom: spacing.xxl,
-  },
-  successHeader: {
+    padding: spacing.lg,
+    justifyContent: "center",
     alignItems: "center",
-    marginBottom: spacing.lg,
-    paddingVertical: spacing.sm,
-    gap: spacing.sm,
   },
-  successTitle: {
-    fontSize: 20,
+  heroCard: {
+    alignItems: "center",
+    justifyContent: "center",
+    padding: spacing.xxl,
+    borderRadius: 16,
+    backgroundColor: "#E8F5E9",
+    width: "100%",
+    maxWidth: 400,
+  },
+  heroIconContainer: {
+    marginBottom: spacing.lg,
+  },
+  heroTitle: {
+    fontSize: 28,
     fontWeight: "700",
     color: colors.success,
+    textAlign: "center",
   },
-  successSubtitle: {
-    fontSize: 14,
+  heroSubtitle: {
+    marginTop: spacing.sm,
+    fontSize: 16,
     color: colors.textSecondary,
     textAlign: "center",
-    paddingHorizontal: spacing.xxl,
-    lineHeight: 20,
   },
-  infoBoxContainer: {
-    marginTop: spacing.md,
+  footer: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.lg,
+    paddingBottom: spacing.xl,
+  },
+  ctaButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: spacing.sm,
+    backgroundColor: colors.primary,
+    paddingVertical: spacing.md,
+    borderRadius: 12,
+  },
+  ctaButtonDisabled: {
+    opacity: 0.6,
+  },
+  ctaButtonText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: colors.white,
   },
 });

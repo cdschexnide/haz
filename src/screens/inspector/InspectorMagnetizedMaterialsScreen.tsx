@@ -1,5 +1,5 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Alert,
   KeyboardAvoidingView,
@@ -70,7 +70,7 @@ const MAGNETIZED_INSPECTION_CONDITIONS = [
 export default function InspectorMagnetizedMaterialsScreen({
   navigation,
 }: InspectorMagnetizedMaterialsScreenProps) {
-  const { inspection, addPackageFrustration, removePackageFrustration } =
+  const { inspection, workflow, addPackageFrustration, removePackageFrustration } =
     useInspectionForm();
   const { actions } = useHazProStore();
 
@@ -78,8 +78,24 @@ export default function InspectorMagnetizedMaterialsScreen({
   const [isEditMode, setIsEditMode] = useState(false);
   const [additionalComments, setAdditionalComments] = useState("");
 
-  const currentCondition = MAGNETIZED_INSPECTION_CONDITIONS[currentStep];
-  const totalSteps = MAGNETIZED_INSPECTION_CONDITIONS.length;
+  const isReinspection = workflow.reinspection.mode === "package";
+  const targetFrustrations = workflow.reinspection.targetFrustrations;
+  const targetSet = useMemo(
+    () => new Set(targetFrustrations),
+    [targetFrustrations]
+  );
+  const filteredConditions = useMemo(
+    () =>
+      isReinspection
+        ? MAGNETIZED_INSPECTION_CONDITIONS.filter(condition =>
+            targetSet.has(condition.id)
+          )
+        : MAGNETIZED_INSPECTION_CONDITIONS,
+    [isReinspection, targetSet]
+  );
+
+  const currentCondition = filteredConditions[currentStep];
+  const totalSteps = filteredConditions.length;
 
   const unId =
     inspection?.verificationCopy?.unIdNo ||
@@ -88,10 +104,13 @@ export default function InspectorMagnetizedMaterialsScreen({
   const existingFrustrations =
     inspection?.packageFrustrations?.filter(f => f.category === "magnetized") ||
     [];
-  const frustratedCount = existingFrustrations.length;
-  const validatedCount = totalSteps - frustratedCount;
+  const relevantFrustrations = isReinspection
+    ? existingFrustrations.filter(f => targetSet.has(f.itemId))
+    : existingFrustrations;
+  const frustratedCount = relevantFrustrations.length;
+  const validatedCount = Math.max(totalSteps - frustratedCount, 0);
 
-  const currentFrustration = existingFrustrations.find(
+  const currentFrustration = relevantFrustrations.find(
     f => f.itemId === currentCondition?.id
   );
 
@@ -106,6 +125,12 @@ export default function InspectorMagnetizedMaterialsScreen({
     setIsEditMode(false);
     setAdditionalComments("");
   }, [currentStep]);
+
+  useEffect(() => {
+    if (currentStep > 0 && currentStep >= totalSteps) {
+      setCurrentStep(0);
+    }
+  }, [currentStep, totalSteps]);
 
   const handleValidate = () => {
     removePackageFrustration(currentCondition.id);
@@ -166,6 +191,27 @@ export default function InspectorMagnetizedMaterialsScreen({
   };
 
   const handleFinalSubmit = () => {
+    if (isReinspection) {
+      const remainingFrustrations = (inspection?.packageFrustrations || [])
+        .filter(f => targetSet.has(f.itemId));
+      const hasMarkingOrLabelFrustrations = remainingFrustrations.some(
+        f => f.category === "marking" || f.category === "label"
+      );
+
+      if (hasMarkingOrLabelFrustrations) {
+        navigation.navigate("InspectorMarkingsLabelsValidationScreen");
+        return;
+      }
+
+      if (remainingFrustrations.length > 0) {
+        navigation.navigate("PackageFrustrationSummary");
+        return;
+      }
+
+      navigation.navigate("PackageInspectionCompleteScreen");
+      return;
+    }
+
     const currentFrustrations =
       inspection?.packageFrustrations?.filter(f => f.category === "magnetized") ||
       [];
@@ -206,6 +252,24 @@ export default function InspectorMagnetizedMaterialsScreen({
     );
   }
 
+  if (isReinspection && totalSteps === 0) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>
+            No magnetized material items require reinspection.
+          </Text>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("PackageFrustrationSummary")}
+            style={styles.backButton}
+          >
+            <Text style={styles.backButtonText}>Back to Summary</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   if (!currentCondition || !inspection) {
     return (
       <SafeAreaView style={styles.container}>
@@ -233,7 +297,7 @@ export default function InspectorMagnetizedMaterialsScreen({
           onBack={() => navigation.goBack()}
           rightContent={
             <Text style={styles.stepIndicator}>
-              {currentStep + 1}/{totalSteps}
+              {totalSteps === 0 ? 0 : currentStep + 1}/{totalSteps}
             </Text>
           }
         />
@@ -243,13 +307,15 @@ export default function InspectorMagnetizedMaterialsScreen({
             <View
               style={[
                 styles.progressBarFill,
-                { width: `${((currentStep + 1) / totalSteps) * 100}%` },
+                {
+                  width:
+                    totalSteps === 0
+                      ? "0%"
+                      : `${((currentStep + 1) / totalSteps) * 100}%`,
+                },
               ]}
             />
           </View>
-          <Text style={styles.progressText}>
-            Validated: {validatedCount} | Frustrated: {frustratedCount}
-          </Text>
         </View>
 
         <View style={styles.mainContent}>
@@ -277,13 +343,6 @@ export default function InspectorMagnetizedMaterialsScreen({
                         {currentCondition.description}
                       </Text>
                     </View>
-
-                    {currentFrustration && (
-                      <InfoBox
-                        variant="error"
-                        message="Previously Frustrated"
-                      />
-                    )}
                   </View>
 
                   <View style={styles.complianceButtons}>

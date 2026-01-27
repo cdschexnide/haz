@@ -23,6 +23,12 @@ import { useDatabase } from "../../contexts/DataProvider";
 import { useHazProActions } from "../../stores/useHazProStore";
 import { DevBenchmarkButton } from "../../components/dev/DevBenchmarkButton";
 import { useRenderTracker, useContextRenderTracker } from "@/hooks/useRenderTracker";
+import { evaluateAttachment19Eligibility } from "@/utils/eligibility/attachment19Eligibility";
+import { getKey16Quantities } from "@/utils/eligibility/getKey16Quantities";
+import { getPackagingTypeFromKey16 } from "@/utils/getPackagingTypeFromKey16";
+import { hazardousMaterialsList } from "@/hazardousMaterials/hazardousMaterialsList";
+import { hasSpecialProvisionAlphaCode } from "@/utils/specialProvisions";
+import { getPostSddgStartRoute } from "@/utils/inspectorWorkflowRouting";
 import {
   ScreenHeader,
   ActionFooter,
@@ -65,6 +71,10 @@ const InteractiveSDDGComplianceScreenComponent: React.FC<
     completeSDDGAndMoveToPackage,
     updateVerificationField,
     startNewInspection,
+    setQuantityType,
+    setExceptedQuantityData,
+    setLimitedQuantityData,
+    setPackagePackagingType,
   } = inspectionFormContext;
 
   const database = useDatabase();
@@ -81,7 +91,7 @@ const InteractiveSDDGComplianceScreenComponent: React.FC<
     new Set()
   );
   const [recommendedFrustrations, setRecommendedFrustrations] = useState<
-    Map<string, string>
+    Map<string, { message: string; expectedValue?: string }>
   >(new Map());
   const [dismissedRecommendations, setDismissedRecommendations] = useState<
     Set<string>
@@ -90,23 +100,23 @@ const InteractiveSDDGComplianceScreenComponent: React.FC<
     null
   );
 
-  // === RENDER TRACKING ===
-  useRenderTracker('InteractiveSDDGComplianceScreen', { navigation }, {
-    modalVisible,
-    selectedFieldKey: selectedField?.key,
-    frustratedFieldsCount: frustratedFields.size,
-    recommendedFrustrationsCount: recommendedFrustrations.size,
-    dismissedCount: dismissedRecommendations.size,
-    hasHazMatData: !!hazMatData,
-    frustrationCount: inspection?.frustrations?.length ?? 0,
-  });
+  // // === RENDER TRACKING ===
+  // useRenderTracker('InteractiveSDDGComplianceScreen', { navigation }, {
+  //   modalVisible,
+  //   selectedFieldKey: selectedField?.key,
+  //   frustratedFieldsCount: frustratedFields.size,
+  //   recommendedFrustrationsCount: recommendedFrustrations.size,
+  //   dismissedCount: dismissedRecommendations.size,
+  //   hasHazMatData: !!hazMatData,
+  //   frustrationCount: inspection?.frustrations?.length ?? 0,
+  // });
 
-  // Track context changes - THIS IS KEY to finding the render source
-  useContextRenderTracker('InteractiveSDDGComplianceScreen', 'InspectionFormContext', {
-    frustrationCount: inspection?.frustrations?.length ?? 0,
-    reinspectionMode: workflow?.reinspection?.mode,
-  });
-  useContextRenderTracker('InteractiveSDDGComplianceScreen', 'Database', { isInitialized: database.isInitialized });
+  // // Track context changes - THIS IS KEY to finding the render source
+  // useContextRenderTracker('InteractiveSDDGComplianceScreen', 'InspectionFormContext', {
+  //   frustrationCount: inspection?.frustrations?.length ?? 0,
+  //   reinspectionMode: workflow?.reinspection?.mode,
+  // });
+  // useContextRenderTracker('InteractiveSDDGComplianceScreen', 'Database', { isInitialized: database.isInitialized });
 
   const isReinspectionMode = workflow.reinspection.mode === "sddg";
   const existingFrustrations = inspection.frustrations || [];
@@ -140,68 +150,63 @@ const InteractiveSDDGComplianceScreenComponent: React.FC<
 
   // Automated compliance checks
   useEffect(() => {
-    const recommendations = new Map<string, string>();
+    const recommendations = new Map<string, { message: string; expectedValue?: string }>();
     const verificationCopy = inspection.verificationCopy;
 
     if (!verificationCopy) return;
 
     const unIdNo = verificationCopy.unIdNo;
 
-    // UN3508: Capacitor Wh rating check
+    // UN3508: Capacitor Wh rating check (no expected value - requires manual entry)
     if (unIdNo === "UN3508") {
       const quantityAndPacking = verificationCopy.quantityAndPacking || "";
       if (!hasWhRating(quantityAndPacking)) {
-        recommendations.set(
-          "quantityAndPacking",
-          "UN3508 capacitors require energy storage capacity in Watt-hours (Wh) to be specified. Missing Wh rating detected."
-        );
+        recommendations.set("quantityAndPacking", {
+          message: "UN3508 capacitors require energy storage capacity in Watt-hours (Wh) to be specified. Missing Wh rating detected.",
+        });
       }
     }
 
-    // UN2807: Magnetized material handling instructions
+    // UN2807: Magnetized material handling instructions (no expected value - requires manual entry)
     if (unIdNo === "UN2807") {
       const additionalHandlingInfo =
         verificationCopy.additionalHandlingInfo || "";
       if (!hasUN2807HandlingInstructions(additionalHandlingInfo)) {
-        recommendations.set(
-          "additionalHandlingInfo",
-          'UN2807 magnetized materials require specific handling instructions: "Do not store magnetic materials suitable for military airlift closer than 4.6 m (15 feet) to compass sensing devices or other devices unduly affected by magnetic fields". Missing required handling instructions detected.'
-        );
+        recommendations.set("additionalHandlingInfo", {
+          message: 'UN2807 magnetized materials require specific handling instructions: "Do not store magnetic materials suitable for military airlift closer than 4.6 m (15 feet) to compass sensing devices or other devices unduly affected by magnetic fields". Missing required handling instructions detected.',
+        });
       }
     }
 
-    // UN1845: Dry ice packaging check
+    // UN1845: Dry ice packaging check (no expected value - requires manual entry)
     if (unIdNo === "UN1845") {
       const quantityAndPacking = verificationCopy.quantityAndPacking || "";
       if (!hasApprovedDryIcePackaging(quantityAndPacking)) {
-        recommendations.set(
-          "quantityAndPacking",
-          "UN1845 dry ice requires approved packaging types (fiberboard box, 4G, or polystyrene foam container). Current packaging may not meet requirements."
-        );
+        recommendations.set("quantityAndPacking", {
+          message: "UN1845 dry ice requires approved packaging types (fiberboard box, 4G, or polystyrene foam container). Current packaging may not meet requirements.",
+        });
       }
     }
 
-    // UN1941: Dibromodifluoromethane handling instructions (Key 19)
+    // UN1941: Dibromodifluoromethane handling instructions (Key 19) (no expected value)
     if (unIdNo === "UN1941") {
       const additionalHandlingInfo =
         verificationCopy.additionalHandlingInfo || "";
       if (!hasDibromodifluoromethaneHandlingInstructions(additionalHandlingInfo)) {
-        recommendations.set(
-          "additionalHandlingInfo",
-          "UN1941 Dibromodifluoromethane requires Key 19 handling instructions: avoid high temperatures; store in cool, ventilated area away from flame."
-        );
+        recommendations.set("additionalHandlingInfo", {
+          message: "UN1941 Dibromodifluoromethane requires Key 19 handling instructions: avoid high temperatures; store in cool, ventilated area away from flame.",
+        });
       }
     }
 
-    // UN3077/UN3082: Otto Fuel II handling instructions (Key 19)
+    // UN3077/UN3082: Otto Fuel II handling instructions (Key 19) (no expected value)
     if (unIdNo === "UN3077" || unIdNo === "UN3082") {
       const additionalHandlingInfo =
         verificationCopy.additionalHandlingInfo || "";
       if (!hasOttoFuelHandlingInstructions(additionalHandlingInfo)) {
-        recommendations.set(
-          "additionalHandlingInfo",
-          "Environmentally hazardous substances (Otto Fuel II) require Key 19 handling instructions: avoid skin contact, ingestion, or inhalation of vapors."
-        );
+        recommendations.set("additionalHandlingInfo", {
+          message: "Environmentally hazardous substances (Otto Fuel II) require Key 19 handling instructions: avoid skin contact, ingestion, or inhalation of vapors.",
+        });
       }
     }
 
@@ -218,9 +223,12 @@ const InteractiveSDDGComplianceScreenComponent: React.FC<
 
       // Merge general recommendations with UN-specific ones
       // UN-specific recommendations take precedence (already in map)
-      generalRecommendations.forEach(({ fieldKey, recommendation }) => {
+      generalRecommendations.forEach(({ fieldKey, recommendation, expectedValue }) => {
         if (!recommendations.has(fieldKey)) {
-          recommendations.set(fieldKey, recommendation);
+          recommendations.set(fieldKey, {
+            message: recommendation,
+            expectedValue,
+          });
         }
       });
 
@@ -385,8 +393,8 @@ const InteractiveSDDGComplianceScreenComponent: React.FC<
 
   // Handle recommended frustration accept
   const handleAcceptRecommendation = (fieldKey: string) => {
-    const message = recommendedFrustrations.get(fieldKey);
-    if (message) {
+    const recommendation = recommendedFrustrations.get(fieldKey);
+    if (recommendation) {
       const fieldValue =
         inspection.verificationCopy?.[
           fieldKey as keyof typeof inspection.verificationCopy
@@ -396,10 +404,10 @@ const InteractiveSDDGComplianceScreenComponent: React.FC<
         key: fieldKey,
         fieldLabel: `${fieldKey.toUpperCase()} (Recommended)`,
         fieldValue: String(fieldValue),
-        correctValue: undefined, // Automated recommendations don't know the correct value
+        correctValue: recommendation.expectedValue, // Use expected value if available
         defaultMessage:
           "This key of the SDDG is incorrect. Requires re-inspection",
-        additionalComments: message,
+        additionalComments: recommendation.message,
       });
 
       setFrustratedFields(prev => new Set(prev).add(fieldKey));
@@ -444,58 +452,98 @@ const InteractiveSDDGComplianceScreenComponent: React.FC<
     const frustratedCount = frustratedFields.size;
     console.log("frustratedCount: ", frustratedCount);
     if (isReinspectionMode) {
-      console.log("if block - isReinspectionMode");
       console.log(
-        "📋 [InteractiveSDDG] Reinspection mode - updating inspection"
+        "📋 [InteractiveSDDG] Reinspection complete - updating inspection"
       );
-
       const result = await updateReinspectedInspection();
-      console.log("const result = await updateReinspectedInspection();");
-      console.log("result: ", result);
       if (!result.success) {
-        console.log("if block - !result.success");
         Alert.alert("Error", result.error || "Failed to save reinspection");
         return;
       }
 
       completeReinspection();
-      console.log("completeReinspection();");
-      if (result.allResolved) {
-        console.log("if block - result.allResolved");
-        Alert.alert(
-          "Reinspection Complete",
-          "All SDDG frustrations have been resolved.",
-          [
-            {
-              text: "OK",
-              onPress: () =>
-                navigation.navigate("InspectorHomeStack", {
-                  screen: "InspectorHome",
-                }),
-            },
-          ]
-        );
-      } else {
-        console.log(
-          "else block - if after reinspection, there are still frustrations, navigates to SDDGFrustrationSummary"
-        );
-        navigation.navigate("SDDGFrustrationSummary");
-      }
+      startNewInspection();
+      navigation.navigate("InspectorHomeStack", {
+        screen: "InspectorHome",
+      });
       return;
     }
 
     // Normal flow
     if (frustratedCount === 0) {
       console.log("if block - frustratedCount === 0");
-      // Zero frustrations - navigate to SDDGInspectionCompleteScreen
-      console.log(
-        "📋 [InteractiveSDDG] Zero frustrations - navigating to SDDGInspectionCompleteScreen"
-      );
-
       completeSDDGSubstep("InteractiveSDDGComplianceScreen");
+      setSDDGComplete(true);
+      completeSDDGAndMoveToPackage();
 
-      // Navigate to the SDDG completion screen (user can Save & Exit or Continue to Package)
-      navigation.navigate("SDDGInspectionCompleteScreen");
+      // Route directly into package inspection
+      const unIdNo = inspection?.verificationCopy?.unIdNo || "";
+      const startRoute = getPostSddgStartRoute(inspection);
+
+      if (inspection.verificationCopy) {
+        const eligibility = evaluateAttachment19Eligibility({
+          sddgContent: inspection.verificationCopy,
+          quantities: getKey16Quantities(inspection.verificationCopy),
+        });
+        const packagingType = getPackagingTypeFromKey16(
+          inspection.verificationCopy.quantityAndPacking
+        );
+        const hazmatItem = hazardousMaterialsList.find(
+          item => item.unid === inspection.verificationCopy?.unIdNo
+        );
+        const hasA2Restriction =
+          hazmatItem &&
+          hasSpecialProvisionAlphaCode(hazmatItem.specialProvision, "A2");
+        const resolvedPackagingType =
+          hasA2Restriction && packagingType === "single" ? null : packagingType;
+        setQuantityType("standard");
+        setExceptedQuantityData(eligibility.exceptedQuantityData);
+        setLimitedQuantityData(eligibility.limitedQuantityData);
+        setPackagePackagingType(resolvedPackagingType);
+
+        const isEligible =
+          eligibility.exceptedQuantityData.eligible ||
+          eligibility.limitedQuantityData.eligible;
+        const attachment28Params = {
+          continueRoute: "InspectorSpecialProvisionsScreen",
+          continueParams: {
+            continueRoute: "MLDetectionScreen",
+            continueParams: { unIdNo },
+          },
+        };
+        const packagingParams = {
+          nextRoute: "InspectorAttachment28WizardScreen",
+          nextParams: attachment28Params,
+        };
+
+        if (startRoute.screen !== "InspectorAttachment28WizardScreen") {
+          navigation.navigate(startRoute.screen);
+          return;
+        }
+
+        if (isEligible) {
+          navigation.navigate("InspectorQuantityTypeSelectionScreen", packagingParams);
+        } else {
+          navigation.navigate("InspectorPackagingTypeSelectionScreen", packagingParams);
+        }
+        return;
+      }
+
+      if (startRoute.screen !== "InspectorAttachment28WizardScreen") {
+        navigation.navigate(startRoute.screen);
+        return;
+      }
+
+      navigation.navigate("InspectorPackagingTypeSelectionScreen", {
+        nextRoute: "InspectorAttachment28WizardScreen",
+        nextParams: {
+          continueRoute: "InspectorSpecialProvisionsScreen",
+          continueParams: {
+            continueRoute: "MLDetectionScreen",
+            continueParams: { unIdNo },
+          },
+        },
+      });
     } else {
       // Has frustrations - go to summary
       console.log("else block - indicates frustratedCount > 0");
@@ -608,9 +656,11 @@ const InteractiveSDDGComplianceScreenComponent: React.FC<
     ? existingFrustrations.find(f => f.key === selectedField.key)
     : null;
 
-  const recommendedMessage = selectedField
+  const recommendedData = selectedField
     ? recommendedFrustrations.get(selectedField.key)
     : undefined;
+  const recommendedMessage = recommendedData?.message;
+  const recommendedExpectedValue = recommendedData?.expectedValue;
 
   if (!formData) {
     return (
@@ -683,27 +733,41 @@ const InteractiveSDDGComplianceScreenComponent: React.FC<
 
       {/* Footer Actions */}
       <ActionFooter
-        buttons={[
-          {
-            label: "Back",
-            onPress: () => navigation.goBack(),
-            variant: "outline",
-            icon: "arrow-back",
-          },
-          {
-            label: "Save & Exit",
-            onPress: handleSaveAndExit,
-            variant: "secondary",
-            icon: "save",
-          },
-          {
-            label: frustratedFields.size > 0 ? "Review Frustrations" : "Continue Inspection",
-            onPress: handleContinue,
-            variant: "primary",
-            icon: "arrow-forward",
-            iconPosition: "right",
-          },
-        ]}
+        buttons={
+          isReinspectionMode
+            ? [
+                {
+                  label: "Back",
+                  onPress: () => navigation.goBack(),
+                },
+                {
+                  label: "Complete SDDG Reinspection",
+                  onPress: handleContinue,
+                  variant: "primary",
+                },
+              ]
+            : [
+                {
+                  label: "Back",
+                  onPress: () => navigation.goBack(),
+                },
+                {
+                  label: "Save & Exit",
+                  onPress: handleSaveAndExit,
+                  variant: "secondary",
+                  icon: "save",
+                },
+                {
+                  label:
+                    frustratedFields.size > 0
+                      ? "Review Frustrations"
+                      : "Continue to Package Inspection",
+                  onPress: handleContinue,
+                  variant:
+                    frustratedFields.size > 0 ? "destructive" : "primary",
+                },
+              ]
+        }
       />
 
       {/* Field Modal - Progressive Disclosure */}
@@ -715,9 +779,10 @@ const InteractiveSDDGComplianceScreenComponent: React.FC<
         }}
         fieldKey={selectedField?.key || ""}
         fieldLabel={selectedField?.label || ""}
-        fieldValue={selectedField?.value || ""}
+        fieldValue={selectedField?.value.toUpperCase() || ""}
         existingFrustration={existingFrustration}
         recommendedMessage={recommendedMessage}
+        recommendedExpectedValue={recommendedExpectedValue}
         onSave={handleSaveFrustration}
         onRemove={handleRemoveFrustration}
         onValueUpdate={handleValueUpdate}

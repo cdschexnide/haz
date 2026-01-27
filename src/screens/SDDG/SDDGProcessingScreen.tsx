@@ -56,7 +56,7 @@ function mapToHazproFormat(sddgData: SDDGData): ExtractedSDDGContent {
     unIdNo: sddgData.un_number || "",
 
     // Key 12: Proper Shipping Name
-    properShippingName: sddgData.proper_shipping_name || "",
+    properShippingName: (sddgData.proper_shipping_name || "").toUpperCase(),
 
     // Key 13: Hazard Class
     hazardClass: sddgData.class_division || "",

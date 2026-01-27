@@ -356,6 +356,7 @@ export function validatePackingInstruction(
 
 /**
  * Gets recommended frustration for a specific field
+ * Returns both the recommendation message and the expected value for one-click apply
  */
 export function getRecommendedFrustration(
   fieldKey: string,
@@ -365,10 +366,10 @@ export function getRecommendedFrustration(
     packagingType?: "single" | "combination" | "composite" | null;
     quantityAndPacking?: string | null;
   }
-): string | null {
-  if (!material) return null;
+): { recommendation: string | null; expectedValue: string | null } {
+  if (!material) return { recommendation: null, expectedValue: null };
 
-  let validation: { isValid: boolean; recommendation?: string };
+  let validation: { isValid: boolean; expected?: string; recommendation?: string };
 
   switch (fieldKey) {
     case "aircraftType":
@@ -393,14 +394,22 @@ export function getRecommendedFrustration(
       validation = validatePackingInstruction(material, actualValue);
       break;
     default:
-      return null;
+      return { recommendation: null, expectedValue: null };
   }
 
-  return validation.isValid ? null : validation.recommendation || null;
+  if (validation.isValid) {
+    return { recommendation: null, expectedValue: null };
+  }
+
+  return {
+    recommendation: validation.recommendation || null,
+    expectedValue: validation.expected || null,
+  };
 }
 
 /**
  * Gets all recommended frustrations for the current SDDG data
+ * Returns recommendation message and expectedValue for one-click apply
  */
 export function getAllRecommendedFrustrations(
   extractedContent: any,
@@ -409,10 +418,10 @@ export function getAllRecommendedFrustrations(
     packagingType?: "single" | "combination" | "composite" | null;
     quantityAndPacking?: string | null;
   }
-): Array<{ fieldKey: string; recommendation: string }> {
+): Array<{ fieldKey: string; recommendation: string; expectedValue?: string }> {
   if (!material || !extractedContent) return [];
 
-  const recommendations: Array<{ fieldKey: string; recommendation: string }> =
+  const recommendations: Array<{ fieldKey: string; recommendation: string; expectedValue?: string }> =
     [];
 
   const fieldsToValidate = [
@@ -426,13 +435,17 @@ export function getAllRecommendedFrustrations(
   ];
 
   fieldsToValidate.forEach(({ key, value }) => {
-    const recommendation = getRecommendedFrustration(key, material, value, {
+    const result = getRecommendedFrustration(key, material, value, {
       packagingType: options?.packagingType,
       quantityAndPacking:
         options?.quantityAndPacking || extractedContent.quantityAndPacking,
     });
-    if (recommendation) {
-      recommendations.push({ fieldKey: key, recommendation });
+    if (result.recommendation) {
+      recommendations.push({
+        fieldKey: key,
+        recommendation: result.recommendation,
+        expectedValue: result.expectedValue || undefined,
+      });
     }
   });
 
@@ -444,6 +457,7 @@ export function getAllRecommendedFrustrations(
     recommendations.push({
       fieldKey: "packingGroup",
       recommendation: sp177Recommendation,
+      expectedValue: "II", // SP177 always requires PG II
     });
   }
 
@@ -455,6 +469,7 @@ export function getAllRecommendedFrustrations(
     recommendations.push({
       fieldKey: "properShippingName",
       recommendation: inhalationRecommendation,
+      // No expectedValue for inhalation hazard - requires manual entry
     });
   }
 

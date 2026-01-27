@@ -44,6 +44,32 @@ export const MOCK_DETECTIONS: MockDetectionConfig[] = [
       },
     ],
   },
+  {
+    unNumber: "UN2807", // MAGNETIZED MATERIAL
+    detections: [
+      {
+        className: "militaryShippingLabel",
+        classId: 97,
+        category: "general_marking",
+        confidence: 0.89,
+        // Shifted left 200px and down 200px from UN0247
+        box: { x: 370, y: 58, width: 155, height: 225 },
+      },
+    ],
+  },
+  {
+    unNumber: "UN1845", // CARBON DIOXIDE, SOLID (Dry Ice)
+    detections: [
+      {
+        className: "militaryShippingLabel",
+        classId: 97,
+        category: "general_marking",
+        confidence: 0.89,
+        // Shifted right 200px and down 50px from UN2807 coordinates
+        box: { x: 950, y: 218, width: 315, height: 445 },
+      },
+    ],
+  },
   // Add more UN numbers for other demo scenarios:
   // {
   //   unNumber: "UN1234",

@@ -12,8 +12,10 @@ interface RecommendedIssueViewProps {
   fieldLabel: string;
   fieldValue: string;
   recommendedMessage: string;
+  expectedValue?: string;
   onEdit: () => void;
   onReport: () => void;
+  onApplyRecommended?: () => void;
   onDismiss: () => void;
 }
 
@@ -30,10 +32,14 @@ const RecommendedIssueView: React.FC<RecommendedIssueViewProps> = ({
   fieldLabel,
   fieldValue,
   recommendedMessage,
+  expectedValue,
   onEdit,
   onReport,
+  onApplyRecommended,
   onDismiss,
 }) => {
+  // Determine if we can do one-click apply (when we have expected value)
+  const canOneClickApply = !!expectedValue && !!onApplyRecommended;
   return (
     <View style={styles.container}>
       <ScrollView
@@ -88,10 +94,10 @@ const RecommendedIssueView: React.FC<RecommendedIssueViewProps> = ({
           </View>
         </TouchableOpacity>
 
-        {/* Option 2: Confirm Issue */}
+        {/* Option 2: Apply Frustration - One-click if expected value available */}
         <TouchableOpacity
           style={[styles.actionCard, styles.reportCard]}
-          onPress={onReport}
+          onPress={canOneClickApply ? onApplyRecommended : onReport}
           activeOpacity={0.7}
         >
           <View style={styles.cardRow}>
@@ -100,14 +106,22 @@ const RecommendedIssueView: React.FC<RecommendedIssueViewProps> = ({
                 <View style={[styles.iconCircle, styles.reportIconCircle]}>
                   <MaterialIcons name="warning" size={18} color="#FF9500" />
                 </View>
-                <Text style={styles.cardTitle}>CONFIRM FRUSTRATION</Text>
+                <Text style={styles.cardTitle}>
+                  {canOneClickApply
+                    ? "APPLY FRUSTRATION & RECOMMENDED VALUE"
+                    : "CONFIRM FRUSTRATION"}
+                </Text>
               </View>
               <Text style={styles.cardDescription}>
-                Apply the recommended frustration
+                {canOneClickApply
+                  ? `Set correct value to "${expectedValue}" and frustrate this field`
+                  : "Apply the recommended frustration"}
               </Text>
             </View>
             <View style={styles.cardAction}>
-              <Text style={styles.reportActionText}>Frustrate</Text>
+              <Text style={styles.reportActionText}>
+                {canOneClickApply ? "Apply" : "Frustrate"}
+              </Text>
               <MaterialIcons name="arrow-forward" size={14} color="#FF9500" />
             </View>
           </View>

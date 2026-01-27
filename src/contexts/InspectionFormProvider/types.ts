@@ -105,7 +105,11 @@ export const initialInspectionContext: SDDGInspectionContext = {
   exceptedQuantityData: null,
   limitedQuantityData: null,
   packagePackagingType: null,
-  inspector: "Austin Stewart, Cargo Inspector",
+  inspector: {
+    inspectorName: "",
+    inspectorRank: null,
+    inspectorTitle: "",
+  },
   inspectionStartTime: null,
   inspectionCompleteTime: null,
 };
