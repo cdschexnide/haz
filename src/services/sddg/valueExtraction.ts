@@ -305,7 +305,8 @@ export function extractCheckboxValue(
  */
 export function applyPostProcessing(
   value: string,
-  rules: string[]
+  rules: string[],
+  context?: { fieldId?: string; allValues?: Map<string, string> }
 ): string {
   let result = value;
 
@@ -338,6 +339,54 @@ export function applyPostProcessing(
 
       case "uppercase":
         result = result.toUpperCase();
+        break;
+
+      case "extract_un_number":
+        // Extract only the UN/ID number pattern (UN0106, ID8000, etc.)
+        // UN numbers are: UN + 4 digits, or ID + 4 digits, or NA + 4 digits
+        const unMatch = result.match(/\b(UN|ID|NA)\s*[O0]?(\d{3,4})\b/i);
+        if (unMatch) {
+          // Normalize: replace O with 0, format as UN####
+          const prefix = unMatch[1].toUpperCase();
+          const digits = unMatch[2].replace(/O/g, '0');
+          result = `${prefix}${digits.padStart(4, '0')}`;
+        }
+        break;
+
+      case "extract_shipping_name":
+        // Extract everything AFTER the UN/ID number pattern
+        // This gets the proper shipping name from combined OCR blocks
+        const afterUnMatch = result.match(/\b(?:UN|ID|NA)\s*[O0]?\d{3,4}\s+(.+)/i);
+        if (afterUnMatch) {
+          result = afterUnMatch[1].trim();
+        } else if (!result.match(/\b(?:UN|ID|NA)\s*[O0]?\d{3,4}\b/i)) {
+          // No UN number in this text, keep as-is (it's just the shipping name)
+          result = result.trim();
+        }
+        break;
+
+      case "validate_packing_group":
+        // Packing groups are Roman numerals (I, II, III) or empty
+        // Filter out quantity data that may have been incorrectly captured
+        const pgMatch = result.match(/^(I{1,3}|IV|V|VI{0,3})$/i);
+        if (pgMatch) {
+          result = pgMatch[1].toUpperCase();
+        } else if (result.match(/\d+\.\d+|kg|lb|box|wooden|new/i)) {
+          // This looks like quantity data, not packing group
+          result = "";
+        } else {
+          result = result.trim();
+        }
+        break;
+
+      case "clean_quantity":
+        // Clean up quantity values - remove partial words from bad extraction
+        // and normalize the format
+        result = result
+          .replace(/^\s*oden\s+/i, "Wooden ")  // Fix "oden Box" -> "Wooden Box"
+          .replace(/^\s*ox\s+/i, "Box ")       // Fix "ox x" -> "Box x"
+          .replace(/^[a-z]\s+/i, "")           // Remove single leading letter fragments
+          .trim();
         break;
     }
   }

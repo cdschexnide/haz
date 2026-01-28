@@ -129,7 +129,8 @@ export const SDDG_ANCHORS: AnchorConfig[] = [
       "UN\nor\nID\nNo"
     ],
     patternType: "table-column-header",
-    valueRegionRules: { columnIndex: 0, rowBoundedBy: ["additional_handling"] }
+    valueRegionRules: { columnIndex: 0, rowBoundedBy: ["additional_handling"] },
+    postProcessing: ["extract_un_number"]
   },
   {
     fieldId: "proper_shipping_name",
@@ -138,7 +139,8 @@ export const SDDG_ANCHORS: AnchorConfig[] = [
       "Proper Shipping Name"
     ],
     patternType: "table-column-header",
-    valueRegionRules: { columnIndex: 1, rowBoundedBy: ["additional_handling"] }
+    valueRegionRules: { columnIndex: 1, rowBoundedBy: ["additional_handling"] },
+    postProcessing: ["extract_shipping_name"]
   },
   {
     fieldId: "class_division",
@@ -165,7 +167,8 @@ export const SDDG_ANCHORS: AnchorConfig[] = [
       "GROUP"
     ],
     patternType: "table-column-header",
-    valueRegionRules: { columnIndex: 3, rowBoundedBy: ["additional_handling"] }
+    valueRegionRules: { columnIndex: 3, rowBoundedBy: ["additional_handling"] },
+    postProcessing: ["validate_packing_group"]
   },
   {
     fieldId: "quantity_type_packing",
@@ -180,7 +183,8 @@ export const SDDG_ANCHORS: AnchorConfig[] = [
       "TYPE of PACKING"
     ],
     patternType: "table-column-header",
-    valueRegionRules: { columnIndex: 4, rowBoundedBy: ["additional_handling"] }
+    valueRegionRules: { columnIndex: 4, rowBoundedBy: ["additional_handling"] },
+    postProcessing: ["clean_quantity"]
   },
   {
     fieldId: "packing_inst",

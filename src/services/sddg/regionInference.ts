@@ -197,13 +197,21 @@ export function computeTableColumnRegions(
   console.log(`📊 Table: headerBottom=${Math.round(headerBottom)}, tableBottom=${Math.round(tableBottom)}, height=${Math.round(tableHeight)}`);
 
   const MIN_COLUMN_WIDTH = 80; // Minimum width for any column to be usable
+  const COLUMN_LEFT_PADDING = 50; // Extend columns to the left to capture data that starts before header
 
   // Compute region for each column
   for (let i = 0; i < sortedAnchors.length; i++) {
     const anchor = sortedAnchors[i];
     const nextAnchor = sortedAnchors[i + 1];
+    const prevAnchor = sortedAnchors[i - 1];
 
-    const startX = anchor.boundingBox.x;
+    // Start column a bit to the left of the header (data often starts before header text)
+    // But don't overlap with previous column
+    const minStartX = prevAnchor
+      ? prevAnchor.boundingBox.x + MIN_COLUMN_WIDTH
+      : 0;
+    const startX = Math.max(minStartX, anchor.boundingBox.x - COLUMN_LEFT_PADDING);
+
     const rawEndX = nextAnchor ? nextAnchor.boundingBox.x : startX + MAX_TABLE_COLUMN_WIDTH;
 
     // Ensure minimum width - if anchors are too close, use anchor's own width or minimum
