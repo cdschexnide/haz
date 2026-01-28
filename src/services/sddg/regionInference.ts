@@ -72,7 +72,7 @@ export function computeLabelTopLeftRegion(
 
 /**
  * Compute value region for label-left-value-right pattern
- * Value is to the right of the label on the same horizontal line
+ * Value is to the right of the label, but may be slightly below due to OCR line breaks
  */
 export function computeLabelLeftValueRightRegion(
   anchor: AnchorMatch,
@@ -85,7 +85,7 @@ export function computeLabelLeftValueRightRegion(
 
   // Start position: to the right of the anchor label
   const startX = anchorBox.x + anchorBox.width + PADDING;
-  const startY = anchorBox.y;
+  const startY = anchorBox.y - 10; // Start slightly above to catch values on same visual line
 
   // Find bounding anchor to the right (for width)
   let maxX = imageWidth;
@@ -98,13 +98,17 @@ export function computeLabelLeftValueRightRegion(
     }
   }
 
+  // Use larger height to catch values that are slightly below the label
+  // Many SDDG fields have values that wrap to the next line
+  const VALUE_REGION_HEIGHT = 50; // Covers ~2 lines of text
+
   return {
     fieldId: anchor.fieldId,
     boundingBox: {
       x: startX,
-      y: startY,
+      y: Math.max(0, startY),
       width: Math.min(maxX - startX, DEFAULT_REGION_WIDTH),
-      height: anchorBox.height + PADDING, // same height as anchor + small buffer
+      height: VALUE_REGION_HEIGHT,
     },
     anchorMatch: anchor,
   };
@@ -186,6 +190,8 @@ export function computeTableColumnRegions(
 
   console.log(`📊 Table: headerBottom=${Math.round(headerBottom)}, tableBottom=${Math.round(tableBottom)}, height=${Math.round(tableHeight)}`);
 
+  const MIN_COLUMN_WIDTH = 80; // Minimum width for any column to be usable
+
   // Compute region for each column
   for (let i = 0; i < sortedAnchors.length; i++) {
     const anchor = sortedAnchors[i];
@@ -193,7 +199,14 @@ export function computeTableColumnRegions(
 
     const startX = anchor.boundingBox.x;
     const rawEndX = nextAnchor ? nextAnchor.boundingBox.x : startX + MAX_TABLE_COLUMN_WIDTH;
-    const columnWidth = Math.min(rawEndX - startX - PADDING, MAX_TABLE_COLUMN_WIDTH);
+
+    // Ensure minimum width - if anchors are too close, use anchor's own width or minimum
+    let columnWidth = rawEndX - startX - PADDING;
+    if (columnWidth < MIN_COLUMN_WIDTH) {
+      // Use anchor width as fallback, or minimum width
+      columnWidth = Math.max(anchor.boundingBox.width * 2, MIN_COLUMN_WIDTH);
+    }
+    columnWidth = Math.min(columnWidth, MAX_TABLE_COLUMN_WIDTH);
 
     console.log(`📊 Column ${anchor.fieldId}: x=${Math.round(startX)}, width=${Math.round(columnWidth)}`);
 

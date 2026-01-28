@@ -32,9 +32,36 @@ function isKnownLabel(text: string): boolean {
 }
 
 /**
- * Check if a text block's center is within a bounding box
+ * Check if a text block overlaps with a bounding box
+ * Uses center for Y (vertical), but checks any horizontal overlap for X
+ * This handles OCR blocks that span multiple table columns
  */
 function isBlockInRegion(block: TextBlock, region: BoundingBox): boolean {
+  const blockCenterY = block.boundingBox.y + block.boundingBox.height / 2;
+
+  // For Y: use center point (block must be vertically within region)
+  const yInRegion = blockCenterY >= region.y && blockCenterY <= region.y + region.height;
+
+  if (!yInRegion) return false;
+
+  // For X: check if there's ANY horizontal overlap
+  // This catches OCR blocks that span multiple columns
+  const blockLeft = block.boundingBox.x;
+  const blockRight = block.boundingBox.x + block.boundingBox.width;
+  const regionLeft = region.x;
+  const regionRight = region.x + region.width;
+
+  // Check for overlap: block starts before region ends AND block ends after region starts
+  const xOverlap = blockLeft < regionRight && blockRight > regionLeft;
+
+  return xOverlap;
+}
+
+/**
+ * Check if a text block's center is within a bounding box (strict mode)
+ * Used for non-table fields where we want precise positioning
+ */
+function isBlockCenterInRegion(block: TextBlock, region: BoundingBox): boolean {
   const blockCenterX = block.boundingBox.x + block.boundingBox.width / 2;
   const blockCenterY = block.boundingBox.y + block.boundingBox.height / 2;
 
@@ -64,6 +91,48 @@ function sortByReadingOrder(blocks: TextBlock[]): TextBlock[] {
 }
 
 /**
+ * Calculate what portion of a text block falls within a region
+ * Returns the estimated substring that falls within the region's x boundaries
+ */
+function extractPortionInRegion(block: TextBlock, region: BoundingBox): string {
+  const blockLeft = block.boundingBox.x;
+  const blockRight = block.boundingBox.x + block.boundingBox.width;
+  const regionLeft = region.x;
+  const regionRight = region.x + region.width;
+
+  // If block is fully within region, return full text
+  if (blockLeft >= regionLeft && blockRight <= regionRight) {
+    return block.text;
+  }
+
+  // Calculate the overlap ratio
+  const overlapLeft = Math.max(blockLeft, regionLeft);
+  const overlapRight = Math.min(blockRight, regionRight);
+  const overlapWidth = overlapRight - overlapLeft;
+
+  if (overlapWidth <= 0) return "";
+
+  // Estimate character positions based on proportional width
+  const charWidth = block.boundingBox.width / block.text.length;
+  const startChar = Math.max(0, Math.floor((overlapLeft - blockLeft) / charWidth));
+  const endChar = Math.min(block.text.length, Math.ceil((overlapRight - blockLeft) / charWidth));
+
+  // Extract the portion, but try to break at word boundaries
+  let extracted = block.text.substring(startChar, endChar).trim();
+
+  // Clean up partial words at boundaries if possible
+  if (startChar > 0 && block.text[startChar - 1] !== ' ') {
+    // Started mid-word, try to find word start
+    const spaceIdx = extracted.indexOf(' ');
+    if (spaceIdx > 0 && spaceIdx < extracted.length / 3) {
+      extracted = extracted.substring(spaceIdx + 1);
+    }
+  }
+
+  return extracted;
+}
+
+/**
  * Extract text from all blocks within a value region
  * Sorts blocks by reading order and concatenates
  */
@@ -71,10 +140,17 @@ export function extractValueFromRegion(
   textBlocks: TextBlock[],
   region: ValueRegion
 ): string {
-  // Filter blocks that are within the region AND not known labels
-  const blocksInRegion = textBlocks.filter(block =>
-    isBlockInRegion(block, region.boundingBox) && !isKnownLabel(block.text)
+  // First try: blocks with CENTER in region (strict matching)
+  let blocksInRegion = textBlocks.filter(block =>
+    isBlockCenterInRegion(block, region.boundingBox) && !isKnownLabel(block.text)
   );
+
+  // Second try: blocks with ANY overlap (for table columns with spanning values)
+  if (blocksInRegion.length === 0) {
+    blocksInRegion = textBlocks.filter(block =>
+      isBlockInRegion(block, region.boundingBox) && !isKnownLabel(block.text)
+    );
+  }
 
   if (blocksInRegion.length === 0) {
     return "";
@@ -99,7 +175,19 @@ export function extractValueFromRegion(
       }
     }
 
-    result += block.text;
+    // For blocks that span beyond the region, extract only the relevant portion
+    const blockLeft = block.boundingBox.x;
+    const blockRight = block.boundingBox.x + block.boundingBox.width;
+    const spansBeyondRegion = blockLeft < region.boundingBox.x - 10 ||
+                               blockRight > region.boundingBox.x + region.boundingBox.width + 10;
+
+    if (spansBeyondRegion) {
+      const portion = extractPortionInRegion(block, region.boundingBox);
+      if (portion) result += portion;
+    } else {
+      result += block.text;
+    }
+
     lastY = block.boundingBox.y;
   }
 

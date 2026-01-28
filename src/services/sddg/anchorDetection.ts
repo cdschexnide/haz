@@ -26,10 +26,24 @@ function levenshteinDistance(str1: string, str2: string): number {
 }
 
 /**
- * Normalize text for matching (case-insensitive, collapse whitespace)
+ * Strip common OCR artifacts from text
+ * Handles leading pipes, brackets, and other noise characters
+ */
+function stripOcrArtifacts(text: string): string {
+  return text
+    // Remove leading OCR artifacts (pipes, brackets, etc.)
+    .replace(/^[\|\[\]\(\)\{\}\/\\]+\s*/, "")
+    // Remove trailing OCR artifacts
+    .replace(/\s*[\|\[\]\(\)\{\}\/\\]+$/, "")
+    // Fix common OCR letter substitutions at start (lowercase after artifact)
+    .replace(/^([a-z])/, (match) => match.toUpperCase());
+}
+
+/**
+ * Normalize text for matching (case-insensitive, collapse whitespace, strip artifacts)
  */
 function normalizeText(text: string): string {
-  return text
+  return stripOcrArtifacts(text)
     .toUpperCase()
     .replace(/\s+/g, " ")
     .trim();
