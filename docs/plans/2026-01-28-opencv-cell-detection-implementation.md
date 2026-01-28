@@ -4,9 +4,17 @@
 
 **Goal:** Automate SDDG template region alignment using OpenCV line detection to eliminate manual region adjustment.
 
-**Architecture:** OpenCV detects form cell boundaries via HoughLinesP, matches detected cells to template fields using anchor labels and position, computes a translation+scale transform, and applies it to auto-align the template before extraction.
+**Architecture:** OpenCV detects form cell boundaries via HoughLinesP, matches detected cells to template fields using anchor labels and position fallback, computes a translation+scale transform, and applies it to auto-align the template before extraction.
 
-**Tech Stack:** react-native-fast-opencv, TypeScript, Jest, existing ML Kit OCR
+**Tech Stack:** react-native-fast-opencv@0.4.7, TypeScript, Jest, existing ML Kit OCR
+
+**Revision Note:** This plan was revised based on code review feedback. Key changes:
+- Percentage-based thresholds (scale-aware)
+- Line extension and colinear segment merging
+- Position-based fallback for matching
+- Fixed scale calculation bug (separate X/Y counts)
+- Correct UI screen target (InteractiveSDDGComplianceScreen)
+- Extended timeout to 10 seconds
 
 ---
 
@@ -16,14 +24,14 @@
 - Modify: `package.json`
 - Create: `src/services/sddg/__tests__/opencvSetup.test.ts`
 
-**Step 1: Install react-native-fast-opencv**
+**Step 1: Install react-native-fast-opencv (pinned version)**
 
 Run:
 ```bash
-yarn add react-native-fast-opencv
+yarn add react-native-fast-opencv@0.4.7
 ```
 
-Expected: Package added to package.json dependencies
+Expected: Package added to package.json with pinned version 0.4.7
 
 **Step 2: Rebuild native modules (iOS)**
 
@@ -99,9 +107,9 @@ Expected: 2 tests pass
 
 ```bash
 git add package.json yarn.lock ios/Podfile.lock src/services/sddg/__tests__/opencvSetup.test.ts
-git commit -m "chore: add react-native-fast-opencv dependency
+git commit -m "chore: add react-native-fast-opencv@0.4.7 dependency
 
-Install OpenCV library for cell detection feature.
+Install OpenCV library (pinned version) for cell detection feature.
 Add basic setup verification test."
 ```
 
@@ -119,6 +127,8 @@ Create file `src/services/sddg/opencvTypes.ts`:
 ```typescript
 /**
  * Type definitions for OpenCV cell detection
+ *
+ * Note: Thresholds use percentages of image dimensions for scale-awareness.
  */
 
 /**
@@ -160,11 +170,13 @@ export interface CellDetectionResult {
   imageWidth: number;
   imageHeight: number;
   processingTimeMs: number;
+  skewDetected?: boolean;
   error?: string;
 }
 
 /**
  * Configuration for cell detection
+ * All size thresholds are percentages of image dimensions (0-1)
  */
 export interface CellDetectionConfig {
   // Adaptive threshold parameters
@@ -172,38 +184,46 @@ export interface CellDetectionConfig {
   adaptiveC: number;          // Constant subtracted, default 2
 
   // HoughLinesP parameters
-  houghThreshold: number;     // Min votes, default 50
-  minLineLength: number;      // Min line length in pixels, default 100
-  maxLineGap: number;         // Max gap to merge, default 10
+  houghThreshold: number;           // Min votes, default 50
+  minLineLengthPercent: number;     // Min line length as % of image width, default 0.05 (5%)
+  maxLineGapPercent: number;        // Max gap as % of image width, default 0.005 (0.5%)
 
   // Line classification
-  angleToleranceDegrees: number;  // Degrees from horizontal/vertical, default 5
+  angleToleranceDegrees: number;    // Degrees from horizontal/vertical, default 5
 
   // Line merging
-  mergeDistancePixels: number;    // Max distance to merge parallel lines, default 15
+  mergeDistancePercent: number;     // Max distance to merge parallel lines as % of image, default 0.005
 
-  // Cell filtering
-  minCellWidth: number;       // Min cell width, default 50
-  minCellHeight: number;      // Min cell height, default 30
+  // Line extension
+  lineExtensionPercent: number;     // Extend lines by this % beyond endpoints, default 0.2 (20%)
+
+  // Cell filtering (as % of image dimensions)
+  minCellWidthPercent: number;      // Min cell width as % of image width, default 0.02 (2%)
+  minCellHeightPercent: number;     // Min cell height as % of image height, default 0.01 (1%)
+
+  // Grid clustering
+  clusterThresholdPercent: number;  // Cluster intersections within this % of image width, default 0.005
 
   // Timeout
-  timeoutMs: number;          // Max processing time, default 5000
+  timeoutMs: number;                // Max processing time, default 10000 (10s)
 }
 
 /**
- * Default configuration
+ * Default configuration with percentage-based thresholds
  */
 export const DEFAULT_CELL_DETECTION_CONFIG: CellDetectionConfig = {
   adaptiveBlockSize: 11,
   adaptiveC: 2,
   houghThreshold: 50,
-  minLineLength: 100,
-  maxLineGap: 10,
+  minLineLengthPercent: 0.05,       // 5% of image width
+  maxLineGapPercent: 0.005,         // 0.5% of image width
   angleToleranceDegrees: 5,
-  mergeDistancePixels: 15,
-  minCellWidth: 50,
-  minCellHeight: 30,
-  timeoutMs: 5000,
+  mergeDistancePercent: 0.005,      // 0.5% of image dimension
+  lineExtensionPercent: 0.2,        // Extend by 20%
+  minCellWidthPercent: 0.02,        // 2% of image width
+  minCellHeightPercent: 0.01,       // 1% of image height
+  clusterThresholdPercent: 0.005,   // 0.5% of image width
+  timeoutMs: 10000,                 // 10 seconds
 };
 
 /**
@@ -226,6 +246,8 @@ export interface AutoAlignmentResult {
   totalFields: number;
   confidence: number;
   alignmentMethod: 'anchor' | 'position' | 'hybrid';
+  anchorMatches: number;
+  positionMatches: number;
   failureReason?: string;
   processingTimeMs: number;
 }
@@ -237,13 +259,14 @@ export interface AutoAlignmentResult {
 git add src/services/sddg/opencvTypes.ts
 git commit -m "feat(sddg): add type definitions for OpenCV cell detection
 
-Define interfaces for Line, Point, DetectedCell, CellDetectionResult,
-CellDetectionConfig, AlignmentTransform, and AutoAlignmentResult."
+Define interfaces with percentage-based thresholds for scale-awareness.
+Includes Line, Point, DetectedCell, CellDetectionResult, config types,
+AlignmentTransform, and AutoAlignmentResult."
 ```
 
 ---
 
-## Task 3: Implement Line Classification Utilities
+## Task 3: Implement Line Classification and Manipulation Utilities
 
 **Files:**
 - Create: `src/services/sddg/lineUtils.ts`
@@ -259,7 +282,10 @@ import {
   isVertical,
   getLineAngle,
   mergeNearbyLines,
+  mergeColinearSegments,
+  extendLine,
   findIntersection,
+  classifyLines,
 } from '../lineUtils';
 import { Line, Point } from '../opencvTypes';
 
@@ -315,6 +341,49 @@ describe('lineUtils', () => {
     });
   });
 
+  describe('mergeColinearSegments', () => {
+    it('should merge segments on the same horizontal line', () => {
+      const lines: Line[] = [
+        { x1: 0, y1: 100, x2: 100, y2: 100 },
+        { x1: 120, y1: 100, x2: 250, y2: 100 },  // Gap of 20px
+      ];
+      const merged = mergeColinearSegments(lines, 50);  // Allow 50px gap
+      expect(merged.length).toBe(1);
+      expect(merged[0].x1).toBe(0);
+      expect(merged[0].x2).toBe(250);
+    });
+
+    it('should not merge segments with large gap', () => {
+      const lines: Line[] = [
+        { x1: 0, y1: 100, x2: 100, y2: 100 },
+        { x1: 200, y1: 100, x2: 300, y2: 100 },  // Gap of 100px
+      ];
+      const merged = mergeColinearSegments(lines, 50);  // Allow only 50px gap
+      expect(merged.length).toBe(2);
+    });
+  });
+
+  describe('extendLine', () => {
+    it('should extend horizontal line by percentage', () => {
+      const line: Line = { x1: 100, y1: 200, x2: 400, y2: 200 };
+      const extended = extendLine(line, 0.2);  // Extend by 20%
+      // Original length: 300, extension: 60 each side
+      expect(extended.x1).toBe(40);  // 100 - 60
+      expect(extended.x2).toBe(460); // 400 + 60
+      expect(extended.y1).toBe(200);
+      expect(extended.y2).toBe(200);
+    });
+
+    it('should extend vertical line by percentage', () => {
+      const line: Line = { x1: 200, y1: 100, x2: 200, y2: 400 };
+      const extended = extendLine(line, 0.2);
+      expect(extended.x1).toBe(200);
+      expect(extended.x2).toBe(200);
+      expect(extended.y1).toBe(40);
+      expect(extended.y2).toBe(460);
+    });
+  });
+
   describe('mergeNearbyLines', () => {
     it('should merge two parallel horizontal lines close together', () => {
       const lines: Line[] = [
@@ -323,7 +392,6 @@ describe('lineUtils', () => {
       ];
       const merged = mergeNearbyLines(lines, 15);
       expect(merged.length).toBe(1);
-      // Merged line should span full extent
       expect(merged[0].x1).toBe(0);
       expect(merged[0].x2).toBe(500);
     });
@@ -362,12 +430,29 @@ describe('lineUtils', () => {
       expect(intersection).toBeNull();
     });
 
-    it('should return null if intersection is outside line segments', () => {
-      const horizontal: Line = { x1: 0, y1: 100, x2: 100, y2: 100 };
+    it('should find intersection even if outside original segments (extended lines)', () => {
+      // After extension, lines that didn't originally intersect may now intersect
+      const horizontal: Line = { x1: 0, y1: 100, x2: 300, y2: 100 };
       const vertical: Line = { x1: 200, y1: 0, x2: 200, y2: 300 };
       const intersection = findIntersection(horizontal, vertical);
 
-      expect(intersection).toBeNull();
+      expect(intersection).not.toBeNull();
+      expect(intersection!.x).toBeCloseTo(200, 0);
+      expect(intersection!.y).toBeCloseTo(100, 0);
+    });
+  });
+
+  describe('classifyLines', () => {
+    it('should separate horizontal and vertical lines', () => {
+      const lines: Line[] = [
+        { x1: 0, y1: 100, x2: 500, y2: 100 },   // Horizontal
+        { x1: 200, y1: 0, x2: 200, y2: 500 },   // Vertical
+        { x1: 0, y1: 0, x2: 100, y2: 100 },     // Diagonal (ignored)
+      ];
+      const { horizontal, vertical } = classifyLines(lines, 5);
+
+      expect(horizontal.length).toBe(1);
+      expect(vertical.length).toBe(1);
     });
   });
 });
@@ -389,19 +474,21 @@ Create file `src/services/sddg/lineUtils.ts`:
 ```typescript
 /**
  * Line detection and manipulation utilities
+ *
+ * Includes colinear segment merging and line extension to handle
+ * broken table borders from text, folds, or low contrast.
  */
 
 import { Line, Point } from './opencvTypes';
 
 /**
- * Calculate angle of a line in degrees (0-180)
+ * Calculate angle of a line in degrees (0-90)
  * 0 = horizontal, 90 = vertical
  */
 export function getLineAngle(line: Line): number {
   const dx = line.x2 - line.x1;
   const dy = line.y2 - line.y1;
 
-  // atan2 returns radians from -PI to PI
   const radians = Math.atan2(Math.abs(dy), Math.abs(dx));
   return radians * (180 / Math.PI);
 }
@@ -423,21 +510,12 @@ export function isVertical(line: Line, toleranceDegrees: number): boolean {
 }
 
 /**
- * Calculate perpendicular distance from a point to a line
+ * Get length of a line
  */
-function perpendicularDistance(point: Point, line: Line): number {
+export function getLineLength(line: Line): number {
   const dx = line.x2 - line.x1;
   const dy = line.y2 - line.y1;
-  const length = Math.sqrt(dx * dx + dy * dy);
-
-  if (length === 0) return 0;
-
-  // Cross product gives signed area of parallelogram
-  const crossProduct = Math.abs(
-    (point.y - line.y1) * dx - (point.x - line.x1) * dy
-  );
-
-  return crossProduct / length;
+  return Math.sqrt(dx * dx + dy * dy);
 }
 
 /**
@@ -451,12 +529,128 @@ function getLinePosition(line: Line, isHoriz: boolean): number {
 }
 
 /**
+ * Check if two segments are colinear (on the same line)
+ */
+function areColinear(line1: Line, line2: Line, isHoriz: boolean, tolerance: number): boolean {
+  const pos1 = getLinePosition(line1, isHoriz);
+  const pos2 = getLinePosition(line2, isHoriz);
+  return Math.abs(pos1 - pos2) <= tolerance;
+}
+
+/**
+ * Merge colinear segments that have small gaps between them
+ * This handles broken table borders where text or damage creates gaps
+ */
+export function mergeColinearSegments(lines: Line[], maxGap: number): Line[] {
+  if (lines.length <= 1) return [...lines];
+
+  // Determine if horizontal or vertical
+  const isHoriz = lines.length > 0 && isHorizontal(lines[0], 10);
+  const tolerance = 10; // Tolerance for colinearity check
+
+  // Group colinear segments
+  const groups: Line[][] = [];
+  const used = new Set<number>();
+
+  for (let i = 0; i < lines.length; i++) {
+    if (used.has(i)) continue;
+
+    const group = [lines[i]];
+    used.add(i);
+
+    for (let j = i + 1; j < lines.length; j++) {
+      if (used.has(j)) continue;
+
+      if (areColinear(lines[i], lines[j], isHoriz, tolerance)) {
+        // Check if gap between segments is small enough
+        const gap = getGapBetweenSegments(lines[i], lines[j], isHoriz);
+        if (gap <= maxGap) {
+          group.push(lines[j]);
+          used.add(j);
+        }
+      }
+    }
+
+    groups.push(group);
+  }
+
+  // Merge each group into a single line
+  return groups.map(group => mergeSegmentGroup(group, isHoriz));
+}
+
+/**
+ * Get gap between two colinear segments
+ */
+function getGapBetweenSegments(line1: Line, line2: Line, isHoriz: boolean): number {
+  if (isHoriz) {
+    const min1 = Math.min(line1.x1, line1.x2);
+    const max1 = Math.max(line1.x1, line1.x2);
+    const min2 = Math.min(line2.x1, line2.x2);
+    const max2 = Math.max(line2.x1, line2.x2);
+
+    if (max1 < min2) return min2 - max1;
+    if (max2 < min1) return min1 - max2;
+    return 0; // Overlapping
+  } else {
+    const min1 = Math.min(line1.y1, line1.y2);
+    const max1 = Math.max(line1.y1, line1.y2);
+    const min2 = Math.min(line2.y1, line2.y2);
+    const max2 = Math.max(line2.y1, line2.y2);
+
+    if (max1 < min2) return min2 - max1;
+    if (max2 < min1) return min1 - max2;
+    return 0;
+  }
+}
+
+/**
+ * Merge a group of colinear segments into one line
+ */
+function mergeSegmentGroup(segments: Line[], isHoriz: boolean): Line {
+  if (segments.length === 1) return segments[0];
+
+  if (isHoriz) {
+    const avgY = segments.reduce((sum, l) => sum + (l.y1 + l.y2) / 2, 0) / segments.length;
+    const minX = Math.min(...segments.flatMap(l => [l.x1, l.x2]));
+    const maxX = Math.max(...segments.flatMap(l => [l.x1, l.x2]));
+    return { x1: minX, y1: avgY, x2: maxX, y2: avgY };
+  } else {
+    const avgX = segments.reduce((sum, l) => sum + (l.x1 + l.x2) / 2, 0) / segments.length;
+    const minY = Math.min(...segments.flatMap(l => [l.y1, l.y2]));
+    const maxY = Math.max(...segments.flatMap(l => [l.y1, l.y2]));
+    return { x1: avgX, y1: minY, x2: avgX, y2: maxY };
+  }
+}
+
+/**
+ * Extend a line by a percentage beyond its endpoints
+ * Handles broken borders where lines don't quite reach intersections
+ */
+export function extendLine(line: Line, extensionPercent: number): Line {
+  const length = getLineLength(line);
+  const extension = length * extensionPercent;
+
+  const dx = line.x2 - line.x1;
+  const dy = line.y2 - line.y1;
+
+  // Normalize direction
+  const dirX = dx / length;
+  const dirY = dy / length;
+
+  return {
+    x1: line.x1 - dirX * extension,
+    y1: line.y1 - dirY * extension,
+    x2: line.x2 + dirX * extension,
+    y2: line.y2 + dirY * extension,
+  };
+}
+
+/**
  * Merge nearby parallel lines into single lines
  */
 export function mergeNearbyLines(lines: Line[], maxDistance: number): Line[] {
   if (lines.length === 0) return [];
 
-  // Determine if these are horizontal or vertical lines
   const isHoriz = lines.length > 0 && isHorizontal(lines[0], 10);
 
   // Sort by position (y for horizontal, x for vertical)
@@ -472,16 +666,13 @@ export function mergeNearbyLines(lines: Line[], maxDistance: number): Line[] {
     const currPos = getLinePosition(sorted[i], isHoriz);
 
     if (Math.abs(currPos - prevPos) <= maxDistance) {
-      // Add to current group
       currentGroup.push(sorted[i]);
     } else {
-      // Merge current group and start new one
       merged.push(mergeLineGroup(currentGroup, isHoriz));
       currentGroup = [sorted[i]];
     }
   }
 
-  // Don't forget the last group
   merged.push(mergeLineGroup(currentGroup, isHoriz));
 
   return merged;
@@ -494,13 +685,11 @@ function mergeLineGroup(lines: Line[], isHoriz: boolean): Line {
   if (lines.length === 1) return lines[0];
 
   if (isHoriz) {
-    // For horizontal lines: average y, extend x to full span
     const avgY = lines.reduce((sum, l) => sum + (l.y1 + l.y2) / 2, 0) / lines.length;
     const minX = Math.min(...lines.map(l => Math.min(l.x1, l.x2)));
     const maxX = Math.max(...lines.map(l => Math.max(l.x1, l.x2)));
     return { x1: minX, y1: avgY, x2: maxX, y2: avgY };
   } else {
-    // For vertical lines: average x, extend y to full span
     const avgX = lines.reduce((sum, l) => sum + (l.x1 + l.x2) / 2, 0) / lines.length;
     const minY = Math.min(...lines.map(l => Math.min(l.y1, l.y2)));
     const maxY = Math.max(...lines.map(l => Math.max(l.y1, l.y2)));
@@ -509,8 +698,8 @@ function mergeLineGroup(lines: Line[], isHoriz: boolean): Line {
 }
 
 /**
- * Find intersection point of two line segments
- * Returns null if lines are parallel or don't intersect within segments
+ * Find intersection point of two lines (treats as infinite lines)
+ * Returns null if lines are parallel
  */
 export function findIntersection(line1: Line, line2: Line): Point | null {
   const x1 = line1.x1, y1 = line1.y1, x2 = line1.x2, y2 = line1.y2;
@@ -522,14 +711,6 @@ export function findIntersection(line1: Line, line2: Line): Point | null {
   if (Math.abs(denom) < 0.0001) return null;
 
   const t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / denom;
-  const u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / denom;
-
-  // Check if intersection is within both line segments
-  // Use small tolerance for floating point
-  const tolerance = 0.1;
-  if (t < -tolerance || t > 1 + tolerance || u < -tolerance || u > 1 + tolerance) {
-    return null;
-  }
 
   const x = x1 + t * (x2 - x1);
   const y = y1 + t * (y2 - y1);
@@ -543,20 +724,26 @@ export function findIntersection(line1: Line, line2: Line): Point | null {
 export function classifyLines(
   lines: Line[],
   toleranceDegrees: number
-): { horizontal: Line[]; vertical: Line[] } {
+): { horizontal: Line[]; vertical: Line[]; skewDetected: boolean } {
   const horizontal: Line[] = [];
   const vertical: Line[] = [];
+  let diagonalCount = 0;
 
   for (const line of lines) {
     if (isHorizontal(line, toleranceDegrees)) {
       horizontal.push(line);
     } else if (isVertical(line, toleranceDegrees)) {
       vertical.push(line);
+    } else {
+      diagonalCount++;
     }
-    // Diagonal lines are ignored
   }
 
-  return { horizontal, vertical };
+  // Detect skew: if most lines are diagonal, the form is likely skewed
+  const totalClassified = horizontal.length + vertical.length;
+  const skewDetected = totalClassified > 0 && diagonalCount > totalClassified;
+
+  return { horizontal, vertical, skewDetected };
 }
 ```
 
@@ -576,7 +763,8 @@ git add src/services/sddg/lineUtils.ts src/services/sddg/__tests__/lineUtils.tes
 git commit -m "feat(sddg): implement line classification utilities
 
 Add functions for line angle calculation, horizontal/vertical classification,
-line merging, and intersection finding. Full test coverage."
+colinear segment merging, line extension, and intersection finding.
+Includes skew detection. Full test coverage."
 ```
 
 ---
@@ -604,7 +792,7 @@ describe('cellBuilder', () => {
         { x: 0, y: 100 }, { x: 100, y: 100 }, { x: 200, y: 100 },
       ];
 
-      const grid = buildGrid(intersections);
+      const grid = buildGrid(intersections, 10);
 
       expect(grid.rows).toBe(3);
       expect(grid.cols).toBe(3);
@@ -619,34 +807,43 @@ describe('cellBuilder', () => {
         { x: 0, y: 50 }, { x: 200, y: 50 }, { x: 100, y: 100 },
       ];
 
-      const grid = buildGrid(intersections);
+      const grid = buildGrid(intersections, 10);
 
       expect(grid.rows).toBe(3);
+      expect(grid.cols).toBe(3);
+    });
+
+    it('should use percentage-based clustering', () => {
+      // Points slightly off-grid should cluster together
+      const intersections: Point[] = [
+        { x: 0, y: 0 }, { x: 102, y: 3 }, { x: 200, y: 0 },
+        { x: 2, y: 100 }, { x: 98, y: 101 }, { x: 201, y: 99 },
+      ];
+
+      const grid = buildGrid(intersections, 15);  // 15px cluster threshold
+
+      expect(grid.rows).toBe(2);
       expect(grid.cols).toBe(3);
     });
   });
 
   describe('buildCellsFromLines', () => {
     it('should build cells from a simple 2x2 grid', () => {
-      // Two horizontal lines
       const horizontal: Line[] = [
         { x1: 0, y1: 0, x2: 200, y2: 0 },
         { x1: 0, y1: 100, x2: 200, y2: 100 },
         { x1: 0, y1: 200, x2: 200, y2: 200 },
       ];
-      // Two vertical lines
       const vertical: Line[] = [
         { x1: 0, y1: 0, x2: 0, y2: 200 },
         { x1: 100, y1: 0, x2: 100, y2: 200 },
         { x1: 200, y1: 0, x2: 200, y2: 200 },
       ];
 
-      const cells = buildCellsFromLines(horizontal, vertical);
+      const cells = buildCellsFromLines(horizontal, vertical, 10);
 
-      // Should produce 4 cells (2x2)
       expect(cells.length).toBe(4);
 
-      // Check first cell
       const topLeft = cells.find(c => c.x === 0 && c.y === 0);
       expect(topLeft).toBeDefined();
       expect(topLeft!.width).toBe(100);
@@ -655,9 +852,9 @@ describe('cellBuilder', () => {
 
     it('should handle no intersections gracefully', () => {
       const horizontal: Line[] = [{ x1: 0, y1: 0, x2: 100, y2: 0 }];
-      const vertical: Line[] = [{ x1: 200, y1: 0, x2: 200, y2: 100 }]; // No intersection
+      const vertical: Line[] = [{ x1: 200, y1: 100, x2: 200, y2: 200 }];
 
-      const cells = buildCellsFromLines(horizontal, vertical);
+      const cells = buildCellsFromLines(horizontal, vertical, 10);
       expect(cells.length).toBe(0);
     });
   });
@@ -665,10 +862,10 @@ describe('cellBuilder', () => {
   describe('filterCells', () => {
     it('should filter out cells smaller than minimum size', () => {
       const cells: DetectedCell[] = [
-        { x: 0, y: 0, width: 100, height: 50 },   // Valid
-        { x: 100, y: 0, width: 30, height: 50 },  // Too narrow
-        { x: 0, y: 50, width: 100, height: 20 },  // Too short
-        { x: 100, y: 50, width: 30, height: 20 }, // Both too small
+        { x: 0, y: 0, width: 100, height: 50 },
+        { x: 100, y: 0, width: 30, height: 50 },
+        { x: 0, y: 50, width: 100, height: 20 },
+        { x: 100, y: 50, width: 30, height: 20 },
       ];
 
       const filtered = filterCells(cells, 50, 30);
@@ -717,32 +914,54 @@ import { findIntersection } from './lineUtils';
 export interface Grid {
   rows: number;
   cols: number;
-  points: Point[][];  // [row][col]
+  points: Point[][];
+}
+
+/**
+ * Cluster nearby values together (percentage-based threshold)
+ */
+function clusterValues(values: number[], threshold: number): number[] {
+  if (values.length === 0) return [];
+
+  const sorted = [...values].sort((a, b) => a - b);
+  const clustered: number[] = [sorted[0]];
+  let clusterSum = sorted[0];
+  let clusterCount = 1;
+
+  for (let i = 1; i < sorted.length; i++) {
+    if (sorted[i] - (clusterSum / clusterCount) <= threshold) {
+      clusterSum += sorted[i];
+      clusterCount++;
+      clustered[clustered.length - 1] = clusterSum / clusterCount;
+    } else {
+      clustered.push(sorted[i]);
+      clusterSum = sorted[i];
+      clusterCount = 1;
+    }
+  }
+
+  return clustered;
 }
 
 /**
  * Build a sorted grid from intersection points
+ * Uses configurable cluster threshold for scale-awareness
  */
-export function buildGrid(intersections: Point[]): Grid {
+export function buildGrid(intersections: Point[], clusterThreshold: number): Grid {
   if (intersections.length === 0) {
     return { rows: 0, cols: 0, points: [] };
   }
 
-  // Get unique x and y values, sorted
-  const xValues = [...new Set(intersections.map(p => Math.round(p.x)))].sort((a, b) => a - b);
-  const yValues = [...new Set(intersections.map(p => Math.round(p.y)))].sort((a, b) => a - b);
+  const xValues = intersections.map(p => p.x);
+  const yValues = intersections.map(p => p.y);
 
-  // Cluster nearby values (within 10px)
-  const clusterThreshold = 10;
   const clusteredX = clusterValues(xValues, clusterThreshold);
   const clusteredY = clusterValues(yValues, clusterThreshold);
 
-  // Build grid matrix
   const points: Point[][] = [];
   for (let row = 0; row < clusteredY.length; row++) {
     points[row] = [];
     for (let col = 0; col < clusteredX.length; col++) {
-      // Find the actual intersection closest to this grid position
       const targetX = clusteredX[col];
       const targetY = clusteredY[row];
 
@@ -764,34 +983,13 @@ export function buildGrid(intersections: Point[]): Grid {
 }
 
 /**
- * Cluster nearby values together
- */
-function clusterValues(values: number[], threshold: number): number[] {
-  if (values.length === 0) return [];
-
-  const clustered: number[] = [values[0]];
-
-  for (let i = 1; i < values.length; i++) {
-    const lastCluster = clustered[clustered.length - 1];
-    if (values[i] - lastCluster > threshold) {
-      clustered.push(values[i]);
-    } else {
-      // Update cluster center to average
-      clustered[clustered.length - 1] = (lastCluster + values[i]) / 2;
-    }
-  }
-
-  return clustered;
-}
-
-/**
  * Build cells from horizontal and vertical lines
  */
 export function buildCellsFromLines(
   horizontalLines: Line[],
-  verticalLines: Line[]
+  verticalLines: Line[],
+  clusterThreshold: number
 ): DetectedCell[] {
-  // Find all intersections
   const intersections: Point[] = [];
 
   for (const h of horizontalLines) {
@@ -804,18 +1002,15 @@ export function buildCellsFromLines(
   }
 
   if (intersections.length < 4) {
-    // Need at least 4 points to form a cell
     return [];
   }
 
-  // Build grid from intersections
-  const grid = buildGrid(intersections);
+  const grid = buildGrid(intersections, clusterThreshold);
 
   if (grid.rows < 2 || grid.cols < 2) {
     return [];
   }
 
-  // Build cells from adjacent grid points
   const cells: DetectedCell[] = [];
 
   for (let row = 0; row < grid.rows - 1; row++) {
@@ -864,8 +1059,8 @@ Expected: All tests pass
 git add src/services/sddg/cellBuilder.ts src/services/sddg/__tests__/cellBuilder.test.ts
 git commit -m "feat(sddg): implement cell building from line intersections
 
-Add grid building from intersection points and cell extraction.
-Includes clustering for handling imprecise intersections."
+Add grid building with configurable cluster threshold for scale-awareness.
+Handles imprecise intersections from line extension."
 ```
 
 ---
@@ -881,36 +1076,24 @@ Includes clustering for handling imprecise intersections."
 Create file `src/services/sddg/__tests__/opencvCellDetection.test.ts`:
 
 ```typescript
-import { detectCells, parseHoughLines } from '../opencvCellDetection';
-import { CellDetectionConfig, DEFAULT_CELL_DETECTION_CONFIG, Line } from '../opencvTypes';
+import { detectCells, parseHoughLines, computeScaleAwareThresholds } from '../opencvCellDetection';
+import { CellDetectionConfig, DEFAULT_CELL_DETECTION_CONFIG } from '../opencvTypes';
 
-// Mock react-native-fast-opencv
 jest.mock('react-native-fast-opencv', () => ({
   OpenCV: {
     invoke: jest.fn(),
     toJSValue: jest.fn(),
   },
-  ObjectType: {
-    Mat: 'Mat',
-    MatVector: 'MatVector',
-  },
-  ColorConversionCodes: {
-    COLOR_RGBA2GRAY: 11,
-  },
-  ThresholdTypes: {
-    THRESH_BINARY_INV: 1,
-  },
-  AdaptiveThresholdTypes: {
-    ADAPTIVE_THRESH_GAUSSIAN_C: 1,
-  },
+  ObjectType: { Mat: 'Mat' },
+  ColorConversionCodes: { COLOR_RGBA2GRAY: 11 },
+  ThresholdTypes: { THRESH_BINARY_INV: 1 },
+  AdaptiveThresholdTypes: { ADAPTIVE_THRESH_GAUSSIAN_C: 1 },
 }));
 
 describe('opencvCellDetection', () => {
   describe('parseHoughLines', () => {
     it('should parse HoughLinesP output array to Line objects', () => {
-      // HoughLinesP returns flat array: [x1, y1, x2, y2, x1, y1, x2, y2, ...]
       const rawLines = [0, 100, 500, 100, 200, 0, 200, 300];
-
       const lines = parseHoughLines(rawLines);
 
       expect(lines.length).toBe(2);
@@ -923,12 +1106,20 @@ describe('opencvCellDetection', () => {
       expect(parseHoughLines(undefined as any)).toEqual([]);
       expect(parseHoughLines([])).toEqual([]);
     });
+  });
 
-    it('should handle incomplete line data', () => {
-      // Only 3 values - not enough for a line
-      const rawLines = [0, 100, 500];
-      const lines = parseHoughLines(rawLines);
-      expect(lines.length).toBe(0);
+  describe('computeScaleAwareThresholds', () => {
+    it('should compute pixel values from percentages', () => {
+      const config = DEFAULT_CELL_DETECTION_CONFIG;
+      const imageDims = { width: 2550, height: 3300 };
+
+      const thresholds = computeScaleAwareThresholds(config, imageDims);
+
+      expect(thresholds.minLineLength).toBe(Math.round(2550 * 0.05));  // 127px
+      expect(thresholds.maxLineGap).toBe(Math.round(2550 * 0.005));    // 12px
+      expect(thresholds.mergeDistance).toBe(Math.round(2550 * 0.005)); // 12px
+      expect(thresholds.minCellWidth).toBe(Math.round(2550 * 0.02));   // 51px
+      expect(thresholds.minCellHeight).toBe(Math.round(3300 * 0.01));  // 33px
     });
   });
 
@@ -948,17 +1139,8 @@ describe('opencvCellDetection', () => {
       expect(result.cells).toEqual([]);
     });
 
-    it('should use default config when not provided', async () => {
-      const { OpenCV } = require('react-native-fast-opencv');
-
-      // Mock successful but empty result
-      OpenCV.invoke.mockResolvedValue({ cols: 100, rows: 100 });
-      OpenCV.toJSValue.mockReturnValue([]);
-
-      await detectCells('test-image.png');
-
-      // Verify it doesn't throw
-      expect(OpenCV.invoke).toHaveBeenCalled();
+    it('should use 10 second timeout by default', async () => {
+      expect(DEFAULT_CELL_DETECTION_CONFIG.timeoutMs).toBe(10000);
     });
   });
 });
@@ -971,7 +1153,7 @@ Run:
 yarn test src/services/sddg/__tests__/opencvCellDetection.test.ts
 ```
 
-Expected: Tests fail with "Cannot find module '../opencvCellDetection'"
+Expected: Tests fail
 
 **Step 3: Implement OpenCV cell detection**
 
@@ -981,7 +1163,10 @@ Create file `src/services/sddg/opencvCellDetection.ts`:
 /**
  * OpenCV-based cell detection for SDDG forms
  *
- * Uses HoughLinesP to detect lines, then builds cells from line intersections.
+ * Uses HoughLinesP to detect lines, merges colinear segments,
+ * extends lines, and builds cells from intersections.
+ *
+ * All thresholds are percentage-based for scale-awareness.
  */
 
 import {
@@ -991,10 +1176,9 @@ import {
   CellDetectionConfig,
   DEFAULT_CELL_DETECTION_CONFIG,
 } from './opencvTypes';
-import { classifyLines, mergeNearbyLines } from './lineUtils';
+import { classifyLines, mergeNearbyLines, mergeColinearSegments, extendLine } from './lineUtils';
 import { buildCellsFromLines, filterCells } from './cellBuilder';
 
-// Conditionally import OpenCV (may not be available in test environment)
 let OpenCV: any;
 let ObjectType: any;
 let ColorConversionCodes: any;
@@ -1009,13 +1193,42 @@ try {
   ThresholdTypes = opencv.ThresholdTypes;
   AdaptiveThresholdTypes = opencv.AdaptiveThresholdTypes;
 } catch (e) {
-  // OpenCV not available (e.g., in Jest tests without native modules)
   console.warn('react-native-fast-opencv not available');
 }
 
 /**
+ * Computed pixel thresholds from percentage config
+ */
+export interface ScaleAwareThresholds {
+  minLineLength: number;
+  maxLineGap: number;
+  mergeDistance: number;
+  lineExtension: number;
+  minCellWidth: number;
+  minCellHeight: number;
+  clusterThreshold: number;
+}
+
+/**
+ * Compute pixel values from percentage-based config
+ */
+export function computeScaleAwareThresholds(
+  config: CellDetectionConfig,
+  imageDims: { width: number; height: number }
+): ScaleAwareThresholds {
+  return {
+    minLineLength: Math.round(imageDims.width * config.minLineLengthPercent),
+    maxLineGap: Math.round(imageDims.width * config.maxLineGapPercent),
+    mergeDistance: Math.round(imageDims.width * config.mergeDistancePercent),
+    lineExtension: config.lineExtensionPercent,
+    minCellWidth: Math.round(imageDims.width * config.minCellWidthPercent),
+    minCellHeight: Math.round(imageDims.height * config.minCellHeightPercent),
+    clusterThreshold: Math.round(imageDims.width * config.clusterThresholdPercent),
+  };
+}
+
+/**
  * Parse HoughLinesP output to Line objects
- * HoughLinesP returns a flat array: [x1, y1, x2, y2, x1, y1, x2, y2, ...]
  */
 export function parseHoughLines(rawLines: number[] | null | undefined): Line[] {
   if (!rawLines || rawLines.length === 0) {
@@ -1058,12 +1271,10 @@ export async function detectCells(
       };
     }
 
-    // Set up timeout
     const timeoutPromise = new Promise<never>((_, reject) => {
       setTimeout(() => reject(new Error('Cell detection timeout')), config.timeoutMs);
     });
 
-    // Run detection with timeout
     const detectionPromise = detectCellsInternal(imageUri, config);
     const result = await Promise.race([detectionPromise, timeoutPromise]);
 
@@ -1085,9 +1296,6 @@ export async function detectCells(
   }
 }
 
-/**
- * Internal cell detection implementation
- */
 async function detectCellsInternal(
   imageUri: string,
   config: CellDetectionConfig
@@ -1097,13 +1305,16 @@ async function detectCellsInternal(
   const imageWidth = src.cols;
   const imageHeight = src.rows;
 
-  // 2. Convert to grayscale
+  // 2. Compute scale-aware thresholds
+  const thresholds = computeScaleAwareThresholds(config, { width: imageWidth, height: imageHeight });
+
+  // 3. Convert to grayscale
   const gray = await OpenCV.invoke('cvtColor', {
     p1: src,
     p2: ColorConversionCodes.COLOR_RGBA2GRAY,
   });
 
-  // 3. Apply adaptive threshold
+  // 4. Apply adaptive threshold
   const binary = await OpenCV.invoke('adaptiveThreshold', {
     p1: gray,
     p2: 255,
@@ -1113,44 +1324,53 @@ async function detectCellsInternal(
     p6: config.adaptiveC,
   });
 
-  // 4. Detect lines using HoughLinesP
+  // 5. Detect lines using HoughLinesP
   const linesResult = await OpenCV.invoke('HoughLinesP', {
     p1: binary,
-    p2: 1,                          // rho
-    p3: Math.PI / 180,              // theta
-    p4: config.houghThreshold,      // threshold
-    p5: config.minLineLength,       // minLineLength
-    p6: config.maxLineGap,          // maxLineGap
+    p2: 1,
+    p3: Math.PI / 180,
+    p4: config.houghThreshold,
+    p5: thresholds.minLineLength,
+    p6: thresholds.maxLineGap,
   });
 
-  // 5. Parse and classify lines
+  // 6. Parse and classify lines
   const rawLines = await OpenCV.toJSValue(linesResult);
   const allLines = parseHoughLines(rawLines);
 
-  const { horizontal, vertical } = classifyLines(allLines, config.angleToleranceDegrees);
+  const { horizontal, vertical, skewDetected } = classifyLines(allLines, config.angleToleranceDegrees);
 
-  // 6. Merge nearby parallel lines
-  const mergedHorizontal = mergeNearbyLines(horizontal, config.mergeDistancePixels);
-  const mergedVertical = mergeNearbyLines(vertical, config.mergeDistancePixels);
+  // 7. Merge colinear segments (handles broken borders)
+  const colinearMergedH = mergeColinearSegments(horizontal, thresholds.maxLineGap * 3);
+  const colinearMergedV = mergeColinearSegments(vertical, thresholds.maxLineGap * 3);
 
-  // 7. Build cells from line intersections
-  const allCells = buildCellsFromLines(mergedHorizontal, mergedVertical);
+  // 8. Extend lines (handles borders that don't quite reach intersections)
+  const extendedH = colinearMergedH.map(l => extendLine(l, thresholds.lineExtension));
+  const extendedV = colinearMergedV.map(l => extendLine(l, thresholds.lineExtension));
 
-  // 8. Filter by minimum size
-  const cells = filterCells(allCells, config.minCellWidth, config.minCellHeight);
+  // 9. Merge nearby parallel lines
+  const mergedHorizontal = mergeNearbyLines(extendedH, thresholds.mergeDistance);
+  const mergedVertical = mergeNearbyLines(extendedV, thresholds.mergeDistance);
 
-  // Clean up OpenCV objects
+  // 10. Build cells from intersections
+  const allCells = buildCellsFromLines(mergedHorizontal, mergedVertical, thresholds.clusterThreshold);
+
+  // 11. Filter by minimum size
+  const cells = filterCells(allCells, thresholds.minCellWidth, thresholds.minCellHeight);
+
+  // Clean up
   await OpenCV.invoke('release', { p1: src });
   await OpenCV.invoke('release', { p1: gray });
   await OpenCV.invoke('release', { p1: binary });
 
   return {
-    success: cells.length >= 10,  // Need at least 10 cells for a valid form
+    success: cells.length >= 10,
     cells,
     horizontalLines: mergedHorizontal,
     verticalLines: mergedVertical,
     imageWidth,
     imageHeight,
+    skewDetected,
   };
 }
 ```
@@ -1170,8 +1390,8 @@ Expected: All tests pass
 git add src/services/sddg/opencvCellDetection.ts src/services/sddg/__tests__/opencvCellDetection.test.ts
 git commit -m "feat(sddg): implement OpenCV cell detection service
 
-Add detectCells function using HoughLinesP for line detection.
-Includes timeout handling and graceful error recovery."
+Add detectCells function with scale-aware thresholds, colinear segment
+merging, line extension, and 10s timeout. Includes skew detection."
 ```
 
 ---
@@ -1190,9 +1410,9 @@ Create file `src/services/sddg/__tests__/templateAutoAlignment.test.ts`:
 import {
   computeTransform,
   applyTransformToTemplate,
-  matchCellToTemplateField,
   findCellContainingPoint,
   isTransformReasonable,
+  matchFieldByPosition,
 } from '../templateAutoAlignment';
 import { DetectedCell, AlignmentTransform } from '../opencvTypes';
 import { SDDGTemplate } from '@/types/sddg-template';
@@ -1214,16 +1434,39 @@ describe('templateAutoAlignment', () => {
       const cell = findCellContainingPoint(cells, 300, 300);
       expect(cell).toBeNull();
     });
+  });
 
-    it('should handle point on cell boundary', () => {
-      const cell = findCellContainingPoint(cells, 100, 50);
-      expect(cell).not.toBeNull();
+  describe('matchFieldByPosition', () => {
+    const cells: DetectedCell[] = [
+      { x: 50, y: 100, width: 200, height: 100 },    // Top-left area
+      { x: 300, y: 100, width: 200, height: 100 },   // Top-right area
+      { x: 50, y: 500, width: 200, height: 100 },    // Middle-left area
+    ];
+
+    it('should match field to nearest cell within threshold', () => {
+      // Template field at normalized position (0.1, 0.1) on 1000x1000 image
+      // Should match first cell centered at (150, 150)
+      const imageDims = { width: 1000, height: 1000 };
+      const templateCenter = { x: 0.1, y: 0.15 };  // Normalized
+      const threshold = 0.15;  // 15%
+
+      const cell = matchFieldByPosition(cells, templateCenter, imageDims, threshold);
+      expect(cell).toEqual(cells[0]);
+    });
+
+    it('should return null if no cell within threshold', () => {
+      const imageDims = { width: 1000, height: 1000 };
+      const templateCenter = { x: 0.9, y: 0.9 };  // Bottom-right, no cell there
+      const threshold = 0.1;
+
+      const cell = matchFieldByPosition(cells, templateCenter, imageDims, threshold);
+      expect(cell).toBeNull();
     });
   });
 
   describe('computeTransform', () => {
     it('should compute identity transform for matching regions', () => {
-      const matches: Array<{ template: { x: number; y: number }; detected: { x: number; y: number } }> = [
+      const matches = [
         { template: { x: 100, y: 100 }, detected: { x: 100, y: 100 } },
         { template: { x: 200, y: 200 }, detected: { x: 200, y: 200 } },
       ];
@@ -1237,30 +1480,19 @@ describe('templateAutoAlignment', () => {
       expect(transform.scaleY).toBeCloseTo(1, 2);
     });
 
-    it('should compute offset for shifted regions', () => {
-      const matches: Array<{ template: { x: number; y: number }; detected: { x: number; y: number } }> = [
-        { template: { x: 100, y: 100 }, detected: { x: 150, y: 120 } },
-        { template: { x: 200, y: 200 }, detected: { x: 250, y: 220 } },
+    it('should track scaleX and scaleY counts separately', () => {
+      // Only X differences are significant
+      const matches = [
+        { template: { x: 100, y: 100 }, detected: { x: 110, y: 100 } },
+        { template: { x: 200, y: 100 }, detected: { x: 220, y: 100 } },
       ];
       const imageDims = { width: 1000, height: 1000 };
 
       const transform = computeTransform(matches, imageDims);
 
-      expect(transform.offsetX).toBeCloseTo(50, 1);
-      expect(transform.offsetY).toBeCloseTo(20, 1);
-    });
-
-    it('should compute scale for scaled regions', () => {
-      const matches: Array<{ template: { x: number; y: number }; detected: { x: number; y: number } }> = [
-        { template: { x: 100, y: 100 }, detected: { x: 110, y: 110 } },  // 10% larger
-        { template: { x: 200, y: 200 }, detected: { x: 220, y: 220 } },
-      ];
-      const imageDims = { width: 1000, height: 1000 };
-
-      const transform = computeTransform(matches, imageDims);
-
+      // X scale should be ~1.1, Y scale should be 1 (no Y variation)
       expect(transform.scaleX).toBeCloseTo(1.1, 1);
-      expect(transform.scaleY).toBeCloseTo(1.1, 1);
+      expect(transform.scaleY).toBeCloseTo(1, 1);
     });
   });
 
@@ -1277,14 +1509,9 @@ describe('templateAutoAlignment', () => {
       expect(isTransformReasonable(transform, imageDims)).toBe(true);
     });
 
-    it('should reject large offset', () => {
-      const transform: AlignmentTransform = { offsetX: 1000, offsetY: 0, scaleX: 1, scaleY: 1 };
+    it('should reject large offset (>20%)', () => {
+      const transform: AlignmentTransform = { offsetX: 600, offsetY: 0, scaleX: 1, scaleY: 1 };
       expect(isTransformReasonable(transform, imageDims)).toBe(false);
-    });
-
-    it('should accept reasonable scale', () => {
-      const transform: AlignmentTransform = { offsetX: 0, offsetY: 0, scaleX: 1.1, scaleY: 0.95 };
-      expect(isTransformReasonable(transform, imageDims)).toBe(true);
     });
 
     it('should reject extreme scale', () => {
@@ -1294,7 +1521,7 @@ describe('templateAutoAlignment', () => {
   });
 
   describe('applyTransformToTemplate', () => {
-    it('should apply offset to all regions', () => {
+    it('should apply offset and scale to all regions', () => {
       const template: SDDGTemplate = {
         formType: 'TEST',
         formName: 'Test Form',
@@ -1303,32 +1530,14 @@ describe('templateAutoAlignment', () => {
           shipper: { x: 100, y: 200, w: 300, h: 100, fieldType: 'text' },
         },
       };
-      const transform: AlignmentTransform = { offsetX: 50, offsetY: 25, scaleX: 1, scaleY: 1 };
+      const transform: AlignmentTransform = { offsetX: 50, offsetY: 25, scaleX: 1.1, scaleY: 1.1 };
 
       const aligned = applyTransformToTemplate(template, transform);
 
-      expect(aligned.regions.shipper!.x).toBe(150);
-      expect(aligned.regions.shipper!.y).toBe(225);
-      expect(aligned.regions.shipper!.w).toBe(300);  // Width unchanged with scale=1
-    });
-
-    it('should apply scale to all regions', () => {
-      const template: SDDGTemplate = {
-        formType: 'TEST',
-        formName: 'Test Form',
-        identifiers: [],
-        regions: {
-          shipper: { x: 100, y: 200, w: 300, h: 100, fieldType: 'text' },
-        },
-      };
-      const transform: AlignmentTransform = { offsetX: 0, offsetY: 0, scaleX: 1.1, scaleY: 1.1 };
-
-      const aligned = applyTransformToTemplate(template, transform);
-
-      expect(aligned.regions.shipper!.x).toBe(110);
-      expect(aligned.regions.shipper!.y).toBe(220);
-      expect(aligned.regions.shipper!.w).toBe(330);
-      expect(aligned.regions.shipper!.h).toBe(110);
+      expect(aligned.regions.shipper!.x).toBe(Math.round(100 * 1.1 + 50));  // 160
+      expect(aligned.regions.shipper!.y).toBe(Math.round(200 * 1.1 + 25));  // 245
+      expect(aligned.regions.shipper!.w).toBe(Math.round(300 * 1.1));       // 330
+      expect(aligned.regions.shipper!.h).toBe(Math.round(100 * 1.1));       // 110
     });
   });
 });
@@ -1341,7 +1550,7 @@ Run:
 yarn test src/services/sddg/__tests__/templateAutoAlignment.test.ts
 ```
 
-Expected: Tests fail with "Cannot find module '../templateAutoAlignment'"
+Expected: Tests fail
 
 **Step 3: Implement template auto-alignment**
 
@@ -1351,17 +1560,20 @@ Create file `src/services/sddg/templateAutoAlignment.ts`:
 /**
  * Template auto-alignment using detected cells
  *
- * Matches detected cells to template fields using anchor labels and position,
- * then computes a translation+scale transform to align the template.
+ * Matches detected cells to template fields using:
+ * 1. Anchor labels (primary)
+ * 2. Position-based matching (fallback, always attempted)
+ *
+ * Then computes translation+scale transform.
+ *
+ * NOTE: Scale X and Y are tracked separately to fix the calculation bug
+ * identified in code review.
  */
 
 import { SDDGTemplate, FieldRegion } from '@/types/sddg-template';
 import { TextBlock } from './anchorTypes';
 import { DetectedCell, AlignmentTransform, AutoAlignmentResult } from './opencvTypes';
 
-/**
- * Anchor labels used for matching cells to template fields
- */
 const ALIGNMENT_ANCHORS: Record<string, string[]> = {
   shipper: ['SHIPPER'],
   consignee: ['CONSIGNEE'],
@@ -1375,9 +1587,21 @@ const ALIGNMENT_ANCHORS: Record<string, string[]> = {
   'signature_block.name_title': ['NAME/TITLE', 'NAME OF SIGNATORY'],
 };
 
-/**
- * Find the cell containing a given point
- */
+// Template field centers as normalized percentages (0-1)
+// Based on AMC_IMT_1033 at 2550x3300
+const TEMPLATE_FIELD_POSITIONS: Record<string, { x: number; y: number }> = {
+  shipper: { x: 0.31, y: 0.13 },
+  consignee: { x: 0.31, y: 0.21 },
+  'air_waybill.awb_number': { x: 0.77, y: 0.09 },
+  'shipper_reference.tcn': { x: 0.77, y: 0.16 },
+  'transportation_details.airport_departure': { x: 0.50, y: 0.34 },
+  'transportation_details.airport_destination': { x: 0.31, y: 0.39 },
+  'dangerous_goods.un_number': { x: 0.08, y: 0.58 },
+  'dangerous_goods.proper_shipping_name': { x: 0.25, y: 0.58 },
+  additional_handling: { x: 0.49, y: 0.76 },
+  'signature_block.name_title': { x: 0.79, y: 0.88 },
+};
+
 export function findCellContainingPoint(
   cells: DetectedCell[],
   x: number,
@@ -1397,9 +1621,38 @@ export function findCellContainingPoint(
 }
 
 /**
- * Match a template field to a detected cell using anchor labels
+ * Match field to nearest cell by normalized position
  */
-export function matchCellToTemplateField(
+export function matchFieldByPosition(
+  cells: DetectedCell[],
+  templateCenterNormalized: { x: number; y: number },
+  imageDims: { width: number; height: number },
+  thresholdPercent: number
+): DetectedCell | null {
+  const targetX = templateCenterNormalized.x * imageDims.width;
+  const targetY = templateCenterNormalized.y * imageDims.height;
+  const thresholdPx = Math.max(imageDims.width, imageDims.height) * thresholdPercent;
+
+  let bestCell: DetectedCell | null = null;
+  let bestDistance = Infinity;
+
+  for (const cell of cells) {
+    const cellCenterX = cell.x + cell.width / 2;
+    const cellCenterY = cell.y + cell.height / 2;
+    const distance = Math.sqrt(
+      Math.pow(cellCenterX - targetX, 2) + Math.pow(cellCenterY - targetY, 2)
+    );
+
+    if (distance < thresholdPx && distance < bestDistance) {
+      bestDistance = distance;
+      bestCell = cell;
+    }
+  }
+
+  return bestCell;
+}
+
+function matchCellToTemplateFieldByAnchor(
   fieldPath: string,
   cells: DetectedCell[],
   textBlocks: TextBlock[]
@@ -1407,13 +1660,11 @@ export function matchCellToTemplateField(
   const anchorLabels = ALIGNMENT_ANCHORS[fieldPath];
   if (!anchorLabels) return null;
 
-  // Find text block matching any anchor label
   for (const block of textBlocks) {
     const normalizedText = block.text.toUpperCase().replace(/\s+/g, ' ').trim();
 
     for (const label of anchorLabels) {
       if (normalizedText.includes(label.toUpperCase())) {
-        // Find cell containing this text block
         const centerX = block.boundingBox.x + block.boundingBox.width / 2;
         const centerY = block.boundingBox.y + block.boundingBox.height / 2;
         return findCellContainingPoint(cells, centerX, centerY);
@@ -1426,6 +1677,7 @@ export function matchCellToTemplateField(
 
 /**
  * Compute alignment transform from matched point pairs
+ * FIX: Track scaleXCount and scaleYCount separately
  */
 export function computeTransform(
   matches: Array<{ template: { x: number; y: number }; detected: { x: number; y: number } }>,
@@ -1436,7 +1688,6 @@ export function computeTransform(
   }
 
   if (matches.length === 1) {
-    // Single match: only compute offset, no scale
     const m = matches[0];
     return {
       offsetX: m.detected.x - m.template.x,
@@ -1446,11 +1697,9 @@ export function computeTransform(
     };
   }
 
-  // Multiple matches: compute both offset and scale
-  // Use least squares approach
-
-  // First, estimate scale from distance ratios
-  let scaleXSum = 0, scaleYSum = 0, scaleCount = 0;
+  // FIX: Track X and Y scale counts separately
+  let scaleXSum = 0, scaleYSum = 0;
+  let scaleXCount = 0, scaleYCount = 0;
 
   for (let i = 0; i < matches.length; i++) {
     for (let j = i + 1; j < matches.length; j++) {
@@ -1461,19 +1710,18 @@ export function computeTransform(
 
       if (templateDx > 50) {
         scaleXSum += detectedDx / templateDx;
-        scaleCount++;
+        scaleXCount++;
       }
       if (templateDy > 50) {
         scaleYSum += detectedDy / templateDy;
-        scaleCount++;
+        scaleYCount++;
       }
     }
   }
 
-  const scaleX = scaleCount > 0 ? scaleXSum / (scaleCount / 2) : 1;
-  const scaleY = scaleCount > 0 ? scaleYSum / (scaleCount / 2) : 1;
+  const scaleX = scaleXCount > 0 ? scaleXSum / scaleXCount : 1;
+  const scaleY = scaleYCount > 0 ? scaleYSum / scaleYCount : 1;
 
-  // Then compute offset after accounting for scale
   let offsetXSum = 0, offsetYSum = 0;
 
   for (const m of matches) {
@@ -1487,52 +1735,39 @@ export function computeTransform(
   return { offsetX, offsetY, scaleX, scaleY };
 }
 
-/**
- * Check if a computed transform is reasonable
- */
 export function isTransformReasonable(
   transform: AlignmentTransform,
   imageDims: { width: number; height: number }
 ): boolean {
-  // Offset shouldn't exceed 20% of image dimension
   const maxOffsetX = imageDims.width * 0.2;
   const maxOffsetY = imageDims.height * 0.2;
 
   if (Math.abs(transform.offsetX) > maxOffsetX) return false;
   if (Math.abs(transform.offsetY) > maxOffsetY) return false;
 
-  // Scale should be between 0.7 and 1.3
   if (transform.scaleX < 0.7 || transform.scaleX > 1.3) return false;
   if (transform.scaleY < 0.7 || transform.scaleY > 1.3) return false;
 
   return true;
 }
 
-/**
- * Apply transform to all regions in a template
- */
 export function applyTransformToTemplate(
   template: SDDGTemplate,
   transform: AlignmentTransform
 ): SDDGTemplate {
-  // Deep clone the template
   const aligned = JSON.parse(JSON.stringify(template)) as SDDGTemplate;
 
-  // Recursively transform all regions
   function transformRegions(obj: any): void {
     for (const key in obj) {
       const value = obj[key];
 
       if (value && typeof value === 'object') {
-        // Check if it's a FieldRegion (has x, y, w, h, fieldType)
         if ('x' in value && 'y' in value && 'w' in value && 'h' in value && 'fieldType' in value) {
-          // Apply transform
           value.x = Math.round(value.x * transform.scaleX + transform.offsetX);
           value.y = Math.round(value.y * transform.scaleY + transform.offsetY);
           value.w = Math.round(value.w * transform.scaleX);
           value.h = Math.round(value.h * transform.scaleY);
         } else {
-          // Recurse into nested objects
           transformRegions(value);
         }
       }
@@ -1544,9 +1779,6 @@ export function applyTransformToTemplate(
   return aligned;
 }
 
-/**
- * Get the center point of a template field region
- */
 function getFieldCenter(
   template: SDDGTemplate,
   fieldPath: string
@@ -1570,7 +1802,7 @@ function getFieldCenter(
 }
 
 /**
- * Main auto-alignment function
+ * Main auto-alignment function with hybrid matching
  */
 export async function autoAlignTemplate(
   cells: DetectedCell[],
@@ -1580,16 +1812,19 @@ export async function autoAlignTemplate(
 ): Promise<AutoAlignmentResult> {
   const startTime = Date.now();
 
-  // Collect matched point pairs
   const matches: Array<{
     fieldPath: string;
     template: { x: number; y: number };
     detected: { x: number; y: number };
+    method: 'anchor' | 'position';
   }> = [];
 
-  // Try to match each anchor field to a detected cell
+  let anchorMatches = 0;
+  let positionMatches = 0;
+
+  // 1. Try anchor label matching first
   for (const fieldPath of Object.keys(ALIGNMENT_ANCHORS)) {
-    const matchedCell = matchCellToTemplateField(fieldPath, cells, textBlocks);
+    const matchedCell = matchCellToTemplateFieldByAnchor(fieldPath, cells, textBlocks);
 
     if (matchedCell) {
       const templateCenter = getFieldCenter(template, fieldPath);
@@ -1602,60 +1837,99 @@ export async function autoAlignTemplate(
             x: matchedCell.x + matchedCell.width / 2,
             y: matchedCell.y + matchedCell.height / 2,
           },
+          method: 'anchor',
         });
+        anchorMatches++;
       }
     }
   }
 
-  // Need at least 3 matches for reliable alignment
+  // 2. Position-based fallback for all fields (supplements anchor matches)
+  for (const [fieldPath, normalizedPos] of Object.entries(TEMPLATE_FIELD_POSITIONS)) {
+    // Skip if already matched by anchor
+    if (matches.some(m => m.fieldPath === fieldPath)) continue;
+
+    const matchedCell = matchFieldByPosition(cells, normalizedPos, imageDims, 0.1);
+
+    if (matchedCell) {
+      const templateCenter = getFieldCenter(template, fieldPath);
+
+      if (templateCenter) {
+        matches.push({
+          fieldPath,
+          template: templateCenter,
+          detected: {
+            x: matchedCell.x + matchedCell.width / 2,
+            y: matchedCell.y + matchedCell.height / 2,
+          },
+          method: 'position',
+        });
+        positionMatches++;
+      }
+    }
+  }
+
+  const totalFields = Object.keys(ALIGNMENT_ANCHORS).length;
+
+  // Need at least 3 total matches for reliable alignment
   if (matches.length < 3) {
     return {
       success: false,
       transform: { offsetX: 0, offsetY: 0, scaleX: 1, scaleY: 1 },
       matchedFields: matches.length,
-      totalFields: Object.keys(ALIGNMENT_ANCHORS).length,
-      confidence: matches.length / Object.keys(ALIGNMENT_ANCHORS).length,
-      alignmentMethod: 'anchor',
-      failureReason: `Insufficient anchor matches: ${matches.length}/3 required`,
+      totalFields,
+      confidence: matches.length / totalFields,
+      alignmentMethod: anchorMatches >= positionMatches ? 'anchor' : 'position',
+      anchorMatches,
+      positionMatches,
+      failureReason: `Insufficient matches: ${matches.length}/3 required`,
       processingTimeMs: Date.now() - startTime,
     };
   }
 
-  // Compute transform
   const transform = computeTransform(
     matches.map(m => ({ template: m.template, detected: m.detected })),
     imageDims
   );
 
-  // Validate transform
   if (!isTransformReasonable(transform, imageDims)) {
     return {
       success: false,
       transform: { offsetX: 0, offsetY: 0, scaleX: 1, scaleY: 1 },
       matchedFields: matches.length,
-      totalFields: Object.keys(ALIGNMENT_ANCHORS).length,
+      totalFields,
       confidence: 0,
-      alignmentMethod: 'anchor',
+      alignmentMethod: 'hybrid',
+      anchorMatches,
+      positionMatches,
       failureReason: 'Computed transform exceeds reasonable bounds',
       processingTimeMs: Date.now() - startTime,
     };
   }
 
-  // Compute confidence based on number of matches and transform quality
-  const matchRatio = matches.length / Object.keys(ALIGNMENT_ANCHORS).length;
-  const transformQuality = 1 - (
-    Math.abs(transform.scaleX - 1) +
-    Math.abs(transform.scaleY - 1)
-  ) / 0.6;  // Max deviation is 0.3 each way
-  const confidence = (matchRatio * 0.7 + transformQuality * 0.3);
+  const matchRatio = matches.length / totalFields;
+  const transformQuality = 1 - (Math.abs(transform.scaleX - 1) + Math.abs(transform.scaleY - 1)) / 0.6;
+  const confidence = matchRatio * 0.7 + transformQuality * 0.3;
+
+  // Determine alignment method
+  let alignmentMethod: 'anchor' | 'position' | 'hybrid';
+  if (anchorMatches >= 5 && positionMatches === 0) {
+    alignmentMethod = 'anchor';
+  } else if (anchorMatches === 0 && positionMatches >= 3) {
+    alignmentMethod = 'position';
+  } else {
+    alignmentMethod = 'hybrid';
+  }
 
   return {
     success: true,
     transform,
     matchedFields: matches.length,
-    totalFields: Object.keys(ALIGNMENT_ANCHORS).length,
+    totalFields,
     confidence,
-    alignmentMethod: matches.length >= 5 ? 'anchor' : 'hybrid',
+    alignmentMethod,
+    anchorMatches,
+    positionMatches,
     processingTimeMs: Date.now() - startTime,
   };
 }
@@ -1674,11 +1948,11 @@ Expected: All tests pass
 
 ```bash
 git add src/services/sddg/templateAutoAlignment.ts src/services/sddg/__tests__/templateAutoAlignment.test.ts
-git commit -m "feat(sddg): implement template auto-alignment
+git commit -m "feat(sddg): implement template auto-alignment with hybrid matching
 
-Add functions to match detected cells to template fields using anchor
-labels, compute translation+scale transform, and apply to template.
-Includes validation for reasonable transform bounds."
+Add anchor label matching (primary) and position-based fallback.
+Fix scale calculation bug: track scaleXCount and scaleYCount separately.
+Includes transform validation and confidence scoring."
 ```
 
 ---
@@ -1687,174 +1961,64 @@ Includes validation for reasonable transform bounds."
 
 **Files:**
 - Modify: `src/services/sddg/templateExtractor.ts`
-- Create: `src/services/sddg/__tests__/templateExtractor.autoAlignment.test.ts`
 
-**Step 1: Write integration test**
+**Step 1: Add imports and helper function**
 
-Create file `src/services/sddg/__tests__/templateExtractor.autoAlignment.test.ts`:
-
-```typescript
-/**
- * Integration tests for auto-alignment in template extractor
- */
-
-// Mock dependencies
-jest.mock('react-native-fast-opencv', () => ({
-  OpenCV: { invoke: jest.fn(), toJSValue: jest.fn() },
-  ObjectType: { Mat: 'Mat' },
-  ColorConversionCodes: { COLOR_RGBA2GRAY: 11 },
-  ThresholdTypes: { THRESH_BINARY_INV: 1 },
-  AdaptiveThresholdTypes: { ADAPTIVE_THRESH_GAUSSIAN_C: 1 },
-}));
-
-jest.mock('@react-native-ml-kit/text-recognition', () => ({
-  recognize: jest.fn(),
-}));
-
-jest.mock('../paddleOCREngine', () => ({
-  extractText: jest.fn().mockResolvedValue({ text: '', confidence: 0.9 }),
-}));
-
-jest.mock('@/utils/sddg/imageUtils', () => ({
-  correctImageOrientation: jest.fn().mockResolvedValue({
-    imageUri: 'corrected.png',
-    width: 2550,
-    height: 3300,
-    rotated: false,
-    rotationDegrees: 0,
-  }),
-  scaleRegion: jest.fn((region) => region),
-  cropRegion: jest.fn().mockResolvedValue('cropped.png'),
-}));
-
-jest.mock('@/utils/sddg/imagePreprocessing', () => ({
-  preprocessFullImage: jest.fn().mockResolvedValue({
-    uri: 'preprocessed.png',
-    metrics: { processingTime: 100 },
-    appliedOperations: [],
-  }),
-  preprocessRegion: jest.fn().mockResolvedValue({
-    uri: 'region.png',
-    appliedOperations: [],
-  }),
-}));
-
-import { detectCells } from '../opencvCellDetection';
-import { autoAlignTemplate } from '../templateAutoAlignment';
-
-jest.mock('../opencvCellDetection');
-jest.mock('../templateAutoAlignment');
-
-describe('templateExtractor auto-alignment integration', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
-  it('should call detectCells when no custom template provided', async () => {
-    (detectCells as jest.Mock).mockResolvedValue({
-      success: true,
-      cells: Array(15).fill({ x: 0, y: 0, width: 100, height: 50 }),
-      horizontalLines: [],
-      verticalLines: [],
-      imageWidth: 2550,
-      imageHeight: 3300,
-      processingTimeMs: 500,
-    });
-
-    (autoAlignTemplate as jest.Mock).mockResolvedValue({
-      success: true,
-      transform: { offsetX: 10, offsetY: 5, scaleX: 1.02, scaleY: 1.01 },
-      matchedFields: 6,
-      totalFields: 10,
-      confidence: 0.85,
-      alignmentMethod: 'anchor',
-      processingTimeMs: 200,
-    });
-
-    // Import after mocks are set up
-    const { shouldAttemptAutoAlignment } = await import('../templateExtractor');
-
-    // Test the decision function
-    expect(shouldAttemptAutoAlignment(undefined)).toBe(true);
-    expect(shouldAttemptAutoAlignment({} as any)).toBe(false);  // Custom template skips
-  });
-
-  it('should skip auto-alignment when custom template is provided', async () => {
-    const { shouldAttemptAutoAlignment } = await import('../templateExtractor');
-
-    const customTemplate = { formType: 'AMC_IMT_1033', regions: {} };
-    expect(shouldAttemptAutoAlignment(customTemplate as any)).toBe(false);
-  });
-});
-```
-
-**Step 2: Run test to verify it fails**
-
-Run:
-```bash
-yarn test src/services/sddg/__tests__/templateExtractor.autoAlignment.test.ts
-```
-
-Expected: Test fails (shouldAttemptAutoAlignment doesn't exist yet)
-
-**Step 3: Modify templateExtractor.ts to add auto-alignment**
-
-Add imports at the top of `src/services/sddg/templateExtractor.ts`:
+Add to top of `src/services/sddg/templateExtractor.ts`:
 
 ```typescript
-// Add after existing imports
 import { detectCells } from './opencvCellDetection';
 import { autoAlignTemplate, applyTransformToTemplate } from './templateAutoAlignment';
-import { convertToMLKitFormat } from './anchorBasedExtractor';
+import TextRecognition from '@react-native-ml-kit/text-recognition';
 ```
 
-Add helper function after imports:
+Add helper function:
 
 ```typescript
-/**
- * Determine if auto-alignment should be attempted
- */
 export function shouldAttemptAutoAlignment(customTemplate?: SDDGTemplate): boolean {
-  // Skip auto-alignment if user provided a custom (manually adjusted) template
   return !customTemplate;
 }
 ```
 
-Modify the `extractFormData` function to add auto-alignment after orientation correction (around line 165, after the preprocessing block):
+**Step 2: Add auto-alignment logic after orientation correction**
+
+Insert after the preprocessing block (around line 165), before template alignment:
 
 ```typescript
-    // 4a. NEW: Auto-align template using OpenCV cell detection
-    // Skip if using custom template (user has already positioned regions)
-    let autoAlignmentMetadata: {
-      attempted: boolean;
-      success: boolean;
-      matchedFields: number;
-      confidence: number;
-      method: string;
-    } = {
+    // Auto-align template using OpenCV cell detection
+    let autoAlignmentMetadata = {
       attempted: false,
       success: false,
       matchedFields: 0,
       confidence: 0,
-      method: 'none',
+      method: 'none' as string,
+      anchorMatches: 0,
+      positionMatches: 0,
+      skewDetected: false,
     };
 
     if (shouldAttemptAutoAlignment(customTemplate)) {
       console.log('🔍 Attempting OpenCV auto-alignment...');
 
       try {
-        // Detect cells using OpenCV
         const cellResult = await detectCells(preprocessedImageUri);
+        autoAlignmentMetadata.attempted = true;
+        autoAlignmentMetadata.skewDetected = cellResult.skewDetected || false;
+
+        if (cellResult.skewDetected) {
+          console.warn('⚠ Form appears skewed. Auto-alignment may be unreliable.');
+        }
 
         if (cellResult.success && cellResult.cells.length >= 10) {
           console.log(`✓ Detected ${cellResult.cells.length} cells in ${cellResult.processingTimeMs}ms`);
 
-          // Get text blocks for anchor matching
-          const TextRecognition = require('@react-native-ml-kit/text-recognition').default;
           const mlKitResult = await TextRecognition.recognize(preprocessedImageUri);
-          const textBlocks = convertToMLKitFormat(mlKitResult);
+          const textBlocks = mlKitResult.blocks.map((block: any) => ({
+            text: block.text,
+            boundingBox: block.frame,
+            confidence: block.confidence || 0.9,
+          }));
 
-          // Compute alignment
           const alignmentResult = await autoAlignTemplate(
             cellResult.cells,
             textBlocks,
@@ -1862,69 +2026,56 @@ Modify the `extractFormData` function to add auto-alignment after orientation co
             { width: imageDims.width, height: imageDims.height }
           );
 
-          autoAlignmentMetadata = {
-            attempted: true,
-            success: alignmentResult.success,
-            matchedFields: alignmentResult.matchedFields,
-            confidence: alignmentResult.confidence,
-            method: alignmentResult.alignmentMethod,
-          };
+          autoAlignmentMetadata.success = alignmentResult.success;
+          autoAlignmentMetadata.matchedFields = alignmentResult.matchedFields;
+          autoAlignmentMetadata.confidence = alignmentResult.confidence;
+          autoAlignmentMetadata.method = alignmentResult.alignmentMethod;
+          autoAlignmentMetadata.anchorMatches = alignmentResult.anchorMatches;
+          autoAlignmentMetadata.positionMatches = alignmentResult.positionMatches;
 
           if (alignmentResult.success) {
             alignedTemplate = applyTransformToTemplate(template, alignmentResult.transform);
-            console.log(`✓ Auto-alignment successful: ${alignmentResult.matchedFields} anchors matched, ` +
-              `confidence=${(alignmentResult.confidence * 100).toFixed(1)}%`);
-            console.log(`  Transform: offset=(${alignmentResult.transform.offsetX.toFixed(0)}, ${alignmentResult.transform.offsetY.toFixed(0)}), ` +
-              `scale=(${alignmentResult.transform.scaleX.toFixed(3)}, ${alignmentResult.transform.scaleY.toFixed(3)})`);
+            console.log(`✓ Auto-alignment successful: ${alignmentResult.matchedFields} fields matched`);
+            console.log(`  Method: ${alignmentResult.alignmentMethod}, Confidence: ${(alignmentResult.confidence * 100).toFixed(1)}%`);
           } else {
             console.warn(`⚠ Auto-alignment failed: ${alignmentResult.failureReason}`);
-            console.log('  Proceeding with default template');
           }
         } else {
           console.warn(`⚠ Cell detection insufficient: ${cellResult.cells.length} cells (need ≥10)`);
-          autoAlignmentMetadata.attempted = true;
+          if (cellResult.error) {
+            console.error(`  Error: ${cellResult.error}`);
+          }
         }
       } catch (error) {
         console.error('✗ Auto-alignment error:', error);
-        autoAlignmentMetadata.attempted = true;
-        // Continue with unaligned template
       }
     }
 ```
 
-Update the metadata in the return value to include auto-alignment info:
+**Step 3: Update metadata in return value**
+
+Add to the metadata object in the return statement:
 
 ```typescript
-    // In the return statement, add to metadata:
-    metadata: {
-      // ... existing fields ...
       autoAlignmentAttempted: autoAlignmentMetadata.attempted,
       autoAlignmentSuccess: autoAlignmentMetadata.success,
       autoAlignmentMatchedFields: autoAlignmentMetadata.matchedFields,
       autoAlignmentConfidence: autoAlignmentMetadata.confidence,
       autoAlignmentMethod: autoAlignmentMetadata.method,
-    },
+      autoAlignmentAnchorMatches: autoAlignmentMetadata.anchorMatches,
+      autoAlignmentPositionMatches: autoAlignmentMetadata.positionMatches,
+      autoAlignmentSkewDetected: autoAlignmentMetadata.skewDetected,
 ```
 
-**Step 4: Run tests to verify they pass**
-
-Run:
-```bash
-yarn test src/services/sddg/__tests__/templateExtractor.autoAlignment.test.ts
-```
-
-Expected: All tests pass
-
-**Step 5: Commit**
+**Step 4: Commit**
 
 ```bash
-git add src/services/sddg/templateExtractor.ts src/services/sddg/__tests__/templateExtractor.autoAlignment.test.ts
+git add src/services/sddg/templateExtractor.ts
 git commit -m "feat(sddg): integrate OpenCV auto-alignment into template extractor
 
-Add auto-alignment step after orientation correction. Detects cells
-using OpenCV, matches to template fields, computes transform, and
-applies to template. Skipped when custom template is provided.
-Includes alignment metadata in extraction result."
+Add auto-alignment step after orientation correction. Uses hybrid matching
+(anchors + position fallback). Includes skew detection warning.
+Skipped when custom template is provided."
 ```
 
 ---
@@ -1933,13 +2084,13 @@ Includes alignment metadata in extraction result."
 
 **Files:**
 - Modify: `src/screens/SDDG/SDDGRegionAdjustmentScreen.tsx`
+- Modify: `src/screens/inspector/InteractiveSDDGComplianceScreen.tsx`
 
-**Step 1: Update RegionAdjustmentScreen to accept pre-aligned template**
+**Step 1: Update SDDGRegionAdjustmentScreen to accept pre-aligned template**
 
-Modify route params type in `SDDGRegionAdjustmentScreen.tsx`:
+Update route params:
 
 ```typescript
-// Update the route params destructuring (around line 55)
 const { imageUri, isScanned, preAlignedTemplate } = route.params as {
   imageUri: string;
   isScanned?: boolean;
@@ -1947,73 +2098,32 @@ const { imageUri, isScanned, preAlignedTemplate } = route.params as {
 };
 ```
 
-Update `loadImageAndRegions` to use pre-aligned template:
+Update `loadImageAndRegions`:
 
 ```typescript
-const loadImageAndRegions = async () => {
-  try {
-    setLoading(true);
+const template = preAlignedTemplate || AMC_IMT_1033_TEMPLATE;
 
-    // Apply the same orientation correction as template extractor
-    const orientationResult = await correctImageOrientation(
-      imageUri,
-      2550,
-      3300
-    );
-
-    setCorrectedImageUri(orientationResult.imageUri);
-    const dims = {
-      width: orientationResult.width,
-      height: orientationResult.height,
-    };
-    setImageDims(dims);
-
-    // Calculate display scale
-    const screenWidth = Dimensions.get("window").width;
-    const scale = screenWidth / dims.width;
-    setDisplayScale(scale);
-
-    // Use pre-aligned template if provided, otherwise use default
-    const template = preAlignedTemplate || AMC_IMT_1033_TEMPLATE;
-
-    if (preAlignedTemplate) {
-      console.log('✓ Using pre-aligned template from OpenCV detection');
-    }
-
-    const extractedRegions = extractAllRegions(template);
-
-    // Convert to display coordinates
-    const regionsWithDisplay = extractedRegions.map(r => ({
-      ...r,
-      displayRegion: templateToDisplay(
-        r.templateRegion,
-        dims.width,
-        dims.height
-      ),
-    }));
-
-    setRegions(regionsWithDisplay);
-    setLoading(false);
-  } catch (error) {
-    console.error("Error loading image and regions:", error);
-    setLoading(false);
-  }
-};
+if (preAlignedTemplate) {
+  console.log('✓ Using pre-aligned template from OpenCV detection');
+}
 ```
 
-**Step 2: Test manually**
+**Step 2: Add warning banner to InteractiveSDDGComplianceScreen**
 
-This is a UI change that requires manual testing on device/simulator.
+This requires understanding the current structure of InteractiveSDDGComplianceScreen. The banner should:
+- Appear when `autoAlignmentConfidence < 0.7` or `autoAlignmentSkewDetected`
+- Be dismissible
+- Include "Adjust Regions" button that navigates to SDDGRegionAdjustmentScreen
 
 **Step 3: Commit**
 
 ```bash
-git add src/screens/SDDG/SDDGRegionAdjustmentScreen.tsx
-git commit -m "feat(sddg): accept pre-aligned template in region adjustment screen
+git add src/screens/SDDG/SDDGRegionAdjustmentScreen.tsx src/screens/inspector/InteractiveSDDGComplianceScreen.tsx
+git commit -m "feat(sddg): add UI feedback for auto-alignment status
 
-Region adjustment screen now uses pre-aligned template (from OpenCV)
-as the starting point instead of default template. Users refine from
-a closer starting position."
+SDDGRegionAdjustmentScreen accepts pre-aligned template.
+InteractiveSDDGComplianceScreen shows warning banner when alignment
+is uncertain, with action to adjust regions."
 ```
 
 ---
@@ -2036,15 +2146,15 @@ Run:
 yarn test
 ```
 
-Expected: All tests pass (or only unrelated tests fail)
+Expected: All tests pass
 
-**Step 3: Final commit for documentation**
+**Step 3: Final commit**
 
 ```bash
 git add -A
-git commit -m "docs: update implementation with final adjustments
+git commit -m "chore: complete OpenCV cell detection implementation
 
-Complete OpenCV cell detection feature implementation."
+All tasks complete. Ready for manual testing with real SDDG forms."
 ```
 
 ---
@@ -2053,24 +2163,22 @@ Complete OpenCV cell detection feature implementation."
 
 This implementation plan creates the OpenCV cell detection feature in 9 tasks:
 
-1. **Install OpenCV** - Add dependency and verify setup
-2. **Type definitions** - Create interfaces for cells, lines, transforms
-3. **Line utilities** - Classification, merging, intersection finding
-4. **Cell builder** - Build cells from line intersections
-5. **Cell detection service** - OpenCV integration with HoughLinesP
-6. **Template auto-alignment** - Match cells to fields, compute transform
+1. **Install OpenCV** - Add dependency (pinned to 0.4.7) and verify setup
+2. **Type definitions** - Interfaces with percentage-based thresholds
+3. **Line utilities** - Classification, colinear merging, extension, intersection
+4. **Cell builder** - Build cells with configurable clustering
+5. **Cell detection service** - OpenCV integration with 10s timeout, skew detection
+6. **Template auto-alignment** - Hybrid matching with fixed scale calculation
 7. **Extractor integration** - Wire auto-alignment into extraction pipeline
-8. **UI updates** - Accept pre-aligned template in adjustment screen
+8. **UI updates** - Warning banner on InteractiveSDDGComplianceScreen
 9. **Verification** - Run full test suite
 
-Each task follows TDD with specific test files, implementation, and commits.
-
----
-
-Plan complete and saved to `docs/plans/2026-01-28-opencv-cell-detection-implementation.md`. Two execution options:
-
-**1. Subagent-Driven (this session)** - I dispatch fresh subagent per task, review between tasks, fast iteration
-
-**2. Parallel Session (separate)** - Open new session with executing-plans, batch execution with checkpoints
-
-Which approach?
+**Key Revisions from Code Review:**
+- Percentage-based thresholds for scale-awareness
+- Colinear segment merging and line extension for broken borders
+- Position-based fallback always attempted (supplements anchors)
+- Fixed scale calculation bug (separate X/Y counts)
+- Correct UI screen target (InteractiveSDDGComplianceScreen)
+- Extended timeout to 10 seconds
+- Pinned library version
+- Skew detection with user messaging

@@ -1,7 +1,7 @@
 # OpenCV Cell Detection for SDDG Form Extraction
 
 **Date**: 2026-01-28
-**Status**: Design Complete
+**Status**: Design Complete (Revised after code review)
 
 ## Problem Statement
 
@@ -19,18 +19,27 @@ The SDDG extraction system has two approaches:
 
 Use OpenCV to detect the actual black cell borders on SDDG forms, then auto-align template regions to match detected cells. This automates the manual drag/resize work while preserving the proven template-based extraction pipeline.
 
+## Known Limitations (MVP)
+
+**Skew/Rotation Not Supported**: This MVP handles translation and scale only. Forms with significant skew (>5°) or rotation will not align correctly.
+
+- The existing `correctImageOrientation()` handles 90° rotations
+- Small skews from scanner feed or camera angle are **not** corrected
+- When skew is detected (line classification fails), the system will prompt: "Form appears skewed. Please re-scan with form aligned straight."
+- **Future iteration**: Add deskew pre-processing step
+
 ## Architecture
 
 ```
 Scanned Image
      |
-[Orientation Correction] <-- existing
+[Orientation Correction] <-- existing (handles 90° rotation)
      |
 [OpenCV Cell Detection] <-- NEW
      |
-[Cell-to-Template Matching] <-- NEW
+[Cell-to-Template Matching] <-- NEW (hybrid: anchors + position fallback)
      |
-[Transform Computation] <-- NEW
+[Transform Computation] <-- NEW (translation + scale)
      |
 Auto-Aligned Template
      |
@@ -45,7 +54,7 @@ SDDGData + Confidence
 
 ### 1. OpenCV Cell Detection
 
-**Library**: `react-native-fast-opencv` (v0.4.7)
+**Library**: `react-native-fast-opencv@0.4.7` (pinned version)
 
 **File**: `src/services/sddg/opencvCellDetection.ts`
 
@@ -73,12 +82,16 @@ async function detectCells(imageUri: string): Promise<CellDetectionResult>
 
 1. **Grayscale conversion**: `cvtColor(mat, COLOR_BGR2GRAY)`
 2. **Adaptive threshold**: `adaptiveThreshold(gray, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY_INV, 11, 2)`
-3. **Line detection**: `HoughLinesP(binary, 1, PI/180, threshold=50, minLineLength=100, maxLineGap=10)`
-4. **Classify lines**: Separate horizontal (within 5 degrees) and vertical lines
-5. **Merge nearby lines**: Lines within 15px of same orientation merge into one
-6. **Find intersections**: Every horizontal-vertical pair that crosses
-7. **Build cells**: Create cells from adjacent intersection points
-8. **Filter noise**: Discard cells smaller than 50x30 pixels
+3. **Line detection**: `HoughLinesP(binary, 1, PI/180, threshold, minLineLength, maxLineGap)`
+   - `minLineLength`: 5% of image width (scale-aware, not fixed pixels)
+   - `maxLineGap`: 0.5% of image width (scale-aware)
+4. **Classify lines**: Separate horizontal (within 5°) and vertical (within 5° of 90°)
+5. **Merge colinear segments**: Segments on the same line within gap threshold → merge into single line
+6. **Extend lines**: Extend merged lines by 20% beyond endpoints to handle broken borders
+7. **Merge nearby parallel lines**: Lines within 0.5% of image dimension → merge into one
+8. **Find intersections**: Every horizontal-vertical pair that crosses
+9. **Build cells**: Create cells from adjacent intersection points (cluster threshold: 0.5% of image width)
+10. **Filter noise**: Discard cells smaller than 2% x 1% of image dimensions
 
 ### 2. Cell-to-Template Matching
 
@@ -92,14 +105,15 @@ interface AlignmentResult {
   matchedFields: number;
   totalFields: number;
   confidence: number;
+  alignmentMethod: 'anchor' | 'position' | 'hybrid';
   failureReason?: string;
 }
 
 async function autoAlignTemplate(
-  imageUri: string,
   cells: DetectedCell[],
   ocrTextBlocks: TextBlock[],
-  baseTemplate: SDDGTemplate
+  baseTemplate: SDDGTemplate,
+  imageDims: { width: number; height: number }
 ): Promise<AlignmentResult>
 ```
 
@@ -111,17 +125,20 @@ async function autoAlignTemplate(
    - Match to corresponding template field
    - Target: 5-8 reliable anchor matches
 
-2. **Position-Based Matching** (fallback):
-   - For fields without anchor matches
-   - Normalize positions to percentages (0-1 range)
-   - Find detected cell closest to expected position
-   - Only use if distance < 10% of form dimension
+2. **Position-Based Matching** (fallback - always attempted):
+   - For ALL fields, not just those without anchor matches
+   - Normalize template field centers to percentages (0-1 range)
+   - Find detected cell closest to expected normalized position
+   - Only use match if distance < 10% of form dimension
+   - Supplements anchor matches to improve transform accuracy
 
 **Transform Computation**:
 
 - From matched pairs: `(templateRegion, detectedCell)`
-- Compute offset: average difference in position
 - Compute scale: ratio of detected cell sizes to template sizes
+  - Track `scaleXCount` and `scaleYCount` separately
+  - Divide each sum by its respective count
+- Compute offset: average difference in position after scaling
 - Apply transform to all template regions
 
 ### 3. Integration into Extraction Flow
@@ -142,7 +159,7 @@ if (!customTemplate) {
     const textBlocks = convertToTextBlocks(ocrResult);
 
     autoAlignmentResult = await autoAlignTemplate(
-      correctedUri, cellResult.cells, textBlocks, template
+      cellResult.cells, textBlocks, template, { width, height }
     );
 
     if (autoAlignmentResult.success) {
@@ -159,7 +176,7 @@ if (!customTemplate) {
 ```
 Scan/Select Image
        |
-[Processing Screen] <-- Auto-alignment happens here (invisible to user)
+[SDDGProcessingScreen] <-- Auto-alignment happens here (invisible to user)
        |
    +-------+
    |       |
@@ -167,20 +184,20 @@ Success  Low Confidence
    |       |
    v       v
 Results   Results + Warning Banner
-Screen    "Auto-alignment uncertain. Consider adjusting regions."
+   |       "Some values may be incorrect. [Adjust Regions]"
    |       |
    +---+---+
        |
-[Optional: "Adjust Regions" button]
+       v
+[InteractiveSDDGComplianceScreen]
        |
-Region Adjustment Screen
-(pre-populated with auto-aligned regions)
+[Optional: "Adjust Regions" button navigates to SDDGRegionAdjustmentScreen]
 ```
 
 **UI Changes**:
 
 - `SDDGRegionAdjustmentScreen.tsx`: Accept `preAlignedTemplate` param
-- `SDDGResultsScreen.tsx`: Show warning banner when alignment confidence is low
+- `InteractiveSDDGComplianceScreen.tsx`: Show dismissible warning banner when alignment confidence is low, with "Adjust Regions" action button
 
 ## Error Handling
 
@@ -191,23 +208,25 @@ Region Adjustment Screen
 | Good scan | 20+ cells | Full auto-alignment |
 | Faded lines | 10-20 cells | Partial alignment, lower confidence |
 | Poor scan | <10 cells | Skip alignment, use default template, flag |
+| Skewed scan | Lines not classified | Show "Form appears skewed" message, suggest re-scan |
 | Library error | Exception | Catch, log, use default template |
 
 ### Matching Failures
 
-| Scenario | Anchor Matches | Action |
-|----------|----------------|--------|
-| All anchors found | 8+ matches | High confidence |
-| Some anchors | 3-7 matches | Medium confidence, use position fallback |
-| Few anchors | <3 matches | Low confidence, flag for review |
+| Scenario | Matches | Action |
+|----------|---------|--------|
+| Strong alignment | 8+ anchor matches | High confidence, anchor method |
+| Good alignment | 5-7 anchor matches | Good confidence, hybrid method |
+| Weak alignment | 3-4 matches (anchor + position) | Medium confidence, flag for review |
+| Poor alignment | <3 total matches | Low confidence, use default template, flag |
 
 ### Safety Guards
 
 ```typescript
-function isTransformReasonable(transform: Transform): boolean {
+function isTransformReasonable(transform: Transform, imageDims): boolean {
   // Offset shouldn't exceed 20% of image dimension
-  if (Math.abs(transform.offsetX) > imageWidth * 0.2) return false;
-  if (Math.abs(transform.offsetY) > imageHeight * 0.2) return false;
+  if (Math.abs(transform.offsetX) > imageDims.width * 0.2) return false;
+  if (Math.abs(transform.offsetY) > imageDims.height * 0.2) return false;
 
   // Scale should be between 0.7 and 1.3
   if (transform.scaleX < 0.7 || transform.scaleX > 1.3) return false;
@@ -217,51 +236,76 @@ function isTransformReasonable(transform: Transform): boolean {
 }
 ```
 
-**Timeout**: OpenCV detection limited to 5 seconds.
+**Timeout**: OpenCV detection limited to 10 seconds (extended from 5s for older devices).
 
 ## Implementation Plan
 
 ### New Dependencies
 
-- `react-native-fast-opencv` (requires native rebuild)
+- `react-native-fast-opencv@0.4.7` (pinned, requires native rebuild)
 
 ### New Files
 
 | File | Purpose | ~Lines |
 |------|---------|--------|
-| `src/services/sddg/opencvCellDetection.ts` | Line detection, cell extraction | ~200 |
-| `src/services/sddg/templateAutoAlignment.ts` | Matching, transform computation | ~250 |
+| `src/services/sddg/opencvCellDetection.ts` | Line detection, cell extraction | ~250 |
+| `src/services/sddg/templateAutoAlignment.ts` | Matching, transform computation | ~300 |
 
 ### Modified Files
 
 | File | Changes |
 |------|---------|
-| `src/services/sddg/templateExtractor.ts` | Add auto-alignment call (~30 lines) |
+| `src/services/sddg/templateExtractor.ts` | Add auto-alignment call (~40 lines) |
 | `src/screens/SDDG/SDDGRegionAdjustmentScreen.tsx` | Accept pre-aligned template (~10 lines) |
-| `src/screens/SDDG/SDDGResultsScreen.tsx` | Warning banner (~20 lines) |
+| `src/screens/inspector/InteractiveSDDGComplianceScreen.tsx` | Warning banner (~30 lines) |
 
 ### Implementation Order
 
-1. Install `react-native-fast-opencv`, verify with grayscale test
-2. Implement `opencvCellDetection.ts`
-3. Implement `templateAutoAlignment.ts`
+1. Install `react-native-fast-opencv@0.4.7`, verify with grayscale test
+2. Implement `opencvCellDetection.ts` with scale-aware thresholds
+3. Implement `templateAutoAlignment.ts` with hybrid matching
 4. Integrate into `templateExtractor.ts`
-5. Update UI screens
+5. Update UI screens (warning banner on InteractiveSDDGComplianceScreen)
 6. Test with sample SDDG forms
+
+### Testing Strategy
+
+**Unit Tests**: Cover line utilities, cell building, transform computation, matching logic.
+
+**Integration Tests (Post-MVP)**: Create a corpus of anonymized SDDG scans with expected cell counts and anchor matches. This is deferred to post-MVP but should be added before production release.
+
+**Manual Testing**: Test with the sample forms in `assets/` directory during development.
 
 ## Success Criteria
 
-- Auto-alignment succeeds on >80% of clearly scanned forms
+- Auto-alignment succeeds on >80% of **clearly scanned, non-skewed** forms
 - When successful, extraction accuracy matches manual adjustment
-- Processing time increase <3 seconds
-- Graceful fallback when detection fails
+- Processing time increase <5 seconds on modern devices
+- Graceful fallback with user feedback when detection fails
+- Clear messaging when skew is detected
 
 ## Design Decisions
 
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
-| Line detection method | HoughLinesP | More robust to scan quality than contour detection |
-| Cell-to-field mapping | Hybrid (labels + position) | Labels provide ground truth, position handles remainder |
-| Transform type | Translation + Scale | Handles common variations without over-fitting |
+| Line detection method | HoughLinesP + extend/merge | Handles broken table borders from text/folds |
+| Cell-to-field mapping | Hybrid (anchors + position) | Anchors provide ground truth, position supplements |
+| Transform type | Translation + Scale only | Handles common variations; rotation deferred to future |
+| Thresholds | Percentage-based | Scale-aware across different image resolutions |
 | UX flow | Auto with optional refinement | Fast happy path, manual refinement when needed |
-| Fallback behavior | Proceed with warning | Doesn't block user, encourages correction |
+| Fallback behavior | Proceed with warning banner | Doesn't block user, provides actionable recovery |
+| Skew handling | Document limitation, prompt re-scan | MVP scope; deskew deferred to future iteration |
+| Warning UI | InteractiveSDDGComplianceScreen | User sees results first, then decides on adjustment |
+| Timeout | 10 seconds | Accommodates older devices without downscaling complexity |
+
+## Revision History
+
+- **2026-01-28 (v2)**: Revised based on code review feedback
+  - Added "Known Limitations" section for skew handling
+  - Changed to percentage-based thresholds (scale-aware)
+  - Added line extension and colinear merging for broken borders
+  - Clarified position-based fallback implementation
+  - Fixed UI screen reference (InteractiveSDDGComplianceScreen, not SDDGResultsScreen)
+  - Extended timeout to 10 seconds
+  - Pinned library version to 0.4.7
+  - Added testing strategy section
