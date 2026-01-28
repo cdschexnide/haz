@@ -3,8 +3,10 @@ import { View, Text, ActivityIndicator, StyleSheet, Alert } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { DEFAULT_PREPROCESSING_CONFIG } from "../../config/preprocessingConfig";
 import { DEFAULT_ALIGNMENT_CONFIG } from "../../config/alignmentConfig";
+import { getDevSettings } from "@/config/devSettings";
 import { initializePaddleOCR } from "@/services/sddg/paddleOCREngine";
 import { extractFormData } from "@/services/sddg/templateExtractor";
+import { extractWithAnchors, convertToSDDGData } from "@/services/sddg/anchorBasedExtractor";
 import { useInspectionForm } from "@/contexts/InspectionFormProvider";
 import { useNavigationRef } from "@/contexts/NavigationRefProvider/useNavigationRef";
 import { ExtractedSDDGContent } from "@/types/sddg";
@@ -112,80 +114,100 @@ export default function ProcessingScreen() {
 
   const processImage = async () => {
     try {
+      const devSettings = getDevSettings();
+
       // Step 1: Initialize OCR
       setStatus("Initializing OCR...");
       await initializePaddleOCR();
 
-      // Step 2: Configure preprocessing based on image source
-      // Document scanner already crops, straightens, and enhances the image
-      // So we can skip preprocessing for scanned documents
-      const preprocessingConfig = isScanned
-        ? { ...DEFAULT_PREPROCESSING_CONFIG, enabled: false }
-        : DEFAULT_PREPROCESSING_CONFIG;
+      let mappedContent: ExtractedSDDGContent;
 
-      if (isScanned) {
-        console.log(
-          "📄 Image from document scanner - skipping preprocessing (already enhanced)"
+      if (devSettings.sddgExtractionMethod === "anchor-based" && !customTemplate) {
+        // NEW: Anchor-based extraction
+        console.log("🎯 Using anchor-based extraction");
+        setStatus("Detecting form fields...");
+
+        const anchorResult = await extractWithAnchors(
+          imageUri,
+          progressInfo => {
+            setProgress(progressInfo);
+            const percent = Math.round((progressInfo.current / progressInfo.total) * 100);
+            setStatus(`Finding: ${progressInfo.field} (${percent}%)`);
+          }
         );
+
+        console.log("✅ Anchor extraction result:", anchorResult.metadata);
+
+        if (anchorResult.warnings.length > 0) {
+          console.warn("⚠️ Extraction warnings:", anchorResult.warnings);
+        }
+
+        // Convert to SDDGData then to hazpro format
+        const sddgData = convertToSDDGData(anchorResult);
+        mappedContent = mapToHazproFormat(sddgData);
+
       } else {
-        console.log(
-          "📷 Image from manual camera/library - applying preprocessing"
-        );
-      }
+        // LEGACY: Template-based extraction (when using custom template from region adjustment)
+        console.log("📋 Using template-based extraction");
 
-      if (customTemplate) {
-        console.log("🎯 Using user-adjusted template coordinates");
-      }
+        // Configure preprocessing based on image source
+        // Document scanner already crops, straightens, and enhances the image
+        // So we can skip preprocessing for scanned documents
+        const preprocessingConfig = isScanned
+          ? { ...DEFAULT_PREPROCESSING_CONFIG, enabled: false }
+          : DEFAULT_PREPROCESSING_CONFIG;
 
-      // Step 3: Extract using template-based extraction
-      setStatus("Extracting form fields...");
-      const result = await extractFormData(
-        imageUri,
-        "AMC_IMT_1033",
-        progressInfo => {
-          // Update progress
-          setProgress(progressInfo);
-          const percent = Math.round(
-            (progressInfo.current / progressInfo.total) * 100
+        if (isScanned) {
+          console.log(
+            "📄 Image from document scanner - skipping preprocessing (already enhanced)"
           );
-          setStatus(`Extracting: ${progressInfo.field} (${percent}%)`);
-        },
-        preprocessingConfig, // Pass preprocessing config
-        DEFAULT_ALIGNMENT_CONFIG, // Keep alignment enabled (fine-tuning)
-        customTemplate // Pass custom template if user adjusted regions
-      );
+        } else {
+          console.log(
+            "📷 Image from manual camera/library - applying preprocessing"
+          );
+        }
 
-      console.log("✅ Template extraction result:", result);
-      console.log("📊 Extracted data:", result.data);
-      console.log("📈 Metadata:", result.metadata);
+        if (customTemplate) {
+          console.log("🎯 Using user-adjusted template coordinates");
+        }
 
-      // Step 4: Map SddgOCR format to hazpro format
-      const mappedContent = mapToHazproFormat(result.data);
+        setStatus("Extracting form fields...");
+        const result = await extractFormData(
+          imageUri,
+          "AMC_IMT_1033",
+          progressInfo => {
+            // Update progress
+            setProgress(progressInfo);
+            const percent = Math.round(
+              (progressInfo.current / progressInfo.total) * 100
+            );
+            setStatus(`Extracting: ${progressInfo.field} (${percent}%)`);
+          },
+          preprocessingConfig, // Pass preprocessing config
+          DEFAULT_ALIGNMENT_CONFIG, // Keep alignment enabled (fine-tuning)
+          customTemplate // Pass custom template if user adjusted regions
+        );
+
+        console.log("✅ Template extraction result:", result);
+        console.log("📊 Extracted data:", result.data);
+        console.log("📈 Metadata:", result.metadata);
+
+        mappedContent = mapToHazproFormat(result.data);
+      }
+
       console.log("🔄 Mapped to hazpro format:", mappedContent);
 
-      // Step 5: Save to InspectionFormProvider context
+      // Save to InspectionFormProvider context
       setExtractedSDDGContent(mappedContent, imageUri);
       console.log("💾 Saved to InspectionFormProvider");
 
-      // Step 6: Navigate to verification screen
-      // Use nested navigation since we're in RootStack and need to navigate to InspectorWrappedStack
-      if (result.success) {
-        setStatus("Extraction complete! Proceeding to verification...");
-        setTimeout(() => {
-          navigate("InspectorWrappedStack", {
-            screen: "InteractiveSDDGComplianceScreen",
-          });
-        }, 500);
-      } else {
-        setStatus(`Extraction completed with ${result.errors.length} errors`);
-        console.warn("⚠️ Extraction errors:", result.errors);
-        // Still navigate to allow manual verification/correction
-        setTimeout(() => {
-          navigate("InspectorWrappedStack", {
-            screen: "InteractiveSDDGComplianceScreen",
-          });
-        }, 1500);
-      }
+      // Navigate to verification screen
+      setStatus("Extraction complete! Proceeding to verification...");
+      setTimeout(() => {
+        navigate("InspectorWrappedStack", {
+          screen: "InteractiveSDDGComplianceScreen",
+        });
+      }, 500);
     } catch (error: any) {
       console.error("❌ Processing error:", error);
       const errorMessage = error?.message || String(error);
