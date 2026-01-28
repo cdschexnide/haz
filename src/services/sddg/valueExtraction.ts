@@ -1,5 +1,36 @@
 import { TextBlock, ValueRegion, CheckboxOption, BoundingBox } from "./anchorTypes";
 
+// Known labels that should NOT appear in extracted values
+const KNOWN_LABELS = [
+  "SHIPPER", "CONSIGNEE", "AIR WAYBILL", "AIRPORT OF DEPARTURE",
+  "AIRPORT OF DESTINATION", "PASSENGER AND CARGO AIRCRAFT", "CARGO AIRCRAFT ONLY",
+  "NON-RADIOACTIVE", "RADIOACTIVE", "UN OR ID", "PROPER SHIPPING NAME",
+  "CLASS OR DIVISION", "PACKING GROUP", "QUANTITY AND TYPE", "PACKING INST",
+  "AUTHORIZATION", "ADDITIONAL HANDLING", "EMERGENCY TELEPHONE",
+  "NAME/TITLE OF SIGNATORY", "NAME OF SIGNATORY", "PLACE AND DATE", "SIGNATURE",
+  "TRANSPORTATION DETAILS", "WARNING", "COMPLETED AND SIGNED", "FAILURE TO COMPLY",
+  "THIS SHIPMENT IS WITHIN", "DELETE NON-APPLICABLE"
+];
+
+/**
+ * Check if text is a known label that should be filtered out
+ */
+function isKnownLabel(text: string): boolean {
+  const normalized = text.toUpperCase().replace(/\s+/g, " ").trim();
+
+  // Check for exact or partial matches with known labels
+  for (const label of KNOWN_LABELS) {
+    if (normalized === label || normalized.includes(label) || label.includes(normalized)) {
+      // Only filter if it's a significant match (not just a word like "AND")
+      if (normalized.length >= 4 || label === normalized) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
 /**
  * Check if a text block's center is within a bounding box
  */
@@ -40,9 +71,9 @@ export function extractValueFromRegion(
   textBlocks: TextBlock[],
   region: ValueRegion
 ): string {
-  // Filter blocks that are within the region
+  // Filter blocks that are within the region AND not known labels
   const blocksInRegion = textBlocks.filter(block =>
-    isBlockInRegion(block, region.boundingBox)
+    isBlockInRegion(block, region.boundingBox) && !isKnownLabel(block.text)
   );
 
   if (blocksInRegion.length === 0) {

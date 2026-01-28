@@ -22,32 +22,41 @@ import { SDDGData } from "@/types/sddg-template";
 
 /**
  * Convert ML Kit recognition result to our TextBlock format
+ * Uses LINES (not blocks) for more consistent granularity
  */
 export function convertToMLKitFormat(mlKitResult: any): TextBlock[] {
   const textBlocks: TextBlock[] = [];
 
+  // Use lines within blocks for more consistent granularity
+  // ML Kit structure: blocks[] → lines[] → elements[]
   for (const block of mlKitResult.blocks || []) {
-    if (!block.cornerPoints || block.cornerPoints.length < 4) continue;
+    // Process each line within the block
+    for (const line of block.lines || []) {
+      if (!line.cornerPoints || line.cornerPoints.length < 4) continue;
 
-    const xs = block.cornerPoints.map((p: any) => p.x);
-    const ys = block.cornerPoints.map((p: any) => p.y);
+      const xs = line.cornerPoints.map((p: any) => p.x);
+      const ys = line.cornerPoints.map((p: any) => p.y);
 
-    const minX = Math.min(...xs);
-    const maxX = Math.max(...xs);
-    const minY = Math.min(...ys);
-    const maxY = Math.max(...ys);
+      const minX = Math.min(...xs);
+      const maxX = Math.max(...xs);
+      const minY = Math.min(...ys);
+      const maxY = Math.max(...ys);
 
-    textBlocks.push({
-      text: block.text,
-      boundingBox: {
-        x: minX,
-        y: minY,
-        width: maxX - minX,
-        height: maxY - minY,
-      },
-      confidence: 1.0, // ML Kit doesn't provide confidence per block
-    });
+      textBlocks.push({
+        text: line.text,
+        boundingBox: {
+          x: minX,
+          y: minY,
+          width: maxX - minX,
+          height: maxY - minY,
+        },
+        confidence: 1.0,
+      });
+    }
   }
+
+  // Debug: log all text blocks
+  console.log("📝 OCR Lines:", textBlocks.map(b => `"${b.text}" at (${Math.round(b.boundingBox.x)}, ${Math.round(b.boundingBox.y)})`).join("\n"));
 
   return textBlocks;
 }
@@ -181,6 +190,9 @@ export async function extractWithAnchors(
       if (config.postProcessing && config.postProcessing.length > 0) {
         value = applyPostProcessing(value, config.postProcessing);
       }
+
+      // Debug: log extracted value
+      console.log(`📦 ${config.fieldId}: "${value.substring(0, 50)}${value.length > 50 ? '...' : ''}"`);
 
       results.set(config.fieldId, {
         fieldId: config.fieldId,

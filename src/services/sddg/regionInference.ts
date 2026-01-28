@@ -6,9 +6,10 @@ import {
   BoundingBox,
 } from "./anchorTypes";
 
-const PADDING = 10; // pixels between anchor and value region
-const DEFAULT_REGION_HEIGHT = 100; // default if no bounding anchor found
-const DEFAULT_REGION_WIDTH = 300;
+const PADDING = 5; // pixels between anchor and value region
+const DEFAULT_REGION_HEIGHT = 60; // MUCH smaller default - 2-3 lines of text
+const DEFAULT_REGION_WIDTH = 200; // Reasonable width for single values
+const MAX_MULTI_LINE_HEIGHT = 120; // Max for multi-line fields like SHIPPER/CONSIGNEE
 
 /**
  * Compute value region for label-top-left-value-fills-box pattern
@@ -49,13 +50,19 @@ export function computeLabelTopLeftRegion(
     }
   }
 
+  // Cap the region size to prevent capturing too much
+  const cappedWidth = Math.min(maxX - startX, DEFAULT_REGION_WIDTH * 2); // Max ~400px width
+  const cappedHeight = Math.min(maxY - startY, MAX_MULTI_LINE_HEIGHT); // Max 120px height
+
+  console.log(`📐 Region for ${anchor.fieldId}: (${startX}, ${startY}) ${cappedWidth}x${cappedHeight}`);
+
   return {
     fieldId: anchor.fieldId,
     boundingBox: {
       x: startX,
       y: startY,
-      width: maxX - startX,
-      height: Math.min(maxY - startY, DEFAULT_REGION_HEIGHT * 3), // cap height
+      width: cappedWidth,
+      height: cappedHeight,
     },
     anchorMatch: anchor,
   };

@@ -112,12 +112,16 @@ export function findAnchors(
     }
 
     if (bestMatch) {
-      anchors.set(config.fieldId, {
+      const match: AnchorMatch = {
         fieldId: config.fieldId,
         boundingBox: bestMatch.block.boundingBox,
         matchedPattern: bestMatch.pattern,
         confidence: bestMatch.distance === 0 ? 1.0 : 0.8
-      });
+      };
+      anchors.set(config.fieldId, match);
+      console.log(`🎯 Anchor "${config.fieldId}" found: "${bestMatch.block.text}" at (${Math.round(bestMatch.block.boundingBox.x)}, ${Math.round(bestMatch.block.boundingBox.y)})`);
+    } else {
+      console.log(`❌ Anchor "${config.fieldId}" NOT found (patterns: ${config.labelPatterns.slice(0, 2).join(', ')}...)`);
     }
   }
 

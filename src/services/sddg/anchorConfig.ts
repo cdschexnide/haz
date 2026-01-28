@@ -27,7 +27,7 @@ export const SDDG_ANCHORS: AnchorConfig[] = [
     labelPatterns: ["CONSIGNEE", "Consignee"],
     patternType: "label-top-left-value-fills-box",
     valueRegionRules: {
-      boundedBy: ["transportation_details", "inspector"],
+      boundedBy: ["airport_departure", "aircraft_type", "shipment_type"],
       direction: "below-and-right"
     },
     postProcessing: ["remove_label_prefix", "trim"]
