@@ -31,30 +31,36 @@ export function computeLabelTopLeftRegion(
   const startY = anchorBox.y + anchorBox.height;
 
   // Find the bounding anchor below (for height)
+  // Only consider anchors that are significantly below (not at same Y level)
+  const MIN_Y_SEPARATION = 30; // Minimum Y gap to consider an anchor as "below"
   let maxY = imageHeight;
   if (rules.boundedBy) {
     for (const boundId of rules.boundedBy) {
       const boundAnchor = allAnchors.get(boundId);
-      if (boundAnchor && boundAnchor.boundingBox.y > startY) {
+      if (boundAnchor && boundAnchor.boundingBox.y > startY + MIN_Y_SEPARATION) {
         maxY = Math.min(maxY, boundAnchor.boundingBox.y - PADDING);
       }
     }
   }
 
   // Find the bounding anchor to the right (for width)
+  // Only consider anchors that are significantly to the right
+  const MIN_X_SEPARATION = 50;
   let maxX = imageWidth;
   if (rules.boundedBy) {
     for (const boundId of rules.boundedBy) {
       const boundAnchor = allAnchors.get(boundId);
-      if (boundAnchor && boundAnchor.boundingBox.x > anchorBox.x + anchorBox.width) {
+      if (boundAnchor && boundAnchor.boundingBox.x > anchorBox.x + anchorBox.width + MIN_X_SEPARATION) {
         maxX = Math.min(maxX, boundAnchor.boundingBox.x - PADDING);
       }
     }
   }
 
   // Cap the region size to prevent capturing too much
-  const cappedWidth = Math.min(maxX - startX, DEFAULT_REGION_WIDTH * 2); // Max ~400px width
-  const cappedHeight = Math.min(maxY - startY, MAX_MULTI_LINE_HEIGHT); // Max 120px height
+  // Ensure minimum height even if bounds calculation went wrong
+  const rawHeight = maxY - startY;
+  const cappedWidth = Math.min(Math.max(maxX - startX, 100), DEFAULT_REGION_WIDTH * 2); // Min 100, Max ~400px
+  const cappedHeight = Math.min(Math.max(rawHeight, DEFAULT_REGION_HEIGHT), MAX_MULTI_LINE_HEIGHT); // Min 60, Max 120px
 
   console.log(`📐 Region for ${anchor.fieldId}: (${startX}, ${startY}) ${cappedWidth}x${cappedHeight}`);
 

@@ -40,9 +40,10 @@ export const SDDG_ANCHORS: AnchorConfig[] = [
   },
   {
     fieldId: "page_info",
-    labelPatterns: ["PAGE"],
+    labelPatterns: ["PAGE 1 OF", "PAGE1 OF"],
     patternType: "inline-pattern",
-    valueRegionRules: { regex: "PAGE\\s*(\\d+)\\s*OF\\s*(\\d+)\\s*PAGES?" }
+    // Handle OCR variations: "PAGE 1 OF 1 PAGES", "PAGE1 OF1 PAGES", etc.
+    valueRegionRules: { regex: "PAGE\\s*\\d+\\s*OF\\s*\\d+\\s*PAGES?" }
   },
   {
     fieldId: "shipper_reference_tcn",

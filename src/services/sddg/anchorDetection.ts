@@ -100,12 +100,13 @@ function calculateMatchScore(
   }
 
   // Check if text STARTS with the pattern (label at beginning)
-  // This handles "SHIPPER FY4484" where label has value attached
+  // This handles "CONSIGNEE 0000 HQ..." where label has account info attached
   if (normalizedText.startsWith(normalizedPattern)) {
     const extraLength = normalizedText.length - normalizedPattern.length;
-    // Accept if pattern is majority of text (>50%) and extra isn't too long
+    // Accept if pattern is at least 25% of text (handles CONSIGNEE with long suffix)
+    // or if extra text is reasonably short
     const patternRatio = normalizedPattern.length / normalizedText.length;
-    if (patternRatio >= 0.4 && extraLength <= 15) {
+    if (patternRatio >= 0.25 || extraLength <= 20) {
       return { score: 2 + (1 - patternRatio) * 10, matchType: "contains" };
     }
   }
@@ -121,14 +122,17 @@ function calculateMatchScore(
     return { score: Infinity, matchType: "none" };
   }
 
-  // Fuzzy match - scale threshold by pattern length
-  const maxDistance = Math.max(3, Math.floor(normalizedPattern.length / 4));
-  const distance = levenshteinDistance(normalizedText, normalizedPattern);
+  // Fuzzy match - only for patterns of reasonable length to avoid false matches
+  // Don't fuzzy match short patterns like "PAGE" which could match "TYPE"
+  if (normalizedPattern.length >= 8) {
+    const maxDistance = Math.max(2, Math.floor(normalizedPattern.length / 5));
+    const distance = levenshteinDistance(normalizedText, normalizedPattern);
 
-  if (distance <= maxDistance) {
-    // Score includes distance + length difference penalty
-    const lengthDiff = Math.abs(normalizedText.length - normalizedPattern.length);
-    return { score: 10 + distance + lengthDiff, matchType: "fuzzy" };
+    if (distance <= maxDistance) {
+      // Score includes distance + length difference penalty
+      const lengthDiff = Math.abs(normalizedText.length - normalizedPattern.length);
+      return { score: 10 + distance + lengthDiff, matchType: "fuzzy" };
+    }
   }
 
   return { score: Infinity, matchType: "none" };

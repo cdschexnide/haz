@@ -101,35 +101,61 @@ function extractPortionInRegion(block: TextBlock, region: BoundingBox): string {
   const regionRight = region.x + region.width;
 
   // If block is fully within region, return full text
-  if (blockLeft >= regionLeft && blockRight <= regionRight) {
+  if (blockLeft >= regionLeft - 20 && blockRight <= regionRight + 20) {
     return block.text;
   }
 
-  // Calculate the overlap ratio
+  // Calculate the overlap percentage
   const overlapLeft = Math.max(blockLeft, regionLeft);
   const overlapRight = Math.min(blockRight, regionRight);
   const overlapWidth = overlapRight - overlapLeft;
+  const blockWidth = blockRight - blockLeft;
 
   if (overlapWidth <= 0) return "";
 
-  // Estimate character positions based on proportional width
-  const charWidth = block.boundingBox.width / block.text.length;
-  const startChar = Math.max(0, Math.floor((overlapLeft - blockLeft) / charWidth));
-  const endChar = Math.min(block.text.length, Math.ceil((overlapRight - blockLeft) / charWidth));
-
-  // Extract the portion, but try to break at word boundaries
-  let extracted = block.text.substring(startChar, endChar).trim();
-
-  // Clean up partial words at boundaries if possible
-  if (startChar > 0 && block.text[startChar - 1] !== ' ') {
-    // Started mid-word, try to find word start
-    const spaceIdx = extracted.indexOf(' ');
-    if (spaceIdx > 0 && spaceIdx < extracted.length / 3) {
-      extracted = extracted.substring(spaceIdx + 1);
-    }
+  // If most of the block (>70%) is in the region, return full text
+  const overlapRatio = overlapWidth / blockWidth;
+  if (overlapRatio >= 0.7) {
+    return block.text;
   }
 
-  return extracted;
+  // For significant partial overlap (>30%), try to extract the relevant portion
+  if (overlapRatio >= 0.3) {
+    // Estimate character positions based on proportional width
+    const charWidth = blockWidth / Math.max(block.text.length, 1);
+    const startChar = Math.max(0, Math.floor((overlapLeft - blockLeft) / charWidth));
+    const endChar = Math.min(block.text.length, Math.ceil((overlapRight - blockLeft) / charWidth));
+
+    // Extract the portion
+    let extracted = block.text.substring(startChar, endChar);
+
+    // Try to break at word boundaries - find nearest space
+    if (startChar > 0) {
+      // Look for a space within first few characters to start at word boundary
+      const firstSpaceInExtracted = extracted.indexOf(' ');
+      const lastSpaceBeforeStart = block.text.lastIndexOf(' ', startChar);
+
+      if (firstSpaceInExtracted >= 0 && firstSpaceInExtracted <= 3) {
+        extracted = extracted.substring(firstSpaceInExtracted + 1);
+      } else if (lastSpaceBeforeStart >= 0 && startChar - lastSpaceBeforeStart <= 3) {
+        // Include the whole word
+        extracted = block.text.substring(lastSpaceBeforeStart + 1, endChar);
+      }
+    }
+
+    if (endChar < block.text.length) {
+      // Look for a space within last few characters to end at word boundary
+      const lastSpaceInExtracted = extracted.lastIndexOf(' ');
+      if (lastSpaceInExtracted >= 0 && extracted.length - lastSpaceInExtracted <= 3) {
+        extracted = extracted.substring(0, lastSpaceInExtracted);
+      }
+    }
+
+    return extracted.trim();
+  }
+
+  // Less than 30% overlap - don't include this block
+  return "";
 }
 
 /**
