@@ -84,6 +84,7 @@ export const SDDG_ANCHORS: AnchorConfig[] = [
     labelPatterns: [
       "PASSENGER AND CARGO AIRCRAFT",
       "CARGO AIRCRAFT ONLY",
+      "CARGO AIRCRAFT",
       "PASSENGER AND\nCARGO AIRCRAFT",
       "CARGO AIRCRAFT\nONLY"
     ],
@@ -91,17 +92,25 @@ export const SDDG_ANCHORS: AnchorConfig[] = [
     valueRegionRules: {
       options: [
         { label: "PASSENGER AND CARGO AIRCRAFT", value: "passenger_and_cargo" },
-        { label: "CARGO AIRCRAFT ONLY", value: "cargo_only" }
+        { label: "CARGO AIRCRAFT ONLY", value: "cargo_only" },
+        { label: "CARGO AIRCRAFT", value: "cargo_only" }
       ]
     }
   },
   {
     fieldId: "shipment_type",
-    labelPatterns: ["NON-RADIOACTIVE", "RADIOACTIVE"],
+    labelPatterns: [
+      "NON-RADIOACTIVE",
+      "RADIOACTIVE",
+      "NONRADIOACTIVE",
+      "NONADIOACTIVE",
+      "NON RADIOACTIVE"
+    ],
     patternType: "checkbox-pair",
     valueRegionRules: {
       options: [
         { label: "NON-RADIOACTIVE", value: "non_radioactive" },
+        { label: "NONRADIOACTIVE", value: "non_radioactive" },
         { label: "RADIOACTIVE", value: "radioactive" }
       ]
     }
@@ -136,8 +145,11 @@ export const SDDG_ANCHORS: AnchorConfig[] = [
       "CLASS or DIVISION",
       "Class or Division",
       "CLASS OR DIVISION",
+      "CLASS or",
+      "DIVISION",
       "CLASS or DIVISION\n(SUBSIDIARY RISK)",
-      "Class or Division\n(subsidiary hazard)"
+      "Class or Division\n(subsidiary hazard)",
+      "SUBSIDIARY RISK"
     ],
     patternType: "table-column-header",
     valueRegionRules: { columnIndex: 2, rowBoundedBy: ["additional_handling"] }
@@ -148,7 +160,8 @@ export const SDDG_ANCHORS: AnchorConfig[] = [
       "PACKING GROUP",
       "Packing Group",
       "PACKING\nGROUP",
-      "Pack-\ning\nGroup"
+      "Pack-\ning\nGroup",
+      "GROUP"
     ],
     patternType: "table-column-header",
     valueRegionRules: { columnIndex: 3, rowBoundedBy: ["additional_handling"] }
@@ -160,7 +173,10 @@ export const SDDG_ANCHORS: AnchorConfig[] = [
       "Quantity and Type of Packing",
       "QUANTITY AND\nTYPE of PACKING",
       "QUANTITY AND TYPE\nof PACKING",
-      "Quantity and type of packing"
+      "Quantity and type of packing",
+      "QUANTITYAND",
+      "QUANTITY AND",
+      "TYPE of PACKING"
     ],
     patternType: "table-column-header",
     valueRegionRules: { columnIndex: 4, rowBoundedBy: ["additional_handling"] }
@@ -171,7 +187,8 @@ export const SDDG_ANCHORS: AnchorConfig[] = [
       "PACKING INST",
       "Packing Inst",
       "PACKING\nINST",
-      "Packing\nInst"
+      "Packing\nInst",
+      "PACKING sNST"
     ],
     patternType: "table-column-header",
     valueRegionRules: { columnIndex: 5, rowBoundedBy: ["additional_handling"] }
@@ -188,7 +205,10 @@ export const SDDG_ANCHORS: AnchorConfig[] = [
     fieldId: "additional_handling",
     labelPatterns: [
       "ADDITIONAL HANDLING INFORMATION",
-      "Additional Handling Information"
+      "Additional Handling Information",
+      "ADDITIONAL HANDLING",
+      "ADOITKONAL HAOLING",
+      "HANDLING INFORMATION"
     ],
     patternType: "label-top-left-value-fills-box",
     valueRegionRules: {

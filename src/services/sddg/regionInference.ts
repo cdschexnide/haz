@@ -10,6 +10,8 @@ const PADDING = 5; // pixels between anchor and value region
 const DEFAULT_REGION_HEIGHT = 60; // MUCH smaller default - 2-3 lines of text
 const DEFAULT_REGION_WIDTH = 200; // Reasonable width for single values
 const MAX_MULTI_LINE_HEIGHT = 120; // Max for multi-line fields like SHIPPER/CONSIGNEE
+const MAX_TABLE_HEIGHT = 300; // Max height for table data rows
+const MAX_TABLE_COLUMN_WIDTH = 400; // Max width for any single table column
 
 /**
  * Compute value region for label-top-left-value-fills-box pattern
@@ -173,11 +175,16 @@ export function computeTableColumnRegions(
   );
 
   // Find the bounding anchor below (usually additional_handling)
-  let tableBottom = imageHeight;
+  let tableBottom = headerBottom + MAX_TABLE_HEIGHT; // Default to max height
   const additionalHandling = allAnchors.get("additional_handling");
-  if (additionalHandling) {
-    tableBottom = additionalHandling.boundingBox.y - PADDING;
+  if (additionalHandling && additionalHandling.boundingBox.y > headerBottom) {
+    tableBottom = Math.min(tableBottom, additionalHandling.boundingBox.y - PADDING);
   }
+
+  // Cap table height to prevent capturing too much
+  const tableHeight = Math.min(tableBottom - headerBottom - PADDING, MAX_TABLE_HEIGHT);
+
+  console.log(`📊 Table: headerBottom=${Math.round(headerBottom)}, tableBottom=${Math.round(tableBottom)}, height=${Math.round(tableHeight)}`);
 
   // Compute region for each column
   for (let i = 0; i < sortedAnchors.length; i++) {
@@ -185,15 +192,18 @@ export function computeTableColumnRegions(
     const nextAnchor = sortedAnchors[i + 1];
 
     const startX = anchor.boundingBox.x;
-    const endX = nextAnchor ? nextAnchor.boundingBox.x : imageWidth;
+    const rawEndX = nextAnchor ? nextAnchor.boundingBox.x : startX + MAX_TABLE_COLUMN_WIDTH;
+    const columnWidth = Math.min(rawEndX - startX - PADDING, MAX_TABLE_COLUMN_WIDTH);
+
+    console.log(`📊 Column ${anchor.fieldId}: x=${Math.round(startX)}, width=${Math.round(columnWidth)}`);
 
     regions.set(anchor.fieldId, {
       fieldId: anchor.fieldId,
       boundingBox: {
         x: startX,
         y: headerBottom + PADDING,
-        width: endX - startX - PADDING,
-        height: tableBottom - headerBottom - PADDING,
+        width: columnWidth,
+        height: tableHeight,
       },
       anchorMatch: anchor,
     });
