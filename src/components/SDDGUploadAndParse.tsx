@@ -23,6 +23,7 @@ import { useInspectionFormActions } from "@/contexts/InspectionFormProvider";
 import { ExtractedSDDGContent } from "@/types/sddg";
 import { DevBenchmarkButton } from "./dev/DevBenchmarkButton";
 import { OLLAMA_BASE_URL } from "../config/ollama.config";
+import { getDevSettings } from "@/config/devSettings";
 
 interface SDDGFormData {
   shipper: string;
@@ -250,10 +251,26 @@ function SDDGUploadAndParse({ navigation }: SDDGUploadAndParseProps) {
         const selectedImage = result.assets[0];
         console.log("🟦 [SDDG] Image selected:", selectedImage.uri);
 
-        // Navigate to region adjustment screen (same as Template OCR workflow)
-        navigation.navigate("SDDGRegionAdjustmentScreen", {
-          imageUri: selectedImage.uri,
-        });
+        const devSettings = getDevSettings();
+
+        if (devSettings.sddgExtractionMethod === "anchor-based") {
+          // Skip region adjustment - go directly to processing
+          console.log(
+            "🟦 [SDDG] Using anchor-based extraction, skipping region adjustment"
+          );
+          navigation.navigate("SDDGProcessingScreen", {
+            imageUri: selectedImage.uri,
+            isScanned: false,
+          });
+        } else {
+          // Legacy flow - go to region adjustment first
+          console.log(
+            "🟦 [SDDG] Using manual-regions, navigating to region adjustment"
+          );
+          navigation.navigate("SDDGRegionAdjustmentScreen", {
+            imageUri: selectedImage.uri,
+          });
+        }
 
         setProcessingProgress("");
       } else {

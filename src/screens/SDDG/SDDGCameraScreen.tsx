@@ -3,6 +3,8 @@ import * as ImagePicker from "expo-image-picker";
 import React, { useRef, useState } from "react";
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
+import { getDevSettings } from "@/config/devSettings";
+
 export default function CameraScreen({ navigation }: { navigation: any }) {
   const [permission, requestPermission] = useCameraPermissions();
   const [facing, setFacing] = useState<CameraType>("back");
@@ -16,10 +18,18 @@ export default function CameraScreen({ navigation }: { navigation: any }) {
         });
 
         if (photo) {
-          // Navigate to region adjustment screen
-          navigation.navigate("SDDGRegionAdjustmentScreen", {
-            imageUri: photo.uri,
-          });
+          // Navigate based on extraction method setting
+          const devSettings = getDevSettings();
+          if (devSettings.sddgExtractionMethod === "anchor-based") {
+            navigation.navigate("SDDGProcessingScreen", {
+              imageUri: photo.uri,
+              isScanned: true,
+            });
+          } else {
+            navigation.navigate("SDDGRegionAdjustmentScreen", {
+              imageUri: photo.uri,
+            });
+          }
         }
       } catch (error) {
         console.error("Error taking picture:", error);
@@ -36,9 +46,18 @@ export default function CameraScreen({ navigation }: { navigation: any }) {
       });
 
       if (!result.canceled && result.assets[0]) {
-        navigation.navigate("SDDGRegionAdjustmentScreen", {
-          imageUri: result.assets[0].uri,
-        });
+        // Navigate based on extraction method setting
+        const devSettings = getDevSettings();
+        if (devSettings.sddgExtractionMethod === "anchor-based") {
+          navigation.navigate("SDDGProcessingScreen", {
+            imageUri: result.assets[0].uri,
+            isScanned: true,
+          });
+        } else {
+          navigation.navigate("SDDGRegionAdjustmentScreen", {
+            imageUri: result.assets[0].uri,
+          });
+        }
       }
     } catch (error) {
       console.error("Error picking image:", error);
