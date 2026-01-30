@@ -8,6 +8,8 @@
 
 **Tech Stack:** react-native-fast-opencv (existing), @react-native-ml-kit/text-recognition (existing), TypeScript
 
+**Code review fixes incorporated:** Scale-aware line threshold (#3), phone_number folded into shipper with comment (#5), input-based confidence (#4), smarter fallback on partial cell detection (#7), word-boundary label matching (#9).
+
 ---
 
 ### Task 1: Create cellBasedExtraction.ts — cell-to-field mapping
@@ -29,6 +31,10 @@ Create `src/services/sddg/cellBasedExtraction.ts` with:
  * This replaces the anchor-based spatial proximity approach
  * for non-table, non-checkbox fields. The cell boundary IS
  * the source of truth for what text belongs to a field.
+ *
+ * Coordinate space: Both OpenCV (imread) and ML Kit (recognize)
+ * receive the same imageUri and return pixel coordinates in the
+ * image's native resolution. No coordinate conversion needed.
  */
 
 import { TextBlock, BoundingBox, ExtractionResult, AnchorExtractionResult } from "./anchorTypes";
@@ -113,6 +119,29 @@ function getCellText(cell: DetectedCell, textBlocks: TextBlock[]): string {
 }
 
 /**
+ * Check if a label appears as a whole word/phrase in the cell text,
+ * not as a substring of a longer word (e.g., "CONSIGNEE" should not
+ * match inside "CONSIGNMENT").
+ *
+ * Review fix #9: word-boundary label matching
+ */
+function hasWholeLabel(cellText: string, label: string): boolean {
+  const upperLabel = label.toUpperCase();
+  const idx = cellText.indexOf(upperLabel);
+  if (idx === -1) return false;
+
+  // Check character before label (must be start-of-string or non-letter)
+  const before = idx === 0 ? " " : cellText[idx - 1];
+  // Check character after label (must be end-of-string or non-letter)
+  const after =
+    idx + upperLabel.length >= cellText.length
+      ? " "
+      : cellText[idx + upperLabel.length];
+
+  return !/[A-Z]/.test(before) && !/[A-Z]/.test(after);
+}
+
+/**
  * Map detected cells to field IDs by checking which label text appears inside each cell.
  * Returns a Map from fieldId to the DetectedCell that contains that field.
  */
@@ -131,15 +160,15 @@ export function mapCellsToFields(
       const cellText = getCellText(cells[i], textBlocks);
       if (!cellText) continue;
 
-      // Check if any of this field's labels appear in the cell text
+      // Check if any of this field's labels appear as whole words in the cell text
       const hasLabel = fieldDef.labels.some(label =>
-        cellText.includes(label.toUpperCase())
+        hasWholeLabel(cellText, label)
       );
       if (!hasLabel) continue;
 
       // Check exclude labels — if any exclude label is present, skip this cell
       const hasExcludeLabel = fieldDef.excludeLabels?.some(label =>
-        cellText.includes(label.toUpperCase())
+        hasWholeLabel(cellText, label)
       );
       if (hasExcludeLabel) continue;
 
@@ -158,6 +187,9 @@ export function mapCellsToFields(
 /**
  * Extract all text from a cell in reading order.
  * No label filtering — the cell boundary defines what belongs to the field.
+ *
+ * Review fix #3: LINE_THRESHOLD scales with average text block height
+ * instead of using a fixed pixel value.
  */
 export function extractTextFromCell(
   cell: DetectedCell,
@@ -167,8 +199,14 @@ export function extractTextFromCell(
 
   if (blocks.length === 0) return "";
 
+  // Scale-aware line threshold: 60% of average block height.
+  // Blocks on the same line will have similar Y within this margin.
+  // This scales naturally with image resolution.
+  const avgBlockHeight =
+    blocks.reduce((sum, b) => sum + b.boundingBox.height, 0) / blocks.length;
+  const LINE_THRESHOLD = avgBlockHeight * 0.6;
+
   // Sort by reading order (top-to-bottom, left-to-right)
-  const LINE_THRESHOLD = 15; // pixels — blocks within 15px vertically are on same line
   const sorted = [...blocks].sort((a, b) => {
     const yDiff = a.boundingBox.y - b.boundingBox.y;
     if (Math.abs(yDiff) < LINE_THRESHOLD) {
@@ -217,7 +255,10 @@ const SKIP_CELL_EXTRACTION = new Set([
   "shipment_type",
   // Inline pattern fields
   "page_info",
-  // Phone number is now captured inside the shipper cell
+  // Phone number is intentionally NOT extracted as a separate field.
+  // It is captured as part of the shipper cell text, which includes
+  // the address, phone number, and DSN in the AMC IMT 1033 form layout.
+  // Review fix #5: documented intent.
   "phone_number",
 ]);
 
@@ -227,6 +268,11 @@ const SKIP_CELL_EXTRACTION = new Set([
  * Returns a Map of fieldId → extracted value for fields that were
  * successfully extracted via cell boundaries. Fields not in this map
  * should fall back to anchor-based extraction.
+ *
+ * Review fix #7: does not require cellDetection.success (>= 10 cells).
+ * Even partial detection (3-9 cells) is attempted. If mapCellsToFields()
+ * maps zero fields, the empty cellResults map naturally causes full
+ * anchor-based fallback.
  */
 export async function extractFieldsFromCells(
   imageUri: string,
@@ -241,9 +287,9 @@ export async function extractFieldsFromCells(
   console.log("🔲 Running OpenCV cell detection...");
   const cellDetection = await detectCells(imageUri);
 
-  if (!cellDetection.success) {
+  if (cellDetection.cells.length === 0) {
     console.log(
-      `⚠️ Cell detection failed: ${cellDetection.error || "< 10 cells detected"}. Will use anchor-based fallback.`
+      `⚠️ No cells detected${cellDetection.error ? `: ${cellDetection.error}` : ""}. Will use anchor-based fallback.`
     );
     return { cellResults, cellDetection };
   }
@@ -289,7 +335,11 @@ git add src/services/sddg/cellBasedExtraction.ts
 git commit -m "feat: add cell-based extraction module
 
 Maps OpenCV-detected cells to field labels, extracts all OCR text
-inside each cell boundary. No isKnownLabel filtering needed."
+inside each cell boundary. No isKnownLabel filtering needed.
+
+Incorporates code review fixes: scale-aware line threshold,
+word-boundary label matching, smarter partial-detection fallback,
+phone_number folded into shipper with documented intent."
 ```
 
 ---
@@ -299,17 +349,17 @@ inside each cell boundary. No isKnownLabel filtering needed."
 **Files:**
 - Modify: `src/services/sddg/anchorBasedExtractor.ts`
 
-**Step 1: Add import and call cell-based extraction before anchor loop**
+**Step 1: Add import**
 
-At the top of the file, add import:
+At the top of the file, after the existing imports (after line 26), add:
 
 ```typescript
 import { extractFieldsFromCells } from "./cellBasedExtraction";
 ```
 
-**Step 2: Modify extractWithAnchors() to use cell results**
+**Step 2: Add cell-based extraction call after OCR step**
 
-Inside `extractWithAnchors()`, after the OCR step (after line 89: `const textBlocks = convertToMLKitFormat(mlKitResult);`), add the cell-based extraction call:
+Inside `extractWithAnchors()`, after the OCR step (after line 90: `console.log(...OCR complete...)`), add:
 
 ```typescript
     // Step 1b: Try cell-based extraction (OpenCV cells + OCR text inside)
@@ -321,16 +371,20 @@ Inside `extractWithAnchors()`, after the OCR step (after line 89: `const textBlo
     console.log(`🔲 Cell-based extraction got ${cellResults.size} fields`);
 ```
 
-Then, inside the main `for (const config of SDDG_ANCHORS)` loop (at the top, after `processedFields++` and the `onProgress` call), add an early-out check:
+**Step 3: Add early-out in the anchor loop**
+
+Inside the main `for (const config of SDDG_ANCHORS)` loop, after the `onProgress` callback (after line 172) and before `const anchor = anchors.get(config.fieldId);` (line 174), add:
 
 ```typescript
       // Check if cell-based extraction already got this field
       if (cellResults.has(config.fieldId)) {
         const cellValue = cellResults.get(config.fieldId)!;
+        // Review fix #4: confidence based on whether we got content
+        const confidence = cellValue.length > 0 ? 0.92 : 0.3;
         results.set(config.fieldId, {
           fieldId: config.fieldId,
           value: cellValue,
-          confidence: 0.95,
+          confidence,
           status: "extracted",
         });
         console.log(`📦 ${config.fieldId}: using cell-based result`);
@@ -338,16 +392,15 @@ Then, inside the main `for (const config of SDDG_ANCHORS)` loop (at the top, aft
       }
 ```
 
-This goes right after the `onProgress` callback (line 172) and before the existing `const anchor = anchors.get(config.fieldId);` line (line 174).
-
-**Step 3: Commit**
+**Step 4: Commit**
 
 ```bash
 git add src/services/sddg/anchorBasedExtractor.ts
 git commit -m "feat: integrate cell-based extraction into anchor pipeline
 
 Cell-based results take priority for non-table, non-checkbox fields.
-Anchor-based logic remains as fallback for unmapped fields."
+Anchor-based logic remains as fallback for unmapped fields.
+Confidence tied to extraction result (0.92 with content, 0.3 empty)."
 ```
 
 ---
@@ -418,6 +471,26 @@ git commit -m "test: verify cell-based extraction on device"
 | `src/services/sddg/cellBasedExtraction.ts` | Create | Cell-to-field mapping + text extraction from cells |
 | `src/services/sddg/anchorBasedExtractor.ts` | Modify | Call cell extraction first, use results, fall back to anchors |
 | `src/screens/SDDG/SDDGProcessingScreen.tsx` | None | No changes — hybrid behavior is internal to extractWithAnchors |
+
+## Code Review Fixes Addressed
+
+| # | Finding | Fix |
+|---|---------|-----|
+| 3 | Fixed pixel LINE_THRESHOLD | Scale to 60% of average text block height |
+| 4 | Hard-coded confidence 0.95 | 0.92 with content, 0.3 empty |
+| 5 | phone_number field semantics | Folded into shipper cell, documented with comment |
+| 7 | "< 10 cells" fallback too coarse | Gate on `cells.length === 0` instead of `success` flag |
+| 9 | `includes()` false positives | `hasWholeLabel()` with word-boundary checks |
+
+## Dismissed Findings (with rationale)
+
+| # | Finding | Rationale |
+|---|---------|-----------|
+| 1 | Coordinate space alignment | Both OpenCV and ML Kit use same imageUri at native resolution |
+| 2 | Label outside cell | AMC IMT 1033 always has labels inside value cells |
+| 6 | Cell assignment order-sensitive | Intentional — priority ordering is the design; logged |
+| 8 | Logging volume/emoji | Matches existing codebase convention throughout sddg/ |
+| 10 | Exclude labels incomplete | Covered by priority ordering + excludeLabels + hasWholeLabel |
 
 ## Rollback
 
