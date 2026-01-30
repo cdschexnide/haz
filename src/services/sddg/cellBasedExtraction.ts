@@ -13,10 +13,10 @@
  * image's native resolution. No coordinate conversion needed.
  */
 
-import { TextBlock, BoundingBox, ExtractionResult, AnchorExtractionResult } from "./anchorTypes";
+import { TextBlock } from "./anchorTypes";
 import { DetectedCell, CellDetectionResult } from "./opencvTypes";
 import { detectCells } from "./opencvCellDetection";
-import { SDDG_ANCHORS, getAnchorConfig } from "./anchorConfig";
+import { getAnchorConfig } from "./anchorConfig";
 import { applyPostProcessing } from "./valueExtraction";
 
 /**
