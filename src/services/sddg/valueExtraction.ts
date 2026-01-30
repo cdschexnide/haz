@@ -119,39 +119,34 @@ function extractPortionInRegion(block: TextBlock, region: BoundingBox): string {
     return block.text;
   }
 
-  // For significant partial overlap (>30%), try to extract the relevant portion
+  // For significant partial overlap (>30%), use word-level splitting
+  // Split text into words and include words whose estimated center falls within the region
   if (overlapRatio >= 0.3) {
-    // Estimate character positions based on proportional width
+    const words = block.text.split(/\s+/);
+    if (words.length <= 1) {
+      // Single word - include if overlap is significant
+      return overlapRatio >= 0.5 ? block.text : "";
+    }
+
+    // Estimate each word's horizontal position proportionally
     const charWidth = blockWidth / Math.max(block.text.length, 1);
-    const startChar = Math.max(0, Math.floor((overlapLeft - blockLeft) / charWidth));
-    const endChar = Math.min(block.text.length, Math.ceil((overlapRight - blockLeft) / charWidth));
+    let charOffset = 0;
+    const includedWords: string[] = [];
 
-    // Extract the portion
-    let extracted = block.text.substring(startChar, endChar);
+    for (const word of words) {
+      const wordStartX = blockLeft + charOffset * charWidth;
+      const wordEndX = wordStartX + word.length * charWidth;
+      const wordCenterX = (wordStartX + wordEndX) / 2;
 
-    // Try to break at word boundaries - find nearest space
-    if (startChar > 0) {
-      // Look for a space within first few characters to start at word boundary
-      const firstSpaceInExtracted = extracted.indexOf(' ');
-      const lastSpaceBeforeStart = block.text.lastIndexOf(' ', startChar);
-
-      if (firstSpaceInExtracted >= 0 && firstSpaceInExtracted <= 3) {
-        extracted = extracted.substring(firstSpaceInExtracted + 1);
-      } else if (lastSpaceBeforeStart >= 0 && startChar - lastSpaceBeforeStart <= 3) {
-        // Include the whole word
-        extracted = block.text.substring(lastSpaceBeforeStart + 1, endChar);
+      // Include this word if its center falls within the region
+      if (wordCenterX >= regionLeft && wordCenterX <= regionRight) {
+        includedWords.push(word);
       }
+
+      charOffset += word.length + 1; // +1 for the space
     }
 
-    if (endChar < block.text.length) {
-      // Look for a space within last few characters to end at word boundary
-      const lastSpaceInExtracted = extracted.lastIndexOf(' ');
-      if (lastSpaceInExtracted >= 0 && extracted.length - lastSpaceInExtracted <= 3) {
-        extracted = extracted.substring(0, lastSpaceInExtracted);
-      }
-    }
-
-    return extracted.trim();
+    return includedWords.join(" ").trim();
   }
 
   // Less than 30% overlap - don't include this block
@@ -249,54 +244,98 @@ export function extractInlinePatternValue(
 
 /**
  * Extract checkbox value by detecting which option is NOT X'd out
+ * Uses closest-option association: each X block is paired with its nearest option label,
+ * and the option WITHOUT X marks closest to it is the selected one.
  */
 export function extractCheckboxValue(
   textBlocks: TextBlock[],
   options: CheckboxOption[]
 ): string {
-  const normalizedOptions = options.map(opt => ({
-    ...opt,
-    normalizedLabel: opt.label.toUpperCase().replace(/\s+/g, " ").trim()
-  }));
+  // 1. Find all X-pattern blocks
+  const xBlocks = textBlocks.filter(block => {
+    const text = block.text.toUpperCase().replace(/\s+/g, "");
+    return /^X{3,}$/.test(text) || /X{4,}/.test(text);
+  });
 
-  // Find blocks that match option labels
-  const optionMatches = new Map<string, { block: TextBlock; hasXAdjacent: boolean }>();
+  if (xBlocks.length === 0) {
+    return options[0]?.value ?? "";
+  }
 
-  for (const block of textBlocks) {
-    const normalizedText = block.text.toUpperCase().replace(/\s+/g, " ").trim();
-
-    for (const opt of normalizedOptions) {
-      if (normalizedText.includes(opt.normalizedLabel) || opt.normalizedLabel.includes(normalizedText)) {
-        // Check if there's an X pattern adjacent to this block
-        const hasXAdjacent = textBlocks.some(other => {
-          if (other === block) return false;
-
-          const otherText = other.text.toUpperCase();
-          const isXPattern = /^X{3,}$/.test(otherText) || otherText.includes("XXXX");
-
-          if (!isXPattern) return false;
-
-          // Check if X block is to the right of or overlapping with this option
-          const xDist = other.boundingBox.x - (block.boundingBox.x + block.boundingBox.width);
-          const yDist = Math.abs(other.boundingBox.y - block.boundingBox.y);
-
-          return xDist < 200 && xDist > -50 && yDist < 30;
-        });
-
-        optionMatches.set(opt.value, { block, hasXAdjacent });
+  // 2. Find option label blocks
+  const optionBlocks: Array<{ option: CheckboxOption; block: TextBlock }> = [];
+  for (const opt of options) {
+    const normalizedLabel = opt.label.toUpperCase().replace(/\s+/g, " ").trim();
+    for (const block of textBlocks) {
+      const normalizedText = block.text.toUpperCase().replace(/\s+/g, " ").trim();
+      // Require exact or very close match (not substring of longer option)
+      if (
+        normalizedText === normalizedLabel ||
+        (normalizedText.includes(normalizedLabel) &&
+          normalizedText.length <= normalizedLabel.length + 5)
+      ) {
+        optionBlocks.push({ option: opt, block });
+        break;
       }
     }
   }
 
-  // Return the option that is NOT X'd out
+  // 3. For each X block, find the closest option by center-to-center distance
+  const xdOptions = new Set<string>(); // Options that have X marks closest
+  for (const xBlock of xBlocks) {
+    const xCenterX = xBlock.boundingBox.x + xBlock.boundingBox.width / 2;
+    const xCenterY = xBlock.boundingBox.y + xBlock.boundingBox.height / 2;
+
+    let closestOption: string | null = null;
+    let closestDist = Infinity;
+
+    for (const { option, block } of optionBlocks) {
+      const optCenterX = block.boundingBox.x + block.boundingBox.width / 2;
+      const optCenterY = block.boundingBox.y + block.boundingBox.height / 2;
+      const dist = Math.sqrt(
+        Math.pow(xCenterX - optCenterX, 2) + Math.pow(xCenterY - optCenterY, 2)
+      );
+      if (dist < closestDist) {
+        closestDist = dist;
+        closestOption = option.value;
+      }
+    }
+
+    if (closestOption) xdOptions.add(closestOption);
+  }
+
+  // 4. If only one option was found as a text block, infer based on X position
+  // When OCR only detects "NON-RADIOACTIVE" but not "RADIOACTIVE" separately,
+  // check if X marks are far to the right of the matched label (meaning they
+  // are crossing out the OTHER option in the adjacent checkbox area)
+  if (optionBlocks.length === 1) {
+    const matchedBlock = optionBlocks[0].block;
+    const matchedValue = optionBlocks[0].option.value;
+    const matchedRight = matchedBlock.boundingBox.x + matchedBlock.boundingBox.width;
+
+    for (const xBlock of xBlocks) {
+      const xLeft = xBlock.boundingBox.x;
+      // If X block starts well to the right of the matched label, it's crossing out
+      // a different option (the one we couldn't find as a text block)
+      if (xLeft > matchedRight + matchedBlock.boundingBox.width * 0.5) {
+        // X is far right of matched label - it's for a different option
+        xdOptions.delete(matchedValue);
+        // Mark the OTHER options as X'd
+        for (const opt of options) {
+          if (opt.value !== matchedValue) {
+            xdOptions.add(opt.value);
+          }
+        }
+      }
+    }
+  }
+
+  // 5. Return the option NOT X'd out
   for (const opt of options) {
-    const match = optionMatches.get(opt.value);
-    if (match && !match.hasXAdjacent) {
+    if (!xdOptions.has(opt.value)) {
       return opt.value;
     }
   }
 
-  // Fallback: return first option if we couldn't determine
   return options[0]?.value ?? "";
 }
 

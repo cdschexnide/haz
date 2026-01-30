@@ -6,6 +6,7 @@ import { DEFAULT_ALIGNMENT_CONFIG } from "../../config/alignmentConfig";
 import { getDevSettings } from "@/config/devSettings";
 import { initializePaddleOCR } from "@/services/sddg/paddleOCREngine";
 import { extractFormData } from "@/services/sddg/templateExtractor";
+import { SDDGTemplate } from "@/types/sddg-template";
 import { extractWithAnchors, convertToSDDGData } from "@/services/sddg/anchorBasedExtractor";
 import { useInspectionForm } from "@/contexts/InspectionFormProvider";
 import { useNavigationRef } from "@/contexts/NavigationRefProvider/useNavigationRef";
@@ -121,6 +122,15 @@ export default function ProcessingScreen() {
       await initializePaddleOCR();
 
       let mappedContent: ExtractedSDDGContent;
+      let autoAlignmentInfo:
+        | {
+            attempted: boolean;
+            success: boolean;
+            confidence: number;
+            skewDetected: boolean;
+            preAlignedTemplate?: SDDGTemplate;
+          }
+        | null = null;
 
       if (devSettings.sddgExtractionMethod === "anchor-based" && !customTemplate) {
         // NEW: Anchor-based extraction
@@ -145,6 +155,7 @@ export default function ProcessingScreen() {
         // Convert to SDDGData then to hazpro format
         const sddgData = convertToSDDGData(anchorResult);
         mappedContent = mapToHazproFormat(sddgData);
+        autoAlignmentInfo = null;
 
       } else {
         // LEGACY: Template-based extraction (when using custom template from region adjustment)
@@ -193,6 +204,13 @@ export default function ProcessingScreen() {
         console.log("📈 Metadata:", result.metadata);
 
         mappedContent = mapToHazproFormat(result.data);
+        autoAlignmentInfo = {
+          attempted: result.metadata.autoAlignmentAttempted,
+          success: result.metadata.autoAlignmentSuccess,
+          confidence: result.metadata.autoAlignmentConfidence,
+          skewDetected: result.metadata.autoAlignmentSkewDetected,
+          preAlignedTemplate: result.autoAlignedTemplate,
+        };
       }
 
       console.log("🔄 Mapped to hazpro format:", mappedContent);
@@ -206,6 +224,7 @@ export default function ProcessingScreen() {
       setTimeout(() => {
         navigate("InspectorWrappedStack", {
           screen: "InteractiveSDDGComplianceScreen",
+          params: { autoAlignmentInfo },
         });
       }, 500);
     } catch (error: any) {

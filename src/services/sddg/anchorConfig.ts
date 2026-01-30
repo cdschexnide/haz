@@ -248,7 +248,10 @@ export const SDDG_ANCHORS: AnchorConfig[] = [
     fieldId: "place_date",
     labelPatterns: [
       "PLACE AND DATE",
-      "Place and Date"
+      "Place and Date",
+      "PLACE",
+      "AND DATE",
+      "PLACEAND DATE"
     ],
     patternType: "label-top-value-bottom",
     valueRegionRules: { direction: "below" }

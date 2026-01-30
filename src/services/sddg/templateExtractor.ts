@@ -28,6 +28,12 @@ import { alignTemplate, validateAlignment } from "./templateAlignment";
 import { getTemplate } from "@/templates";
 import { validateFormData, ValidationResult } from "./validators";
 import { hazardousMaterialsList } from "@/hazardousMaterials/hazardousMaterialsList";
+import { detectCells } from "./opencvCellDetection";
+import {
+  autoAlignTemplate,
+  applyTransformToTemplate,
+} from "./templateAutoAlignment";
+import TextRecognition from "@react-native-ml-kit/text-recognition";
 
 export interface FieldExtractionResult {
   fieldPath: string;
@@ -45,6 +51,7 @@ export interface TemplateExtractionResult {
   errors: string[];
   warnings: string[];
   alignment?: TemplateAlignment;
+  autoAlignedTemplate?: SDDGTemplate;
   metadata: {
     formType: string;
     imageWidth: number;
@@ -63,7 +70,21 @@ export interface TemplateExtractionResult {
     alignmentUsed: boolean;
     alignmentOffset: { x: number; y: number };
     alignmentConfidence: number;
+    autoAlignmentAttempted: boolean;
+    autoAlignmentSuccess: boolean;
+    autoAlignmentMatchedFields: number;
+    autoAlignmentConfidence: number;
+    autoAlignmentMethod: string;
+    autoAlignmentAnchorMatches: number;
+    autoAlignmentPositionMatches: number;
+    autoAlignmentSkewDetected: boolean;
   };
+}
+
+export function shouldAttemptAutoAlignment(
+  customTemplate?: SDDGTemplate
+): boolean {
+  return !customTemplate;
 }
 
 /**
@@ -156,10 +177,96 @@ export async function extractFormData(
       );
     }
 
+    // 4. Auto-align template using OpenCV cell detection
+    let autoAlignmentMetadata = {
+      attempted: false,
+      success: false,
+      matchedFields: 0,
+      confidence: 0,
+      method: "none",
+      anchorMatches: 0,
+      positionMatches: 0,
+      skewDetected: false,
+    };
+
+    let alignedTemplate = template;
+
+    if (shouldAttemptAutoAlignment(customTemplate)) {
+      console.log("🔍 Attempting OpenCV auto-alignment...");
+
+      try {
+        const cellResult = await detectCells(preprocessedImageUri);
+        autoAlignmentMetadata.attempted = true;
+        autoAlignmentMetadata.skewDetected = cellResult.skewDetected || false;
+
+        if (cellResult.skewDetected) {
+          console.warn("⚠ Form appears skewed. Auto-alignment may be unreliable.");
+        }
+
+        if (cellResult.success && cellResult.cells.length >= 10) {
+          console.log(
+            `✓ Detected ${cellResult.cells.length} cells in ${cellResult.processingTimeMs}ms`
+          );
+
+          const mlKitResult = await TextRecognition.recognize(
+            preprocessedImageUri
+          );
+          const textBlocks = mlKitResult.blocks.map((block: any) => ({
+            text: block.text,
+            boundingBox: block.frame,
+            confidence: block.confidence || 0.9,
+          }));
+
+          const alignmentResult = await autoAlignTemplate(
+            cellResult.cells,
+            textBlocks,
+            template,
+            { width: imageDims.width, height: imageDims.height }
+          );
+
+          autoAlignmentMetadata.success = alignmentResult.success;
+          autoAlignmentMetadata.matchedFields = alignmentResult.matchedFields;
+          autoAlignmentMetadata.confidence = alignmentResult.confidence;
+          autoAlignmentMetadata.method = alignmentResult.alignmentMethod;
+          autoAlignmentMetadata.anchorMatches =
+            alignmentResult.anchorMatches || 0;
+          autoAlignmentMetadata.positionMatches =
+            alignmentResult.positionMatches || 0;
+
+          if (alignmentResult.success) {
+            alignedTemplate = applyTransformToTemplate(
+              template,
+              alignmentResult.transform
+            );
+            console.log(
+              `✓ Auto-alignment successful: ${alignmentResult.matchedFields} fields matched`
+            );
+            console.log(
+              `  Method: ${alignmentResult.alignmentMethod}, Confidence: ${(
+                alignmentResult.confidence * 100
+              ).toFixed(1)}%`
+            );
+          } else {
+            console.warn(
+              `⚠ Auto-alignment failed: ${alignmentResult.failureReason}`
+            );
+          }
+        } else {
+          console.warn(
+            `⚠ Cell detection insufficient: ${cellResult.cells.length} cells (need ≥10)`
+          );
+          if (cellResult.error) {
+            console.error(`  Error: ${cellResult.error}`);
+          }
+        }
+      } catch (error) {
+        console.error("✗ Auto-alignment error:", error);
+      }
+    }
+
     // 4. Align template to form
     // CRITICAL: Skip alignment when using custom template!
     // User has already positioned regions precisely, alignment would destroy their work.
-    let alignedTemplate = template;
     let alignment: TemplateAlignment | undefined;
 
     if (
@@ -172,7 +279,7 @@ export async function extractFormData(
       try {
         const alignmentResult = await alignTemplate(
           preprocessedImageUri,
-          template,
+          alignedTemplate,
           imageDims,
           AMC_IMT_1033_ANCHORS,
           alignmentConfig
@@ -344,6 +451,10 @@ export async function extractFormData(
     );
 
     // 5. Return results
+    const autoAlignedTemplate = autoAlignmentMetadata.success
+      ? alignedTemplate
+      : undefined;
+
     return {
       success: errors.length < total * 0.5, // Success if <50% failures
       data,
@@ -352,6 +463,7 @@ export async function extractFormData(
       errors,
       warnings,
       alignment,
+      autoAlignedTemplate,
       metadata: {
         formType: template.formType,
         imageWidth: imageDims.width,
@@ -370,6 +482,14 @@ export async function extractFormData(
         alignmentUsed: alignmentConfig.enabled && alignment?.success === true,
         alignmentOffset: alignment?.offset || { x: 0, y: 0 },
         alignmentConfidence: alignment?.confidence || 0,
+        autoAlignmentAttempted: autoAlignmentMetadata.attempted,
+        autoAlignmentSuccess: autoAlignmentMetadata.success,
+        autoAlignmentMatchedFields: autoAlignmentMetadata.matchedFields,
+        autoAlignmentConfidence: autoAlignmentMetadata.confidence,
+        autoAlignmentMethod: autoAlignmentMetadata.method,
+        autoAlignmentAnchorMatches: autoAlignmentMetadata.anchorMatches,
+        autoAlignmentPositionMatches: autoAlignmentMetadata.positionMatches,
+        autoAlignmentSkewDetected: autoAlignmentMetadata.skewDetected,
       },
     };
   } catch (error) {

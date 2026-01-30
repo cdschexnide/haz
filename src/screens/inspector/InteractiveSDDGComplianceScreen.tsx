@@ -40,6 +40,7 @@ import {
 
 interface InteractiveSDDGComplianceScreenProps {
   navigation: any;
+  route: any;
 }
 
 /**
@@ -54,7 +55,7 @@ interface InteractiveSDDGComplianceScreenProps {
  */
 const InteractiveSDDGComplianceScreenComponent: React.FC<
   InteractiveSDDGComplianceScreenProps
-> = ({ navigation }) => {
+> = ({ navigation, route }) => {
   // === CONTEXT SUBSCRIPTIONS ===
   // NOTE: useInspectionForm() subscribes to ENTIRE context - potential render issue!
   const inspectionFormContext = useInspectionForm();
@@ -79,6 +80,7 @@ const InteractiveSDDGComplianceScreenComponent: React.FC<
 
   const database = useDatabase();
   const actions = useHazProActions();
+  const autoAlignmentInfo = route?.params?.autoAlignmentInfo || null;
 
   // === LOCAL STATE ===
   const [modalVisible, setModalVisible] = useState(false);
@@ -99,6 +101,8 @@ const InteractiveSDDGComplianceScreenComponent: React.FC<
   const [hazMatData, setHazMatData] = useState<HazardousMaterialItem | null>(
     null
   );
+  const [showAutoAlignmentWarning, setShowAutoAlignmentWarning] =
+    useState(true);
 
   // // === RENDER TRACKING ===
   // useRenderTracker('InteractiveSDDGComplianceScreen', { navigation }, {
@@ -120,6 +124,9 @@ const InteractiveSDDGComplianceScreenComponent: React.FC<
 
   const isReinspectionMode = workflow.reinspection.mode === "sddg";
   const existingFrustrations = inspection.frustrations || [];
+  const shouldShowAutoAlignmentWarning =
+    autoAlignmentInfo &&
+    (autoAlignmentInfo.confidence < 0.7 || autoAlignmentInfo.skewDetected);
 
   // Set active chevron when component mounts
   useEffect(() => {
@@ -696,6 +703,44 @@ const InteractiveSDDGComplianceScreenComponent: React.FC<
         </View>
       )}
 
+      {shouldShowAutoAlignmentWarning && showAutoAlignmentWarning && (
+        <View style={styles.autoAlignmentBannerContainer}>
+          <InfoBox
+            variant="warning"
+            title="Auto-alignment uncertain"
+            message="The form appears skewed or the alignment confidence is low. Consider adjusting regions before proceeding."
+          />
+          <View style={styles.autoAlignmentBannerActions}>
+            <TouchableOpacity
+              style={styles.autoAlignmentActionButton}
+              onPress={() => setShowAutoAlignmentWarning(false)}
+            >
+              <Text style={styles.autoAlignmentActionText}>Dismiss</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.autoAlignmentPrimaryButton}
+              onPress={() => {
+                if (!inspection.originalImageUri) {
+                  Alert.alert(
+                    "Missing Image",
+                    "Original form image not available for adjustment."
+                  );
+                  return;
+                }
+                navigation.navigate("SDDGRegionAdjustmentScreen", {
+                  imageUri: inspection.originalImageUri,
+                  preAlignedTemplate: autoAlignmentInfo?.preAlignedTemplate,
+                });
+              }}
+            >
+              <Text style={styles.autoAlignmentPrimaryText}>
+                Adjust Regions
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
+
       {/* Progress Indicator */}
       {/* <View style={styles.progressBar}>
         <View style={styles.progressItem}>
@@ -812,6 +857,40 @@ const styles = StyleSheet.create({
   reinspectionBannerContainer: {
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
+  },
+  autoAlignmentBannerContainer: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    gap: spacing.sm,
+  },
+  autoAlignmentBannerActions: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: spacing.sm,
+  },
+  autoAlignmentActionButton: {
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.md,
+    borderRadius: borderRadius.sm,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  autoAlignmentActionText: {
+    color: colors.textPrimary,
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  autoAlignmentPrimaryButton: {
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.md,
+    borderRadius: borderRadius.sm,
+    backgroundColor: colors.primary,
+  },
+  autoAlignmentPrimaryText: {
+    color: colors.background,
+    fontSize: 14,
+    fontWeight: "600",
   },
   progressBar: {
     flexDirection: "row",

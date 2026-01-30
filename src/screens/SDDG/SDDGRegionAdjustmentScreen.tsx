@@ -52,9 +52,10 @@ export default function RegionAdjustmentScreen({
   navigation: any;
   route: any;
 }) {
-  const { imageUri, isScanned } = route.params as {
+  const { imageUri, isScanned, preAlignedTemplate } = route.params as {
     imageUri: string;
     isScanned?: boolean;
+    preAlignedTemplate?: SDDGTemplate;
   };
 
   const [loading, setLoading] = useState(true);
@@ -103,7 +104,10 @@ export default function RegionAdjustmentScreen({
       setDisplayScale(scale);
 
       // Extract all regions from template
-      const template = AMC_IMT_1033_TEMPLATE;
+      const template = preAlignedTemplate || AMC_IMT_1033_TEMPLATE;
+      if (preAlignedTemplate) {
+        console.log("✓ Using pre-aligned template from OpenCV detection");
+      }
       const extractedRegions = extractAllRegions(template);
 
       // Convert to display coordinates

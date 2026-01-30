@@ -6,12 +6,17 @@ import {
   ExtractionResult,
   AnchorExtractionResult,
 } from "./anchorTypes";
-import { SDDG_ANCHORS, getTableColumnAnchors } from "./anchorConfig";
+import { SDDG_ANCHORS, getTableColumnAnchors, getAnchorConfig } from "./anchorConfig";
 import { findAnchors, getMissingAnchors } from "./anchorDetection";
 import {
   computeValueRegion,
   computeTableColumnRegions,
 } from "./regionInference";
+import {
+  computeAdaptiveRegion,
+  computeAdaptiveTableRegions,
+  extractAdaptiveValue,
+} from "./adaptiveRegionDetection";
 import {
   extractValueFromRegion,
   extractInlinePatternValue,
@@ -19,6 +24,9 @@ import {
   applyPostProcessing,
 } from "./valueExtraction";
 import { SDDGData } from "@/types/sddg-template";
+
+// Use adaptive region detection instead of hardcoded inference
+const USE_ADAPTIVE_DETECTION = true;
 
 /**
  * Convert ML Kit recognition result to our TextBlock format
@@ -95,6 +103,50 @@ export async function extractWithAnchors(
       warnings.push(`Missing anchors: ${missingAnchors.join(", ")}`);
     }
 
+    // Position-based fallback for place_date: infer from name_title_signatory position
+    if (!anchors.has("place_date") && anchors.has("name_title_signatory")) {
+      const sigAnchor = anchors.get("name_title_signatory")!;
+      // Place and Date label is always directly below Name/Title of Signatory on the SDDG form
+      const searchY = sigAnchor.boundingBox.y + sigAnchor.boundingBox.height + 30;
+      const searchHeight = 120;
+      const searchX = sigAnchor.boundingBox.x - 50;
+      const searchWidth = sigAnchor.boundingBox.width + 100;
+
+      // Look for any text block in the expected position that could be the garbled label
+      let bestFallback: TextBlock | null = null;
+      for (const block of textBlocks) {
+        const blockCenterY = block.boundingBox.y + block.boundingBox.height / 2;
+        const blockCenterX = block.boundingBox.x + block.boundingBox.width / 2;
+        if (
+          blockCenterY >= searchY &&
+          blockCenterY <= searchY + searchHeight &&
+          blockCenterX >= searchX &&
+          blockCenterX <= searchX + searchWidth
+        ) {
+          // Check if this looks like a label (contains "DATE", "PLACE", or is garbled text near expected position)
+          const upper = block.text.toUpperCase();
+          if (upper.includes("DATE") || upper.includes("PLACE") || upper.includes("AND")) {
+            bestFallback = block;
+            break;
+          }
+          // Even without keyword match, use position-based detection
+          if (!bestFallback) {
+            bestFallback = block;
+          }
+        }
+      }
+
+      if (bestFallback) {
+        anchors.set("place_date", {
+          fieldId: "place_date",
+          boundingBox: bestFallback.boundingBox,
+          matchedPattern: "PLACE AND DATE (position fallback)",
+          confidence: 0.6,
+        });
+        console.log(`🎯 Anchor "place_date" found [position fallback]: "${bestFallback.text}" at (${Math.round(bestFallback.boundingBox.x)}, ${Math.round(bestFallback.boundingBox.y)})`);
+      }
+    }
+
     // Step 3: Compute value regions and extract values
     const totalFields = SDDG_ANCHORS.length;
     let processedFields = 0;
@@ -105,12 +157,12 @@ export async function extractWithAnchors(
       .map(cfg => anchors.get(cfg.fieldId))
       .filter((m): m is AnchorMatch => m !== undefined);
 
-    const tableRegions = computeTableColumnRegions(
-      tableAnchorMatches,
-      anchors,
-      imageWidth,
-      imageHeight
-    );
+    // Use adaptive or hardcoded region detection
+    const tableRegions = USE_ADAPTIVE_DETECTION
+      ? computeAdaptiveTableRegions(tableAnchorMatches, textBlocks, anchors)
+      : computeTableColumnRegions(tableAnchorMatches, anchors, imageWidth, imageHeight);
+
+    console.log(`🔄 Using ${USE_ADAPTIVE_DETECTION ? "ADAPTIVE" : "HARDCODED"} region detection`);
 
     // Process each anchor config
     for (const config of SDDG_ANCHORS) {
@@ -163,16 +215,35 @@ export async function extractWithAnchors(
         continue;
       }
 
-      // Compute value region
+      // Compute value region and extract value
       let region: ValueRegion | null = null;
+      let value = "";
 
       if (config.patternType === "table-column-header") {
+        // Table columns use pre-computed regions
         region = tableRegions.get(config.fieldId) || null;
+        if (region) {
+          value = extractValueFromRegion(textBlocks, region);
+        }
+      } else if (USE_ADAPTIVE_DETECTION) {
+        // Use adaptive detection - finds blocks and extracts in one step
+        const adaptive = extractAdaptiveValue(anchor, textBlocks, config, anchors);
+        value = adaptive.value;
+        region = adaptive.region;
       } else {
+        // Use hardcoded region inference
         region = computeValueRegion(anchor, config, anchors, imageWidth, imageHeight);
+        if (region) {
+          value = extractValueFromRegion(textBlocks, region);
+        }
       }
 
-      if (!region) {
+      // Apply post-processing
+      if (config.postProcessing && config.postProcessing.length > 0) {
+        value = applyPostProcessing(value, config.postProcessing);
+      }
+
+      if (!region && !value) {
         results.set(config.fieldId, {
           fieldId: config.fieldId,
           value: "",
@@ -181,14 +252,6 @@ export async function extractWithAnchors(
           anchorMatch: anchor,
         });
         continue;
-      }
-
-      // Extract value from region
-      let value = extractValueFromRegion(textBlocks, region);
-
-      // Apply post-processing
-      if (config.postProcessing && config.postProcessing.length > 0) {
-        value = applyPostProcessing(value, config.postProcessing);
       }
 
       // Debug: log extracted value
@@ -200,7 +263,7 @@ export async function extractWithAnchors(
         confidence: value ? 0.9 : 0,
         status: value ? "extracted" : "value_empty",
         anchorMatch: anchor,
-        valueRegion: region,
+        valueRegion: region || undefined,
       });
     }
 

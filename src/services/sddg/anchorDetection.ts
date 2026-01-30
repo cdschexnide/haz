@@ -118,6 +118,12 @@ function calculateMatchScore(
     if (extraLength <= 3) {
       return { score: 1 + extraLength, matchType: "contains" };
     }
+    // Allow longer contains matches if the pattern is a significant portion of the text
+    // This handles OCR merging labels together (e.g., "THIS SHIPMENT...AIRPORT OF DEPARTURE:")
+    const patternRatio = normalizedPattern.length / normalizedText.length;
+    if (patternRatio >= 0.25) {
+      return { score: 3 + (1 - patternRatio) * 10, matchType: "contains" };
+    }
     // Too much extra text - don't match
     return { score: Infinity, matchType: "none" };
   }
