@@ -24,6 +24,7 @@ import {
   applyPostProcessing,
 } from "./valueExtraction";
 import { SDDGData } from "@/types/sddg-template";
+import { extractFieldsFromCells } from "./cellBasedExtraction";
 
 // Use adaptive region detection instead of hardcoded inference
 const USE_ADAPTIVE_DETECTION = true;
@@ -88,6 +89,14 @@ export async function extractWithAnchors(
     const mlKitResult = await TextRecognition.recognize(imageUri);
     const textBlocks = convertToMLKitFormat(mlKitResult);
     console.log(`✅ OCR complete: ${textBlocks.length} text blocks found`);
+
+    // Step 1b: Try cell-based extraction (OpenCV cells + OCR text inside)
+    console.log("🔲 Attempting cell-based extraction...");
+    const { cellResults, cellDetection } = await extractFieldsFromCells(
+      imageUri,
+      textBlocks
+    );
+    console.log(`🔲 Cell-based extraction got ${cellResults.size} fields`);
 
     // Get image dimensions from OCR result (estimate from block positions)
     const imageWidth = Math.max(...textBlocks.map(b => b.boundingBox.x + b.boundingBox.width), 2550);
@@ -169,6 +178,21 @@ export async function extractWithAnchors(
       processedFields++;
       if (onProgress) {
         onProgress({ current: processedFields, total: totalFields, field: config.fieldId });
+      }
+
+      // Check if cell-based extraction already got this field
+      if (cellResults.has(config.fieldId)) {
+        const cellValue = cellResults.get(config.fieldId)!;
+        // Review fix #4: confidence based on whether we got content
+        const confidence = cellValue.length > 0 ? 0.92 : 0.3;
+        results.set(config.fieldId, {
+          fieldId: config.fieldId,
+          value: cellValue,
+          confidence,
+          status: "extracted",
+        });
+        console.log(`📦 ${config.fieldId}: using cell-based result`);
+        continue;
       }
 
       const anchor = anchors.get(config.fieldId);
