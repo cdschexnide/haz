@@ -77,6 +77,7 @@ export const labelMatchingTable: Record<string, string[]> = {
   "oxidizerHazmatClass5.1": ["Class 5.1", "5.1", "Oxidizer"],
   "oxidizingAgentHazmatClass5.1": ["Class 5.1", "5.1", "Oxidizing Agent"],
   "oxygenGeneratorChemicalWithUN3356": ["Class 5.1", "5.1", "Oxygen Generator"],
+  "organicPeroxideHazmatClass5.2": ["Class 5.2", "5.2", "Organic Peroxide"],
 
   // === HAZARD CLASS 6 - TOXIC/INFECTIOUS ===
   "toxicHazmatClass6": ["Class 6.1", "6.1", "TOXIC"],
