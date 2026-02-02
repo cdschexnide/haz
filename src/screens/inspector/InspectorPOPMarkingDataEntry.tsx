@@ -397,7 +397,8 @@ const InspectorPOPMarkingDataEntry = ({ navigation }: { navigation: any }) => {
           packagingDatabaseV2,
           packagingParagraph,
           value,
-          packagePackagingType || undefined
+          packagePackagingType || undefined,
+          extractedContent?.unIdNo
         ).isValid;
 
     if (!isValid) {

@@ -4,15 +4,15 @@ describe("getAllowedPackagingTypes - Attachment 5 (A5)", () => {
   const cases: Array<[string, Array<"single" | "combination" | "composite">]> = [
     ["A5.4.", ["combination"]],
     ["A5.5.", ["single", "combination"]],
-    ["A5.6.", ["single", "combination"]],
-    ["A5.7.", ["single", "combination"]],
+    ["A5.6.", ["combination"]],
+    ["A5.7.", ["combination"]],
     ["A5.8.", ["single", "combination"]],
-    ["A5.9.", ["single", "combination"]],
+    ["A5.9.", ["combination"]],
     ["A5.10.", ["combination", "composite"]],
-    ["A5.11.", ["single", "combination"]],
+    ["A5.11.", ["combination"]],
     ["A5.12.", ["single"]],
-    ["A5.13.", ["single", "combination"]],
-    ["A5.14.", ["single", "combination"]],
+    ["A5.13.", ["combination"]],
+    ["A5.14.", ["combination"]],
     ["A5.15.", ["single", "combination"]],
     ["A5.16.", ["combination"]],
     ["A5.17.", ["combination"]],
@@ -39,6 +39,17 @@ describe("getAllowedPackagingTypes - Attachment 5 (A5)", () => {
       ).toEqual(expected);
     }
   );
+
+  test("A5.5. excludes single packaging for UN0343", () => {
+    expect(
+      getAllowedPackagingTypes({
+        packagingParagraph: "A5.5.",
+        hasA2Restriction: false,
+        unIdNo: "UN0343",
+        properShippingName: "NITROCELLULOSE, PLASTICIZED",
+      })
+    ).toEqual(["combination"]);
+  });
 });
 
 describe("getAllowedPackagingTypes - Attachment 7 (A7)", () => {
@@ -108,7 +119,7 @@ describe("getAllowedPackagingTypes - Attachment 8 (A8)", () => {
 });
 
 describe("getAllowedPackagingTypes - Attachment 9 (A9)", () => {
-  const cases: Array<[string, Array<\"single\" | \"combination\" | \"composite\">]> = [
+  const cases: Array<[string, Array<"single" | "combination" | "composite">]> = [
     ["A9.5.", ["single", "combination", "composite"]],
     ["A9.6.", ["single", "combination", "composite"]],
     ["A9.7.", ["single"]],

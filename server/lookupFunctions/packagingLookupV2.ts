@@ -18,7 +18,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
     paragraphId: "A5.4.",
     hazardClass: 1,
     description:
-      "Barium Azide; Diazodinitrophenol, Wetted; Guanyl Nitrosaminoguanylidene Hydrazine, Wetted; Tetrazene, Wetted; Lead Azide, Wetted; Lead Mononitroresorcinate; Lead Styphnate, Wetted; Lead Trinitroresorcinate, Wetted; and Mercury Fulminate, Wetted",
+      "Barium Azide; Diazodinitrophenol, Wetted; Guanyl Nitrosaminoguanylidene Hydrazine, Wetted; Guanyl Nitrosaminoguanyltetrazene, Wetted; Tetrazene, Wetted; Lead Azide, Wetted; Lead Mononitroresorcinate; Lead Styphnate, Wetted; Lead Trinitroresorcinate, Wetted; and Mercury Fulminate, Wetted",
     lastUpdated: new Date().toISOString(),
     entryType: "specialized",
     materialTypes: [
@@ -94,6 +94,20 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
           //   },
           // ],
         },
+        intermediatePackaging: {
+          required: true,
+          description:
+            "Bags of plastics or textile materials, or receptacles of plastics, metal, or wood",
+          materials: [
+            "Plastics bags",
+            "Textile bags",
+            "Plastic coated or lined rubber textile bags",
+            "Rubberized textile bags",
+            "Plastics receptacles",
+            "Metal receptacles",
+            "Wood receptacles",
+          ],
+        },
         outerPackaging: {
           categories: [
             {
@@ -132,8 +146,9 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
         quantityLimits: [{ scope: "per_inner", value: 50, unit: "g" }],
         notes: [
           "Three-tier packaging system: inner → intermediate → outer",
-          "Water saturation required for all explosive materials",
+          "Water saturation required for all explosive materials (except UN0224 when shipped dry)",
           "Anti-freeze solution permitted to prevent freezing",
+          "Outer packagings must be constructed and sealed to prevent evaporation of the wetting solution (except UN0224 when shipped dry)",
         ],
       },
       {
@@ -161,6 +176,12 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
             "Water-saturated cushioning material required in each compartment",
             "Three-tier packaging system with compartmentalized design",
           ],
+        },
+        intermediatePackaging: {
+          required: true,
+          description:
+            "Dividing partitions of metal, wood, plastic, or fiberboard",
+          materials: ["Metal", "Wood", "Plastic", "Fiberboard"],
         },
         outerPackaging: {
           categories: [
@@ -199,7 +220,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       {
         type: "wetting",
         description:
-          "All explosive materials must be water-saturated to prevent accidental ignition",
+          "All explosive materials must be water-saturated to prevent accidental ignition (except UN0224 when shipped dry)",
         mandatory: true,
         applicableContainers: ["all"],
       },
@@ -234,6 +255,16 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
 
     conditionalRequirements: [
       {
+        condition: "un_number_UN0224_dry",
+        conditionType: "un_number",
+        operator: "equals",
+        value: "UN0224",
+        effect: "except",
+        target: "wetting_requirement",
+        description:
+          "UN0224 may be shipped dry; water-saturation requirements do not apply when shipped dry",
+      },
+      {
         condition: "prevent_freezing",
         conditionType: "temperature",
         operator: "less_than",
@@ -254,13 +285,13 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       },
     ],
 
-    referencedParagraphs: ["A5.4.1", "A5.4.2"],
+    referencedParagraphs: ["A5.4.1.", "A5.4.2."],
   },
   "A5.5.": {
     paragraphId: "A5.5.",
     hazardClass: 1,
     description:
-      "Powder Cake or Powder Paste, Wetted; or Nitrocellulose Plasticized",
+      "Powder Cake or Powder Paste, Wetted; or Nitrocellulose Plasticized.",
     lastUpdated: new Date().toISOString(),
     entryType: "specialized",
     materialTypes: [
@@ -268,7 +299,6 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       "powder_paste_wetted",
       "nitrocellulose_plasticized",
     ],
-    applicableUNNumbers: ["UN0159"],
 
     packagingOptions: [
       {
@@ -404,6 +434,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
         type: "single",
         description:
           "Direct packaging for UN0159 in metal or plastic drums (no inner packaging required)",
+        applicableUNNumbers: ["UN0159"],
         innerPackaging: {
           required: false,
         },
@@ -493,13 +524,13 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       },
     ],
 
-    referencedParagraphs: ["A5.5"],
+    referencedParagraphs: ["A5.5."],
   },
   "A5.6.": {
     paragraphId: "A5.6.",
     hazardClass: 1,
     description:
-      "Ammonium Picrate; Cyclotetramethylenetetranitramine, HMX, or Octogen Wetted; Cyclotrimethylenetrinitramine, Cyclonite, Hexogen, or RDX Wetted; Dinitrophenol; Dinitroresorcinol; Hexolite or Hexotol; Mannitol Hexanitrate or Nitromannite, Wetted; Nitrocellulose; Pentaerythrite Tetranitrate or PETN, Wetted; Trinitrobenzene; Trinitrobenzoic Acid; Trinitrotoluene or TNT; and others",
+      "Ammonium Picrate; Cyclotetramethylenetetranitramine, HMX, or Octogen Wetted; Cyclotrimethylenetrinitramine and Octogen, Mixtures, Wetted or Desensitized; Cyclotrimethylenetrinitramine, Cyclonite, Hexogen, or RDX Wetted; Cyclotrimethylenetrinitramine and Cyclotetramethylenetetranitramine, Mixtures, Wetted or Desensitized; Cyclotrimethylenetrinitramine and HMX Mixtures, Wetted or Desensitized; Dinitrophenol; Dinitroresorcinol; Dipicryl Sulfide; Hexolite or Hexotol; Hexotonal; Mannitol Hexanitrate or Nitromannite, Wetted; Nitrocellulose; Nitrostarch; Nitro Urea; Nitroguanidine or Picrite Trinitrophenol or Picric Acid; Octolite or Octol; Pentolite; Pentaerythrite Tetranitrate or Pentaerythritol Tetranitrate or PETN, Wetted; or Pentaerythrite Tetranitrate or Pentaerythritol Tetranitrate or PETN, Desensitized; RDX and Cyclotetramethylenetetranitramine, Wetted or Desensitized; Trinitrobenzene; Trinitrobenzoic Acid; Trinitroresorcinol or Styphnic Acid; Trinitroresorcinol, Wetted; Trinitrotoluene or TNT; RDX and HMX Mixtures, Wetted or Desensitized Urea Nitrate.",
     lastUpdated: new Date().toISOString(),
     entryType: "specialized",
     materialTypes: [
@@ -547,6 +578,18 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
             "OR Receptacles of metal, plastic, or wood",
             "Intermediate packaging not required if leakproof drums are used as outer packaging",
             "Intermediate packaging not required for UN0072 and UN0226",
+          ],
+        },
+        intermediatePackaging: {
+          required: true,
+          description:
+            "Bags of plastics or plastic coated or lined textile, or receptacles of metal, plastic, or wood",
+          materials: [
+            "Plastics bags",
+            "Plastic coated or lined textile bags",
+            "Metal receptacles",
+            "Plastic receptacles",
+            "Wood receptacles",
           ],
         },
         outerPackaging: {
@@ -816,7 +859,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
         description:
           "Packaging for solid dry powder explosives (sift-proof requirement)",
         innerPackaging: {
-          required: false,
+          required: true,
           materials: [
             "Multiwall water-resistant paper bags",
             "Plastic bags",
@@ -832,6 +875,20 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
             "Inner packagings not required if drums are used as outer packaging",
             "Intermediate packaging: Bags of multiwall water-resistant paper, plastic, or woven plastic",
             "OR Receptacles of fiberboard, metal, plastic, or wood",
+          ],
+        },
+        intermediatePackaging: {
+          required: true,
+          description:
+            "Bags of multiwall water-resistant paper, plastic, or woven plastic, or receptacles of fiberboard, metal, plastic, or wood",
+          materials: [
+            "Multiwall water-resistant paper bags",
+            "Plastic bags",
+            "Woven plastic bags",
+            "Fiberboard receptacles",
+            "Metal receptacles",
+            "Plastic receptacles",
+            "Wood receptacles",
           ],
         },
         outerPackaging: {
@@ -935,80 +992,13 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
           "For UN0029: Sift-proof bags (5H2) recommended for flake or prilled TNT, max 30kg",
         ],
       },
-      {
-        id: "A5.6.3.single_drums",
-        type: "single",
-        description:
-          "Single packaging in drums when inner packagings are not required",
-        innerPackaging: {
-          required: false,
-          description:
-            "Inner packagings not required when drums are used as outer packaging",
-        },
-        outerPackaging: {
-          categories: [
-            {
-              type: "drums",
-              containers: [
-                { code: "1A1", material: "steel", description: "Steel drum" },
-                {
-                  code: "1A2",
-                  material: "steel",
-                  description: "Steel drum with removable head",
-                },
-                {
-                  code: "1B1",
-                  material: "aluminum",
-                  description: "Aluminum drum",
-                },
-                {
-                  code: "1B2",
-                  material: "aluminum",
-                  description: "Aluminum drum with removable head",
-                },
-                {
-                  code: "1N1",
-                  material: "other_metal",
-                  description: "Other metal drum",
-                },
-                {
-                  code: "1N2",
-                  material: "other_metal",
-                  description: "Other metal drum with removable head",
-                },
-                {
-                  code: "1D",
-                  material: "plywood",
-                  description: "Plywood drum",
-                },
-                { code: "1G", material: "fiber", description: "Fiber drum" },
-                {
-                  code: "1H1",
-                  material: "plastic",
-                  description: "Plastic drum",
-                },
-                {
-                  code: "1H2",
-                  material: "plastic",
-                  description: "Plastic drum with removable head",
-                },
-              ],
-            },
-          ],
-        },
-        restrictions: ["At least one packaging layer must be sift-proof"],
-        notes: [
-          "Inner packagings not required when drums are used as outer packaging",
-          "Sift-proof requirement mandatory for powder materials",
-        ],
-      },
     ],
 
     specialRequirements: [
       {
         type: "lead_free",
         description:
-          "Packaging must be lead free for UN0004, 0076, 0078, 0154, 0219, and 0394",
+          "Packaging must be lead free for UN0004, UN0076, UN0078, UN0154, UN0219, and UN0394",
         mandatory: true,
         applicableContainers: ["all"],
       },
@@ -1087,13 +1077,13 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       },
     ],
 
-    referencedParagraphs: ["A5.6.1", "A5.6.2", "A5.6.3"],
+    referencedParagraphs: ["A5.6.1.", "A5.6.2.", "A5.6.3."],
   },
   "A5.7.": {
     paragraphId: "A5.7.",
     hazardClass: 1,
     description:
-      "Ammonium Nitrate; Ammonium Perchlorate; Cyclotetramethylenetetranitramine, Octogen, or HMX Desensitized; Cyclotrimethylenetrinitramine, Cyclonite, Hexogen, or RDX Desensitized; Dinitroglycoluril or Dingu; Octonal; Tetranitroaniline; Trinitro-MCresol; Trinitroaniline or Picramide; Trinitrotoluene and Trinitrobenzene Mixtures; TNT Mixtures",
+      "Ammonium Nitrate; Ammonium Perchlorate; Cyclotetramethylenetetranitramine, Octogen, or HMX Desensitized; Cyclotrimethylenetrinitramine, Cyclonite, Hexogen, or RDX Desensitized; Dinitroglycoluril or Dingu; Octonal; Tetranitroaniline; Trinitro-MCresol; Trinitroaniline or Picramide; Trinitroanisole; Trinitrobenzenesulphonic Acid; Trinitrochlorobenzene or Picryl Chloride; Trinitrofluorenone; Trinitronaphthalene; Trinitrophenetole; Trinitrotoluene and Trinitrobenzene Mixtures or TNT and Trinitrobenzene Mixtures or TNT and Hexannitrostilbene Mixtures; Trinitrotoluene Mixtures Containing Trinitrobenzene and Hexanitrostilbene or TNT Mixtures containing Trinitrobenzene and Hexanitrostilbene.",
     lastUpdated: new Date().toISOString(),
     entryType: "specialized",
     materialTypes: [
@@ -1113,7 +1103,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
         description:
           "Packaging for dry solid explosives (non-powder forms) with selective intermediate packaging",
         innerPackaging: {
-          required: false,
+          required: true,
           materials: [
             "Kraft paper bags",
             "Multiwall water-resistant paper bags",
@@ -1127,6 +1117,12 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
             "Inner packaging not required for UN0222",
             "Intermediate packaging: Bags of plastic, plastic-coated or lined textile (required for UN0150 only)",
           ],
+        },
+        intermediatePackaging: {
+          required: false,
+          description:
+            "Bags of plastic, plastic-coated or lined textile (required for UN0150 only)",
+          materials: ["Plastic bags", "Plastic-coated textile bags", "Lined textile bags"],
         },
         outerPackaging: {
           categories: [
@@ -1268,156 +1264,12 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
         ],
       },
       {
-        id: "A5.7.1.single_outer_packaging",
-        type: "single",
-        description:
-          "Single packaging when inner packagings are not required (e.g., UN0222)",
-        innerPackaging: {
-          required: false,
-          description: "Inner packaging not required for specific UNs",
-        },
-        outerPackaging: {
-          categories: [
-            {
-              type: "bags",
-              containers: [
-                {
-                  code: "5H2",
-                  material: "woven_plastic",
-                  description: "Sift-proof woven plastic bag",
-                },
-                {
-                  code: "5H3",
-                  material: "woven_plastic",
-                  description: "Water-resistant woven plastic bag",
-                },
-                {
-                  code: "5H4",
-                  material: "plastic_film",
-                  description: "Plastic film bag",
-                },
-                {
-                  code: "5L2",
-                  material: "textile",
-                  description: "Sift-proof textile bag",
-                },
-                {
-                  code: "5L3",
-                  material: "textile",
-                  description: "Water-resistant textile bag",
-                },
-                {
-                  code: "5M2",
-                  material: "paper",
-                  description: "Multiwall water-resistant paper bag",
-                },
-              ],
-            },
-            {
-              type: "boxes",
-              containers: [
-                { code: "4A", material: "steel", description: "Steel box" },
-                {
-                  code: "4B",
-                  material: "aluminum",
-                  description: "Aluminum box",
-                },
-                {
-                  code: "4N",
-                  material: "other_metal",
-                  description: "Other metal box",
-                },
-                {
-                  code: "4C1",
-                  material: "natural_wood",
-                  description: "Ordinary natural wood box",
-                },
-                {
-                  code: "4C2",
-                  material: "natural_wood",
-                  description: "Sift-proof natural wood box",
-                },
-                { code: "4D", material: "plywood", description: "Plywood box" },
-                {
-                  code: "4F",
-                  material: "reconstituted_wood",
-                  description: "Reconstituted wood box",
-                },
-                {
-                  code: "4G",
-                  material: "fiberboard",
-                  description: "Fiberboard box",
-                },
-                {
-                  code: "4H1",
-                  material: "plastic",
-                  description: "Expanded plastic box",
-                },
-                {
-                  code: "4H2",
-                  material: "plastic",
-                  description: "Solid plastic box",
-                },
-              ],
-            },
-            {
-              type: "drums",
-              containers: [
-                { code: "1A1", material: "steel", description: "Steel drum" },
-                {
-                  code: "1A2",
-                  material: "steel",
-                  description: "Steel drum with removable head",
-                },
-                {
-                  code: "1B1",
-                  material: "aluminum",
-                  description: "Aluminum drum",
-                },
-                {
-                  code: "1B2",
-                  material: "aluminum",
-                  description: "Aluminum drum with removable head",
-                },
-                {
-                  code: "1N1",
-                  material: "other_metal",
-                  description: "Other metal drum",
-                },
-                {
-                  code: "1N2",
-                  material: "other_metal",
-                  description: "Other metal drum with removable head",
-                },
-                {
-                  code: "1D",
-                  material: "plywood",
-                  description: "Plywood drum",
-                },
-                { code: "1G", material: "fiber", description: "Fiber drum" },
-                {
-                  code: "1H1",
-                  material: "plastic",
-                  description: "Plastic drum",
-                },
-                {
-                  code: "1H2",
-                  material: "plastic",
-                  description: "Plastic drum with removable head",
-                },
-              ],
-            },
-          ],
-        },
-        notes: ["Inner packaging not required for specific UNs (e.g., UN0222)"],
-      },
-      {
         id: "A5.7.2.dry_powder_solids",
         type: "combination",
         description:
           "Packaging for solid dry powder explosives (sift-proof requirement mandatory)",
         innerPackaging: {
-          required: false,
+          required: true,
           materials: [
             "Multiwall water-resistant paper bags",
             "Plastic bags",
@@ -1433,6 +1285,20 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
             "Inner packagings not required if drums are used as outer packaging",
             "Intermediate packaging: Bags of multiwall water-resistant paper, plastic, or woven plastic",
             "OR Receptacles of fiberboard, metal, plastic, or wood",
+          ],
+        },
+        intermediatePackaging: {
+          required: true,
+          description:
+            "Bags of multiwall water-resistant paper, plastic, or woven plastic, or receptacles of fiberboard, metal, plastic, or wood",
+          materials: [
+            "Multiwall water-resistant paper bags",
+            "Plastic bags",
+            "Woven plastic bags",
+            "Fiberboard receptacles",
+            "Metal receptacles",
+            "Plastic receptacles",
+            "Wood receptacles",
           ],
         },
         outerPackaging: {
@@ -1540,7 +1406,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
     specialRequirements: [
       {
         type: "lead_free",
-        description: "Packaging must be lead free for UN0216 and UN0386",
+        description: "Packaging must be lead free for UN0216 and UN0386 (T-0)",
         mandatory: true,
         applicableContainers: ["all"],
       },
@@ -1575,7 +1441,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
         operator: "equals",
         value: "UN0222",
         effect: "modify",
-        target: "inner_packaging_not_required",
+        target: "inner_packaging_optional",
         description: "Inner packaging not required for UN0222",
       },
       {
@@ -1609,7 +1475,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       },
     ],
 
-    referencedParagraphs: ["A5.7.1", "A5.7.2"],
+    referencedParagraphs: ["A5.7.1.", "A5.7.2."],
   },
   "A5.8.": {
     paragraphId: "A5.8.",
@@ -1770,6 +1636,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
         type: "single",
         description:
           "Direct drum packaging for UN0027 (no inner packaging required)",
+        applicableUNNumbers: ["UN0027"],
         innerPackaging: {
           required: false,
         },
@@ -1838,7 +1705,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
     specialRequirements: [
       {
         type: "sift_proof",
-        description: "At least one packaging layer must be sift-proof",
+        description: "At least one packaging layer must be sift-proof (T-0)",
         mandatory: true,
         applicableContainers: ["all"],
       },
@@ -1900,13 +1767,13 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       },
     ],
 
-    referencedParagraphs: ["A5.8"],
+    referencedParagraphs: ["A5.8."],
   },
   "A5.9.": {
     paragraphId: "A5.9.",
     hazardClass: 1,
     description:
-      "Deflagrating Metal Salts of Aromatic Nitroderivatives, N.O.S.; Dinitrophenolates; Dinitrosobenzene; Nitrocellulose, Wetted; 5-Mercaptotetrazol-1-Acetic Acid; Tetrazol-1-Acetic Acid; Powder, Smokeless; Propellant, Solid; Sodium Dinitro-O-Cresolate; Sodium Picramate; and Zirconium Picramate",
+      "Deflagrating Metal Salts of Aromatic Nitroderivatives, N.O.S.; Dinitrophenolates; Dinitrosobenzene; Nitrocellulose, Wetted; 5-Mercaptotetrazol-1-Acetic Acid; Tetrazol-1- Acetic Acid; Powder, Smokeless; Propellant, Solid; Sodium Dinitro-O-Cresolate; Sodium Picramate; and Zirconium Picramate",
     lastUpdated: new Date().toISOString(),
     entryType: "specialized",
     materialTypes: [
@@ -1939,8 +1806,9 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
         id: "A5.9.1.wetted_solids",
         type: "combination",
         description: "Three-tier packaging for wetted solids (UN0342)",
+        applicableUNNumbers: ["UN0342"],
         innerPackaging: {
-          required: false,
+          required: true,
           materials: [
             "Plastic bags",
             "Textile bags",
@@ -1957,6 +1825,18 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
             "OR Receptacles of metal or plastic",
             "OR Dividing partitions of wood",
             "Intermediate packaging not required if packed in outer leakproof removable head drum",
+          ],
+        },
+        intermediatePackaging: {
+          required: true,
+          description:
+            "Bags of plastic or plastic coated or lined textile, or receptacles of metal or plastic, or dividing partitions of wood",
+          materials: [
+            "Plastic bags",
+            "Plastic coated or lined textile bags",
+            "Metal receptacles",
+            "Plastic receptacles",
+            "Wood dividing partitions",
           ],
         },
         outerPackaging: {
@@ -2059,8 +1939,19 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
         type: "combination",
         description:
           "Packaging for dry solid materials with special drum requirements",
+        applicableUNNumbers: [
+          "UN0132",
+          "UN0160",
+          "UN0161",
+          "UN0406",
+          "UN0407",
+          "UN0448",
+          "UN0498",
+          "UN0499",
+          "UN0509",
+        ],
         innerPackaging: {
-          required: false,
+          required: true,
           materials: [
             "Kraft paper bags",
             "Plastic bags",
@@ -2160,7 +2051,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
           ],
         },
         restrictions: [
-          "Use for UN0132, 0160, 0161, 0406, 0407, 0448, 0498, 0499, and 0509",
+          "Use for UN0132, UN0160, UN0161, UN0406, UN0407, UN0448, UN0498, UN0499, and UN0509",
           "For UN0160 and 0161: 1A2, 1B2, and 1N2 drums must prevent explosion from internal pressure",
           "For UN0509: Do not use metal packagings",
         ],
@@ -2170,79 +2061,13 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
           "Metal packaging prohibited for UN0509",
         ],
       },
-      {
-        id: "A5.9.single_drums",
-        type: "single",
-        description:
-          "Single packaging in drums when inner packagings are not required",
-        innerPackaging: {
-          required: false,
-          description:
-            "Inner packaging not required for specific UNs when packed in drums",
-        },
-        outerPackaging: {
-          categories: [
-            {
-              type: "drums",
-              containers: [
-                { code: "1A1", material: "steel", description: "Steel drum" },
-                {
-                  code: "1A2",
-                  material: "steel",
-                  description: "Steel drum with removable head",
-                },
-                {
-                  code: "1B1",
-                  material: "aluminum",
-                  description: "Aluminum drum",
-                },
-                {
-                  code: "1B2",
-                  material: "aluminum",
-                  description: "Aluminum drum with removable head",
-                },
-                {
-                  code: "1N1",
-                  material: "other_metal",
-                  description: "Other metal drum",
-                },
-                {
-                  code: "1N2",
-                  material: "other_metal",
-                  description: "Other metal drum with removable head",
-                },
-                {
-                  code: "1D",
-                  material: "plywood",
-                  description: "Plywood drum",
-                },
-                { code: "1G", material: "fiber", description: "Fiber drum" },
-                {
-                  code: "1H1",
-                  material: "plastic",
-                  description: "Plastic drum",
-                },
-                {
-                  code: "1H2",
-                  material: "plastic",
-                  description: "Plastic drum with removable head",
-                },
-              ],
-            },
-          ],
-        },
-        notes: [
-          "Inner packaging not required for UN0342 when packed in drums",
-          "Inner packaging not required for UN0160/UN0161 when packed in drums",
-        ],
-      },
     ],
 
     specialRequirements: [
       {
         type: "lead_free",
         description:
-          "Packaging must be lead free for UN0077, 0132, 0234, 0235, and 0236",
+          "Packaging must be lead free for UN0077, UN0132, UN0234, UN0235, and UN0236 (T-0)",
         mandatory: true,
         applicableContainers: ["all"],
       },
@@ -2344,7 +2169,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       },
     ],
 
-    referencedParagraphs: ["A5.9.1", "A5.9.2"],
+    referencedParagraphs: ["A5.9.1.", "A5.9.2."],
   },
   "A5.10.": {
     paragraphId: "A5.10.",
@@ -2383,6 +2208,16 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
             "Intermediate packaging: Bags of plastic in metal receptacles, OR metal drums, OR wood receptacles",
             "Intermediate packaging not required for UN0144",
             "For UN0075, 0143, 0495, and 0497: use bags as intermediate packaging when boxes are outer packaging",
+          ],
+        },
+        intermediatePackaging: {
+          required: true,
+          description:
+            "Bags of plastic in metal receptacles, or metal drums, or wood receptacles",
+          materials: [
+            "Plastic bags in metal receptacles",
+            "Metal drums",
+            "Wood receptacles",
           ],
         },
         outerPackaging: {
@@ -2486,9 +2321,9 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
           },
         ],
         restrictions: [
-          "Liquid substances must not freeze at temperatures above -15°C (5°F)",
-          "Maximum 30kg net mass for boxes",
-          "Maximum 120L net volume for drums",
+          "Liquid substances must not freeze at temperatures above -15°C (5°F) (T-0)",
+          "Maximum 30kg net mass for boxes (T-0)",
+          "Maximum 120L net volume for drums (T-0)",
           "Aluminum and other metal drums prohibited for UN0144",
         ],
         notes: [
@@ -2651,7 +2486,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       },
     ],
 
-    referencedParagraphs: ["A5.10"],
+    referencedParagraphs: ["A5.10."],
   },
   "A5.11.": {
     paragraphId: "A5.11.",
@@ -2876,177 +2711,6 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
           "Jerricans available as alternative outer packaging",
         ],
       },
-      {
-        id: "A5.11.single_outer_packaging",
-        type: "single",
-        description:
-          "Single packaging when inner packagings are not required",
-        innerPackaging: {
-          required: false,
-          description:
-            "Inner packagings may be omitted under specific conditions listed in A5.11",
-        },
-        outerPackaging: {
-          categories: [
-            {
-              type: "boxes",
-              containers: [
-                { code: "4A", material: "steel", description: "Steel box" },
-                {
-                  code: "4B",
-                  material: "aluminum",
-                  description: "Aluminum box",
-                },
-                {
-                  code: "4N",
-                  material: "other_metal",
-                  description: "Other metal box",
-                },
-                {
-                  code: "4C1",
-                  material: "natural_wood",
-                  description: "Ordinary natural wood box",
-                },
-                {
-                  code: "4C2",
-                  material: "natural_wood",
-                  description: "Sift-proof natural wood box",
-                },
-                { code: "4D", material: "plywood", description: "Plywood box" },
-                {
-                  code: "4F",
-                  material: "reconstituted_wood",
-                  description: "Reconstituted wood box",
-                },
-                {
-                  code: "4G",
-                  material: "fiberboard",
-                  description: "Fiberboard box",
-                },
-                {
-                  code: "4H2",
-                  material: "plastic",
-                  description: "Solid plastic box",
-                },
-              ],
-            },
-            {
-              type: "drums",
-              containers: [
-                { code: "1A1", material: "steel", description: "Steel drum" },
-                {
-                  code: "1A2",
-                  material: "steel",
-                  description: "Steel drum with removable head",
-                },
-                {
-                  code: "1B1",
-                  material: "aluminum",
-                  description: "Aluminum drum",
-                },
-                {
-                  code: "1B2",
-                  material: "aluminum",
-                  description: "Aluminum drum with removable head",
-                },
-                {
-                  code: "1N1",
-                  material: "other_metal",
-                  description: "Other metal drum",
-                },
-                {
-                  code: "1N2",
-                  material: "other_metal",
-                  description: "Other metal drum with removable head",
-                },
-                {
-                  code: "1D",
-                  material: "plywood",
-                  description: "Plywood drum",
-                },
-                { code: "1G", material: "fiber", description: "Fiber drum" },
-                {
-                  code: "1H1",
-                  material: "plastic",
-                  description: "Plastic drum",
-                },
-                {
-                  code: "1H2",
-                  material: "plastic",
-                  description: "Plastic drum with removable head",
-                },
-              ],
-            },
-            {
-              type: "jerricans",
-              containers: [
-                {
-                  code: "3A1",
-                  material: "steel",
-                  description: "Steel jerrican",
-                },
-                {
-                  code: "3A2",
-                  material: "steel",
-                  description: "Steel jerrican with removable head",
-                },
-                {
-                  code: "3H1",
-                  material: "plastic",
-                  description: "Plastic jerrican",
-                },
-                {
-                  code: "3H2",
-                  material: "plastic",
-                  description: "Plastic jerrican with removable head",
-                },
-              ],
-            },
-            {
-              type: "bags",
-              containers: [
-                {
-                  code: "5H1",
-                  material: "woven_plastic",
-                  description: "Woven plastic bag",
-                },
-                {
-                  code: "5H2",
-                  material: "woven_plastic",
-                  description: "Sift-proof woven plastic bag",
-                },
-                {
-                  code: "5H3",
-                  material: "woven_plastic",
-                  description: "Water-resistant woven plastic bag",
-                },
-                {
-                  code: "5H4",
-                  material: "plastic_film",
-                  description: "Plastic film bag",
-                },
-                {
-                  code: "5L2",
-                  material: "textile",
-                  description: "Sift-proof textile bag",
-                },
-                {
-                  code: "5L3",
-                  material: "textile",
-                  description: "Water-resistant textile bag",
-                },
-                {
-                  code: "5M2",
-                  material: "paper",
-                  description: "Multiwall water-resistant paper bag",
-                },
-              ],
-            },
-          ],
-        },
-        restrictions: ["Bags prohibited for UN0081"],
-        notes: ["Inner packagings may be omitted for specific UNs per A5.11"],
-      },
     ],
 
     specialRequirements: [
@@ -3140,7 +2804,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       },
     ],
 
-    referencedParagraphs: ["A5.11"],
+    referencedParagraphs: ["A5.11."],
   },
 "A5.12.": {
       paragraphId: "A5.12.",
@@ -3309,7 +2973,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
         },
       ],
 
-      referencedParagraphs: ["A5.12.1", "A5.12.2"],
+      referencedParagraphs: ["A5.12.1.", "A5.12.2."],
     },
   "A5.13.": {
     paragraphId: "A5.13.",
@@ -3445,111 +3109,6 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
           "Impact protection required for caps",
         ],
       },
-      {
-        id: "A5.13.single_outer_packaging",
-        type: "single",
-        description:
-          "Single packaging when inner packagings are not required",
-        innerPackaging: {
-          required: false,
-          description:
-            "Inner packagings not required when detonators are packed in pasteboard tubes or spooled configurations",
-        },
-        outerPackaging: {
-          categories: [
-            {
-              type: "boxes",
-              containers: [
-                { code: "4A", material: "steel", description: "Steel box" },
-                {
-                  code: "4B",
-                  material: "aluminum",
-                  description: "Aluminum box",
-                },
-                {
-                  code: "4N",
-                  material: "other_metal",
-                  description: "Other metal box",
-                },
-                {
-                  code: "4C1",
-                  material: "natural_wood",
-                  description: "Ordinary natural wood box",
-                },
-                {
-                  code: "4C2",
-                  material: "natural_wood",
-                  description: "Sift-proof natural wood box",
-                },
-                { code: "4D", material: "plywood", description: "Plywood box" },
-                {
-                  code: "4F",
-                  material: "reconstituted_wood",
-                  description: "Reconstituted wood box",
-                },
-                {
-                  code: "4G",
-                  material: "fiberboard",
-                  description: "Fiberboard box",
-                },
-                {
-                  code: "4H2",
-                  material: "plastic",
-                  description: "Solid plastic box",
-                },
-              ],
-            },
-            {
-              type: "drums",
-              containers: [
-                { code: "1A1", material: "steel", description: "Steel drum" },
-                {
-                  code: "1A2",
-                  material: "steel",
-                  description: "Steel drum with removable head",
-                },
-                {
-                  code: "1B1",
-                  material: "aluminum",
-                  description: "Aluminum drum",
-                },
-                {
-                  code: "1B2",
-                  material: "aluminum",
-                  description: "Aluminum drum with removable head",
-                },
-                {
-                  code: "1N1",
-                  material: "other_metal",
-                  description: "Other metal drum",
-                },
-                {
-                  code: "1N2",
-                  material: "other_metal",
-                  description: "Other metal drum with removable head",
-                },
-                {
-                  code: "1D",
-                  material: "plywood",
-                  description: "Plywood drum",
-                },
-                { code: "1G", material: "fiber", description: "Fiber drum" },
-                {
-                  code: "1H1",
-                  material: "plastic",
-                  description: "Plastic drum",
-                },
-                {
-                  code: "1H2",
-                  material: "plastic",
-                  description: "Plastic drum with removable head",
-                },
-              ],
-            },
-          ],
-        },
-        notes: ["Inner packagings may be omitted for specific packing methods"],
-      },
     ],
 
     specialRequirements: [
@@ -3633,7 +3192,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       },
     ],
 
-    referencedParagraphs: ["A5.13"],
+    referencedParagraphs: ["A5.13."],
   },
   "A5.14.": {
     paragraphId: "A5.14.",
@@ -3785,111 +3344,6 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
           "UN-specific restrictions on certain inner packaging types",
         ],
       },
-      {
-        id: "A5.14.single_outer_packaging",
-        type: "single",
-        description:
-          "Single packaging when inner packagings are not required",
-        innerPackaging: {
-          required: false,
-          description:
-            "Inner packagings not required when packing configuration restricts movement and protects from impact",
-        },
-        outerPackaging: {
-          categories: [
-            {
-              type: "boxes",
-              containers: [
-                { code: "4A", material: "steel", description: "Steel box" },
-                {
-                  code: "4B",
-                  material: "aluminum",
-                  description: "Aluminum box",
-                },
-                {
-                  code: "4N",
-                  material: "other_metal",
-                  description: "Other metal box",
-                },
-                {
-                  code: "4C1",
-                  material: "natural_wood",
-                  description: "Ordinary natural wood box",
-                },
-                {
-                  code: "4C2",
-                  material: "natural_wood",
-                  description: "Sift-proof natural wood box",
-                },
-                { code: "4D", material: "plywood", description: "Plywood box" },
-                {
-                  code: "4F",
-                  material: "reconstituted_wood",
-                  description: "Reconstituted wood box",
-                },
-                {
-                  code: "4G",
-                  material: "fiberboard",
-                  description: "Fiberboard box",
-                },
-                {
-                  code: "4H2",
-                  material: "plastic",
-                  description: "Solid plastic box",
-                },
-              ],
-            },
-            {
-              type: "drums",
-              containers: [
-                { code: "1A1", material: "steel", description: "Steel drum" },
-                {
-                  code: "1A2",
-                  material: "steel",
-                  description: "Steel drum with removable head",
-                },
-                {
-                  code: "1B1",
-                  material: "aluminum",
-                  description: "Aluminum drum",
-                },
-                {
-                  code: "1B2",
-                  material: "aluminum",
-                  description: "Aluminum drum with removable head",
-                },
-                {
-                  code: "1N1",
-                  material: "other_metal",
-                  description: "Other metal drum",
-                },
-                {
-                  code: "1N2",
-                  material: "other_metal",
-                  description: "Other metal drum with removable head",
-                },
-                {
-                  code: "1D",
-                  material: "plywood",
-                  description: "Plywood drum",
-                },
-                { code: "1G", material: "fiber", description: "Fiber drum" },
-                {
-                  code: "1H1",
-                  material: "plastic",
-                  description: "Plastic drum",
-                },
-                {
-                  code: "1H2",
-                  material: "plastic",
-                  description: "Plastic drum with removable head",
-                },
-              ],
-            },
-          ],
-        },
-        notes: ["Inner packagings may be omitted with proper configuration"],
-      },
     ],
 
     specialRequirements: [
@@ -3973,7 +3427,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       },
     ],
 
-    referencedParagraphs: ["A5.14"],
+    referencedParagraphs: ["A5.14."],
   },
   "A5.15.": {
     paragraphId: "A5.15.",
@@ -4192,7 +3646,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       },
     ],
 
-    referencedParagraphs: ["A5.15.1", "A5.15.2"],
+    referencedParagraphs: ["A5.15.1.", "A5.15.2."],
   },
   "A5.16.": {
     paragraphId: "A5.16.",
@@ -4383,7 +3837,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       },
     ],
 
-    referencedParagraphs: ["A5.16"],
+    referencedParagraphs: ["A5.16."],
   },
   "A5.17.": {
     paragraphId: "A5.17.",
@@ -4618,7 +4072,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       },
     ],
 
-    referencedParagraphs: ["A5.17"],
+    referencedParagraphs: ["A5.17."],
   },
   "A5.18.": {
     paragraphId: "A5.18.",
@@ -4859,7 +4313,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       },
     ],
 
-    referencedParagraphs: ["A5.18"],
+    referencedParagraphs: ["A5.18."],
   },
   "A5.19.": {
     paragraphId: "A5.19.",
@@ -5055,7 +4509,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       },
     ],
 
-    referencedParagraphs: ["A5.19"],
+    referencedParagraphs: ["A5.19."],
   },
   "A5.20.": {
     paragraphId: "A5.20.",
@@ -5263,7 +4717,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       },
     ],
 
-    referencedParagraphs: ["A5.20"],
+    referencedParagraphs: ["A5.20."],
   },
   "A5.21.": {
     paragraphId: "A5.21.",
@@ -5442,7 +4896,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       },
     ],
 
-    referencedParagraphs: ["A5.21"],
+    referencedParagraphs: ["A5.21."],
   },
   "A5.22.": {
     paragraphId: "A5.22.",
@@ -5661,7 +5115,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       },
     ],
 
-    referencedParagraphs: ["A5.22"],
+    referencedParagraphs: ["A5.22."],
   },
   "A5.23.": {
     paragraphId: "A5.23.",
@@ -5793,6 +5247,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
         type: "combination",
         description:
           "Restricted packaging for UN0101 with metal packaging prohibition",
+        applicableUNNumbers: ["UN0101"],
         innerPackaging: {
           required: true,
           materials: [
@@ -5951,7 +5406,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       },
     ],
 
-    referencedParagraphs: ["A5.23"],
+    referencedParagraphs: ["A5.23."],
   },
   "A5.24.": {
     paragraphId: "A5.24.",
@@ -6174,7 +5629,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       },
     ],
 
-    referencedParagraphs: ["A5.24"],
+    referencedParagraphs: ["A5.24."],
   },
   "A5.25.": {
     paragraphId: "A5.25.",
@@ -6392,7 +5847,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       },
     ],
 
-    referencedParagraphs: ["A5.25"],
+    referencedParagraphs: ["A5.25."],
   },
   "A5.26.": {
     paragraphId: "A5.26.",
@@ -6641,7 +6096,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       },
     ],
 
-    referencedParagraphs: ["A5.26", "A5.26.1", "A5.26.2"],
+    referencedParagraphs: ["A5.26.", "A5.26.1.", "A5.26.2."],
   },
   "A5.27.": {
     paragraphId: "A5.27.",
@@ -6911,7 +6366,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       },
     ],
 
-    referencedParagraphs: ["A5.27", "A5.27.1", "A5.27.2"],
+    referencedParagraphs: ["A5.27.", "A5.27.1.", "A5.27.2."],
   },
   "A7.2.": {
     paragraphId: "A7.2.",

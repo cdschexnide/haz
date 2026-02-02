@@ -131,6 +131,42 @@ describe('Packaging Paragraph Lookup - Class 1 Explosives', () => {
     });
   });
 
+  describe('Conditional Requirements - A5.7.', () => {
+    test('A5.7. includes UN0222 inner packaging exception', () => {
+      const entry = getPackagingEntry('A5.7.');
+      expect(entry).not.toBeNull();
+
+      const un0222Rule = entry?.conditionalRequirements?.find(
+        (req) => req.value === 'UN0222'
+      );
+      expect(un0222Rule).toBeDefined();
+      expect(un0222Rule?.effect).toBe('modify');
+      expect(un0222Rule?.target).toBe('inner_packaging_optional');
+    });
+
+    test('A5.7. includes UN0150 intermediate packaging requirement', () => {
+      const entry = getPackagingEntry('A5.7.');
+      expect(entry).not.toBeNull();
+
+      const un0150Rule = entry?.conditionalRequirements?.find(
+        (req) => req.value === 'UN0150'
+      );
+      expect(un0150Rule).toBeDefined();
+      expect(un0150Rule?.effect).toBe('require');
+      expect(un0150Rule?.target).toBe('intermediate_packaging');
+    });
+
+    test('A5.7. dry solids option defines intermediate packaging materials', () => {
+      const entry = getPackagingEntry('A5.7.');
+      const option = entry?.packagingOptions.find(
+        (opt) => opt.id === 'A5.7.1.dry_solids_non_powder'
+      );
+      expect(option).toBeDefined();
+      expect(option?.intermediatePackaging).toBeDefined();
+      expect(option?.intermediatePackaging?.materials?.length).toBeGreaterThan(0);
+    });
+  });
+
   describe('Authorized Packaging Codes', () => {
     test('A5.4. (BARIUM AZIDE) authorizes steel drums', () => {
       const options = getAvailablePackagingOptions('A5.4.', {});

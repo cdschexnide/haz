@@ -372,10 +372,12 @@ export function validatePackagingCodeV2(
   packagingDatabaseV2: Record<string, PackagingParagraphEntry>,
   packagingParagraphId: string,
   code: string,
-  packagingType?: string
+  packagingType?: string,
+  unIdNo?: string
 ): PackagingCodeValidationResult {
   // Normalize the input code
   const normalizedCode = code.trim().toUpperCase();
+  const normalizedUnId = (unIdNo || "").toUpperCase();
 
   // Normalize the packaging paragraph ID - ensure it ends with a period
   // (packagingDatabaseV2 keys use trailing periods, e.g., "A5.24." not "A5.24")
@@ -409,9 +411,32 @@ export function validatePackagingCodeV2(
       option => option.type.toLowerCase() === normalizedType
     );
   }
+  const hasExplicitMatch = normalizedUnId
+    ? packagingOptions.some(option =>
+        option.applicableUNNumbers
+          ?.map(un => un.toUpperCase())
+          .includes(normalizedUnId)
+      )
+    : false;
 
   // Search through all relevant options
   for (const option of relevantOptions) {
+    if (
+      hasExplicitMatch &&
+      (!option.applicableUNNumbers || option.applicableUNNumbers.length === 0)
+    ) {
+      continue;
+    }
+    if (
+      normalizedUnId &&
+      option.applicableUNNumbers &&
+      option.applicableUNNumbers.length > 0 &&
+      !option.applicableUNNumbers
+        .map(un => un.toUpperCase())
+        .includes(normalizedUnId)
+    ) {
+      continue;
+    }
     // Check if this option has outer packaging
     if (!option.outerPackaging || !option.outerPackaging.categories) {
       continue;

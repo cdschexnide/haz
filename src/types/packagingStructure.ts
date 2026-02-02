@@ -52,6 +52,7 @@ export interface PackagingOption {
   notes?: string[];
   quantityLimits?: QuantityLimit[];
   isComplete?: boolean;
+  applicableUNNumbers?: string[];
 }
 
 export interface InnerPackaging {

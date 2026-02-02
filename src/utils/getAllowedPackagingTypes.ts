@@ -80,14 +80,39 @@ const getA13_2PhysicalState = (
 };
 
 const normalizePackagingTypesFromEntry = (
-  entry: PackagingParagraphEntry | undefined
+  entry: PackagingParagraphEntry | undefined,
+  unIdNo?: string
 ): PackagingTypeSelection[] => {
   if (!entry?.packagingOptions?.length) {
     return [];
   }
 
+  const normalizedUnId = (unIdNo || "").toUpperCase();
+  const hasExplicitMatch = normalizedUnId
+    ? entry.packagingOptions.some(option =>
+        option.applicableUNNumbers
+          ?.map(un => un.toUpperCase())
+          .includes(normalizedUnId)
+      )
+    : false;
   const types = new Set<PackagingTypeSelection>();
   entry.packagingOptions.forEach(option => {
+    if (
+      hasExplicitMatch &&
+      (!option.applicableUNNumbers || option.applicableUNNumbers.length === 0)
+    ) {
+      return;
+    }
+    if (
+      normalizedUnId &&
+      option.applicableUNNumbers &&
+      option.applicableUNNumbers.length > 0 &&
+      !option.applicableUNNumbers
+        .map(un => un.toUpperCase())
+        .includes(normalizedUnId)
+    ) {
+      return;
+    }
     const normalizedType = option.type.toLowerCase();
     if (normalizedType === "single" || normalizedType === "combination") {
       types.add(normalizedType as PackagingTypeSelection);
@@ -134,15 +159,40 @@ export const getAllowedPackagingTypes = ({
 
   let allowedTypes: PackagingTypeSelection[] = [];
 
-  if (normalizedParagraph.startsWith("A13.2")) {
+    if (normalizedParagraph.startsWith("A13.2")) {
     const entry = packagingDatabase["A13.2."];
     if (entry?.packagingOptions?.length) {
       const physicalState = getA13_2PhysicalState(unIdNo, properShippingName);
       const stateKey =
         physicalState === PhysicalState.LIQUID ? "liquids" : "solids";
       const types = new Set<PackagingTypeSelection>();
+      const normalizedUnId = (unIdNo || "").toUpperCase();
+      const hasExplicitMatch = normalizedUnId
+        ? entry.packagingOptions.some(option =>
+            option.applicableUNNumbers
+              ?.map(un => un.toUpperCase())
+              .includes(normalizedUnId)
+          )
+        : false;
 
       entry.packagingOptions.forEach(option => {
+        if (
+          hasExplicitMatch &&
+          (!option.applicableUNNumbers ||
+            option.applicableUNNumbers.length === 0)
+        ) {
+          return;
+        }
+        if (
+          normalizedUnId &&
+          option.applicableUNNumbers &&
+          option.applicableUNNumbers.length > 0 &&
+          !option.applicableUNNumbers
+            .map(un => un.toUpperCase())
+            .includes(normalizedUnId)
+        ) {
+          return;
+        }
         const isMatchingState =
           option.id.includes(`.${stateKey}_`) ||
           (physicalState === PhysicalState.LIQUID &&
@@ -169,7 +219,8 @@ export const getAllowedPackagingTypes = ({
     }
   } else {
     allowedTypes = normalizePackagingTypesFromEntry(
-      packagingDatabase[normalizedParagraph]
+      packagingDatabase[normalizedParagraph],
+      unIdNo
     );
   }
 

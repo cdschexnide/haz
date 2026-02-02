@@ -239,7 +239,8 @@ const PackingContainerDataEntry = ({ navigation }: { navigation: any }) => {
       packagingDatabaseV2,
       packagingParagraph,
       fields.B,
-      typeToValidate
+      typeToValidate,
+      state.hazProPreparerContext.hazardousMaterial?.unid
     );
 
     if (!result?.isValid) {
@@ -780,7 +781,8 @@ const PackingContainerDataEntry = ({ navigation }: { navigation: any }) => {
               packagingDatabaseV2,
               packagingParagraph,
               packagingCode,
-              typeToValidate
+              typeToValidate,
+              state.hazProPreparerContext.hazardousMaterial?.unid
             );
             console.log(
               "validationResult: ",
