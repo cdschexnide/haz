@@ -9743,12 +9743,12 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
     ],
 
     referencedParagraphs: [
-      "A8.2.1",
-      "A8.2.2",
-      "A8.2.3",
-      "A8.2.4",
-      "A8.2.5",
-      "A20.3",
+      "A8.2.1.",
+      "A8.2.2.",
+      "A8.2.3.",
+      "A8.2.4.",
+      "A8.2.5.",
+      "A20.3.",
     ],
   },
   "A8.3.": {
@@ -10453,12 +10453,12 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
     ],
 
     referencedParagraphs: [
-      "A8.3.1",
-      "A8.3.2",
-      "A8.3.3",
-      "A8.3.4",
-      "A8.3.5",
-      "A3.3.4.2",
+      "A8.3.1.",
+      "A8.3.2.",
+      "A8.3.3.",
+      "A8.3.4.",
+      "A8.3.5.",
+      "A3.3.4.2.",
     ],
   },
   "A8.4.": {
@@ -10545,7 +10545,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       },
     ],
 
-    referencedParagraphs: ["A4.1", "2.5"],
+    referencedParagraphs: ["A4.1.", "2.5."],
   },
   "A8.5.": {
     paragraphId: "A8.5.",
@@ -11158,13 +11158,13 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       },
     ],
 
-    referencedParagraphs: ["A3.3.4.2", "A8.5.1", "A8.5.2", "A8.5.3", "A8.5.4"],
+    referencedParagraphs: ["A3.3.4.2.", "A8.5.1.", "A8.5.2.", "A8.5.3.", "A8.5.4."],
   },
   "A8.6.": {
     paragraphId: "A8.6.",
     hazardClass: 4,
     description:
-      "Package Diphenyloxide-4, 4-Disulphohydrazide; N, N Dinitroso-N, N Dimethyl Teraphthlamide (not more than 72 percent as a paste) as follows: Temperature controls are not required. Maximum gross weight may not exceed 110 pounds (50 kg). Package in drums as follows:",
+      "Package Diphenyloxide-4, 4-Disulphohydrazide; N, N Dinitroso-N, N Dimethyl Teraphthlamide (not more than 72 percent as a paste) as follows:",
     lastUpdated: new Date().toISOString(),
     entryType: "specialized",
     materialTypes: [
@@ -11251,12 +11251,6 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
 
     quantityLimits: [
       {
-        scope: "per_package",
-        value: 50,
-        unit: "kg",
-        description: "Maximum gross weight may not exceed 110 pounds (50 kg)",
-      },
-      {
         scope: "concentration_limit",
         value: 72,
         unit: "percent",
@@ -11297,7 +11291,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       },
     ],
 
-    referencedParagraphs: ["A8.6"],
+    referencedParagraphs: ["A8.6."],
   },
   "A8.7.": {
     paragraphId: "A8.7.",
@@ -11572,7 +11566,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       },
     ],
 
-    referencedParagraphs: ["A8.7.1", "A8.7.2", "A8.7.3"],
+    referencedParagraphs: ["A8.7.1.", "A8.7.2.", "A8.7.3."],
   },
   "A8.8.": {
     paragraphId: "A8.8.",
@@ -11753,7 +11747,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       },
     ],
 
-    referencedParagraphs: ["A8.8.1", "A8.8.2"],
+    referencedParagraphs: ["A8.8.1.", "A8.8.2."],
   },
   "A8.9.": {
     paragraphId: "A8.9.",
@@ -12179,34 +12173,62 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
         },
       },
       {
-        id: "A8.11.5.metal_boxes_only",
-        type: "single",
-        description: "Metal boxes only (15 kg limit)",
+        id: "A8.11.5.metal_drums_comprehensive_alt",
+        type: "combination",
+        description:
+          "Metal receptacles in drums (15 kg inner limit, 150 kg gross weight limit for metal drums) (A8.11.5)",
         innerPackaging: {
-          required: false,
-          description: "Inner packaging not required",
+          required: true,
+          materials: ["Metal receptacles"],
+          description:
+            "Metal receptacles with positive (not friction) means of closure (not required for metal drums)",
         },
         outerPackaging: {
           required: true,
           categories: [
             {
-              type: "boxes",
-              subtype: "metal_only",
+              type: "drums",
+              subtype: "metal_comprehensive",
               containers: [
                 {
-                  code: "4A",
+                  code: "1A1",
                   material: "steel",
-                  description: "Steel box (4A)",
+                  description: "Steel drum (1A1)",
                 },
                 {
-                  code: "4B",
+                  code: "1A2",
+                  material: "steel",
+                  description: "Removable head steel drum (1A2)",
+                },
+                {
+                  code: "1B1",
                   material: "aluminum",
-                  description: "Aluminum box (4B)",
+                  description: "Aluminum drum (1B1)",
                 },
                 {
-                  code: "4N",
+                  code: "1B2",
+                  material: "aluminum",
+                  description: "Removable head aluminum drum (1B2)",
+                },
+                {
+                  code: "1D",
+                  material: "plywood",
+                  description: "Plywood drum (1D)",
+                },
+                {
+                  code: "1G",
+                  material: "fiber",
+                  description: "Fiber drum (1G)",
+                },
+                {
+                  code: "1N1",
                   material: "other_metal",
-                  description: "Other metal box (4N)",
+                  description: "Other metal drum (1N1)",
+                },
+                {
+                  code: "1N2",
+                  material: "other_metal",
+                  description: "Removable head other metal drum (1N2)",
                 },
               ],
             },
@@ -12274,9 +12296,16 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       {
         type: "weight_limit",
         description:
-          "Metal boxes may not contain more than 15 kg (33 pounds) each",
+          "Inner metal receptacles may not contain more than 15 kg (33 pounds) each",
         mandatory: true,
-        applicableContainers: ["A8.11.5.metal_boxes_only"],
+        applicableContainers: ["A8.11.5.metal_drums_comprehensive_alt"],
+      },
+      {
+        type: "weight_limit",
+        description:
+          "For metal drums, gross weight may not exceed 150 kg (331 pounds) each",
+        mandatory: true,
+        applicableContainers: ["A8.11.5.metal_drums_comprehensive_alt"],
       },
     ],
 
@@ -12303,11 +12332,11 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
           "For metal drums, gross weight may not exceed 150 kg (331 pounds) each",
       },
       {
-        scope: "per_box",
+        scope: "per_inner",
         value: 15,
         unit: "kg",
         description:
-          "Metal boxes may not contain more than 15 kg (33 pounds) each (A8.11.5)",
+          "Inner metal receptacles may not contain more than 15 kg (33 pounds) each (A8.11.5)",
       },
     ],
 
@@ -12340,11 +12369,11 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
         condition: "packaging_option == 'A8.11.5'",
         requirements: [
           {
-            type: "packaging_restriction",
+            type: "weight_limit",
             description:
-              "Only metal boxes authorized - no inner packaging required",
+              "For metal drums, gross weight may not exceed 150 kg (331 pounds) each",
             mandatory: true,
-            applicableContainers: ["A8.11.5.metal_boxes_only"],
+            applicableContainers: ["A8.11.5.metal_drums_comprehensive_alt"],
           },
         ],
       },
@@ -13270,7 +13299,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       },
     ],
 
-    referencedParagraphs: ["A4.2.3"],
+    referencedParagraphs: ["A4.2.3."],
   },
   "A8.16.": {
     paragraphId: "A8.16.",
@@ -13823,7 +13852,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
     ],
 
     referencedParagraphs: [
-      "A3.3.1",
+      "A3.3.1.",
       "49CFR173.56",
       "49CFR173.58",
       "49CFR173.171",
@@ -15452,7 +15481,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
                 { code: "6HA1", material: "steel", description: "Steel" },
                 { code: "6HB1", material: "aluminum", description: "Aluminum" },
                 { code: "6HG1", material: "fiber", description: "Fiber" },
-                { code: "6HH1", material: "plastic", description: "Plastic" },
+                { code: "6HH", material: "plastic", description: "Plastic" },
                 { code: "6HD1", material: "plywood", description: "Plywood" },
               ],
             },
@@ -15599,7 +15628,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       },
     ],
 
-    referencedParagraphs: ["A3.3.5", "A20.3"],
+    referencedParagraphs: ["A3.3.5.", "A20.3."],
   },
   "A9.6.": {
     paragraphId: "A9.6.",
@@ -15981,7 +16010,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       },
     ],
 
-    referencedParagraphs: ["A3.3.5"],
+    referencedParagraphs: ["A3.3.5."],
   },
   "A9.7.": {
     paragraphId: "A9.7.",
@@ -16081,7 +16110,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       },
     ],
 
-    referencedParagraphs: ["2.5"],
+    referencedParagraphs: ["2.5."],
   },
   "A9.9.": {
     paragraphId: "A9.9.",
@@ -16272,7 +16301,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       {
         type: "testing",
         description:
-          "A chemical oxygen generator that is shipped with an explosive or nonexplosive means of initiation attached must be classed and approved by the Associate Administrator in accordance with 49 CFR Section 173.56",
+          "A chemical oxygen generator that is shipped with an explosive or nonexplosive means of initiation attached must be classed and approved by the Associate Administrator in accordance with 49 CFR Section 173.56 (T-0)",
         mandatory: true,
       },
       {
@@ -16349,7 +16378,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
           {
             type: "static_prevention",
             description:
-              "Must contain a pin installed so as to prevent the actuator from striking the primer, and be placed in a protective bag, pouch, case or cover such that the protective breathing equipment is fully enclosed",
+              "Must contain a pin installed so as to prevent the actuator from striking the primer, and be placed in a protective bag, pouch, case or cover such that the protective breathing equipment is fully enclosed (T-0)",
             mandatory: true,
           },
         ],
@@ -16361,6 +16390,316 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       "49 CFR Part 178",
       "ATA Specification No. 300",
     ],
+  },
+  "A10.2.": {
+    paragraphId: "A10.2.",
+    hazardClass: 6,
+    subclass: ["6.1"],
+    description: "Package Packing Group I Class 6.1 Toxic Materials",
+    lastUpdated: new Date().toISOString(),
+    entryType: "standard",
+    materialTypes: ["pg_i_toxic_materials", "class_6_1_cylinders"],
+
+    packagingOptions: [
+      {
+        id: "A10.2.2.cylinders",
+        type: "cylinder",
+        description:
+          "DOT specification cylinders (3A1800, 3AA1800, 3AL1800, 3D, 3E1800, 33) meeting requirements of A3.3.2.",
+        innerPackaging: {
+          required: false,
+          description: "Gas contained in cylinder",
+        },
+        outerPackaging: {
+          categories: [
+            {
+              type: "cylinders",
+              subtype: "dot_specification",
+              containers: [
+                {
+                  code: "3A1800",
+                  material: "steel",
+                  description: "DOT specification 3A1800 cylinder",
+                },
+                {
+                  code: "3AA1800",
+                  material: "steel",
+                  description: "DOT specification 3AA1800 cylinder",
+                },
+                {
+                  code: "3AL1800",
+                  material: "aluminum",
+                  description: "DOT specification 3AL1800 cylinder",
+                },
+                {
+                  code: "3D",
+                  material: "steel",
+                  description: "DOT specification 3D cylinder",
+                },
+                {
+                  code: "3E1800",
+                  material: "steel",
+                  description: "DOT specification 3E1800 cylinder",
+                },
+                {
+                  code: "33",
+                  material: "steel",
+                  description: "DOT specification 33 cylinder",
+                },
+              ],
+            },
+          ],
+        },
+        notes: [
+          "Specification 3A, 3AA, and 3AL cylinders may not exceed 57 kg (125 pounds) water capacity (nominal).",
+          "Specification 3D and 33 cylinders may not exceed 127 kg (280 pounds) water capacity (nominal).",
+          "Do not accept shipments of arsine or phosphine for transportation if packaged in a specification 3AL cylinder.",
+          "Cylinders containing phosgene must not exceed a filling density of 125 percent.",
+          "The cylinder may not contain more than 68 kg (150 pounds) of phosgene.",
+        ],
+      },
+    ],
+
+    specialRequirements: [
+      {
+        type: "handling",
+        description:
+          "These items may produce extremely toxic vapors. Make approved chemical safety mask and clothing available when handling this material, and wear when handling leaking packages.",
+        mandatory: true,
+      },
+      {
+        type: "testing",
+        description:
+          "Each filled cylinder for phosgene must be tested for leakage by immersing the cylinder and valve in a bath of water at approximately 66 degrees C (150 degrees F) for at least 30 minutes. (T-0).",
+        mandatory: true,
+      },
+    ],
+
+    packingGroupRestrictions: [],
+    quantityLimits: [
+      {
+        scope: "per_inner",
+        value: 57,
+        unit: "kg",
+        description:
+          "Specification 3A, 3AA, and 3AL cylinders may not exceed 57 kg (125 pounds) water capacity",
+        conditions: ["3A1800", "3AA1800", "3AL1800"],
+      },
+      {
+        scope: "per_inner",
+        value: 127,
+        unit: "kg",
+        description:
+          "Specification 3D and 33 cylinders may not exceed 127 kg (280 pounds) water capacity",
+        conditions: ["3D", "33"],
+      },
+      {
+        scope: "per_inner",
+        value: 68,
+        unit: "kg",
+        description:
+          "Cylinder may not contain more than 68 kg (150 pounds) of phosgene",
+        conditions: ["phosgene"],
+      },
+    ],
+
+    conditionalRequirements: [],
+
+    referencedParagraphs: ["A3.3.2.", "2.8."],
+  },
+  "A10.3.": {
+    paragraphId: "A10.3.",
+    hazardClass: 6,
+    subclass: ["6.1"],
+    description:
+      "Package Bromoacetone, Methyl Bromide, Chloropicrin, and Methyl Bromide or Methyl Chloride Mixtures",
+    lastUpdated: new Date().toISOString(),
+    entryType: "standard",
+    materialTypes: [
+      "bromoacetone",
+      "methyl_bromide",
+      "chloropicrin",
+      "methyl_bromide_mixtures",
+      "methyl_chloride_mixtures",
+    ],
+
+    packagingOptions: [
+      {
+        id: "A10.3.2.1.combination",
+        type: "combination",
+        description:
+          "Bromoacetone in boxes with inner glass receptacle in hermetically-sealed metal receptacle in corrugated fiberboard carton",
+        innerPackaging: {
+          required: true,
+          materials: [
+            "Glass receptacle or tube in hermetically-sealed metal receptacle in corrugated fiberboard carton",
+          ],
+          description:
+            "Inner glass receptacle or tube in a hermetically-sealed metal receptacle in a corrugated fiberboard carton",
+          maxCapacity: { value: 500, unit: "g" },
+          specialRequirements: [
+            "A bottle may not contain over 500 g (17.6 ounces) of liquid",
+            "Cushion inside the can with at least 12.7 mm (0.5 inch) of absorbent material",
+          ],
+        },
+        outerPackaging: {
+          categories: [
+            {
+              type: "boxes",
+              subtype: "various_boxes",
+              containers: [
+                {
+                  code: "4A",
+                  material: "steel",
+                  description: "Steel box (4A)",
+                },
+                {
+                  code: "4B",
+                  material: "aluminum",
+                  description: "Aluminum box (4B)",
+                },
+                {
+                  code: "4C1",
+                  material: "natural_wood",
+                  description: "Wooden box (4C1)",
+                },
+                {
+                  code: "4C2",
+                  material: "sift_proof_wood",
+                  description: "Wooden box (4C2)",
+                },
+                {
+                  code: "4D",
+                  material: "plywood",
+                  description: "Plywood box (4D)",
+                },
+                {
+                  code: "4F",
+                  material: "reconstituted_wood",
+                  description: "Reconstituted wood box (4F)",
+                },
+                {
+                  code: "4N",
+                  material: "other_metal",
+                  description: "Other metal box (4N)",
+                },
+              ],
+            },
+          ],
+        },
+        notes: [
+          "Total amount of liquid in the outer box may not exceed 11 kg (24 pounds).",
+          "The package must be tested to the PG I performance level. (T-0).",
+        ],
+      },
+      {
+        id: "A10.3.2.2.cylinders",
+        type: "cylinder",
+        description:
+          "DOT specification cylinders for bromoacetone, methyl bromide, chloropicrin and mixtures",
+        innerPackaging: {
+          required: false,
+          description: "Material contained in cylinder",
+        },
+        outerPackaging: {
+          categories: [
+            {
+              type: "cylinders",
+              subtype: "dot_specification",
+              containers: [
+                {
+                  code: "3A",
+                  material: "steel",
+                  description: "DOT specification 3A cylinder",
+                },
+                {
+                  code: "3AA",
+                  material: "steel",
+                  description: "DOT specification 3AA cylinder",
+                },
+                {
+                  code: "3B",
+                  material: "steel",
+                  description: "DOT specification 3B cylinder",
+                },
+                {
+                  code: "3C",
+                  material: "steel",
+                  description: "DOT specification 3C cylinder",
+                },
+                {
+                  code: "3E",
+                  material: "steel",
+                  description: "DOT specification 3E cylinder",
+                },
+                {
+                  code: "4A",
+                  material: "steel",
+                  description: "DOT specification 4A cylinder",
+                },
+                {
+                  code: "4B",
+                  material: "aluminum",
+                  description: "DOT specification 4B cylinder",
+                },
+                {
+                  code: "4BA",
+                  material: "steel",
+                  description: "DOT specification 4BA cylinder",
+                },
+                {
+                  code: "4BW",
+                  material: "steel",
+                  description: "DOT specification 4BW cylinder",
+                },
+                {
+                  code: "4C",
+                  material: "steel",
+                  description: "DOT specification 4C cylinder",
+                },
+              ],
+            },
+          ],
+        },
+        notes: [
+          "Water capacity (nominal) not exceeding 113 kg (250 pounds). This capacity does not apply to shipments of methyl bromide.",
+          "All cylinders must meet the requirements of A3.3.2. (T-0).",
+        ],
+      },
+    ],
+
+    specialRequirements: [
+      {
+        type: "handling",
+        description:
+          "These materials and mixtures are extremely dangerous poisons. Make approved chemical safety mask and clothing available when handling this material, and wear when handling leaking packages.",
+        mandatory: true,
+      },
+    ],
+
+    packingGroupRestrictions: [],
+    quantityLimits: [
+      {
+        scope: "per_outer",
+        value: 11,
+        unit: "kg",
+        description:
+          "Total amount of liquid in the outer box may not exceed 11 kg (24 pounds)",
+        conditions: ["A10.3.2.1.combination"],
+      },
+      {
+        scope: "per_inner",
+        value: 113,
+        unit: "kg",
+        description:
+          "Water capacity (nominal) not exceeding 113 kg (250 pounds) for cylinders",
+        conditions: ["A10.3.2.2.cylinders"],
+      },
+    ],
+
+    conditionalRequirements: [],
+
+    referencedParagraphs: ["A3.3.2.", "2.8."],
   },
   "A10.4.": {
     paragraphId: "A10.4.",
@@ -16941,7 +17280,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       },
     ],
 
-    referencedParagraphs: ["A20.3"],
+    referencedParagraphs: ["A20.3."],
   },
   "A10.5.": {
     paragraphId: "A10.5.",
@@ -18125,7 +18464,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
     referencedParagraphs: [
       "49 CFR Section 173.40",
       "49 CFR Part 178, Subpart C",
-      "A3.3.2",
+      "A3.3.2.",
       "49 CFR Section 178.605",
       "49 CFR Section 178.604",
     ],
@@ -18956,7 +19295,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
 
     conditionalRequirements: [],
 
-    referencedParagraphs: [],
+    referencedParagraphs: ["A14.4.5.3.", "A14.4.5.4.", "49 CFR Section 178.603"],
   },
   "A10.10.": {
     paragraphId: "A10.10.",
@@ -19467,15 +19806,37 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
           "Supplement the proper shipping name with a technical name",
         mandatory: true,
       },
+      {
+        type: "material_compatibility",
+        description:
+          "Boxes not allowed for PG I materials (solid single packaging)",
+        mandatory: true,
+        applicableContainers: ["A10.12.2.2.solid_single"],
+      },
+      {
+        type: "material_compatibility",
+        description:
+          "Fit fiber, fiberboard, wood, and plywood packagings with a suitable liner (solid single packaging)",
+        mandatory: true,
+        applicableContainers: ["A10.12.2.2.solid_single"],
+      },
     ],
 
-    packingGroupRestrictions: [],
+    packingGroupRestrictions: [
+      {
+        packingGroup: "I",
+        restriction: "prohibited",
+        description:
+          "Boxes not allowed for PG I materials (solid single packaging)",
+        conditions: ["boxes_solid_single"],
+      },
+    ],
 
     quantityLimits: [],
 
     conditionalRequirements: [],
 
-    referencedParagraphs: [],
+    referencedParagraphs: ["A4.2.3."],
   },
   "A10.13.": {
     paragraphId: "A10.13.",
@@ -19589,7 +19950,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
 
     conditionalRequirements: [],
 
-    referencedParagraphs: [],
+    referencedParagraphs: ["A4.2.3."],
   },
   // A12.2 (Package Liquid Class 8 Materials)
     "A12.2.": {
@@ -19784,8 +20145,8 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
               {
                 type: "composite_plastic_packaging",
                 containers: [
-                  { code: "6PH1", material: "plastic_glass", description: "Solid plastic packaging" },
-                  { code: "6PH2", material: "plastic_glass", description: "Expanded plastic packaging" },
+                  { code: "6PH1", material: "plastic_glass", description: "Expanded plastic packaging" },
+                  { code: "6PH2", material: "plastic_glass", description: "Solid plastic packaging" },
                 ],
               },
               {
@@ -19829,13 +20190,13 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       quantityLimits: [],
       conditionalRequirements: [],
       referencedParagraphs: [
-        "A12.2",
-        "A12.2.1",
-        "A12.2.2",
-        "A12.2.3",
-        "A12.2.4",
-        "A12.2.5",
-        "A20.3",
+        "A12.2.",
+        "A12.2.1.",
+        "A12.2.2.",
+        "A12.2.3.",
+        "A12.2.4.",
+        "A12.2.5.",
+        "A20.3.",
       ],
     },
 
@@ -20479,12 +20840,12 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
     ],
 
     referencedParagraphs: [
-      "A12.3",
-      "A12.3.1",
-      "A12.3.2",
-      "A12.3.3",
-      "A12.3.4",
-      "A12.3.5",
+      "A12.3.",
+      "A12.3.1.",
+      "A12.3.2.",
+      "A12.3.3.",
+      "A12.3.4.",
+      "A12.3.5.",
     ],
   },
 
@@ -21033,15 +21394,15 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
     ],
 
     referencedParagraphs: [
-      "A12.4",
-      "A12.4.1",
-      "A12.4.2",
-      "A12.4.3",
-      "A12.4.4",
-      "A12.4.4.1",
-      "A12.4.4.2",
-      "A12.4.4.3",
-      "A12.4.5",
+      "A12.4.",
+      "A12.4.1.",
+      "A12.4.2.",
+      "A12.4.3.",
+      "A12.4.4.",
+      "A12.4.4.1.",
+      "A12.4.4.2.",
+      "A12.4.4.3.",
+      "A12.4.5.",
       "49 CFR 173.159(f)",
       "Special Provision A67",
     ],
@@ -21251,7 +21612,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       },
     ],
 
-    referencedParagraphs: ["A12.5"],
+    referencedParagraphs: ["A12.5."],
   },
 
   // Phase 3, Week 13: Class 8 Corrosives Entry - A12.6 (UN3547, Articles containing corrosive substance, N.O.S.)
@@ -21615,12 +21976,15 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
     ],
 
     referencedParagraphs: [
-      "A12.6",
-      "A12.6.1",
-      "A12.6.2",
-      "A12.6.2.1",
-      "A12.6.2.2",
-      "A4.2.3",
+      "A12.6.",
+      "A12.6.1.",
+      "A12.6.1.1.",
+      "A12.6.1.2.",
+      "A12.6.1.3.",
+      "A12.6.2.",
+      "A12.6.2.1.",
+      "A12.6.2.2.",
+      "A4.2.3.",
     ],
   },
 
@@ -21681,7 +22045,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
           description: "Packaging meeting PG I performance standard is required",
         },
       ],
-      referencedParagraphs: ["A12.7"],
+      referencedParagraphs: ["A12.7.", "A3.1.16.3."],
     },
 
   // A12.8 (Package Hydrogen Fluoride)
@@ -21712,9 +22076,9 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
                     { code: "3B", material: "metal", description: "DOT 3B cylinder" },
                     { code: "3BN", material: "metal", description: "DOT 3BN cylinder" },
                     { code: "3E", material: "metal", description: "DOT 3E cylinder" },
-                    { code: "4B", material: "metal", description: "DOT 4B cylinder" },
-                    { code: "4BA", material: "metal", description: "DOT 4BA cylinder" },
-                    { code: "4BW", material: "metal", description: "DOT 4BW cylinder" },
+                    { code: "4B", material: "metal", description: "DOT 4B cylinder (if not brazed)" },
+                    { code: "4BA", material: "metal", description: "DOT 4BA cylinder (if not brazed)" },
+                    { code: "4BW", material: "metal", description: "DOT 4BW cylinder (if not brazed)" },
                   ],
                 },
               ],
@@ -21722,7 +22086,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
           },
         ],
 
-        referencedParagraphs: ["A12.8"],
+        referencedParagraphs: ["A12.8."],
       },
  // A12.9 (Package Mercury)
   "A12.9.": {
@@ -21785,7 +22149,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
           description: "Packaging meeting PG I performance standard is required",
         },
       ],
-      referencedParagraphs: ["A12.9", "A12.9.2.1"],
+      referencedParagraphs: ["A12.9.", "A12.9.1.", "A12.9.2.", "A12.9.2.1.", "A3.1.16.4."],
     },
 
     // A12.10 (Package Nitrating Acid Mixtures or Nitric Acid)
@@ -21892,15 +22256,15 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
       ],
 
       referencedParagraphs: [
-        "A12.10",
-        "A12.10.1",
-        "A12.10.2",
-        "A12.10.3",
-        "A12.10.4",
-        "A12.10.5",
-        "A12.10.6",
-        "A12.10.7",
-        "A12.10.8",
+        "A12.10.",
+        "A12.10.1.",
+        "A12.10.2.",
+        "A12.10.3.",
+        "A12.10.4.",
+        "A12.10.5.",
+        "A12.10.6.",
+        "A12.10.7.",
+        "A12.10.8.",
       ],
     },
 
@@ -22005,7 +22369,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
           description: "Packaging meeting PG I performance standard is required",
         },
       ],
-      referencedParagraphs: ["A12.11", "A12.11.2", "A12.11.3"],
+      referencedParagraphs: ["A12.11.", "A12.11.1.", "A12.11.2.", "A12.11.3.", "A3.3.2."],
     },
 
     // A12.12 (Package Fuel Cell Cartridges)
@@ -22065,7 +22429,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
         },
       ],
 
-      referencedParagraphs: ["A12.12", "A12.12.1"],
+      referencedParagraphs: ["A12.12.", "A12.12.1."],
     },
 
     // A12.13 (Fuel Cells Contained in Equipment)
@@ -22102,7 +22466,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
         },
       ],
 
-      referencedParagraphs: ["A12.13", "A12.13.1", "A12.13.2"],
+      referencedParagraphs: ["A12.13.", "A12.13.1.", "A12.13.2."],
     },
 
     // A12.14 (Fuel Cells Packed With Equipment)
@@ -22139,7 +22503,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
         },
       ],
 
-      referencedParagraphs: ["A12.14", "A12.14.1"],
+      referencedParagraphs: ["A12.14.", "A12.14.1."],
     },
 
     // A12.15 (Package Chlorosilanes)
@@ -22262,7 +22626,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
           description: "Packaging meeting PG I or PG II performance standard is required",
         },
       ],
-      referencedParagraphs: ["A12.15", "A12.15.1", "A12.15.2", "A12.15.3", "A12.15.4"],
+      referencedParagraphs: ["A12.15.", "A12.15.1.", "A12.15.2.", "A12.15.3.", "A12.15.4."],
     },
   // Phase 3, Week 14: Class 9 Miscellaneous Entry - A13.2 (Package Ammonium Nitrate Fertilizers; Benzaldehyde; Dibromodifluoromethane; Environmentally Hazardous Substances, N.O.S.; Fish Meal, Stabilized; Fish Scrap, Stabilized; Hazardous Waste, N.O.S.; Other Regulated Substances; Polychlorinated Biphenyls (PCB); Zinc Dithionite, Zinc Hydrosulfite)
   "A13.2.": {
@@ -23272,23 +23636,6 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
                 },
               ],
             },
-            {
-              type: "composite_plywood",
-              containers: [
-                {
-                  code: "6PD1",
-                  material: "plywood_glass",
-                  description:
-                    "Plywood drum with glass/porcelain/stoneware inner",
-                },
-                {
-                  code: "6PD2",
-                  material: "plywood_glass",
-                  description:
-                    "Wickerwork hamper with glass/porcelain/stoneware inner",
-                },
-              ],
-            },
           ],
         },
         isComplete: true,
@@ -23562,22 +23909,22 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
     ],
 
     referencedParagraphs: [
-      "A13.2",
-      "A13.2.1",
-      "A13.2.1.1",
-      "A13.2.1.2",
-      "A13.2.2",
-      "A13.2.2.1",
-      "A13.2.2.2",
-      "A13.2.2.3",
-      "A13.2.2.4",
-      "A13.2.2.5",
-      "A13.2.2.6",
-      "A13.2.3",
-      "A13.2.3.1",
-      "A13.2.3.2",
-      "A13.2.3.3",
-      "A13.2.3.4",
+      "A13.2.",
+      "A13.2.1.",
+      "A13.2.1.1.",
+      "A13.2.1.2.",
+      "A13.2.2.",
+      "A13.2.2.1.",
+      "A13.2.2.2.",
+      "A13.2.2.3.",
+      "A13.2.2.4.",
+      "A13.2.2.5.",
+      "A13.2.2.6.",
+      "A13.2.3.",
+      "A13.2.3.1.",
+      "A13.2.3.2.",
+      "A13.2.3.3.",
+      "A13.2.3.4.",
       "Attachment 5",
     ],
   },
@@ -24088,15 +24435,15 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
     ],
 
     referencedParagraphs: [
-      "A13.5",
-      "A13.5.1",
-      "A13.5.1.1",
-      "A13.5.1.2",
-      "A13.5.1.3",
-      "A13.5.2",
-      "A13.5.2.1",
-      "A13.5.2.2",
-      "A4.2.3",
+      "A13.5.",
+      "A13.5.1.",
+      "A13.5.1.1.",
+      "A13.5.1.2.",
+      "A13.5.1.3.",
+      "A13.5.2.",
+      "A13.5.2.1.",
+      "A13.5.2.2.",
+      "A4.2.3.",
     ],
   },
 
@@ -24353,7 +24700,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
 
     quantityLimits: [],
 
-    referencedParagraphs: ["A13.15", "49 CFR 173.166"],
+    referencedParagraphs: ["A13.15.", "49 CFR 173.166"],
   },
 
   // Phase 3, Week 14: Class 9 Miscellaneous Entry - A13.17 (Polymeric Beads, Expandable; Plastic Molding Compound)
@@ -24504,7 +24851,7 @@ export const packagingDatabaseV2: Record<string, PackagingParagraphEntry> = {
 
     specialRequirements: [],
     quantityLimits: [],
-    referencedParagraphs: ["A13.17"],
+    referencedParagraphs: ["A13.17."],
   },
 };
 
