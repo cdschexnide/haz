@@ -2,21 +2,36 @@ import { HazardousMaterialItem } from "@/hazardousMaterials/hazardousMaterialsLi
 import { AggregatedAnalysis, AggregatedLabel } from "@/ml/types/ocr";
 import { getDetectionLabelForHazardClass } from "./hazardClassToDetectionLabel";
 import { packagingDatabaseV2 } from "../../../../server/lookupFunctions/packagingLookupV2";
+import { validatePackagingCodeV2 } from "@/utils/packagingWizardV2Helpers";
 
 /**
  * Finds the first valid packaging code from packagingDatabaseV2 for a given paragraph.
  */
-function getFirstValidPackagingCode(packagingParagraph: string): string {
+function getFirstValidPackagingCode(
+  packagingParagraph: string,
+  unIdNo: string
+): string {
   const normalizedKey = packagingParagraph.trim().toUpperCase();
   const key = normalizedKey.endsWith(".") ? normalizedKey : `${normalizedKey}.`;
 
   const entry = packagingDatabaseV2[key];
   if (!entry) return "4G"; // Fallback to common code
 
-  for (const option of entry.packagingOptions || []) {
+  const normalizedUnId = unIdNo.trim().toUpperCase();
+  const packagingOptions = entry.packagingOptions || [];
+
+  for (const option of packagingOptions) {
     for (const category of option.outerPackaging?.categories || []) {
       for (const container of category.containers || []) {
-        if (container.code) return container.code;
+        if (!container.code) continue;
+        const validation = validatePackagingCodeV2(
+          packagingDatabaseV2,
+          key,
+          container.code,
+          undefined,
+          normalizedUnId
+        );
+        if (validation.isValid) return container.code;
       }
     }
   }
@@ -77,7 +92,10 @@ export function materialToHappyMlResults(
   // Add valid POP marking
   const primaryParagraph =
     material.packagingParagraph.split(/[,:]/)[0]?.trim() || "";
-  const validCode = getFirstValidPackagingCode(primaryParagraph);
+  const validCode = getFirstValidPackagingCode(
+    primaryParagraph,
+    material.unid
+  );
   const pgRating =
     material.packingGroup === "I"
       ? "X"
