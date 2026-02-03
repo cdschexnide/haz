@@ -70,7 +70,7 @@ Main classification function:
 4. Match against `sddgData.subsidiaryRisk` → role = `'subsidiary'`
 5. Otherwise → role = `'unknown'`
 6. For matching: normalize both sides (e.g., SDDG "8" matches detection "8"; SDDG "6.1" matches "6.1"). Also handle SDDG values like "1.1D" by extracting just the division "1.1" for comparison.
-7. If multiple primary matches exist, pick the one with highest confidence
+7. If multiple primary matches exist, pick the one with highest confidence. For subsidiary, pick the highest confidence detection per matched hazard class.
 8. Y-axis check: if a primary and subsidiary detection exist in the same image, compare `box.y` values. If primary's `box.y` > subsidiary's `box.y`, set `positionWarning: true`
 
 ### Modified: `src/ml/types/ocr.ts`
@@ -103,14 +103,15 @@ After `correctedResults` are populated (in the existing `useEffect` that initial
 
 ```typescript
 const classificationResult = useMemo(() => {
-  if (correctedResults.length === 0) return null;
+  const resultsToClassify = correctedResults.length > 0 ? correctedResults : (analysisResults || []);
+  if (resultsToClassify.length === 0) return null;
   const sddgData = {
     hazardClass: inspection?.verificationCopy?.hazardClass || '',
     subsidiaryRisk: inspection?.verificationCopy?.subsidiaryRisk || '',
   };
   if (!sddgData.hazardClass) return null;
-  return classifyHazardLabels(correctedResults, sddgData);
-}, [correctedResults, inspection]);
+  return classifyHazardLabels(resultsToClassify, sddgData);
+}, [correctedResults, analysisResults, inspection]);
 ```
 
 #### Results screen UI changes
@@ -161,12 +162,12 @@ Classes that qualify as hazard labels (category starts with `hazardClass`):
 Non-hazard classes to exclude: `general_marking` category (cargoAircraftOnly, orientationArrows, keepAwayFromHeat, etc.)
 
 Special cases that need careful parsing:
-- `toxicHazmatClass6` → `"6"` (no subdivision)
-- `hazmatClass6PackingGroupIII` → `"6"` (no subdivision)
-- `UN1977` → class 2 (from category, not name)
+- `toxicHazmatClass6` → `"6.1"` (defaults to 6.1 via labelMatchingTable)
+- `hazmatClass6PackingGroupIII` → `"6.1"` (defaults to 6.1 via labelMatchingTable)
+- `UN1977` → `"2.2"` (via labelMatchingTable, not name parsing)
+- `fireExtinguisherManufacturedPriorToJan1976Label` → `"2.2"` (via labelMatchingTable)
 - `meetsDotRequirements` → not a hazard class label per se, skip
 - `nonOdorized` → not a hazard class label per se, skip
-- `fireExtinguisherManufacturedPriorToJan1976Label` → not a standard hazard label, skip
 
 ## Files Changed
 

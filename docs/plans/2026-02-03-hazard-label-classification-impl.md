@@ -297,6 +297,37 @@ describe("classifyHazardLabels", () => {
     expect(result.primaryDetection!.confidence).toBe(0.95);
   });
 });
+
+describe("labelMatchingTable contract", () => {
+  test("every hazardClass entry has a bare class number as second element", () => {
+    const { labelMatchingTable } = require("../../utils/labelMatchingTable");
+    const classMapping = require("../../ml/data/class_mapping.json");
+
+    // Build set of classNames that belong to hazardClass categories
+    const hazardClassNames = new Set<string>();
+    for (const entry of Object.values(classMapping) as Array<{ name: string; category: string }>) {
+      if (entry.category.startsWith("hazardClass")) {
+        hazardClassNames.add(entry.name);
+      }
+    }
+
+    const failures: string[] = [];
+    for (const className of hazardClassNames) {
+      const mapped = labelMatchingTable[className];
+      if (!mapped) continue; // Not all classNames must be in the table
+      if (mapped.length < 2) {
+        failures.push(`${className}: has fewer than 2 mapped values`);
+        continue;
+      }
+      const bareClass = mapped[1];
+      if (!/^\d+(\.\d+)?$/.test(bareClass)) {
+        failures.push(`${className}: second element "${bareClass}" is not a bare class number`);
+      }
+    }
+
+    expect(failures).toEqual([]);
+  });
+});
 ```
 
 **Step 2: Run the tests to verify they fail**
@@ -582,15 +613,17 @@ After the `useEffect` that initializes `correctedResults` from `analysisResults`
 
 ```typescript
   // Classify hazard labels as primary/subsidiary using SDDG data
+  // Use correctedResults if available (user may have added/removed detections), fall back to analysisResults
   const classificationResult = useMemo<HazardClassificationResult | null>(() => {
-    if (correctedResults.length === 0) return null;
+    const resultsToClassify = correctedResults.length > 0 ? correctedResults : (analysisResults || []);
+    if (resultsToClassify.length === 0) return null;
     const sddgData = {
       hazardClass: inspection?.verificationCopy?.hazardClass || '',
       subsidiaryRisk: inspection?.verificationCopy?.subsidiaryRisk || '',
     };
     if (!sddgData.hazardClass) return null;
-    return classifyHazardLabels(correctedResults, sddgData);
-  }, [correctedResults, inspection?.verificationCopy?.hazardClass, inspection?.verificationCopy?.subsidiaryRisk]);
+    return classifyHazardLabels(resultsToClassify, sddgData);
+  }, [correctedResults, analysisResults, inspection?.verificationCopy?.hazardClass, inspection?.verificationCopy?.subsidiaryRisk]);
 
   // Helper to get role for a detection
   const getDetectionRole = useCallback((detectionId: string): 'primary' | 'subsidiary' | null => {
