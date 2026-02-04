@@ -15,12 +15,13 @@ The app needs to auto-detect and parse this variant.
 
 ### Variant Detection
 
-After OCR + anchor detection in `anchorBasedExtractor.ts`, check two signals:
+After OCR + anchor detection in `anchorBasedExtractor.ts`, score three signals and require at least 2 of 3 to trigger inline parsing. This multi-signal approach is resilient to OCR misses on any single signal.
 
-1. **Fewer than 2 table column headers found** — The 7 `patternType: "table-column-header"` anchors (`un_number`, `proper_shipping_name`, `class_division`, etc.) won't be present on the inline variant since there are no column headers.
-2. **Descriptive paragraph detected** — The inline variant has a paragraph describing the field order: "UN Number or Identification Number, proper shipping name, Class or Division...". This text is unique to the inline variant.
+1. **Few table column headers found** (< 2 anchors with `patternType === "table-column-header"`) — Count by pattern type from the actual anchor matches, not by specific field ID strings. Uses `getTableColumnAnchors()` to get the canonical list.
+2. **Descriptive paragraph detected** (relaxed: match any 2 of 3 key phrases) — Look for "UN Number or Identification Number", "proper shipping name", "Class or Division" in OCR text. Requiring only 2 of 3 handles OCR splitting or missing part of the paragraph.
+3. **`//` delimiters found in the data region** — Search for `//` in text blocks between the "Nature and Quantity" header and the "Additional Handling" boundary. The `//` delimiter is structurally unique to the inline format and never appears in tabular form data cells.
 
-If both signals match, route to the inline parser instead of `computeAdaptiveTableRegions`.
+If at least 2 of 3 signals are true, route to the inline parser instead of `computeAdaptiveTableRegions`.
 
 Upper fields (Shipper, Consignee, Air Waybill, etc.) are extracted as normal — those sections are structurally similar on both forms.
 
@@ -41,9 +42,9 @@ Upper fields (Shipper, Consignee, Air Waybill, etc.) are extracted as normal —
    - Last segment: packing instruction (e.g., `A6.5`)
    - Middle segment: quantity and type of packing (e.g., `1 FIBREBOARD BOX X 2 KG`)
    - Prefix: everything before the first `//`
-3. **Class/division** — From the prefix, find the class/division pattern at the end (e.g., `2.2`, `1.1B`, `6.1(8)`). Regex: `\d\.\d[A-Z]?(\(\d(\.\d)?\))?`
+3. **Class/division** — From the prefix, find the class/division pattern at the end. Covers all ICAO/IMDG classes: `1.1` through `9`, optional compatibility group letters (e.g., `1.4S`, `1.1B`), bare single digits (e.g., `3`, `9`), and subsidiary risk in parentheses (e.g., `3(8)`, `6.1(8)`). Regex: `\d(?:\.\d)?[A-Z]{0,2}(?:\(\d(?:\.\d)?\))?`
 4. **Proper shipping name** — Everything between the UN number and class/division, including parenthetical technical names.
-5. **Packing group** — If present, a Roman numeral (I, II, III) between class/division and the first `//`. Not all materials have packing groups.
+5. **Packing group** — If present, exactly `I`, `II`, or `III` between class/division and the first `//`. Regex: `III|II|I` (ordered longest-first). Not all materials have packing groups.
 
 Existing post-processing rules (`extract_un_number`, `validate_packing_group`, `clean_quantity`) are applied to clean values.
 

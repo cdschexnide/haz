@@ -4,7 +4,7 @@
 
 **Goal:** Auto-detect and parse the Labelmaster F07LB SDDG form variant, which uses comma/slash-delimited inline text for dangerous goods instead of a tabular grid.
 
-**Architecture:** A new `inlineDangerousGoodsParser.ts` module handles detection and parsing. It plugs into `anchorBasedExtractor.ts` after anchor detection — if table column headers are missing and the inline descriptive paragraph is found, the inline parser extracts the 7 dangerous goods fields instead of the table region logic. All other fields (Shipper, Consignee, etc.) continue through the existing pipeline unchanged.
+**Architecture:** A new `inlineDangerousGoodsParser.ts` module handles detection and parsing. It plugs into `anchorBasedExtractor.ts` after anchor detection — a 3-signal scoring system (missing table headers, descriptive paragraph, `//` delimiters) determines the form variant. If at least 2 of 3 signals match, the inline parser extracts the 7 dangerous goods fields instead of the table region logic. All other fields (Shipper, Consignee, etc.) continue through the existing pipeline unchanged.
 
 **Tech Stack:** TypeScript, Jest (jest-expo preset), ML Kit OCR text blocks
 
@@ -75,6 +75,19 @@ describe("parseInlineDangerousGoods", () => {
     expect(result.packing_group).toBe("II");
     expect(result.quantity_packing).toBe("1 DRUM X 50 KG");
     expect(result.packing_inst).toBe("A3.3");
+  });
+
+  it("should parse class 1.4S compatibility group", () => {
+    const input =
+      "UN0323,CARTRIDGES POWER DEVICE,1.4S,II//\n" +
+      "1 BOX X 10 KG//A1.3";
+
+    const result = parseInlineDangerousGoods(input);
+
+    expect(result.un_number).toBe("UN0323");
+    expect(result.proper_shipping_name).toBe("CARTRIDGES POWER DEVICE");
+    expect(result.class_division).toBe("1.4S");
+    expect(result.packing_group).toBe("II");
   });
 
   it("should handle ID number prefix", () => {
@@ -191,13 +204,14 @@ export function parseInlineDangerousGoods(
   const quantity_packing = quantitySection ? quantitySection.trim() : undefined;
 
   // Parse first section: need to find class/division at the end
-  // Class/division patterns: "2.2", "1.1B", "3(8)", "6.1(8)", "9"
-  // It's preceded by a comma and may be followed by a comma + packing group
+  // Class/division patterns: "2.2", "1.1B", "1.4S", "3(8)", "6.1(8)", "9", "3"
+  // Covers all ICAO/IMDG classes including bare single digits and multi-letter
+  // compatibility groups. Preceded by comma, optionally followed by packing group.
   //
   // Strategy: match class/division pattern from the end of firstSection.
-  // Packing group (I, II, III) may follow after a comma.
+  // Packing group is exactly I, II, or III (ordered longest-first).
   const classWithPgMatch = firstSection.match(
-    /,\s*(\d(?:\.\d)?[A-Z]?(?:\(\d(?:\.\d)?\))?)\s*(?:,\s*(I{1,3}|IV|V|VI{0,3}))?\s*$/i
+    /,\s*(\d(?:\.\d)?[A-Z]{0,2}(?:\(\d(?:\.\d)?\))?)\s*(?:,\s*(III|II|I))?\s*$/
   );
 
   if (!classWithPgMatch) {
@@ -233,7 +247,7 @@ export function parseInlineDangerousGoods(
 ### Step 4: Run tests to verify they pass
 
 Run: `npx jest src/services/sddg/__tests__/inlineDangerousGoodsParser.test.ts --no-coverage`
-Expected: All 8 tests PASS
+Expected: All 9 tests PASS
 
 ### Step 5: Commit
 
@@ -264,10 +278,23 @@ import {
 } from "../inlineDangerousGoodsParser";
 import { TextBlock, AnchorMatch } from "../anchorTypes";
 
+// Mock getTableColumnAnchors — detectInlineVariant imports it to get field IDs
+jest.mock("../anchorConfig", () => ({
+  getTableColumnAnchors: () => [
+    { fieldId: "un_number", patternType: "table-column-header" },
+    { fieldId: "proper_shipping_name", patternType: "table-column-header" },
+    { fieldId: "class_division", patternType: "table-column-header" },
+    { fieldId: "packing_group", patternType: "table-column-header" },
+    { fieldId: "quantity_type_packing", patternType: "table-column-header" },
+    { fieldId: "packing_inst", patternType: "table-column-header" },
+    { fieldId: "authorization", patternType: "table-column-header" },
+  ],
+}));
+
 // ... existing parseInlineDangerousGoods tests ...
 
 describe("detectInlineVariant", () => {
-  it("should return true when no table column headers and descriptive paragraph found", () => {
+  it("should return true when all 3 signals present (no headers, descriptor, //)", () => {
     const anchors = new Map<string, AnchorMatch>([
       ["shipper", { fieldId: "shipper", boundingBox: { x: 0, y: 0, width: 100, height: 20 }, matchedPattern: "SHIPPER", confidence: 1 }],
       ["additional_handling", { fieldId: "additional_handling", boundingBox: { x: 0, y: 800, width: 200, height: 20 }, matchedPattern: "ADDITIONAL HANDLING", confidence: 1 }],
@@ -275,30 +302,67 @@ describe("detectInlineVariant", () => {
 
     const textBlocks: TextBlock[] = [
       { text: "UN Number or Identification Number, proper shipping name, Class or Division", boundingBox: { x: 50, y: 400, width: 500, height: 20 }, confidence: 1 },
+      { text: "UN1956,COMPRESSED GAS,2.2//1 BOX//A6.5", boundingBox: { x: 50, y: 450, width: 400, height: 20 }, confidence: 1 },
     ];
 
     expect(detectInlineVariant(anchors, textBlocks)).toBe(true);
   });
 
-  it("should return false when table column headers are found", () => {
+  it("should return true with 2 of 3 signals (no headers + // but no descriptor)", () => {
+    const anchors = new Map<string, AnchorMatch>();
+    const textBlocks: TextBlock[] = [
+      { text: "UN1956,COMPRESSED GAS,2.2//1 BOX//A6.5", boundingBox: { x: 50, y: 450, width: 400, height: 20 }, confidence: 1 },
+    ];
+
+    expect(detectInlineVariant(anchors, textBlocks)).toBe(true);
+  });
+
+  it("should return true with 2 of 3 signals (descriptor + // but table headers present)", () => {
+    const anchors = new Map<string, AnchorMatch>([
+      ["un_number", { fieldId: "un_number", boundingBox: { x: 50, y: 300, width: 80, height: 20 }, matchedPattern: "UN or ID NO", confidence: 1 }],
+      ["proper_shipping_name", { fieldId: "proper_shipping_name", boundingBox: { x: 150, y: 300, width: 150, height: 20 }, matchedPattern: "PROPER SHIPPING NAME", confidence: 1 }],
+    ]);
+
+    const textBlocks: TextBlock[] = [
+      { text: "UN Number or Identification Number, proper shipping name, Class or Division", boundingBox: { x: 50, y: 400, width: 500, height: 20 }, confidence: 1 },
+      { text: "UN1956,COMPRESSED GAS,2.2//1 BOX//A6.5", boundingBox: { x: 50, y: 450, width: 400, height: 20 }, confidence: 1 },
+    ];
+
+    expect(detectInlineVariant(anchors, textBlocks)).toBe(true);
+  });
+
+  it("should return false when table column headers are found and no other signals", () => {
     const anchors = new Map<string, AnchorMatch>([
       ["un_number", { fieldId: "un_number", boundingBox: { x: 50, y: 300, width: 80, height: 20 }, matchedPattern: "UN or ID NO", confidence: 1 }],
       ["proper_shipping_name", { fieldId: "proper_shipping_name", boundingBox: { x: 150, y: 300, width: 150, height: 20 }, matchedPattern: "PROPER SHIPPING NAME", confidence: 1 }],
       ["class_division", { fieldId: "class_division", boundingBox: { x: 320, y: 300, width: 100, height: 20 }, matchedPattern: "CLASS or DIVISION", confidence: 1 }],
     ]);
 
-    const textBlocks: TextBlock[] = [];
+    const textBlocks: TextBlock[] = [
+      { text: "UN0106 FUZES DETONATING 1.1B", boundingBox: { x: 50, y: 400, width: 300, height: 20 }, confidence: 1 },
+    ];
 
     expect(detectInlineVariant(anchors, textBlocks)).toBe(false);
   });
 
-  it("should return false when no descriptive paragraph even if no headers", () => {
+  it("should return false with only 1 signal (no headers but nothing else)", () => {
     const anchors = new Map<string, AnchorMatch>();
     const textBlocks: TextBlock[] = [
-      { text: "Some random text", boundingBox: { x: 50, y: 400, width: 200, height: 20 }, confidence: 1 },
+      { text: "Some random text without any signals", boundingBox: { x: 50, y: 400, width: 200, height: 20 }, confidence: 1 },
     ];
 
     expect(detectInlineVariant(anchors, textBlocks)).toBe(false);
+  });
+
+  it("should handle relaxed descriptor matching (2 of 3 phrases)", () => {
+    const anchors = new Map<string, AnchorMatch>();
+    // Only 2 of the 3 descriptor phrases present (OCR missed one)
+    const textBlocks: TextBlock[] = [
+      { text: "UN Number or Identification Number, Class or Division", boundingBox: { x: 50, y: 400, width: 500, height: 20 }, confidence: 1 },
+      { text: "UN1956,COMPRESSED GAS,2.2//1 BOX//A6.5", boundingBox: { x: 50, y: 450, width: 400, height: 20 }, confidence: 1 },
+    ];
+
+    expect(detectInlineVariant(anchors, textBlocks)).toBe(true);
   });
 });
 
@@ -364,18 +428,9 @@ Expected: FAIL — `detectInlineVariant` and `extractInlineDangerousGoods` not e
 Add to `src/services/sddg/inlineDangerousGoodsParser.ts`:
 
 ```typescript
-/** Table column field IDs that indicate a grid-based form */
-const TABLE_COLUMN_FIELDS = [
-  "un_number",
-  "proper_shipping_name",
-  "class_division",
-  "packing_group",
-  "quantity_type_packing",
-  "packing_inst",
-  "authorization",
-];
+import { getTableColumnAnchors } from "./anchorConfig";
 
-/** Phrases from the inline variant's descriptive paragraph */
+/** Phrases from the inline variant's descriptive paragraph (match 2 of 3) */
 const INLINE_DESCRIPTOR_PHRASES = [
   "UN Number or Identification Number",
   "proper shipping name",
@@ -395,27 +450,36 @@ const DESCRIPTOR_STRIP_PATTERNS = [
  * Detect whether the form uses the inline dangerous goods format
  * (Labelmaster F07LB variant) instead of the tabular grid (AMC-IMT 1033).
  *
- * Two signals must both be true:
- * 1. Fewer than 2 table column header anchors were found
- * 2. The descriptive paragraph is present in OCR text
+ * Uses 3-signal scoring, requires at least 2 of 3 to trigger:
+ * 1. Fewer than 2 table column header anchors found (by patternType)
+ * 2. Descriptive paragraph detected (relaxed: 2 of 3 key phrases)
+ * 3. "//" delimiters found in the data region text
  */
 export function detectInlineVariant(
   anchors: Map<string, AnchorMatch>,
   textBlocks: TextBlock[]
 ): boolean {
-  // Signal 1: count table column headers found
-  const tableHeaderCount = TABLE_COLUMN_FIELDS.filter((f) =>
+  let signals = 0;
+
+  // Signal 1: count table column header anchors found (by patternType)
+  const tableColumnFieldIds = getTableColumnAnchors().map((a) => a.fieldId);
+  const tableHeaderCount = tableColumnFieldIds.filter((f) =>
     anchors.has(f)
   ).length;
-  if (tableHeaderCount >= 2) return false;
+  if (tableHeaderCount < 2) signals++;
 
-  // Signal 2: look for descriptive paragraph in OCR text
-  const allText = textBlocks.map((b) => b.text).join(" ");
-  const hasDescriptor = INLINE_DESCRIPTOR_PHRASES.every((phrase) =>
-    allText.toLowerCase().includes(phrase.toLowerCase())
-  );
+  // Signal 2: look for descriptive paragraph (relaxed: 2 of 3 phrases)
+  const allText = textBlocks.map((b) => b.text).join(" ").toLowerCase();
+  const matchedPhrases = INLINE_DESCRIPTOR_PHRASES.filter((phrase) =>
+    allText.includes(phrase.toLowerCase())
+  ).length;
+  if (matchedPhrases >= 2) signals++;
 
-  return hasDescriptor;
+  // Signal 3: "//" delimiters found in text between section boundaries
+  const hasDoubleSlash = textBlocks.some((b) => b.text.includes("//"));
+  if (hasDoubleSlash) signals++;
+
+  return signals >= 2;
 }
 
 /**
@@ -471,9 +535,12 @@ export function extractInlineDangerousGoods(
     }
   }
 
-  // If no bottom boundary, use a large default
+  // If no bottom boundary, use the lowest text block on the page
   if (sectionBottomY === null) {
-    sectionBottomY = sectionTopY + 500;
+    const maxY = Math.max(
+      ...textBlocks.map((b) => b.boundingBox.y + b.boundingBox.height)
+    );
+    sectionBottomY = maxY > sectionTopY ? maxY : sectionTopY + 500;
   }
 
   // Collect text blocks in the section (below header, above boundary)
@@ -605,6 +672,8 @@ Replace with:
       const inlineResult = extractInlineDangerousGoods(textBlocks, anchors);
 
       // Map parsed fields into the results map
+      // Note: anchorConfig uses "quantity_type_packing" as fieldId but SDDGData
+      // uses "quantity_packing" — the mapping here bridges that naming mismatch
       const fieldMapping: [string, string | undefined][] = [
         ["un_number", inlineResult.un_number],
         ["proper_shipping_name", inlineResult.proper_shipping_name],
