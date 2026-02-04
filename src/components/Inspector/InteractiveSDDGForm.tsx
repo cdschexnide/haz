@@ -85,6 +85,12 @@ const parsePlaceAndDate = (placeAndDate: string) => {
   return { location: placeAndDate, date: "" };
 };
 
+export interface ShipperInfo {
+  addressLines: string[];
+  phone: string;
+  dsn: string;
+}
+
 const parseEmergencyNumbers = (emergencyTelephoneNumber: string) => {
   const numbers = emergencyTelephoneNumber.split(" | ");
   return {
@@ -122,64 +128,87 @@ const parseAdditionalHandlingInfo = (additionalHandling: string) => {
   };
 };
 
-const parseShipperInfo = (shipper: string) => {
-  console.log("shipper INFO: ", JSON.stringify(shipper, null, 2));
+/**
+ * Parse shipper block text into address lines + phone/DSN.
+ *
+ * Handles all SDDG shipper block variations:
+ * - Labeled phone/DSN: "PHONE NUMBER:" / "DSN:" with values on same or next line
+ * - Standalone phone: line that is purely a phone number (any position)
+ * - No phone/DSN: address-only blocks
+ *
+ * Phone numbers embedded in address text (e.g., "VOELZ GATE EMERGENCY 717 267 8800")
+ * are NOT extracted — only lines that are purely a phone number are moved to the phone slot.
+ */
+export const parseShipperInfo = (shipper: string): ShipperInfo => {
   if (!shipper || shipper.trim() === "") {
-    return {
-      name: "TRAFFIC MANAGEMENT FLIGHT",
-      street: "5236 CHASE ST",
-      city: "WRIGHT PATTERSON AFB, OH 45433-5501",
-      phone: "",
-      dsn: "",
-    };
+    return { addressLines: [], phone: "", dsn: "" };
   }
 
-  // Extract phone number
-  const phoneRegex = /PHONE NUMBER[:\s]*(\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4})/i;
-  const phoneMatch = shipper.match(phoneRegex);
-  const phone = phoneMatch ? phoneMatch[1].trim() : "";
+  const lines = shipper
+    .split("\n")
+    .map(line => line.trim())
+    .filter(line => line.length > 0);
 
-  // Extract DSN
-  const dsnRegex = /DSN[:\s]*(\d{3}[-.\s]?\d{4})/i;
-  const dsnMatch = shipper.match(dsnRegex);
-  const dsn = dsnMatch ? dsnMatch[1].trim() : "";
+  let phone = "";
+  let dsn = "";
+  const removedIndices = new Set<number>();
 
-  // Remove phone and DSN sections from address text
-  let addressText = shipper
-    .replace(/PHONE NUMBER[:\s]*\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/gi, "")
-    .replace(/DSN[:\s]*\d{3}[-.\s]?\d{4}/gi, "")
-    .trim();
+  // --- Step 1: Find labeled PHONE NUMBER / DSN section ---
+  for (let i = 0; i < lines.length; i++) {
+    if (/PHONE\s*NUMBER/i.test(lines[i])) {
+      const zoneText = lines[i] + " " + (lines[i + 1] || "");
 
-  const lines = addressText.split("\n");
-  if (lines.length > 1) {
-    return {
-      name: lines[0].trim(),
-      street: lines[1]?.trim() || "",
-      city: lines[2]?.trim() || "",
-      phone,
-      dsn,
-    };
+      if (!phone) {
+        const phoneMatch = zoneText.match(/(\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4})/);
+        if (phoneMatch) phone = phoneMatch[1].trim();
+        if (!phone) {
+          const bareMatch = zoneText.match(/\b(\d{7,})\b/);
+          if (bareMatch) phone = bareMatch[1];
+        }
+      }
+
+      if (!dsn) {
+        const dsnMatch = zoneText.match(/DSN[:\s]*(\d{3}[-.\s]?\d{4})/i);
+        if (dsnMatch) dsn = dsnMatch[1].trim();
+      }
+
+      removedIndices.add(i);
+      if (i + 1 < lines.length) removedIndices.add(i + 1);
+      break;
+    }
   }
 
-  const trimmed = addressText.trim();
-  const commaParts = trimmed.split(",");
-  if (commaParts.length >= 3) {
-    return {
-      name: commaParts[0].trim(),
-      street: commaParts[1].trim(),
-      city: commaParts.slice(2).join(",").trim(),
-      phone,
-      dsn,
-    };
+  // --- Step 2: Find standalone DSN (not in phone zone) ---
+  if (!dsn) {
+    for (let i = 0; i < lines.length; i++) {
+      if (removedIndices.has(i)) continue;
+      const dsnMatch = lines[i].match(/^DSN[:\s]*(\d{3}[-.\s]?\d{4})\s*$/i);
+      if (dsnMatch) {
+        dsn = dsnMatch[1].trim();
+        removedIndices.add(i);
+        break;
+      }
+    }
   }
 
-  return {
-    name: trimmed,
-    street: "",
-    city: "",
-    phone,
-    dsn,
-  };
+  // --- Step 3: Find standalone phone line (if not already found) ---
+  // A standalone phone is a line whose ENTIRE content is a phone number pattern.
+  if (!phone) {
+    const standalonePhonePattern = /^\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$|^\d{10,}$/;
+    for (let i = 0; i < lines.length; i++) {
+      if (removedIndices.has(i)) continue;
+      if (standalonePhonePattern.test(lines[i])) {
+        phone = lines[i];
+        removedIndices.add(i);
+        break;
+      }
+    }
+  }
+
+  // --- Step 4: Remaining lines → addressLines ---
+  const addressLines = lines.filter((_, i) => !removedIndices.has(i));
+
+  return { addressLines, phone, dsn };
 };
 
 const parseConsigneeInfo = (consignee: string) => {
@@ -295,23 +324,31 @@ const InteractiveSDDGForm: React.FC<InteractiveSDDGFormProps> = ({
             >
               <View style={styles.boxLeft}>
                 <Text style={styles.label}>Shipper</Text>
-                <Text style={[styles.text, { paddingLeft: 25 }]}>{shipperInfo.name}</Text>
-                <Text style={[styles.text, { paddingLeft: 25 }]}>{shipperInfo.street}</Text>
-                <Text style={[styles.text, { paddingLeft: 25 }]}>{shipperInfo.city}</Text>
-                <View style={{ flexDirection: "row", flexWrap: "wrap", marginTop: 10 }}>
-                  <Text style={styles.text2}>
-                    <Text style={[styles.text2, { fontWeight: "600" }]}>
-                      PHONE NUMBER:
-                    </Text>{" "}
-                    {shipperInfo.phone}
+                {shipperInfo.addressLines.map((line, i) => (
+                  <Text key={i} style={[styles.text, { paddingLeft: 25 }]}>
+                    {line}
                   </Text>
-                  <Text style={[styles.text2, { marginLeft: 20 }]}>
-                    <Text style={[styles.text2, { fontWeight: "600" }]}>
-                      DSN:
-                    </Text>{" "}
-                    {shipperInfo.dsn}
-                  </Text>
-                </View>
+                ))}
+                {shipperInfo.phone || shipperInfo.dsn ? (
+                  <View style={{ flexDirection: "row", flexWrap: "wrap", marginTop: 10 }}>
+                    {shipperInfo.phone ? (
+                      <Text style={styles.text2}>
+                        <Text style={[styles.text2, { fontWeight: "600" }]}>
+                          PHONE NUMBER:
+                        </Text>{" "}
+                        {shipperInfo.phone}
+                      </Text>
+                    ) : null}
+                    {shipperInfo.dsn ? (
+                      <Text style={[styles.text2, { marginLeft: shipperInfo.phone ? 20 : 0 }]}>
+                        <Text style={[styles.text2, { fontWeight: "600" }]}>
+                          DSN:
+                        </Text>{" "}
+                        {shipperInfo.dsn}
+                      </Text>
+                    ) : null}
+                  </View>
+                ) : null}
               </View>
             </TappableSDDGField>
           </View>
