@@ -12,6 +12,14 @@ Additionally, `subsidiary_risk` is not plumbed through the extraction pipeline �
 
 ## Fix: Parser Changes
 
+### Whitespace normalization
+
+Before regex matching, normalize whitespace around parentheses to handle OCR artifacts like `2.2 (5.1)` or `2.2 ( 5.1 )`:
+
+```typescript
+text.replace(/\(\s+/g, "(").replace(/\s+\)/g, ")")
+```
+
 ### Regex
 
 Old:
@@ -19,27 +27,40 @@ Old:
 /,\s*(\d(?:\.\d)?[A-Z]{0,2}(?:\(\d(?:\.\d)?\))?)\s*(?:,\s*(III|II|I))?\s*$/
 ```
 
-New (subsidiary risk as separate capture group after comma):
+New (subsidiary risk as separate capture group, supports both glued `3(8)` and comma-separated `2.2,(5.1)`):
 ```
-/,\s*(\d(?:\.\d)?[A-Z]{0,2})\s*(?:,\s*(\(\d(?:\.\d)?\)))?\s*(?:,\s*(III|II|I))?\s*$/
+/,\s*(\d(?:\.\d)?[A-Z]{0,2})(?:(\(\d(?:\.\d)?\))|\s*,\s*(\(\d(?:\.\d)?\)))?\s*(?:,\s*(III|II|I))?\s*$/
 ```
 
 Capture groups:
 1. Class/division: `2.2`
-2. Subsidiary risk: `(5.1)` (with parens, or undefined)
-3. Packing group: `II` (or undefined)
+2. Subsidiary risk glued: `(8)` from `3(8)` — or undefined
+3. Subsidiary risk comma-separated: `(5.1)` from `2.2,(5.1)` — or undefined
+4. Packing group: `II` (or undefined)
+
+Result: `subsidiary_risk = group2 || group3 || undefined`
 
 ### Section handling
 
 Instead of assuming exactly 3 `//` sections:
 - Section 0: `firstSection` (PSN + class + subsidiary + packing group)
-- Last section matching `/^[A-Z]?\d/`: packing instruction
+- Packing instruction: identified by explicit pattern `/^A\d+\.\d+\.?$/` (all AFMAN packing instructions are A-prefixed)
 - Sections containing `OVERPACK`: appended to quantity
 - Remaining middle sections: quantity
 
 ### New output field
 
 `parseInlineDangerousGoods` returns `subsidiary_risk` as a new field on `Partial<SDDGData>`.
+
+### Subsidiary risk splitting for table-based forms
+
+`convertToSDDGData` (the common exit point for both table and inline paths) splits subsidiary risk from `class_division` if present. For table-based forms, the column "Class or Division (SUBSIDIARY RISK)" puts everything into `class_division` (e.g., `"2.2 (5.1)"`). The split regex extracts the trailing parenthesized value:
+
+```typescript
+const subMatch = rawClass.match(/\s*(\(\d(?:\.\d)?\))\s*$/);
+```
+
+This ensures both table-based and inline forms populate `subsidiary_risk` consistently.
 
 ## Fix: Plumbing Changes
 

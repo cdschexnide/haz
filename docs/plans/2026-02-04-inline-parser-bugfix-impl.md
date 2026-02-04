@@ -4,7 +4,7 @@
 
 **Goal:** Fix three parser bugs (subsidiary risk parsing, 4+ section handling, OVERPACK appending) and plumb `subsidiary_risk` through the extraction pipeline to the UI.
 
-**Architecture:** Update the regex in `parseInlineDangerousGoods` to capture subsidiary risk as a separate comma-delimited field. Rework `//`-section handling to support 4+ sections and append OVERPACK text to quantity. Add `subsidiary_risk` field to `SDDGData`, thread it through `convertToSDDGData`, `mapToHazproFormat`, and the `InteractiveSDDGForm` display.
+**Architecture:** Update the regex in `parseInlineDangerousGoods` to capture subsidiary risk as a separate comma-delimited field, with whitespace normalization for OCR robustness. Rework `//`-section handling to support 4+ sections, identify packing instructions by explicit `A\d+\.\d+` pattern, and append OVERPACK text to quantity. Add `subsidiary_risk` field to `SDDGData`, split it from `class_division` in `convertToSDDGData` (works for both table and inline paths), thread through `mapToHazproFormat`, and display combined in `InteractiveSDDGForm`.
 
 **Tech Stack:** TypeScript, Jest (jest-expo preset), React Native
 
@@ -81,6 +81,29 @@ In `src/services/sddg/__tests__/inlineDangerousGoodsParser.test.ts`, the existin
     expect(result.subsidiary_risk).toBe("(8)");
     expect(result.packing_group).toBe("II");
   });
+
+  it("should handle OCR whitespace around subsidiary risk parens", () => {
+    const input =
+      "UN1072,OXYGEN COMPRESSED,2.2, ( 5.1 )//\n" +
+      "1 CYLINDER X 2.72 KG//A6.5";
+
+    const result = parseInlineDangerousGoods(input);
+
+    expect(result.class_division).toBe("2.2");
+    expect(result.subsidiary_risk).toBe("(5.1)");
+    expect(result.proper_shipping_name).toBe("OXYGEN COMPRESSED");
+  });
+
+  it("should handle OCR space between class and subsidiary", () => {
+    const input =
+      "UN1072,OXYGEN COMPRESSED,2.2 (5.1)//\n" +
+      "1 CYLINDER X 2.72 KG//A6.5";
+
+    const result = parseInlineDangerousGoods(input);
+
+    expect(result.class_division).toBe("2.2");
+    expect(result.subsidiary_risk).toBe("(5.1)");
+  });
 ```
 
 Also update the existing test "should parse with subsidiary risk in parentheses" (line 54) to expect the new separate fields:
@@ -111,8 +134,13 @@ export function parseInlineDangerousGoods(
 ): Partial<SDDGData> {
   if (!text || !text.trim()) return {};
 
-  // Normalize: join lines, collapse whitespace
-  const normalized = text.replace(/\n/g, " ").replace(/\s+/g, " ").trim();
+  // Normalize: join lines, collapse whitespace, normalize parens whitespace
+  const normalized = text
+    .replace(/\n/g, " ")
+    .replace(/\s+/g, " ")
+    .replace(/\(\s+/g, "(")
+    .replace(/\s+\)/g, ")")
+    .trim();
 
   // Must start with UN or ID number
   const unMatch = normalized.match(/^(UN|ID|NA)\s*([O0]?\d{3,4})/i);
@@ -139,12 +167,13 @@ export function parseInlineDangerousGoods(
   // Remaining sections (1+): identify packing instruction, OVERPACK, and quantity
   const remainingSections = sections.slice(1);
 
-  // Find packing instruction: matches pattern like "A6.5", "A200", "A5.24"
+  // Find packing instruction: AFMAN packing instructions are always A-prefixed
+  // Pattern: A followed by digits, dot, digits (e.g., A6.5, A5.24, A10.13)
   let packing_inst: string | undefined;
   let packingInstIdx = -1;
   for (let i = 0; i < remainingSections.length; i++) {
     const cleaned = remainingSections[i].replace(/\.\s*$/, "").trim();
-    if (/^[A-Z]?\d/.test(cleaned) && !(/^OVERPACK/i.test(cleaned)) && !(/^\d+\s+(STEEL|FIBRE|WOOD|BOX|DRUM|CYLINDER|JERRICAN|BAG)/i.test(cleaned))) {
+    if (/^A\d+\.\d+$/.test(cleaned)) {
       packing_inst = cleaned;
       packingInstIdx = i;
       break;
@@ -281,16 +310,37 @@ In `src/services/sddg/anchorBasedExtractor.ts`, find the dangerous goods block i
     packing_group: get("packing_group"),
 ```
 
-Add `subsidiary_risk` after `class_division`:
+Replace with logic that splits subsidiary risk from class_division for both table-based and inline forms:
 
 ```typescript
     // Dangerous goods table
-    un_number: get("un_number"),
-    proper_shipping_name: get("proper_shipping_name"),
-    class_division: get("class_division"),
-    subsidiary_risk: get("subsidiary_risk"),
+    // Split subsidiary risk from class_division (handles both table and inline paths)
+    // Table-based: column contains "2.2 (5.1)" as a single string
+    // Inline: already split, but subsidiary_risk may also come from the results map
+    ...(() => {
+      const rawClass = get("class_division");
+      const existingSubRisk = get("subsidiary_risk");
+      if (existingSubRisk) {
+        // Inline path already split — use as-is
+        return {
+          class_division: rawClass,
+          subsidiary_risk: existingSubRisk,
+        };
+      }
+      // Table path — try to split trailing parenthesized subsidiary risk
+      const subMatch = rawClass.match(/\s*(\(\d(?:\.\d)?\))\s*$/);
+      if (subMatch) {
+        return {
+          class_division: rawClass.slice(0, -subMatch[0].length).trim(),
+          subsidiary_risk: subMatch[1],
+        };
+      }
+      return { class_division: rawClass, subsidiary_risk: "" };
+    })(),
     packing_group: get("packing_group"),
 ```
+
+**Note:** This uses an IIFE to spread the split result inline. Alternatively, compute the values before the return statement. The implementation agent should choose whichever approach is cleaner — the key requirement is that `class_division` and `subsidiary_risk` are both populated correctly for both table and inline forms.
 
 ### Step 2: Add `subsidiary_risk` to the inline fieldMapping
 
