@@ -91,7 +91,7 @@ describe("getAllowedPackagingTypes - Attachment 8 (A8)", () => {
     ["A8.8.", ["single", "combination"]],
     ["A8.9.", ["single"]],
     ["A8.10.", ["combination"]],
-    ["A8.11.", ["single", "combination"]],
+    ["A8.11.", ["combination"]],
     ["A8.12.", ["combination"]],
     ["A8.13.", ["single"]],
     ["A8.14.", ["combination"]],

@@ -138,7 +138,7 @@ function inferTargetKey(alteration: string): keyof ExtractedSDDGContent | null {
 function shouldSkipAlteration(
   alteration: { alteration: string; tests: string },
   targetKey: keyof ExtractedSDDGContent,
-  material: { properShippingName?: string } | null
+  material: { properShippingName?: string; packingGroup?: string } | null
 ): boolean {
   const combined = `${alteration.alteration} ${alteration.tests}`.toLowerCase();
   if (
@@ -146,6 +146,11 @@ function shouldSkipAlteration(
     combined.includes("marking") ||
     combined.includes("pop")
   ) {
+    return true;
+  }
+
+  // Skip packing group alterations for materials that have no packing group
+  if (targetKey === "packingGroup" && material && !material.packingGroup) {
     return true;
   }
 
@@ -223,6 +228,10 @@ function applyAlteration(
     return updated;
   }
   if (key === "packingGroup") {
+    if (/empty|none|no packing group/i.test(alteration)) {
+      updated.packingGroup = "";
+      return updated;
+    }
     const match = alteration.match(/\bI{1,3}\b/);
     updated.packingGroup = match ? match[0] : "III";
     return updated;

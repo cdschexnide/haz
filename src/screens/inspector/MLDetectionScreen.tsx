@@ -5,7 +5,7 @@
  * to detect and classify hazmat labels. Matches the app's UI/UX patterns.
  */
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import {
   View,
   Text,
@@ -32,6 +32,10 @@ import { useHazProActions } from "../../stores/useHazProStore";
 import { getPostMlDetectionRoute } from "@/utils/inspectorWorkflowRouting";
 import { DevBenchmarkButton } from "../../components/dev/DevBenchmarkButton";
 import { ScreenHeader, ActionFooter, InfoBox, colors, spacing, borderRadius } from "../../components/ui";
+import {
+  classifyHazardLabels,
+  HazardClassificationResult,
+} from "../../utils/hazardLabelClassification";
 import {
   CapturedImage,
   ImageDetectionResult,
@@ -138,11 +142,38 @@ export function MLDetectionScreen({
     if (resultsToSave.length > 0) {
       // Re-aggregate from corrected results to include user corrections
       const finalAggregated = aggregateResults(resultsToSave);
+
+      // Populate hazard label classification from SDDG data
+      if (classificationResult) {
+        if (classificationResult.primaryDetection) {
+          const pd = classificationResult.primaryDetection;
+          finalAggregated.primaryHazardDetection = {
+            className: pd.className,
+            category: `hazardClass${pd.matchedHazardClass.split('.')[0]}`,
+            maxConfidence: pd.confidence,
+            occurrences: 1,
+            bestImageIndex: pd.imageIndex,
+          };
+        }
+        finalAggregated.subsidiaryHazardDetections = classificationResult.subsidiaryDetections.map((sd) => ({
+          className: sd.className,
+          category: `hazardClass${sd.matchedHazardClass.split('.')[0]}`,
+          maxConfidence: sd.confidence,
+          occurrences: 1,
+          bestImageIndex: sd.imageIndex,
+        }));
+        finalAggregated.hazardLabelPositionWarning = classificationResult.positionWarning;
+        finalAggregated.hazardLabelPositionWarningMessage = classificationResult.positionWarningMessage;
+      }
+
       console.log('[MLDetectionScreen] Saving ML results to context (with corrections):', {
         hasPOP: !!finalAggregated.bestPopMarking,
         labels: finalAggregated.allDetectedLabels.length,
         labelClassNames: finalAggregated.allDetectedLabels.map(l => l.className),
         unNumbers: finalAggregated.allUnNumbers.length,
+        primaryHazard: finalAggregated.primaryHazardDetection?.className || null,
+        subsidiaryHazards: finalAggregated.subsidiaryHazardDetections.map(s => s.className),
+        positionWarning: finalAggregated.hazardLabelPositionWarning,
       });
       setMLAnalysisResults(finalAggregated);
     }
@@ -157,7 +188,15 @@ export function MLDetectionScreen({
 
     const nextRoute = getPostMlDetectionRoute(inspection);
     navigation.navigate(nextRoute.screen, nextRoute.params);
-  }, [navigation, onClose, correctedResults, analysisResults, setMLAnalysisResults, inspection]);
+  }, [
+    navigation,
+    onClose,
+    correctedResults,
+    analysisResults,
+    setMLAnalysisResults,
+    inspection,
+    classificationResult,
+  ]);
 
   // Handle skip
   const handleSkip = useCallback(() => {
@@ -352,6 +391,32 @@ export function MLDetectionScreen({
       setCorrections([]);
     }
   }, [analysisResults, inspection]);
+
+  // Classify hazard labels as primary/subsidiary using SDDG data
+  // Use correctedResults if available (user may have added/removed detections), fall back to analysisResults
+  const classificationResult = useMemo<HazardClassificationResult | null>(() => {
+    const resultsToClassify = correctedResults.length > 0 ? correctedResults : (analysisResults || []);
+    if (resultsToClassify.length === 0) return null;
+    const sddgData = {
+      hazardClass: inspection?.verificationCopy?.hazardClass || '',
+      subsidiaryRisk: inspection?.verificationCopy?.subsidiaryRisk || '',
+    };
+    if (!sddgData.hazardClass) return null;
+    return classifyHazardLabels(resultsToClassify, sddgData);
+  }, [
+    correctedResults,
+    analysisResults,
+    inspection?.verificationCopy?.hazardClass,
+    inspection?.verificationCopy?.subsidiaryRisk,
+  ]);
+
+  // Helper to get role for a detection
+  const getDetectionRole = useCallback((detectionId: string): 'primary' | 'subsidiary' | null => {
+    if (!classificationResult) return null;
+    const classification = classificationResult.classifications.find(c => c.detectionId === detectionId);
+    if (!classification || classification.role === 'unknown') return null;
+    return classification.role;
+  }, [classificationResult]);
 
   // Open label picker to add a new label
   const handleAddLabelPress = useCallback((imageIndex: number) => {
@@ -802,6 +867,17 @@ export function MLDetectionScreen({
                 {result.ocrResult ? ` • OCR: ${result.ocrResult.processingTime}ms` : ""}
               </Text> */}
               <DetectionOverlay result={result} maxHeight={250} />
+              {/* Position warning for this image */}
+              {classificationResult?.positionWarning &&
+                classificationResult.primaryDetection?.imageIndex === index &&
+                classificationResult.subsidiaryDetections.some(s => s.imageIndex === index) && (
+                <View style={styles.positionWarningBanner}>
+                  <MaterialIcons name="warning" size={18} color={colors.warning} />
+                  <Text style={styles.positionWarningText}>
+                    {classificationResult.positionWarningMessage}
+                  </Text>
+                </View>
+              )}
 
               {/* Detection list with always-visible edit actions */}
               <View style={styles.detectionsList}>
@@ -844,6 +920,20 @@ export function MLDetectionScreen({
                               <Text style={styles.manualBadgeText}>Added</Text>
                             </View>
                           )}
+                          {(() => {
+                            const role = getDetectionRole(d.id);
+                            if (role === 'primary') return (
+                              <View style={styles.primaryBadge}>
+                                <Text style={styles.primaryBadgeText}>Primary</Text>
+                              </View>
+                            );
+                            if (role === 'subsidiary') return (
+                              <View style={styles.subsidiaryBadge}>
+                                <Text style={styles.subsidiaryBadgeText}>Subsidiary</Text>
+                              </View>
+                            );
+                            return null;
+                          })()}
                           {/* Edit icon */}
                           <MaterialIcons name="edit" size={18} color={colors.textSecondary} style={styles.editIcon} />
                         </TouchableOpacity>
@@ -1390,6 +1480,46 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: colors.success,
     fontWeight: "600",
+  },
+  primaryBadge: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 3,
+    backgroundColor: colors.successLight,
+    borderRadius: borderRadius.sm,
+    marginRight: spacing.sm,
+  },
+  primaryBadgeText: {
+    fontSize: 11,
+    color: colors.success,
+    fontWeight: "600",
+  },
+  subsidiaryBadge: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 3,
+    backgroundColor: colors.infoLight,
+    borderRadius: borderRadius.sm,
+    marginRight: spacing.sm,
+  },
+  subsidiaryBadgeText: {
+    fontSize: 11,
+    color: colors.primary,
+    fontWeight: "600",
+  },
+  positionWarningBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: colors.warningLight,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: borderRadius.md,
+    marginTop: spacing.sm,
+    gap: spacing.sm,
+  },
+  positionWarningText: {
+    flex: 1,
+    fontSize: 13,
+    color: colors.warning,
+    fontWeight: "500",
   },
 });
 

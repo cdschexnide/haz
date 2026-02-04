@@ -336,12 +336,13 @@ export function validatePackingInstruction(
   // Normalize by removing trailing periods and converting to uppercase
   const normalizedActual =
     actualValue?.trim()?.toUpperCase()?.replace(/\.$/, "") || "";
-  const normalizedExpected = material.packagingParagraph
-    .trim()
-    .toUpperCase()
-    .replace(/\.$/, "");
 
-  const isValid = normalizedActual === normalizedExpected;
+  // Split comma-separated packaging paragraphs and check if actual matches any one
+  const allowedValues = material.packagingParagraph
+    .split(",")
+    .map(v => v.trim().toUpperCase().replace(/\.$/, ""));
+
+  const isValid = allowedValues.includes(normalizedActual);
 
   if (!isValid) {
     return {

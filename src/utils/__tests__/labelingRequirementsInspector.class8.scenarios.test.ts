@@ -14,7 +14,12 @@ function normalizeParagraph(paragraph: string): string {
 function buildContextFromScenario(
   scenario: (typeof class8ScenarioFixtures)[number]
 ): SDDGInspectionContext {
+  const scenarioDetails = scenario.materialDetails["Details"] || "";
   const material = hazardousMaterialsList.find(
+    item =>
+      item.unid === scenario.unNumber &&
+      (!scenarioDetails || (item.details || "").toLowerCase() === scenarioDetails.toLowerCase())
+  ) || hazardousMaterialsList.find(
     item => item.unid === scenario.unNumber
   );
   const extractedContent: ExtractedSDDGContent = {
@@ -61,17 +66,17 @@ function buildContextFromScenario(
 }
 
 function extractHazardClassFromLabel(label: string): string | null {
-  const directMatch = label.match(/\bClass\\s*([0-9](?:\\.[0-9])?)\\b/i);
+  const directMatch = label.match(/\bClass\s*([0-9](?:\.[0-9])?)\b/i);
   if (directMatch) return directMatch[1];
-  const numericMatch = label.match(/\b([0-9]\\.[0-9])\\b/);
+  const numericMatch = label.match(/\b([0-9]\.[0-9])\b/);
   if (numericMatch) return numericMatch[1];
-  const singleMatch = label.match(/\b([0-9])\\b/);
+  const singleMatch = label.match(/\b([0-9])\b/);
   if (singleMatch) return singleMatch[1];
   return null;
 }
 
 function expectedSubsidiaryClasses(label: string): string[] {
-  const matches = label.match(/\b(\\d(?:\\.\\d)?)\\b/g);
+  const matches = label.match(/\b(\d(?:\.\d)?)\b/g);
   return matches ? matches.map(match => match.trim()) : [];
 }
 
@@ -84,7 +89,12 @@ describe("Labeling requirements - Class 8 scenarios", () => {
     const failures: string[] = [];
 
     for (const scenario of class8ScenarioFixtures) {
+      const scenarioDetails = scenario.materialDetails["Details"] || "";
       const material = hazardousMaterialsList.find(
+        item =>
+          item.unid === scenario.unNumber &&
+          (!scenarioDetails || (item.details || "").toLowerCase() === scenarioDetails.toLowerCase())
+      ) || hazardousMaterialsList.find(
         item => item.unid === scenario.unNumber
       );
       if (!material) continue;
@@ -139,7 +149,7 @@ describe("Labeling requirements - Class 8 scenarios", () => {
           }
         }
 
-        if (/orientation|this way up|this side up/i.test(label)) {
+        if (/orientation|this way up|this side up/i.test(label) && !/^NO\b/i.test(label)) {
           const hasOrientation = Object.keys(result).some(key =>
             key.toLowerCase().includes("orientation")
           );

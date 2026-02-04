@@ -598,5 +598,31 @@ describe('SDDG Validation - Class 2 Gases', () => {
         expect(result.isValid).toBe(true);
       });
     });
+
+    describe('Multi-value packaging paragraphs', () => {
+      test('accepts any single value from comma-separated list (UN1072 A6.5 from "A6.3., A6.5.")', () => {
+        const material = createClass2Material('UN1072', '2.2', 'A6.3., A6.5.', 'OXYGEN, COMPRESSED', '5.1');
+        const result = validatePackingInstruction(material, 'A6.5');
+        expect(result.isValid).toBe(true);
+      });
+
+      test('accepts first value from comma-separated list (UN1072 A6.3 from "A6.3., A6.5.")', () => {
+        const material = createClass2Material('UN1072', '2.2', 'A6.3., A6.5.', 'OXYGEN, COMPRESSED', '5.1');
+        const result = validatePackingInstruction(material, 'A6.3');
+        expect(result.isValid).toBe(true);
+      });
+
+      test('accepts any value from three-value list (UN1013 A6.4 from "A6.3., A6.4., A6.5.")', () => {
+        const material = createClass2Material('UN1013', '2.2', 'A6.3., A6.4., A6.5.', 'CARBON DIOXIDE');
+        const result = validatePackingInstruction(material, 'A6.4');
+        expect(result.isValid).toBe(true);
+      });
+
+      test('rejects value not in comma-separated list', () => {
+        const material = createClass2Material('UN1072', '2.2', 'A6.3., A6.5.', 'OXYGEN, COMPRESSED', '5.1');
+        const result = validatePackingInstruction(material, 'A6.11');
+        expect(result.isValid).toBe(false);
+      });
+    });
   });
 });

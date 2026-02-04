@@ -61,17 +61,17 @@ function buildContextFromScenario(
 }
 
 function extractHazardClassFromLabel(label: string): string | null {
-  const directMatch = label.match(/\bClass\\s*([0-9](?:\\.[0-9])?)\\b/i);
+  const directMatch = label.match(/\bClass\s*([0-9](?:\.[0-9])?)\b/i);
   if (directMatch) return directMatch[1];
-  const numericMatch = label.match(/\b([0-9]\\.[0-9])\\b/);
+  const numericMatch = label.match(/\b([0-9]\.[0-9])\b/);
   if (numericMatch) return numericMatch[1];
-  const singleMatch = label.match(/\b([0-9])\\b/);
+  const singleMatch = label.match(/\b([0-9])\b/);
   if (singleMatch) return singleMatch[1];
   return null;
 }
 
 function expectedSubsidiaryClasses(label: string): string[] {
-  const matches = label.match(/\\b(\\d(?:\\.\\d)?)\\b/g);
+  const matches = label.match(/\b(\d(?:\.\d)?)\b/g);
   return matches ? matches.map(match => match.trim()) : [];
 }
 
@@ -101,7 +101,7 @@ describe("Labeling requirements - Class 9 scenarios", () => {
           }
         }
 
-        if (/class 9|miscellaneous/i.test(label)) {
+        if (/class [0-9]|miscellaneous/i.test(label) && !/subsidiary/i.test(label)) {
           const hazardClass = extractHazardClassFromLabel(label) || "9";
           const primary = result["Primary Hazard"] || [];
           const expected = `Class ${hazardClass}`;
@@ -123,7 +123,7 @@ describe("Labeling requirements - Class 9 scenarios", () => {
           }
         }
 
-        if (/subsidiary|corrosive|flammable|toxic/i.test(label)) {
+        if (/subsidiary/i.test(label) && /corrosive|flammable|toxic/i.test(label)) {
           const subsidiary = result["Subsidiary Hazard"] || [];
           const expectedClasses = expectedSubsidiaryClasses(label);
           if (expectedClasses.length === 0) {

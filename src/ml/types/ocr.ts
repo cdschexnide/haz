@@ -180,6 +180,18 @@ export interface AggregatedAnalysis {
   /** Patterns that matched for MSL detection */
   mslMatchedPatterns: string[];
 
+  /** Detected primary hazard label (matched to SDDG hazardClass) */
+  primaryHazardDetection: AggregatedLabel | null;
+
+  /** Detected subsidiary hazard labels (matched to SDDG subsidiaryRisk) */
+  subsidiaryHazardDetections: AggregatedLabel[];
+
+  /** Whether primary label is positioned below subsidiary in same image */
+  hazardLabelPositionWarning: boolean;
+
+  /** Warning message for label positioning */
+  hazardLabelPositionWarningMessage: string | null;
+
   /** Number of images successfully processed */
   imagesProcessed: number;
 

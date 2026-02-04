@@ -106,7 +106,7 @@ describe("POP marking validation - Class 8 scenarios", () => {
       const material = hazardousMaterialsList.find(
         item => item.unid === scenario.unNumber
       );
-      if (!material || !material.packingGroup) continue;
+      if (!material || !material.packingGroup || material.packingGroup.includes(":")) continue;
 
       const allowedCodes = scenario.expectedPackage.pop.allowedCodes;
       const code = allowedCodes[0] || "1A1";

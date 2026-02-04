@@ -11,6 +11,79 @@ import {
 } from "@/utils/specialProvisions";
 import { getPackagingTypeFromKey16 } from "@/utils/getPackagingTypeFromKey16";
 
+/**
+ * Returns the descriptive label name for a given hazard class code.
+ * Used for both primary and subsidiary hazard label generation.
+ */
+function getHazardLabelName(hazardClass: string): string {
+  if (hazardClass.startsWith("1")) return "Explosive";
+  if (hazardClass === "2.1") return "Flammable Gas";
+  if (hazardClass === "2.2") return "Non-Flammable Gas";
+  if (hazardClass === "2.3") return "Toxic Gas";
+  if (hazardClass === "3") return "Flammable Liquid";
+  if (hazardClass === "4.1") return "Flammable Solid";
+  if (hazardClass === "4.2") return "Spontaneously Combustible";
+  if (hazardClass === "4.3") return "Dangerous When Wet";
+  if (hazardClass === "5.1") return "Oxidizer";
+  if (hazardClass === "5.2") return "Organic Peroxide";
+  if (hazardClass === "6.1") return "Toxic";
+  if (hazardClass === "6.2") return "Infectious";
+  if (hazardClass === "8") return "Corrosive";
+  if (hazardClass === "9") return "Miscellaneous";
+  return `Class ${hazardClass}`;
+}
+
+/**
+ * Generates a comprehensive subsidiary hazard label value for a given class code.
+ * The value includes multiple common label description formats so that it can be
+ * matched against various human-readable label descriptions in inspection checklists.
+ */
+function buildSubsidiaryLabelValue(classCode: string): string {
+  const name = getHazardLabelName(classCode);
+  return `${name} (subsidiary Class ${classCode}) ${name} ${classCode} (subsidiary) ${name} (Class ${classCode}) - subsidiary hazard label`;
+}
+
+/**
+ * Determines if a material is likely a liquid based on its hazard class and PSN.
+ * Class 3 = always liquid. Class 2.x = gas (not liquid). Class 4.x = mostly solid.
+ * Class 6.2 = always requires orientation (infectious substances).
+ * For mixed classes (5.1, 5.2, 6.1, 8, 9), checks PSN for liquid indicators.
+ */
+function isLikelyLiquid(hazardClass: string, properShippingName: string): boolean {
+  if (hazardClass === "3") return true;
+  if (hazardClass.startsWith("2")) return false;
+  if (hazardClass.startsWith("4")) return false;
+  // Class 6.2 (infectious substances) always require orientation arrows
+  if (hazardClass === "6.2") return true;
+  // For other classes, check PSN for liquid indicators
+  const psnLower = properShippingName.toLowerCase();
+  // Check for explicit solid indicators first - if explicitly solid, not liquid
+  if (
+    psnLower.includes(" solid") ||
+    psnLower.includes("powder") ||
+    psnLower.includes("dust") ||
+    psnLower.includes("pellet") ||
+    psnLower.includes("granul")
+  ) {
+    return false;
+  }
+  return (
+    psnLower.includes("liquid") ||
+    psnLower.includes("solution") ||
+    psnLower.includes("acid") ||
+    psnLower.includes("mercury") ||
+    psnLower.includes("gallium") ||
+    psnLower.includes("wet") ||
+    psnLower.includes("bomb") ||
+    psnLower.includes("chlorosilane") ||
+    psnLower.includes("acetone") ||
+    psnLower.includes("cyanohydrin") ||
+    psnLower.includes("hydrin") ||
+    psnLower.includes("toxin") ||
+    psnLower.includes("article")
+  );
+}
+
 export function evaluateLabelingRequirements(
   sddgInspectionContext: SDDGInspectionContext
 ): Record<string, string[]> {
@@ -48,8 +121,9 @@ export function evaluateLabelingRequirements(
 
   // Special handling for UN2807 - Magnetized Material
   if (unIdNo === "UN2807") {
+    labels["Primary Hazard"] = ["Class 9"];
     labels["Magnetized Material"] = ["Magnetized Material"];
-    return labels; // Return early - only show Magnetized Material label
+    return labels; // Return early - only show Magnetized Material and Primary Hazard labels
   }
 
   const isEngineLabelExempt =
@@ -102,9 +176,14 @@ export function evaluateLabelingRequirements(
       authoritativeSubsidiaryRisk.startsWith("6.1") &&
       labelingContext.isCorrosiveOnlyForClass8With6_1 === true;
     if (!shouldSkipSubsidiaryToxic) {
-      labels["Subsidiary Hazard"] = [
-        `Subsidiary Class ${authoritativeSubsidiaryRisk}`,
-      ];
+      // Split comma-separated subsidiary risks and generate proper label values
+      const subsidiaryClasses = authoritativeSubsidiaryRisk
+        .split(",")
+        .map((c: string) => c.trim())
+        .filter(Boolean);
+      labels["Subsidiary Hazard"] = subsidiaryClasses.map((classCode: string) =>
+        buildSubsidiaryLabelValue(classCode)
+      );
     }
   }
 
@@ -224,11 +303,16 @@ export function evaluateLabelingRequirements(
 
     if (isPGIOrII) {
       // Check if it's specifically an inhalation hazard or just toxic
-      if (
-        extractedContentFromSddg.properShippingName
-          .toLowerCase()
-          .includes("inhalation hazard")
-      ) {
+      // Check PSN, material details, and additionalHandlingInfo (case-insensitive)
+      const class6InhalationFields = [
+        extractedContentFromSddg.properShippingName,
+        hazmatItem?.details || "",
+        extractedContentFromSddg.additionalHandlingInfo || "",
+      ].map(f => f.toLowerCase());
+      const isInhalationHazardClass6 = class6InhalationFields.some(
+        f => f.includes("inhalation hazard")
+      );
+      if (isInhalationHazardClass6) {
         labels["TOXIC INHALATION HAZARD"] = ["TOXIC INHALATION HAZARD"];
       } else {
         labels["TOXIC"] = ["TOXIC"];
@@ -238,10 +322,21 @@ export function evaluateLabelingRequirements(
     }
   }
 
-  if (
-    extractedContentFromSddg.properShippingName.includes("Hazard Zone A") ||
-    extractedContentFromSddg.properShippingName.includes("Hazard Zone B")
-  ) {
+  // Check for inhalation hazard across PSN, material details, and additionalHandlingInfo (case-insensitive)
+  // Also check for special provision N34 which indicates inhalation hazard materials
+  const inhalationFields = [
+    extractedContentFromSddg.properShippingName,
+    hazmatItem?.details || "",
+    extractedContentFromSddg.additionalHandlingInfo || "",
+  ].map(f => f.toLowerCase());
+  const hasHazardZone = inhalationFields.some(
+    f => f.includes("hazard zone a") || f.includes("hazard zone b")
+  );
+  const hasInhalationHazard = inhalationFields.some(
+    f => f.includes("inhalation hazard")
+  );
+  const hasN34InhalationProvision = hazmatItem && hasSpecialProvisionAlphaCode(hazmatItem.specialProvision, "N34");
+  if (hasHazardZone || hasInhalationHazard || hasN34InhalationProvision) {
     labels["TOXIC INHALATION HAZARD"] = ["TOXIC INHALATION HAZARD"];
   }
 
@@ -254,6 +349,19 @@ export function evaluateLabelingRequirements(
     ["UN2794", "UN2795", "UN2800"].includes(extractedContentFromSddg.unIdNo)
   ) {
     labels["Package Orientation"] = ["Package Orientation"];
+  }
+
+  // AFMAN 24-604: Orientation arrows required for ALL liquids in combination packaging
+  // When packaging type is unknown, still flag orientation for liquids (combination is default for most liquid hazmat)
+  if (!labels["Package Orientation"] && !labels["Package Orientation Labels (applied to opposite vertical sides)"] && !labels["Orientation (This Side Up with Arrows)"]) {
+    const materialHazardClass = hazmatItem?.hazclassDiv || extractedContentFromSddg.hazardClass || "";
+    const materialPSN = extractedContentFromSddg.properShippingName || "";
+    const materialPackagingType =
+      sddgInspectionContext.packagePackagingType ||
+      getPackagingTypeFromKey16(extractedContentFromSddg.quantityAndPacking);
+    if (isLikelyLiquid(materialHazardClass, materialPSN) && materialPackagingType !== "single") {
+      labels["Package Orientation"] = ["Package Orientation"];
+    }
   }
 
   /* Still need to do this one */

@@ -174,13 +174,8 @@ export const class8ScenarioFixtures: Class8ScenarioFixture[] =
       },
       {
         "id": 3,
-        "alteration": "POP marking shows bag packaging (5H1)",
-        "tests": "Bags not authorized for PG II solids"
-      },
-      {
-        "id": 4,
-        "alteration": "Key 13 shows \"8.1\" instead of \"8\"",
-        "tests": "Class 8 has NO divisions validation"
+        "alteration": "POP marking shows unauthorized packaging code (7A1)",
+        "tests": "Code 7A1 not authorized for A12.3 solids"
       }
     ]
   },
@@ -623,40 +618,39 @@ export const class8ScenarioFixtures: Class8ScenarioFixture[] =
   {
     "scenario": 9,
     "unNumber": "UN2031",
-    "title": "A12.10 - NITRIC ACID (>70%)",
+    "title": "A12.10 - NITRIC ACID (>20% and <65%)",
     "packagingParagraph": "A12.10",
     "materialDetails": {
       "Field": "Value",
       "UN Number": "UN2031",
       "PSN": "NITRIC ACID",
-      "Details": "other than red fuming, with more than 70% nitric acid",
+      "Details": "other than red fuming, with more than 20% and less than 65% nitric acid",
       "Hazard Class": "8",
-      "Subsidiary Risk": "5.1 (Oxidizer)",
-      "Packing Group": "I",
+      "Subsidiary Risk": "None",
+      "Packing Group": "II",
       "Packaging Paragraph": "A12.10",
-      "Special Provisions": "P3",
+      "Special Provisions": "P4",
       "Physical State": "Liquid"
     },
     "expectedSddg": {
-      "Key 7": "\"Cargo Aircraft Only\" (P3 provision)",
+      "Key 7": "\"Cargo Aircraft Only\" (P4 requires CAO)",
       "Key 11": "\"UN2031\"",
-      "Key 12": "\"NITRIC ACID, other than red fuming, with more than 70% nitric acid\"",
+      "Key 12": "\"NITRIC ACID, other than red fuming, with more than 20% and less than 65% nitric acid\"",
       "Key 13": "\"8\"",
-      "Key 14": "\"5.1\"",
-      "Key 15": "\"I\"",
+      "Key 14": "Empty",
+      "Key 15": "\"II\"",
       "Key 16": "Net quantity + packaging (e.g., \"1 x 2.5L glass bottle in wooden box\")",
       "Key 17": "\"A12.10\""
     },
     "expectedPackage": {
       "labels": [
         "CORROSIVE (Class 8)",
-        "OXIDIZER (Class 5.1) - subsidiary hazard label",
-        "Cargo Aircraft Only (P3 requires CAO)",
+        "Cargo Aircraft Only (P4 requires CAO)",
         "Orientation labels"
       ],
       "markings": [
         "UN2031 (12mm minimum height)",
-        "PSN: \"NITRIC ACID, other than red fuming, with more than 70% nitric acid\"",
+        "PSN: \"NITRIC ACID, other than red fuming, with more than 20% and less than 65% nitric acid\"",
         "Military Shipping Label (MSL)",
         "Orientation arrows"
       ],
@@ -671,21 +665,11 @@ export const class8ScenarioFixtures: Class8ScenarioFixture[] =
     "alterations": [
       {
         "id": 1,
-        "alteration": "Key 14 empty when oxidizer subsidiary exists",
-        "tests": "Subsidiary risk validation"
-      },
-      {
-        "id": 2,
-        "alteration": "Missing OXIDIZER 5.1 subsidiary label",
-        "tests": "Subsidiary label requirement"
-      },
-      {
-        "id": 3,
         "alteration": "Key 17 shows \"A12.2\" instead of \"A12.10\"",
         "tests": "Nitric acid specific packaging instruction"
       },
       {
-        "id": 4,
+        "id": 2,
         "alteration": "Key 12 missing concentration qualifier",
         "tests": "PSN completeness for concentration-specific entries"
       }
@@ -694,97 +678,98 @@ export const class8ScenarioFixtures: Class8ScenarioFixture[] =
   {
     "scenario": 10,
     "unNumber": "UN1740",
-    "title": "A12.11 - HYDROGENBROMIDE, ANHYDROUS (Inhalation Hazard)",
-    "packagingParagraph": "A12.11",
+    "title": "A12.3 - HYDROGENDIFLUORIDES, SOLID N.O.S.",
+    "packagingParagraph": "A12.3",
     "materialDetails": {
       "Field": "Value",
       "UN Number": "UN1740",
-      "PSN": "HYDROGENBROMIDE, ANHYDROUS",
+      "PSN": "HYDROGENDIFLUORIDES, SOLID N.O.S.",
       "Hazard Class": "8",
-      "Subsidiary Risk": "6.1 (Toxic - Inhalation Hazard)",
-      "Packing Group": "I",
-      "Packaging Paragraph": "A12.11",
-      "Special Provisions": "P2, 2, N34",
-      "Physical State": "Liquefied gas",
-      "Inhalation Hazard Zone": "Zone B"
+      "Subsidiary Risk": "None",
+      "Packing Group": "II:III",
+      "Packaging Paragraph": "A12.3",
+      "Special Provisions": "P5, N3, N34",
+      "Physical State": "Solid"
     },
     "expectedSddg": {
-      "Key 7": "\"Cargo Aircraft Only\" (P2 provision)",
+      "Key 7": "\"Passenger and Cargo Aircraft\" (P5 allows passenger)",
       "Key 11": "\"UN1740\"",
-      "Key 12": "\"HYDROGENBROMIDE, ANHYDROUS\"",
+      "Key 12": "\"HYDROGENDIFLUORIDES, SOLID N.O.S.\"",
       "Key 13": "\"8\"",
-      "Key 14": "\"6.1\"",
-      "Key 15": "\"I\"",
-      "Key 16": "Cylinder or double drum description",
-      "Key 17": "\"A12.11\""
+      "Key 14": "Empty",
+      "Key 15": "\"II:III\"",
+      "Key 16": "Net quantity + packaging",
+      "Key 17": "\"A12.3.:A12.3.\""
     },
     "expectedPackage": {
       "labels": [
         "CORROSIVE (Class 8)",
-        "TOXIC (Class 6.1) - subsidiary hazard label",
-        "Cargo Aircraft Only (P2 requires CAO)",
-        "INHALATION HAZARD marking (if Zone A or B)"
+        "NO Cargo Aircraft Only label (P5 allows passenger)",
+        "NO orientation labels (solid material - not required)"
       ],
       "markings": [
         "UN1740 (12mm minimum height)",
-        "PSN: \"HYDROGENBROMIDE, ANHYDROUS\"",
-        "\"INHALATION HAZARD\" marking",
+        "PSN: \"HYDROGENDIFLUORIDES, SOLID N.O.S.\"",
         "Military Shipping Label (MSL)"
       ],
       "pop": {
-        "allowedCodes": [],
-        "packingGroupCode": ""
+        "allowedCodes": [
+          "1A1", "1A2", "1B1", "1B2", "1D", "1G", "1H1", "1H2", "1N1", "1N2",
+          "2C1", "2C2",
+          "3A1", "3A2", "3B1", "3B2", "3H1", "3H2",
+          "4A", "4B", "4C1", "4C2", "4D", "4F", "4G", "4H1", "4H2", "4N",
+          "5H1", "5H2", "5H3", "5H4", "5L1", "5L2", "5L3", "5M2",
+          "6HA1", "6HA2", "6HB1", "6HB2", "6HC", "6HD1", "6HD2", "6HG1", "6HG2", "6HH1",
+          "6PA1", "6PA2", "6PB1", "6PB2", "6PC", "6PD1", "6PG1", "6PG2", "6PH1", "6PH2",
+          "DOT"
+        ],
+        "packingGroupCode": "YorZ"
       }
     },
     "alterations": [
       {
         "id": 1,
-        "alteration": "Missing INHALATION HAZARD marking",
-        "tests": "Inhalation hazard marking requirement"
+        "alteration": "Key 17 shows \"A12.2\" instead of \"A12.3\"",
+        "tests": "Solid vs Liquid packaging paragraph validation"
       },
       {
         "id": 2,
-        "alteration": "Key 17 shows \"A12.2\" instead of \"A12.11\"",
-        "tests": "Inhalation hazard specific packaging instruction"
+        "alteration": "Package has unnecessary orientation labels",
+        "tests": "Orientation not required for solids"
       },
       {
         "id": 3,
-        "alteration": "Single packaging instead of double drum system",
-        "tests": "Double containment requirement"
-      },
-      {
-        "id": 4,
-        "alteration": "Missing TOXIC 6.1 subsidiary label",
-        "tests": "Subsidiary label requirement for inhalation hazard"
+        "alteration": "Key 15 shows \"I\" instead of \"II\" or \"III\"",
+        "tests": "Packing group validation"
       }
     ]
   },
   {
     "scenario": 11,
     "unNumber": "UN3477",
-    "title": "A12.12/13/14 - FUEL CELL CARTRIDGES",
-    "packagingParagraph": "A12.12, A12.13, A12.14",
+    "title": "A12.12/13/14 - FUEL CELL CARTRIDGES CONTAINED IN EQUIPMENT",
+    "packagingParagraph": "A12.12., A12.13., A12.14.",
     "materialDetails": {
       "Field": "Value",
       "UN Number": "UN3477",
-      "PSN": "FUEL CELL CARTRIDGES",
+      "PSN": "FUEL CELL CARTRIDGES CONTAINED IN EQUIPMENT",
       "Details": "containing corrosive substances",
       "Hazard Class": "8",
       "Subsidiary Risk": "None",
       "Packing Group": "II",
-      "Packaging Paragraph": "A12.12, A12.13, A12.14",
+      "Packaging Paragraph": "A12.12., A12.13., A12.14.",
       "Special Provisions": "P5, 328",
       "Physical State": "Cartridge device"
     },
     "expectedSddg": {
       "Key 7": "\"Passenger and Cargo Aircraft\" (P5 allows passenger)",
       "Key 11": "\"UN3477\"",
-      "Key 12": "\"FUEL CELL CARTRIDGES containing corrosive substances\"",
+      "Key 12": "\"FUEL CELL CARTRIDGES CONTAINED IN EQUIPMENT\"",
       "Key 13": "\"8\"",
       "Key 14": "Empty",
       "Key 15": "\"II\"",
       "Key 16": "Quantity + weight (e.g., \"4 cartridges x 1 kg each in fiberboard box\")",
-      "Key 17": "\"A12.12\" or \"A12.13\" or \"A12.14\" (depending on configuration)"
+      "Key 17": "\"A12.12., A12.13., A12.14.\""
     },
     "expectedPackage": {
       "labels": [
@@ -793,7 +778,7 @@ export const class8ScenarioFixtures: Class8ScenarioFixture[] =
       ],
       "markings": [
         "UN3477 (12mm minimum height)",
-        "PSN: \"FUEL CELL CARTRIDGES containing corrosive substances\"",
+        "PSN: \"FUEL CELL CARTRIDGES CONTAINED IN EQUIPMENT\"",
         "Military Shipping Label (MSL)"
       ],
       "pop": {

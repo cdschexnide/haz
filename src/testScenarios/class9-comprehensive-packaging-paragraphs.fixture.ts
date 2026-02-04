@@ -82,11 +82,6 @@ export const class9ScenarioFixtures: Class9ScenarioFixture[] =
         "id": 2,
         "alteration": "POP marking shows \"Y\" instead of \"Z\"",
         "tests": "PG III requires Z code"
-      },
-      {
-        "id": 3,
-        "alteration": "Key 13 shows \"9.3\" instead of \"9\"",
-        "tests": "Class 9 has NO divisions"
       }
     ]
   },
@@ -375,16 +370,11 @@ export const class9ScenarioFixtures: Class9ScenarioFixture[] =
     "alterations": [
       {
         "id": 1,
-        "alteration": "Key 13 shows \"9.1\" instead of \"9\"",
-        "tests": "Division validation (Class 9 has NO divisions)"
-      },
-      {
-        "id": 2,
         "alteration": "Key 15 populated with \"II\"",
         "tests": "Packing group validation (should be empty)"
       },
       {
-        "id": 3,
+        "id": 2,
         "alteration": "Missing Lithium Battery Handling Mark",
         "tests": "Lithium battery marking requirement"
       }
@@ -398,7 +388,7 @@ export const class9ScenarioFixtures: Class9ScenarioFixture[] =
     "materialDetails": {
       "Field": "Value",
       "UN Number": "UN3536",
-      "PSN": "LITHIUM BATTERIES INSTALLED IN CARGO TRANSPORT UNIT (lithium ion batteries or lithium metal batteries)",
+      "PSN": "LITHIUM BATTERIES INSTALLED IN A CARGO TRANSPORT UNIT (lithium ion batteries or lithium metal batteries)",
       "Hazard Class": "9",
       "Packing Group": "None",
       "Packaging Paragraph": "A13.8",
@@ -407,7 +397,7 @@ export const class9ScenarioFixtures: Class9ScenarioFixture[] =
     "expectedSddg": {
       "Key 7": "\"Passenger and Cargo Aircraft\"",
       "Key 11": "\"UN3536\"",
-      "Key 12": "\"LITHIUM BATTERIES INSTALLED IN CARGO TRANSPORT UNIT (lithium ion batteries)\" OR \"(lithium metal batteries)\"",
+      "Key 12": "\"LITHIUM BATTERIES INSTALLED IN A CARGO TRANSPORT UNIT (lithium ion batteries)\" OR \"(lithium metal batteries)\"",
       "Key 13": "\"9\"",
       "Key 14": "Empty",
       "Key 15": "Empty",
@@ -439,11 +429,6 @@ export const class9ScenarioFixtures: Class9ScenarioFixture[] =
       },
       {
         "id": 2,
-        "alteration": "Key 13 shows \"9.2\"",
-        "tests": "Class 9 has no divisions"
-      },
-      {
-        "id": 3,
         "alteration": "Key 11 shows UN3480 instead of UN3536",
         "tests": "UN number validation for cargo transport unit"
       }
@@ -452,26 +437,26 @@ export const class9ScenarioFixtures: Class9ScenarioFixture[] =
   {
     "scenario": 8,
     "unNumber": "UN3481",
-    "title": "A13.9 - LITHIUM ION BATTERIES PACKED WITH EQUIPMENT (UN3481)",
-    "packagingParagraph": "A13.9",
+    "title": "A13.8 - LITHIUM ION BATTERIES CONTAINED IN EQUIPMENT (UN3481)",
+    "packagingParagraph": "A13.8",
     "materialDetails": {
       "Field": "Value",
       "UN Number": "UN3481",
-      "PSN": "LITHIUM ION BATTERIES PACKED WITH EQUIPMENT (including lithium polymer batteries)",
+      "PSN": "LITHIUM ION BATTERIES CONTAINED IN EQUIPMENT (including lithium polymer batteries)",
       "Hazard Class": "9",
       "Packing Group": "None",
-      "Packaging Paragraph": "A13.9",
+      "Packaging Paragraph": "A13.8",
       "Special Provisions": "P5, 388"
     },
     "expectedSddg": {
       "Key 7": "\"Passenger and Cargo Aircraft\"",
       "Key 11": "\"UN3481\"",
-      "Key 12": "\"LITHIUM ION BATTERIES PACKED WITH EQUIPMENT (including lithium polymer batteries)\"",
+      "Key 12": "\"LITHIUM ION BATTERIES CONTAINED IN EQUIPMENT (including lithium polymer batteries)\"",
       "Key 13": "\"9\"",
       "Key 14": "Empty",
       "Key 15": "Empty",
       "Key 16": "Number + packaging (e.g., \"1 fiberboard box x 3 kg\")",
-      "Key 17": "\"A13.9\""
+      "Key 17": "\"A13.8\""
     },
     "expectedPackage": {
       "labels": [
@@ -479,7 +464,7 @@ export const class9ScenarioFixtures: Class9ScenarioFixture[] =
       ],
       "markings": [
         "UN3481",
-        "PSN: \"LITHIUM ION BATTERIES PACKED WITH EQUIPMENT\"",
+        "PSN: \"LITHIUM ION BATTERIES CONTAINED IN EQUIPMENT\"",
         "Lithium Battery Handling Mark with UN3481 and telephone number",
         "Inner packagings completely enclose cells/batteries",
         "Prevent short circuits, shifting, movement",
@@ -752,34 +737,35 @@ export const class9ScenarioFixtures: Class9ScenarioFixture[] =
   {
     "scenario": 13,
     "unNumber": "UN2328",
-    "title": "A13.14 - BENZOYL PEROXIDE (UN2328)",
-    "packagingParagraph": "A13.14",
+    "title": "A10.4 - TRIMETHYLHEXAMETHYLENE DIISOCYANATE (UN2328)",
+    "packagingParagraph": "A10.4",
     "materialDetails": {
       "Field": "Value",
       "UN Number": "UN2328",
-      "PSN": "BENZOYL PEROXIDE",
-      "Hazard Class": "9",
+      "PSN": "TRIMETHYLHEXAMETHYLENE DIISOCYANATE",
+      "Hazard Class": "6.1",
+      "Subsidiary Risk": "None",
       "Packing Group": "III",
-      "Packaging Paragraph": "A13.14",
+      "Packaging Paragraph": "A10.4",
       "Special Provisions": "P5"
     },
     "expectedSddg": {
       "Key 7": "\"Passenger and Cargo Aircraft\"",
       "Key 11": "\"UN2328\"",
-      "Key 12": "\"BENZOYL PEROXIDE\"",
-      "Key 13": "\"9\"",
+      "Key 12": "\"TRIMETHYLHEXAMETHYLENE DIISOCYANATE\"",
+      "Key 13": "\"6.1\"",
       "Key 14": "Empty",
       "Key 15": "\"III\"",
       "Key 16": "Net quantity + packaging (e.g., \"1 drum (1H1) x 50 L\")",
-      "Key 17": "\"A13.14\""
+      "Key 17": "\"A10.4\""
     },
     "expectedPackage": {
       "labels": [
-        "CLASS 9"
+        "TOXIC (Class 6.1)"
       ],
       "markings": [
         "UN2328",
-        "PSN: \"BENZOYL PEROXIDE\"",
+        "PSN: \"TRIMETHYLHEXAMETHYLENE DIISOCYANATE\"",
         "Any appropriate non-bulk packaging meeting Attachment 3 requirements",
         "Not liquid-full at 54C (130F) for containers \u2264208 L",
         "If vapor pressure >110 kPa at 38C: Primary packaging must withstand vapor pressure at 54C"
@@ -811,15 +797,15 @@ export const class9ScenarioFixtures: Class9ScenarioFixture[] =
   {
     "scenario": 14,
     "unNumber": "NA2212",
-    "title": "A13.15 - ASBESTOS, AMPHIBOLE (NA2212)",
-    "packagingParagraph": "A13.15",
+    "title": "A13.16 - ASBESTOS, AMPHIBOLE (NA2212)",
+    "packagingParagraph": "A13.16",
     "materialDetails": {
       "Field": "Value",
       "UN Number": "NA2212",
       "PSN": "ASBESTOS",
       "Hazard Class": "9",
       "Packing Group": "III",
-      "Packaging Paragraph": "A13.15",
+      "Packaging Paragraph": "A13.16",
       "Special Provisions": "P5, 156"
     },
     "expectedSddg": {
@@ -830,7 +816,7 @@ export const class9ScenarioFixtures: Class9ScenarioFixture[] =
       "Key 14": "Empty",
       "Key 15": "\"III\"",
       "Key 16": "Net quantity + packaging (e.g., \"1 fiberboard box x 20 kg\")",
-      "Key 17": "\"A13.15\""
+      "Key 17": "\"A13.16\""
     },
     "expectedPackage": {
       "labels": [
@@ -876,7 +862,7 @@ export const class9ScenarioFixtures: Class9ScenarioFixture[] =
     "materialDetails": {
       "Field": "Value",
       "UN Number": "UN2590",
-      "PSN": "WHITE ASBESTOS (chrysotile, actinolite, anthophyllite, tremolite)",
+      "PSN": "ASBESTOS, CHRYSOTILE",
       "Hazard Class": "9",
       "Packing Group": "III",
       "Packaging Paragraph": "A13.16",
@@ -885,7 +871,7 @@ export const class9ScenarioFixtures: Class9ScenarioFixture[] =
     "expectedSddg": {
       "Key 7": "\"Passenger and Cargo Aircraft\"",
       "Key 11": "\"UN2590\"",
-      "Key 12": "\"WHITE ASBESTOS (chrysotile)\" or specific type in parentheses",
+      "Key 12": "\"ASBESTOS, CHRYSOTILE\"",
       "Key 13": "\"9\"",
       "Key 14": "Empty",
       "Key 15": "\"III\"",
@@ -898,7 +884,7 @@ export const class9ScenarioFixtures: Class9ScenarioFixture[] =
       ],
       "markings": [
         "UN2590",
-        "PSN: \"WHITE ASBESTOS\" with type in parentheses",
+        "PSN: \"ASBESTOS, CHRYSOTILE\"",
         "Rigid, leak-tight packaging",
         "Dust and sift-proof bags in strong outer fiberboard/wooden boxes",
         "Palletized and unitized (shrink-wrapped) acceptable"

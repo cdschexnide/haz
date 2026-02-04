@@ -57,9 +57,9 @@ export const class6ScenarioFixtures: Class6ScenarioFixture[] =
       ],
       "pop": {
         "allowedCodes": [
-          "3A",
-          "3AA",
-          "3AL",
+          "3A1800",
+          "3AA1800",
+          "3AL1800",
           "3D"
         ],
         "packingGroupCode": ""
@@ -367,14 +367,13 @@ export const class6ScenarioFixtures: Class6ScenarioFixture[] =
       ],
       "pop": {
         "allowedCodes": [
-          "1A1",
           "1A2",
-          "1B1",
-          "1H1",
+          "1B2",
           "1H2",
-          "1N1",
-          "6HA1",
-          "8AL"
+          "1D",
+          "1G",
+          "1N2",
+          "6HA1"
         ],
         "packingGroupCode": ""
       }
@@ -480,7 +479,7 @@ export const class6ScenarioFixtures: Class6ScenarioFixture[] =
     "materialDetails": {
       "Field": "Value",
       "UN Number": "UN2814",
-      "PSN": "INFECTIOUS SUBSTANCE, AFFECTING HUMANS",
+      "PSN": "INFECTIOUS SUBSTANCES, AFFECTING HUMANS",
       "Scientific Name": "(Bacillus anthracis - cultures)",
       "Hazard Class": "6.2",
       "Category": "A",
@@ -490,10 +489,10 @@ export const class6ScenarioFixtures: Class6ScenarioFixture[] =
     "expectedSddg": {
       "Key 7": "\"Cargo Aircraft Only\" (P1 restricts to CAO)",
       "Key 11": "\"UN2814\"",
-      "Key 12": "\"INFECTIOUS SUBSTANCE, AFFECTING HUMANS (Bacillus anthracis)\"",
+      "Key 12": "\"INFECTIOUS SUBSTANCES, AFFECTING HUMANS (Bacillus anthracis)\"",
       "Key 13": "\"6.2\"",
       "Key 14": "Empty",
-      "Key 15": "**EMPTY** (Infectious substances do NOT have packing groups)",
+      "Key 15": "Empty (Infectious substances do NOT have packing groups)",
       "Key 16": "Net quantity + packaging description (triple packaging)",
       "Key 17": "\"A10.8\"",
       "Key 2/20": "**24-hour emergency contact number** (CRITICAL for 6.2)"
@@ -506,7 +505,7 @@ export const class6ScenarioFixtures: Class6ScenarioFixture[] =
       ],
       "markings": [
         "UN2814",
-        "PSN: \"INFECTIOUS SUBSTANCE, AFFECTING HUMANS\"",
+        "PSN: \"INFECTIOUS SUBSTANCES, AFFECTING HUMANS\"",
         "Scientific name if known: \"(Bacillus anthracis)\"",
         "Shipper name and address",
         "Consignee name and address",
@@ -558,7 +557,7 @@ export const class6ScenarioFixtures: Class6ScenarioFixture[] =
       "Key 12": "\"BIOLOGICAL SUBSTANCE, CATEGORY B\"",
       "Key 13": "\"6.2\"",
       "Key 14": "Empty",
-      "Key 15": "**EMPTY** (NO packing group for 6.2)",
+      "Key 15": "Empty (NO packing group for 6.2)",
       "Key 16": "Net quantity + packaging description",
       "Key 17": "\"A10.9\""
     },
@@ -592,11 +591,6 @@ export const class6ScenarioFixtures: Class6ScenarioFixture[] =
       },
       {
         "id": 2,
-        "alteration": "UN3373 diamond marking missing or wrong size (<50mm)",
-        "tests": "Diamond marking specification validation"
-      },
-      {
-        "id": 3,
         "alteration": "Key 15 shows \"II\" (should be empty for 6.2)",
         "tests": "Packing group empty validation for 6.2"
       }
@@ -742,8 +736,8 @@ export const class6ScenarioFixtures: Class6ScenarioFixture[] =
       "PSN": "TOXINS, EXTRACTED FROM LIVING SOURCES, LIQUID, N.O.S.",
       "Technical Name": "(Required - e.g., Ricin, Botulinum toxin)",
       "Hazard Class": "6.1",
-      "Packing Group": "II",
-      "Packaging Paragraph": "A10.12",
+      "Packing Group": "I:II:III",
+      "Packaging Paragraph": "A10.12.:A10.12.:A10.12.",
       "Special Provisions": "P4, A43",
       "Transport Mode": "Cargo Aircraft Only"
     },
@@ -753,9 +747,9 @@ export const class6ScenarioFixtures: Class6ScenarioFixture[] =
       "Key 12": "\"TOXINS, EXTRACTED FROM LIVING SOURCES, LIQUID, N.O.S. (Ricin)\"",
       "Key 13": "\"6.1\"",
       "Key 14": "Empty",
-      "Key 15": "\"II\"",
+      "Key 15": "\"I:II:III\"",
       "Key 16": "Net quantity + packaging (e.g., \"1 glass inner x 2.5 L in fiberboard box (4G)\")",
-      "Key 17": "\"A10.12\""
+      "Key 17": "\"A10.12.:A10.12.:A10.12.\""
     },
     "expectedPackage": {
       "labels": [

@@ -466,7 +466,9 @@ describe('Labeling Requirements - Class 5.1 Oxidizers', () => {
         const result = evaluateLabelingRequirements(context);
 
         expect(result['Subsidiary Hazard']).toBeDefined();
-        expect(result['Subsidiary Hazard']).toContain('Subsidiary Class 8');
+        expect(result['Subsidiary Hazard']).toEqual(
+          expect.arrayContaining([expect.stringContaining('subsidiary Class 8')])
+        );
       });
 
       test('Scenario 3, Alteration 1: UN1873 - missing CORROSIVE 8 subsidiary label is an error', () => {
@@ -488,7 +490,12 @@ describe('Labeling Requirements - Class 5.1 Oxidizers', () => {
         const result = evaluateLabelingRequirements(context);
 
         expect(result['Subsidiary Hazard']).toBeDefined();
-        expect(result['Subsidiary Hazard']).toContain('Subsidiary Class 6.1, 8');
+        expect(result['Subsidiary Hazard']).toEqual(
+          expect.arrayContaining([
+            expect.stringContaining('subsidiary Class 6.1'),
+            expect.stringContaining('subsidiary Class 8'),
+          ])
+        );
       });
 
       test('Scenario 6, Alteration 1: UN1745 - missing one subsidiary label (only TOXIC, not CORROSIVE) is an error', () => {
@@ -496,9 +503,9 @@ describe('Labeling Requirements - Class 5.1 Oxidizers', () => {
         const result = evaluateLabelingRequirements(context);
 
         expect(result['Subsidiary Hazard']).toBeDefined();
-        const subsidiaryLabel = result['Subsidiary Hazard']?.[0] || '';
-        expect(subsidiaryLabel).toContain('6.1');
-        expect(subsidiaryLabel).toContain('8');
+        const subsidiaryLabels = (result['Subsidiary Hazard'] || []).join(' ');
+        expect(subsidiaryLabels).toContain('6.1');
+        expect(subsidiaryLabels).toContain('8');
       });
 
       test('Scenario 9: UN1446 - should include subsidiary hazard 6.1 (Toxic)', () => {
@@ -506,7 +513,9 @@ describe('Labeling Requirements - Class 5.1 Oxidizers', () => {
         const result = evaluateLabelingRequirements(context);
 
         expect(result['Subsidiary Hazard']).toBeDefined();
-        expect(result['Subsidiary Hazard']).toContain('Subsidiary Class 6.1');
+        expect(result['Subsidiary Hazard']).toEqual(
+          expect.arrayContaining([expect.stringContaining('subsidiary Class 6.1')])
+        );
       });
 
       test('Scenario 9, Alteration 1: UN1446 - missing TOXIC 6.1 subsidiary label is an error', () => {
@@ -520,8 +529,9 @@ describe('Labeling Requirements - Class 5.1 Oxidizers', () => {
         const context = createClass5Context('UN2719', '5.1', 'BARIUM BROMATE', 'II', 'CARGO AIRCRAFT ONLY', '6.1');
         const result = evaluateLabelingRequirements(context);
 
-        expect(result['Subsidiary Hazard']).toBeDefined();
-        expect(result['Subsidiary Hazard']).toContain('Subsidiary Class 6.1');
+        expect(result['Subsidiary Hazard']).toEqual(
+          expect.arrayContaining([expect.stringContaining('subsidiary Class 6.1')])
+        );
       });
 
       test('Scenario 13: UN3405 - should include subsidiary hazard 6.1 (Toxic)', () => {
@@ -529,7 +539,9 @@ describe('Labeling Requirements - Class 5.1 Oxidizers', () => {
         const result = evaluateLabelingRequirements(context);
 
         expect(result['Subsidiary Hazard']).toBeDefined();
-        expect(result['Subsidiary Hazard']).toContain('Subsidiary Class 6.1');
+        expect(result['Subsidiary Hazard']).toEqual(
+          expect.arrayContaining([expect.stringContaining('subsidiary Class 6.1')])
+        );
       });
 
       test('Scenario 13, Alteration 3: UN3405 - missing TOXIC 6.1 subsidiary label is an error', () => {
