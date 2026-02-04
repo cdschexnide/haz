@@ -535,7 +535,10 @@ const InteractiveSDDGForm: React.FC<InteractiveSDDGFormProps> = ({
               {
                 key: "hazardClass",
                 label: "CLASS or DIVISION (Key 13)",
-                value: hazmat.hazardClass || "",
+                value:
+                  [hazmat.hazardClass, hazmat.subsidiaryRisk]
+                    .filter(Boolean)
+                    .join(" ") || "",
               },
               {
                 key: "packingGroup",

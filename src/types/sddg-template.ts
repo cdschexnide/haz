@@ -121,6 +121,7 @@ export interface SDDGData {
   un_number?: string;
   proper_shipping_name?: string;
   class_division?: string;
+  subsidiary_risk?: string;
   packing_group?: string;
   quantity_packing?: string;
   packing_inst?: string;

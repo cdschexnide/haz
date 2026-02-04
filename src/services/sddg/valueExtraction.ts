@@ -243,31 +243,50 @@ export function extractInlinePatternValue(
 }
 
 /**
- * Extract checkbox value by detecting which option is NOT X'd out
- * Uses closest-option association: each X block is paired with its nearest option label,
- * and the option WITHOUT X marks closest to it is the selected one.
+ * Extract checkbox value by detecting which option is NOT X'd out.
+ *
+ * Strategy 1: Find standalone "XXXXX" blocks and pair each with the closest option label.
+ * Strategy 2 (fallback): When X marks are garbled into the label text by OCR,
+ *   split text blocks into spatial groups and compare readability — the group
+ *   whose text more cleanly matches an option label is the selected (non-X'd) option.
  */
 export function extractCheckboxValue(
   textBlocks: TextBlock[],
   options: CheckboxOption[]
 ): string {
-  // 1. Find all X-pattern blocks
+  if (textBlocks.length === 0) {
+    return options[0]?.value ?? "";
+  }
+
+  // === Strategy 1: Standalone X-block detection ===
   const xBlocks = textBlocks.filter(block => {
     const text = block.text.toUpperCase().replace(/\s+/g, "");
     return /^X{3,}$/.test(text) || /X{4,}/.test(text);
   });
 
-  if (xBlocks.length === 0) {
-    return options[0]?.value ?? "";
+  if (xBlocks.length > 0) {
+    return resolveWithXBlocks(textBlocks, xBlocks, options);
   }
 
-  // 2. Find option label blocks
+  // === Strategy 2: Garble-detection fallback ===
+  return resolveWithGarbleDetection(textBlocks, options);
+}
+
+/**
+ * Strategy 1: Pair X blocks with nearest option labels.
+ * Returns the option NOT associated with any X block.
+ */
+function resolveWithXBlocks(
+  textBlocks: TextBlock[],
+  xBlocks: TextBlock[],
+  options: CheckboxOption[]
+): string {
+  // Find option label blocks
   const optionBlocks: Array<{ option: CheckboxOption; block: TextBlock }> = [];
   for (const opt of options) {
     const normalizedLabel = opt.label.toUpperCase().replace(/\s+/g, " ").trim();
     for (const block of textBlocks) {
       const normalizedText = block.text.toUpperCase().replace(/\s+/g, " ").trim();
-      // Require exact or very close match (not substring of longer option)
       if (
         normalizedText === normalizedLabel ||
         (normalizedText.includes(normalizedLabel) &&
@@ -279,8 +298,12 @@ export function extractCheckboxValue(
     }
   }
 
-  // 3. For each X block, find the closest option by center-to-center distance
-  const xdOptions = new Set<string>(); // Options that have X marks closest
+  if (optionBlocks.length === 0) {
+    return resolveWithGarbleDetection(textBlocks, options);
+  }
+
+  // For each X block, find the closest option by center-to-center distance
+  const xdOptions = new Set<string>();
   for (const xBlock of xBlocks) {
     const xCenterX = xBlock.boundingBox.x + xBlock.boundingBox.width / 2;
     const xCenterY = xBlock.boundingBox.y + xBlock.boundingBox.height / 2;
@@ -303,23 +326,25 @@ export function extractCheckboxValue(
     if (closestOption) xdOptions.add(closestOption);
   }
 
-  // 4. If only one option was found as a text block, infer based on X position
-  // When OCR only detects "NON-RADIOACTIVE" but not "RADIOACTIVE" separately,
-  // check if X marks are far to the right of the matched label (meaning they
-  // are crossing out the OTHER option in the adjacent checkbox area)
+  // If only one option was found as a text block, infer based on X position
   if (optionBlocks.length === 1) {
     const matchedBlock = optionBlocks[0].block;
     const matchedValue = optionBlocks[0].option.value;
+    const matchedLeft = matchedBlock.boundingBox.x;
     const matchedRight = matchedBlock.boundingBox.x + matchedBlock.boundingBox.width;
 
     for (const xBlock of xBlocks) {
       const xLeft = xBlock.boundingBox.x;
-      // If X block starts well to the right of the matched label, it's crossing out
-      // a different option (the one we couldn't find as a text block)
+      const xRight = xBlock.boundingBox.x + xBlock.boundingBox.width;
       if (xLeft > matchedRight + matchedBlock.boundingBox.width * 0.5) {
-        // X is far right of matched label - it's for a different option
         xdOptions.delete(matchedValue);
-        // Mark the OTHER options as X'd
+        for (const opt of options) {
+          if (opt.value !== matchedValue) {
+            xdOptions.add(opt.value);
+          }
+        }
+      } else if (xRight < matchedLeft - matchedBlock.boundingBox.width * 0.25) {
+        xdOptions.delete(matchedValue);
         for (const opt of options) {
           if (opt.value !== matchedValue) {
             xdOptions.add(opt.value);
@@ -329,7 +354,7 @@ export function extractCheckboxValue(
     }
   }
 
-  // 5. Return the option NOT X'd out
+  // Return the option NOT X'd out
   for (const opt of options) {
     if (!xdOptions.has(opt.value)) {
       return opt.value;
@@ -337,6 +362,148 @@ export function extractCheckboxValue(
   }
 
   return options[0]?.value ?? "";
+}
+
+/**
+ * Strategy 2: Garble-detection fallback.
+ * When OCR merges X marks into label text, the X'd option's text becomes garbled
+ * while the non-X'd option remains cleanly readable.
+ *
+ * Split text blocks into left/right spatial groups, then compare each group's
+ * text against option labels. The better-matching group is the selected option.
+ */
+function resolveWithGarbleDetection(
+  textBlocks: TextBlock[],
+  options: CheckboxOption[]
+): string {
+  // Step 1: Find candidate blocks in the checkbox Y-band.
+  // Use all blocks whose text contains fragments of any option keyword.
+  const optionKeywords = options.flatMap(opt =>
+    opt.label.toUpperCase().split(/\s+/).filter(w => w.length >= 4)
+  );
+
+  const keywordBlocks = textBlocks.filter(block => {
+    const upper = block.text.toUpperCase();
+    return optionKeywords.some(kw => upper.includes(kw) || levenshteinSmall(upper, kw) <= 2);
+  });
+
+  if (keywordBlocks.length === 0) {
+    return options[0]?.value ?? "";
+  }
+
+  // Compute Y-band from keyword blocks (with padding)
+  const minY = Math.min(...keywordBlocks.map(b => b.boundingBox.y)) - 30;
+  const maxY = Math.max(...keywordBlocks.map(b => b.boundingBox.y + b.boundingBox.height)) + 30;
+
+  // All blocks in the Y-band
+  const bandBlocks = textBlocks.filter(block => {
+    const centerY = block.boundingBox.y + block.boundingBox.height / 2;
+    return centerY >= minY && centerY <= maxY;
+  });
+
+  if (bandBlocks.length === 0) {
+    return options[0]?.value ?? "";
+  }
+
+  // Step 2: Split into left/right groups by finding the X-coordinate gap.
+  const sortedByX = [...bandBlocks].sort((a, b) => a.boundingBox.x - b.boundingBox.x);
+
+  let bestGapIdx = 0;
+  let bestGapSize = 0;
+  for (let i = 0; i < sortedByX.length - 1; i++) {
+    const rightEdge = sortedByX[i].boundingBox.x + sortedByX[i].boundingBox.width;
+    const nextLeft = sortedByX[i + 1].boundingBox.x;
+    const gap = nextLeft - rightEdge;
+    if (gap > bestGapSize) {
+      bestGapSize = gap;
+      bestGapIdx = i;
+    }
+  }
+
+  // If gap is too small (< 20px), fall back to median split
+  let leftGroup: TextBlock[];
+  let rightGroup: TextBlock[];
+
+  if (bestGapSize >= 20 && sortedByX.length >= 2) {
+    leftGroup = sortedByX.slice(0, bestGapIdx + 1);
+    rightGroup = sortedByX.slice(bestGapIdx + 1);
+  } else {
+    // Median split
+    const medianX = sortedByX[Math.floor(sortedByX.length / 2)].boundingBox.x;
+    leftGroup = bandBlocks.filter(b => b.boundingBox.x + b.boundingBox.width / 2 < medianX);
+    rightGroup = bandBlocks.filter(b => b.boundingBox.x + b.boundingBox.width / 2 >= medianX);
+  }
+
+  // Step 3: Score each group against each option label.
+  const leftText = leftGroup.map(b => b.text).join(" ").toUpperCase();
+  const rightText = rightGroup.map(b => b.text).join(" ").toUpperCase();
+
+  let bestOption: string = options[0]?.value ?? "";
+  let bestScore = Infinity;
+
+  for (const opt of options) {
+    const normalizedLabel = opt.label.toUpperCase();
+    const labelWords = normalizedLabel.split(/\s+/).filter(w => w.length >= 3);
+
+    const leftMatchScore = computeGroupMatchScore(leftText, labelWords);
+    const rightMatchScore = computeGroupMatchScore(rightText, labelWords);
+
+    const betterScore = Math.min(leftMatchScore, rightMatchScore);
+    if (betterScore < bestScore) {
+      bestScore = betterScore;
+      bestOption = opt.value;
+    }
+  }
+
+  return bestOption;
+}
+
+/**
+ * Score how well a text string matches an array of expected label words.
+ * Lower score = better match. Counts how many label words appear in the text.
+ * Also penalizes X-contamination (high proportion of X characters).
+ */
+function computeGroupMatchScore(groupText: string, labelWords: string[]): number {
+  if (groupText.length === 0) return Infinity;
+
+  let matchedWords = 0;
+  for (const word of labelWords) {
+    if (groupText.includes(word)) {
+      matchedWords++;
+    }
+  }
+
+  const matchRatio = labelWords.length > 0 ? matchedWords / labelWords.length : 0;
+
+  const xCount = (groupText.match(/X/g) || []).length;
+  const alphaCount = (groupText.match(/[A-Z]/g) || []).length;
+  const xRatio = alphaCount > 0 ? xCount / alphaCount : 0;
+
+  return (1 - matchRatio) + xRatio;
+}
+
+/**
+ * Small Levenshtein helper for short strings (keyword matching).
+ * Only used for option keyword detection, not full fuzzy matching.
+ */
+function levenshteinSmall(a: string, b: string): number {
+  if (a.length > 30 || b.length > 30) return Math.abs(a.length - b.length);
+  const m = a.length;
+  const n = b.length;
+  const dp: number[][] = Array(m + 1)
+    .fill(null)
+    .map(() => Array(n + 1).fill(0));
+  for (let i = 0; i <= m; i++) dp[i][0] = i;
+  for (let j = 0; j <= n; j++) dp[0][j] = j;
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      dp[i][j] =
+        a[i - 1] === b[j - 1]
+          ? dp[i - 1][j - 1]
+          : 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
+    }
+  }
+  return dp[m][n];
 }
 
 /**
@@ -431,4 +598,23 @@ export function applyPostProcessing(
   }
 
   return result;
+}
+
+/**
+ * Fallback extraction for airport of destination when anchor detection fails.
+ * Scans text blocks for an OCR line containing "Airport of Dest..." and extracts
+ * the 3-letter airport code after it (typically after a colon or at the end).
+ */
+export function extractAirportDestinationFallback(textBlocks: TextBlock[]): string {
+  for (const block of textBlocks) {
+    const text = block.text;
+    if (/A(?:ir|li)r?port\s+of\s+Dest/i.test(text)) {
+      const colonMatch = text.match(/:\s*([A-Z]{3})\b/);
+      if (colonMatch) return colonMatch[1];
+
+      const trailingMatch = text.match(/\b([A-Z]{3})\s*$/);
+      if (trailingMatch) return trailingMatch[1];
+    }
+  }
+  return "";
 }

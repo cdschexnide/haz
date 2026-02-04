@@ -33,12 +33,11 @@ function mapToHazproFormat(sddgData: SDDGData): ExtractedSDDGContent {
     // Key 6: Inspection Activity
     inspectionActivity: sddgData.inspector || "",
 
-    // Key 7: Aircraft Type (convert boolean to string)
-    // SDDG forms: X marks DELETE the option, not select it
-    // If cargo_aircraft_only checkbox has X, that option is DELETED, so PASSENGER is selected
+    // Key 7: Aircraft Type — direct mapping from checkbox detection
+    // extractCheckboxValue returns the selected (non-X'd) option
     aircraftType: sddgData.cargo_aircraft_only
-      ? "Passenger and Cargo Aircraft"
-      : "Cargo Aircraft Only",
+      ? "Cargo Aircraft Only"
+      : "Passenger and Cargo Aircraft",
 
     // Key 8: Airport of Departure
     airportOfDeparture: sddgData.airport_departure || "",
@@ -46,12 +45,11 @@ function mapToHazproFormat(sddgData: SDDGData): ExtractedSDDGContent {
     // Key 9: Airport of Destination
     airportOfDestination: sddgData.airport_destination || "",
 
-    // Key 10: Shipment Type (convert boolean to string)
-    // SDDG forms: X marks DELETE the option, not select it
-    // If radioactive checkbox has X, RADIOACTIVE is DELETED, so NON-RADIOACTIVE is selected
-    shipmentType: sddgData.radioactive
+    // Key 10: Shipment Type — direct mapping from checkbox detection
+    // extractCheckboxValue returns the selected (non-X'd) option
+    shipmentType: sddgData.non_radioactive
       ? "Non-Radioactive"
-      : sddgData.non_radioactive
+      : sddgData.radioactive
       ? "Radioactive"
       : "",
 
@@ -64,8 +62,8 @@ function mapToHazproFormat(sddgData: SDDGData): ExtractedSDDGContent {
     // Key 13: Hazard Class
     hazardClass: sddgData.class_division || "",
 
-    // Key 14: Subsidiary Risk (not in SddgOCR template - leave blank)
-    subsidiaryRisk: "",
+    // Key 14: Subsidiary Risk
+    subsidiaryRisk: sddgData.subsidiary_risk || "",
 
     // Key 15: Packing Group
     packingGroup: sddgData.packing_group || "",
@@ -73,8 +71,8 @@ function mapToHazproFormat(sddgData: SDDGData): ExtractedSDDGContent {
     // Key 16: Quantity and Packing
     quantityAndPacking: sddgData.quantity_packing || "",
 
-    // Key 17: Packing Instruction
-    packingInstruction: sddgData.packing_inst || "",
+    // Key 17: Packing Instruction (strip spaces - OCR artifacts like "A6 .5." → "A6.5.")
+    packingInstruction: (sddgData.packing_inst || "").replace(/\s+/g, ""),
 
     // Key 18: Authorization
     authorization: sddgData.authorization || "",

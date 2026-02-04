@@ -22,9 +22,14 @@ import {
   extractInlinePatternValue,
   extractCheckboxValue,
   applyPostProcessing,
+  extractAirportDestinationFallback,
 } from "./valueExtraction";
 import { SDDGData } from "@/types/sddg-template";
 import { extractFieldsFromCells } from "./cellBasedExtraction";
+import {
+  detectInlineVariant,
+  extractInlineDangerousGoods,
+} from "./inlineDangerousGoodsParser";
 
 // Use adaptive region detection instead of hardcoded inference
 const USE_ADAPTIVE_DETECTION = true;
@@ -160,24 +165,64 @@ export async function extractWithAnchors(
     const totalFields = SDDG_ANCHORS.length;
     let processedFields = 0;
 
-    // Process table columns first (they need special handling)
-    const tableAnchors = getTableColumnAnchors();
-    const tableAnchorMatches = tableAnchors
-      .map(cfg => anchors.get(cfg.fieldId))
-      .filter((m): m is AnchorMatch => m !== undefined);
+    // Detect form variant: inline (Labelmaster F07LB) vs tabular (AMC-IMT 1033)
+    const isInlineVariant = detectInlineVariant(anchors, textBlocks);
 
-    // Use adaptive or hardcoded region detection
-    const tableRegions = USE_ADAPTIVE_DETECTION
-      ? computeAdaptiveTableRegions(tableAnchorMatches, textBlocks, anchors)
-      : computeTableColumnRegions(tableAnchorMatches, anchors, imageWidth, imageHeight);
+    let tableRegions = new Map<string, ValueRegion>();
 
-    console.log(`🔄 Using ${USE_ADAPTIVE_DETECTION ? "ADAPTIVE" : "HARDCODED"} region detection`);
+    if (isInlineVariant) {
+      // Inline variant: extract dangerous goods from comma/slash-delimited text
+      console.log("📋 Detected INLINE dangerous goods variant (Labelmaster F07LB)");
+      const inlineResult = extractInlineDangerousGoods(textBlocks, anchors);
+
+      // Map parsed fields into the results map
+      // Note: anchorConfig uses "quantity_type_packing" as fieldId but SDDGData
+      // uses "quantity_packing" — the mapping here bridges that naming mismatch
+      const fieldMapping: [string, string | undefined][] = [
+        ["un_number", inlineResult.un_number],
+        ["proper_shipping_name", inlineResult.proper_shipping_name],
+        ["class_division", inlineResult.class_division],
+        ["subsidiary_risk", inlineResult.subsidiary_risk],
+        ["packing_group", inlineResult.packing_group],
+        ["quantity_type_packing", inlineResult.quantity_packing],
+        ["packing_inst", inlineResult.packing_inst],
+        ["authorization", inlineResult.authorization],
+      ];
+
+      for (const [fieldId, value] of fieldMapping) {
+        results.set(fieldId, {
+          fieldId,
+          value: value || "",
+          confidence: value ? 0.85 : 0,
+          status: value ? "extracted" : "value_empty",
+        });
+      }
+    } else {
+      // Tabular variant: use existing table column region detection
+      const tableAnchors = getTableColumnAnchors();
+      const tableAnchorMatches = tableAnchors
+        .map(cfg => anchors.get(cfg.fieldId))
+        .filter((m): m is AnchorMatch => m !== undefined);
+
+      tableRegions = USE_ADAPTIVE_DETECTION
+        ? computeAdaptiveTableRegions(tableAnchorMatches, textBlocks, anchors)
+        : computeTableColumnRegions(tableAnchorMatches, anchors, imageWidth, imageHeight);
+
+      console.log(`🔄 Using ${USE_ADAPTIVE_DETECTION ? "ADAPTIVE" : "HARDCODED"} region detection`);
+    }
 
     // Process each anchor config
     for (const config of SDDG_ANCHORS) {
       processedFields++;
       if (onProgress) {
         onProgress({ current: processedFields, total: totalFields, field: config.fieldId });
+      }
+
+      // Skip fields already extracted by inline variant parser
+      // (must be checked before cellResults to prevent cell-based garbage
+      // from overwriting correctly parsed inline fields)
+      if (results.has(config.fieldId)) {
+        continue;
       }
 
       // Check if cell-based extraction already got this field
@@ -291,6 +336,22 @@ export async function extractWithAnchors(
       });
     }
 
+    // Fallback: airport_destination when anchor detection failed
+    // Handles cases where OCR merges the label and value into one block
+    // (e.g., "Alirport of Destination (optional): SUU")
+    const destResult = results.get("airport_destination");
+    if (!destResult?.value) {
+      const fallbackValue = extractAirportDestinationFallback(textBlocks);
+      if (fallbackValue) {
+        results.set("airport_destination", {
+          fieldId: "airport_destination",
+          value: fallbackValue,
+          confidence: 0.75,
+          status: "extracted",
+        });
+      }
+    }
+
     return {
       success: true,
       results,
@@ -355,7 +416,27 @@ export function convertToSDDGData(extractionResult: AnchorExtractionResult): SDD
     // Dangerous goods table
     un_number: get("un_number"),
     proper_shipping_name: get("proper_shipping_name"),
-    class_division: get("class_division"),
+    // Split subsidiary risk from class_division (handles both table and inline paths)
+    // Table-based: column contains "2.2 (5.1)" as a single string
+    // Inline: already split, but subsidiary_risk may also come from the results map
+    ...(() => {
+      const rawClass = get("class_division");
+      const existingSubRisk = get("subsidiary_risk");
+      if (existingSubRisk) {
+        return {
+          class_division: rawClass,
+          subsidiary_risk: existingSubRisk,
+        };
+      }
+      const subMatch = rawClass.match(/\s*(\(\d(?:\.\d)?\))\s*$/);
+      if (subMatch) {
+        return {
+          class_division: rawClass.slice(0, -subMatch[0].length).trim(),
+          subsidiary_risk: subMatch[1],
+        };
+      }
+      return { class_division: rawClass, subsidiary_risk: "" };
+    })(),
     packing_group: get("packing_group"),
     quantity_packing: get("quantity_type_packing"),
     packing_inst: get("packing_inst"),
