@@ -1,12 +1,12 @@
 # Material Lookup for SDDG Manual Entry — Implementation Plan
 
-> **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
-
 **Goal:** Replace the plain text modal for the UN/ID No. cell in SDDGManualEntryScreen with a material lookup modal that auto-populates hazmat fields from the hazardousMaterialsList database.
 
 **Architecture:** A new `MaterialLookupModal` component with two internal views (typeahead search → detail table picker). It integrates into `SDDGManualEntryScreen` by intercepting the `unIdNo` field tap. A pure helper function `mapMaterialToSDDGFields` handles the data mapping between `HazardousMaterialItem` and `ExtractedSDDGContent`. See `docs/plans/2026-02-05-material-lookup-manual-entry-design.md` for full design.
 
 **Tech Stack:** React Native, TypeScript, Jest
+
+**Revision:** 2 — fixes dedup bug, adds Submit button (no auto-select), normalizes fields to `""`, excludes all-FORBIDDEN UNIDs, adds manual entry fallback, deterministic detail keys, adds missing tests.
 
 ---
 
@@ -116,6 +116,29 @@ describe("mapMaterialToSDDGFields", () => {
     const result = mapMaterialToSDDGFields(material);
 
     expect(result.packingGroup).toBe("");
+  });
+
+  it("normalizes undefined optional fields to empty string", () => {
+    // Simulate a material where optional fields could be undefined at runtime
+    const material = {
+      isFixed: "false",
+      isDomesticShipment: false,
+      isTechnicalNameRequired: false,
+      unid: "UN9999",
+      properShippingName: "TEST MATERIAL",
+      hazclassDiv: "3",
+      subsidiaryRisk: undefined as unknown as string,
+      packingGroup: undefined as unknown as string,
+      specialProvision: undefined as unknown as string,
+      packagingParagraph: "A7.2.",
+    } as HazardousMaterialItem;
+
+    const result = mapMaterialToSDDGFields(material);
+
+    expect(result.subsidiaryRisk).toBe("");
+    expect(result.packingGroup).toBe("");
+    expect(result.authorization).toBe("");
+    expect(result.hazardClass).toBe("3");
   });
 });
 
@@ -239,6 +262,100 @@ describe("getDeduplicatedUnids", () => {
     const result = getDeduplicatedUnids(materials, "UN", "");
     expect(result).toHaveLength(0);
   });
+
+  it("uses first non-FORBIDDEN PSN even when FORBIDDEN entries come first", () => {
+    const forbiddenFirstMaterials: HazardousMaterialItem[] = [
+      {
+        isFixed: "false",
+        isDomesticShipment: false,
+        isTechnicalNameRequired: false,
+        unid: "UN7777",
+        properShippingName: "THING A",
+        hazclassDiv: "",
+        subsidiaryRisk: "",
+        packingGroup: "",
+        specialProvision: "",
+        packagingParagraph: "FORBIDDEN",
+      },
+      {
+        isFixed: "false",
+        isDomesticShipment: false,
+        isTechnicalNameRequired: false,
+        unid: "UN7777",
+        properShippingName: "THING B",
+        hazclassDiv: "",
+        subsidiaryRisk: "",
+        packingGroup: "",
+        specialProvision: "",
+        packagingParagraph: "FORBIDDEN",
+      },
+      {
+        isFixed: "false",
+        isDomesticShipment: false,
+        isTechnicalNameRequired: false,
+        unid: "UN7777",
+        properShippingName: "THING C (VALID)",
+        hazclassDiv: "3",
+        subsidiaryRisk: "",
+        packingGroup: "II",
+        specialProvision: "P5",
+        packagingParagraph: "A7.2.",
+      },
+    ];
+
+    const result = getDeduplicatedUnids(forbiddenFirstMaterials, "UN", "7777");
+
+    expect(result).toHaveLength(1);
+    expect(result[0].unid).toBe("UN7777");
+    expect(result[0].subtitle).toBe("THING C (VALID)");
+  });
+
+  it("excludes UNIDs where ALL entries are FORBIDDEN", () => {
+    const allForbiddenMaterials: HazardousMaterialItem[] = [
+      {
+        isFixed: "false",
+        isDomesticShipment: false,
+        isTechnicalNameRequired: false,
+        unid: "UN8888",
+        properShippingName: "BANNED ITEM A",
+        hazclassDiv: "",
+        subsidiaryRisk: "",
+        packingGroup: "",
+        specialProvision: "",
+        packagingParagraph: "FORBIDDEN",
+      },
+      {
+        isFixed: "false",
+        isDomesticShipment: false,
+        isTechnicalNameRequired: false,
+        unid: "UN8888",
+        properShippingName: "BANNED ITEM B",
+        hazclassDiv: "",
+        subsidiaryRisk: "",
+        packingGroup: "",
+        specialProvision: "",
+        packagingParagraph: "FORBIDDEN",
+      },
+      {
+        isFixed: "false",
+        isDomesticShipment: false,
+        isTechnicalNameRequired: false,
+        unid: "UN8889",
+        properShippingName: "VALID ITEM",
+        hazclassDiv: "3",
+        subsidiaryRisk: "",
+        packingGroup: "I",
+        specialProvision: "P5",
+        packagingParagraph: "A7.2.",
+      },
+    ];
+
+    const result = getDeduplicatedUnids(allForbiddenMaterials, "UN", "888");
+
+    // UN8888 excluded (all FORBIDDEN), UN8889 included
+    expect(result).toHaveLength(1);
+    expect(result[0].unid).toBe("UN8889");
+  });
 });
 ```
 
@@ -258,24 +375,29 @@ import { HazardousMaterialItem } from "../../hazardousMaterials/hazardousMateria
 /**
  * Maps a HazardousMaterialItem to the ExtractedSDDGContent fields
  * used in the NATURE AND QUANTITY OF DANGEROUS GOODS table.
+ *
+ * All string fields are normalized to "" if undefined/falsy to ensure
+ * table cells display "Tap..." for unfilled values.
  */
 export function mapMaterialToSDDGFields(material: HazardousMaterialItem) {
   const psn = material.details
-    ? `${material.properShippingName}, ${material.details}`
-    : material.properShippingName;
+    ? `${material.properShippingName || ""}, ${material.details}`
+    : material.properShippingName || "";
 
-  const hazardClass = material.subsidiaryRisk
-    ? `${material.hazclassDiv} (${material.subsidiaryRisk})`
-    : material.hazclassDiv;
+  const hazclassDiv = material.hazclassDiv || "";
+  const subsidiaryRisk = material.subsidiaryRisk || "";
+
+  const hazardClass =
+    subsidiaryRisk ? `${hazclassDiv} (${subsidiaryRisk})` : hazclassDiv;
 
   return {
-    unIdNo: material.unid,
+    unIdNo: material.unid || "",
     properShippingName: psn,
     hazardClass,
-    subsidiaryRisk: material.subsidiaryRisk,
-    packingGroup: material.packingGroup,
-    packingInstruction: material.packagingParagraph,
-    authorization: material.specialProvision,
+    subsidiaryRisk,
+    packingGroup: material.packingGroup || "",
+    packingInstruction: material.packagingParagraph || "",
+    authorization: material.specialProvision || "",
   };
 }
 
@@ -299,6 +421,8 @@ export interface DeduplicatedUnidEntry {
 /**
  * Returns deduplicated UNID entries matching prefix + digits,
  * with the first non-FORBIDDEN PSN as subtitle for each UNID.
+ *
+ * UNIDs where ALL entries are FORBIDDEN are excluded entirely.
  */
 export function getDeduplicatedUnids(
   materials: HazardousMaterialItem[],
@@ -308,35 +432,33 @@ export function getDeduplicatedUnids(
   if (!digits) return [];
 
   const searchTerm = prefix + digits;
-  const seen = new Map<string, string>();
+
+  // Phase 1: Collect all matching UNIDs and find first non-FORBIDDEN PSN
+  const unidMap = new Map<string, string | null>();
 
   for (const m of materials) {
     if (!m.unid.startsWith(searchTerm)) continue;
-    if (seen.has(m.unid)) continue;
 
-    // Use first non-FORBIDDEN entry's PSN as subtitle
-    if (m.packagingParagraph !== "FORBIDDEN") {
-      seen.set(m.unid, m.properShippingName);
-    } else {
-      // Check if we already have a non-FORBIDDEN subtitle; if not, mark as seen
-      // but look for a better subtitle later
-      if (!seen.has(m.unid)) {
-        seen.set(m.unid, "");
+    const existing = unidMap.get(m.unid);
+
+    if (existing === undefined) {
+      // First time seeing this UNID
+      if (m.packagingParagraph !== "FORBIDDEN") {
+        unidMap.set(m.unid, m.properShippingName);
+      } else {
+        unidMap.set(m.unid, null); // Seen but no valid subtitle yet
       }
+    } else if (existing === null && m.packagingParagraph !== "FORBIDDEN") {
+      // Had only FORBIDDEN entries so far — promote this valid one
+      unidMap.set(m.unid, m.properShippingName);
     }
+    // If existing is already a string, we already have a valid subtitle — skip
   }
 
-  // For UNIDs that only had FORBIDDEN entries, find any PSN
+  // Phase 2: Build results, excluding all-FORBIDDEN UNIDs (subtitle === null)
   const result: DeduplicatedUnidEntry[] = [];
-  for (const [unid, subtitle] of seen) {
-    if (!subtitle) {
-      // All entries are FORBIDDEN — find any PSN for display
-      const firstMatch = materials.find((m) => m.unid === unid);
-      result.push({
-        unid,
-        subtitle: firstMatch?.properShippingName || "",
-      });
-    } else {
+  for (const [unid, subtitle] of unidMap) {
+    if (subtitle !== null) {
       result.push({ unid, subtitle });
     }
   }
@@ -349,7 +471,7 @@ export function getDeduplicatedUnids(
 
 Run: `npx jest src/components/Inspector/__tests__/materialLookupUtils.test.ts --no-cache`
 
-Expected: All 8 tests PASS.
+Expected: All 11 tests PASS.
 
 ### Step 5: Commit
 
@@ -408,17 +530,20 @@ interface MaterialLookupModalProps {
   visible: boolean;
   onClose: () => void;
   onSelect: (material: HazardousMaterialItem) => void;
+  onManualEntry: () => void;
 }
 
 const MaterialLookupModal: React.FC<MaterialLookupModalProps> = ({
   visible,
   onClose,
   onSelect,
+  onManualEntry,
 }) => {
   const [prefix, setPrefix] = useState<Prefix>("UN");
   const [digits, setDigits] = useState("");
   const [mode, setMode] = useState<"search" | "detail">("search");
   const [selectedUnid, setSelectedUnid] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const inputRef = useRef<TextInput>(null);
 
   // Reset state when modal opens
@@ -428,11 +553,17 @@ const MaterialLookupModal: React.FC<MaterialLookupModalProps> = ({
       setDigits("");
       setMode("search");
       setSelectedUnid(null);
+      setSubmitError(null);
       setTimeout(() => inputRef.current?.focus(), 100);
     }
   }, [visible]);
 
-  // Typeahead results — deduplicated UNIDs
+  // Clear error when user changes input
+  useEffect(() => {
+    setSubmitError(null);
+  }, [prefix, digits]);
+
+  // Typeahead results — deduplicated UNIDs, excluding all-FORBIDDEN
   const typeaheadResults = useMemo(
     () => getDeduplicatedUnids(hazardousMaterialsList, prefix, digits),
     [prefix, digits]
@@ -444,11 +575,12 @@ const MaterialLookupModal: React.FC<MaterialLookupModalProps> = ({
     return filterMaterialsByUnid(hazardousMaterialsList, selectedUnid);
   }, [selectedUnid]);
 
-  const handleTypeaheadSelect = useCallback(
-    (entry: DeduplicatedUnidEntry) => {
+  // Shared resolution logic — used by both typeahead tap and Submit button
+  const resolveUnid = useCallback(
+    (unid: string) => {
       const nonForbidden = filterMaterialsByUnid(
         hazardousMaterialsList,
-        entry.unid
+        unid
       );
 
       if (nonForbidden.length === 1) {
@@ -456,38 +588,37 @@ const MaterialLookupModal: React.FC<MaterialLookupModalProps> = ({
         onSelect(nonForbidden[0]);
       } else if (nonForbidden.length > 1) {
         // Multiple matches — show detail picker
-        setSelectedUnid(entry.unid);
+        setSelectedUnid(unid);
         setMode("detail");
+      } else {
+        // All FORBIDDEN or no matches
+        setSubmitError(
+          `All entries for ${unid} are forbidden for air transport. Use "Enter Manually" to type the value directly.`
+        );
       }
-      // nonForbidden.length === 0 means all FORBIDDEN — do nothing
     },
     [onSelect]
   );
 
-  const handleDigitsChange = useCallback(
-    (text: string) => {
-      // Only allow digits
-      const cleaned = text.replace(/[^0-9]/g, "");
-      setDigits(cleaned);
-
-      // Auto-select when user types a complete 4-digit number that matches exactly
-      if (cleaned.length === 4) {
-        const fullUnid = prefix + cleaned;
-        const nonForbidden = filterMaterialsByUnid(
-          hazardousMaterialsList,
-          fullUnid
-        );
-
-        if (nonForbidden.length === 1) {
-          onSelect(nonForbidden[0]);
-        } else if (nonForbidden.length > 1) {
-          setSelectedUnid(fullUnid);
-          setMode("detail");
-        }
-      }
+  const handleTypeaheadSelect = useCallback(
+    (entry: DeduplicatedUnidEntry) => {
+      resolveUnid(entry.unid);
     },
-    [prefix, onSelect]
+    [resolveUnid]
   );
+
+  const handleSubmit = useCallback(() => {
+    if (digits.length === 0) return;
+
+    const fullUnid = prefix + digits;
+    resolveUnid(fullUnid);
+  }, [prefix, digits, resolveUnid]);
+
+  const handleDigitsChange = useCallback((text: string) => {
+    // Only allow digits
+    const cleaned = text.replace(/[^0-9]/g, "");
+    setDigits(cleaned);
+  }, []);
 
   const handleBackToSearch = useCallback(() => {
     setMode("search");
@@ -497,6 +628,10 @@ const MaterialLookupModal: React.FC<MaterialLookupModalProps> = ({
   const handleCancel = useCallback(() => {
     onClose();
   }, [onClose]);
+
+  const handleManualEntry = useCallback(() => {
+    onManualEntry();
+  }, [onManualEntry]);
 
   const renderPrefixButton = (p: Prefix) => (
     <TouchableOpacity
@@ -537,6 +672,9 @@ const MaterialLookupModal: React.FC<MaterialLookupModalProps> = ({
   const getDetailPSN = (m: HazardousMaterialItem) =>
     m.details ? `${m.properShippingName}, ${m.details}` : m.properShippingName;
 
+  const getDetailKey = (m: HazardousMaterialItem, index: number) =>
+    `${m.unid}-${m.properShippingName}-${m.hazclassDiv}-${index}`;
+
   const renderDetailItem = ({
     item,
   }: {
@@ -549,7 +687,7 @@ const MaterialLookupModal: React.FC<MaterialLookupModalProps> = ({
       <Text style={[styles.detailCell, styles.detailCellPSN]} numberOfLines={3}>
         {getDetailPSN(item)}
       </Text>
-      <Text style={styles.detailCell}>{item.hazclassDiv}</Text>
+      <Text style={styles.detailCell}>{item.hazclassDiv || "—"}</Text>
       <Text style={styles.detailCell}>{item.subsidiaryRisk || "—"}</Text>
       <Text style={styles.detailCell}>{item.packingGroup || "—"}</Text>
       <Text style={styles.detailCell}>{item.specialProvision || "—"}</Text>
@@ -613,8 +751,16 @@ const MaterialLookupModal: React.FC<MaterialLookupModalProps> = ({
                   />
                 </View>
 
+                {/* Error Message */}
+                {submitError && (
+                  <View style={styles.errorContainer}>
+                    <MaterialIcons name="warning" size={16} color="#FF3B30" />
+                    <Text style={styles.errorText}>{submitError}</Text>
+                  </View>
+                )}
+
                 {/* Typeahead Results */}
-                {digits.length > 0 && (
+                {digits.length > 0 && !submitError && (
                   <View style={styles.typeaheadContainer}>
                     {typeaheadResults.length > 0 ? (
                       <FlatList
@@ -632,12 +778,31 @@ const MaterialLookupModal: React.FC<MaterialLookupModalProps> = ({
                   </View>
                 )}
 
-                {/* Cancel Button */}
+                {/* Action Buttons */}
+                <View style={styles.buttonRow}>
+                  {/* Submit Button */}
+                  <TouchableOpacity
+                    style={[
+                      styles.submitButton,
+                      digits.length === 0 && styles.submitButtonDisabled,
+                    ]}
+                    onPress={handleSubmit}
+                    disabled={digits.length === 0}
+                  >
+                    <MaterialIcons name="search" size={20} color="#FFFFFF" />
+                    <Text style={styles.submitButtonText}>Submit</Text>
+                  </TouchableOpacity>
+                </View>
+
+                {/* Manual Entry Fallback */}
                 <TouchableOpacity
-                  style={styles.cancelButton}
-                  onPress={handleCancel}
+                  style={styles.manualEntryLink}
+                  onPress={handleManualEntry}
                 >
-                  <Text style={styles.cancelButtonText}>Cancel</Text>
+                  <MaterialIcons name="edit" size={16} color="#007AFF" />
+                  <Text style={styles.manualEntryLinkText}>
+                    Enter Manually
+                  </Text>
                 </TouchableOpacity>
               </>
             ) : (
@@ -703,7 +868,7 @@ const MaterialLookupModal: React.FC<MaterialLookupModalProps> = ({
                     {/* Table Body */}
                     <FlatList
                       data={detailMaterials}
-                      keyExtractor={(_, index) => index.toString()}
+                      keyExtractor={(item, index) => getDetailKey(item, index)}
                       renderItem={renderDetailItem}
                       style={styles.detailList}
                       keyboardShouldPersistTaps="handled"
@@ -841,6 +1006,23 @@ const styles = StyleSheet.create({
     color: "#1D1D1F",
   },
 
+  // Error
+  errorContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FFF0F0",
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 12,
+    gap: 8,
+  },
+  errorText: {
+    flex: 1,
+    fontSize: 13,
+    color: "#FF3B30",
+    lineHeight: 18,
+  },
+
   // Typeahead
   typeaheadContainer: {
     maxHeight: 200,
@@ -870,6 +1052,40 @@ const styles = StyleSheet.create({
     color: "#8E8E93",
     textAlign: "center",
     paddingVertical: 16,
+  },
+
+  // Buttons
+  buttonRow: {
+    marginTop: 4,
+  },
+  submitButton: {
+    backgroundColor: "#007AFF",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 14,
+    borderRadius: 10,
+    gap: 8,
+  },
+  submitButtonDisabled: {
+    backgroundColor: "#B0B0B5",
+  },
+  submitButtonText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#FFFFFF",
+  },
+  manualEntryLink: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 12,
+    gap: 6,
+  },
+  manualEntryLinkText: {
+    fontSize: 14,
+    color: "#007AFF",
+    fontWeight: "500",
   },
 
   // Detail Table
@@ -936,7 +1152,7 @@ Expected: No errors (or only project-wide pre-existing errors, not from this fil
 
 ```bash
 git add src/components/Inspector/MaterialLookupModal.tsx
-git commit -m "feat: add MaterialLookupModal with typeahead and detail picker"
+git commit -m "feat: add MaterialLookupModal with typeahead, Submit button, and detail picker"
 ```
 
 ---
@@ -1008,6 +1224,19 @@ const handleMaterialSelect = useCallback(
   },
   [formData, updateVerificationField]
 );
+
+// Handle manual entry fallback from lookup modal
+const handleMaterialLookupManualEntry = useCallback(() => {
+  setMaterialLookupVisible(false);
+
+  // Open the standard SimpleFieldEditModal for the unIdNo field
+  setSelectedField({
+    key: "unIdNo" as keyof ExtractedSDDGContent,
+    label: "UN or ID NO. (Key 11)",
+    multiline: false,
+  });
+  setModalVisible(true);
+}, []);
 ```
 
 ### Step 3: Modify handleFieldPress to intercept the unIdNo tap
@@ -1055,6 +1284,7 @@ After the existing `SimpleFieldEditModal` block (after line 713, before the clos
   visible={materialLookupVisible}
   onClose={() => setMaterialLookupVisible(false)}
   onSelect={handleMaterialSelect}
+  onManualEntry={handleMaterialLookupManualEntry}
 />
 ```
 
@@ -1070,10 +1300,11 @@ Expected: No new errors.
 git add src/screens/inspector/SDDGManualEntryScreen.tsx
 git commit -m "feat: integrate MaterialLookupModal into SDDGManualEntryScreen
 
-Tapping the UN/ID No. cell now opens a specialized material lookup
-modal with prefix toggle, typeahead search, and multi-match detail
-picker. Selecting a material auto-populates PSN, hazard class,
-subsidiary risk, packing group, packing instruction, and authorization."
+Tapping the UN/ID No. cell opens a material lookup modal with prefix
+toggle, typeahead search, and Submit button. Selecting a material
+auto-populates PSN, hazard class, subsidiary risk, packing group,
+packing instruction, and authorization. Includes 'Enter Manually'
+fallback to type the UN number directly."
 ```
 
 ---
@@ -1084,12 +1315,16 @@ This is a manual verification task. Run the app in the simulator and verify:
 
 1. **Navigate:** Inspector Home → Start New Inspection → SDDG Upload → Manual Entry
 2. **Tap the "UN or ID No." cell** → MaterialLookupModal opens (not SimpleFieldEditModal)
-3. **Segmented control:** Defaults to "UN". Tapping "NA" or "ID" changes the prefix label
-4. **Type "1088"** → Typeahead shows "UN1088 / ACETAL" → it auto-selects (single match)
-5. **Verify fields populated:** PSN = "ACETAL", Class = "3", Packing Group = "II", Packing Inst. = "A7.2.", Authorization = "P5"
-6. **Re-tap UN/ID cell** → Modal resets. Type "1950" → Typeahead shows "UN1950 / AEROSOLS, FLAMMABLE"
-7. **Tap UN1950** → Detail table appears with multiple materials (FORBIDDEN ones excluded)
-8. **Tap "AEROSOLS, NON-FLAMMABLE"** → Fields update, modal closes
-9. **Type "1072"** → Auto-selects. Verify Class = "2.2 (5.1)" (subsidiary risk format)
-10. **Tap any other cell** (e.g., Quantity) → SimpleFieldEditModal still works normally
-11. **Press "Continue to SDDG Inspection"** → Navigates to InteractiveSDDGComplianceScreen with all populated data visible
+3. **Segmented control:** Defaults to "UN". Tapping "NA" or "ID" changes the prefix label in the input
+4. **Type "1088"** → Typeahead shows "UN1088 / ACETAL". Submit button is enabled
+5. **Press Submit** → Single match: auto-populates and closes
+6. **Verify fields populated:** PSN = "ACETAL", Class = "3", Packing Group = "II", Packing Inst. = "A7.2.", Authorization = "P5"
+7. **Re-tap UN/ID cell** → Modal resets. Type "1950" → Typeahead shows "UN1950 / AEROSOLS, FLAMMABLE"
+8. **Press Submit** → Detail table appears with multiple materials (FORBIDDEN ones excluded)
+9. **Tap "AEROSOLS, NON-FLAMMABLE"** → Fields update, modal closes
+10. **Re-tap UN/ID cell** → Type "1072", press Submit → Single match. Verify Class = "2.2 (5.1)"
+11. **Prefix toggle test:** Type "1088", toggle to "NA", press Submit → Should show no matches or error
+12. **All-FORBIDDEN test:** Find a UNID where all entries are FORBIDDEN. Type it, press Submit → Error message appears with "forbidden for air transport" text
+13. **"Enter Manually" test:** Tap "Enter Manually" → SimpleFieldEditModal opens for "UN or ID NO. (Key 11)"
+14. **Tap any other cell** (e.g., Quantity) → SimpleFieldEditModal still works normally
+15. **Press "Continue to SDDG Inspection"** → Navigates to InteractiveSDDGComplianceScreen with all populated data visible
