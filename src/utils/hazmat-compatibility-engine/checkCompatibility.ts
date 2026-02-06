@@ -48,6 +48,21 @@ type PairInput = {
   b: HazmatCompatibilityKey;
 };
 
+export type A18_2NoteCondition =
+  | 'a18_2_note1'
+  | 'a18_2_note2'
+  | 'a18_2_note3'
+  | 'a18_2_note4'
+  | 'a18_2_note5'
+  | 'a18_2_note6'
+  | 'a18_2_note7'
+  | 'a18_2_note8';
+
+export type AppliedA18_2Note = {
+  noteCondition: A18_2NoteCondition;
+  noteContent: string;
+};
+
 export const isCompatible = ({ a, b }: PairInput): boolean => {
   if (!a || !b) {
     console.warn('isCompatible: One or both materials are undefined', { a, b });
@@ -110,8 +125,8 @@ export const rule1 = ({ a, b }: PairInput): RuleOutput => {
     type,
     applicable,
     compatible:
-      (groupA === 'B' && ['UN0255', 'UN0256', 'UN0267', 'UN0361'].includes(unidA)) ||
-      (groupB === 'B' && ['UN0255', 'UN0256', 'UN0267', 'UN0361'].includes(unidB)),
+      (groupA === 'B' && ['UN0255', 'UN0257', 'UN0267', 'UN0361'].includes(unidA)) ||
+      (groupB === 'B' && ['UN0255', 'UN0257', 'UN0267', 'UN0361'].includes(unidB)),
   };
 };
 
@@ -120,23 +135,45 @@ export const rule1 = ({ a, b }: PairInput): RuleOutput => {
 2. Group "B" explosives packaged in an EOD MK 663, MOD 0 container may be loaded
 and transported with groups "C" through "H" and group "S" explosives.
 
-We don't have this info
+This repository currently has no dedicated container field in the compatibility input.
+To make this rule enforceable with existing data, we treat a proper shipping name
+containing "EOD MK 663" and "MOD 0" as the explicit container marker.
  */
-// const rule2 = ({a, b}: PairInput): RuleOutput => {
-//   return {
-//     ty
-//     applicable: false,
-//   }
-// const [a1, b1] = [a, b].sort((a, b) => a.compatibilityGroup < b.compatibilityGroup ? -1 : 1 )
+function hasMk663Mod0Container(material: HazmatCompatibilityKey): boolean {
+  const psn = (material.properShippingName || '').toUpperCase();
+  return psn.includes('EOD MK 663') && psn.includes('MOD 0');
+}
 
-// const applicable = a1.compatibilityGroup === 'B' && ['C', 'D', 'E'].includes(b1.compatibilityGroup);
+export const rule2 = ({ a, b }: PairInput): RuleOutput => {
+  const type = 'ADD';
 
-//if (!applicable) {
-// return {
-//   applicable,
-// };
-//}
-//}
+  if (!a || !b) {
+    return { type, applicable: false };
+  }
+
+  const groupA = a.compatibilityGroup || '';
+  const groupB = b.compatibilityGroup || '';
+  const note2AllowedGroups = ['C', 'D', 'E', 'F', 'G', 'H', 'S'];
+
+  const applicable =
+    (groupA === 'B' && note2AllowedGroups.includes(groupB)) ||
+    (groupB === 'B' && note2AllowedGroups.includes(groupA));
+
+  if (!applicable) {
+    return {
+      type,
+      applicable,
+    };
+  }
+
+  return {
+    type,
+    applicable,
+    compatible:
+      (groupA === 'B' && hasMk663Mod0Container(a)) ||
+      (groupB === 'B' && hasMk663Mod0Container(b)),
+  };
+};
 /**
  * 
  * 3. Group "F" explosives UN0292 may be loaded and transported with groups "C," "D," and
@@ -403,6 +440,112 @@ export const rule8 = ({ a, b }: PairInput): RuleOutput => {
   };
 };
 
+type RuleDescriptor = {
+  noteCondition: A18_2NoteCondition;
+  noteContent: string;
+  rule: (input: PairInput) => RuleOutput;
+  shouldRecord: (result: RuleOutput) => boolean;
+};
+
+const a18_2RuleDescriptors: RuleDescriptor[] = [
+  {
+    noteCondition: 'a18_2_note1',
+    noteContent:
+      'Group "B" explosives UN0255, UN0257, UN0267, and UN0361 may be loaded and transported with groups "C," "D," and "E" explosives on cargo aircraft only. Passenger deviations are not authorized.',
+    rule: rule1,
+    shouldRecord: result => result.applicable && result.compatible === true,
+  },
+  {
+    noteCondition: 'a18_2_note2',
+    noteContent:
+      'Group "B" explosives packaged in an EOD MK 663, MOD 0 container may be loaded and transported with groups "C" through "H" and group "S" explosives.',
+    rule: rule2,
+    shouldRecord: result => result.applicable && result.compatible === true,
+  },
+  {
+    noteCondition: 'a18_2_note3',
+    noteContent:
+      'Group "F" explosives UN0292 may be loaded and transported with groups "C," "D," and "E" explosives on cargo aircraft only. Passenger deviations are not authorized.',
+    rule: rule3,
+    shouldRecord: result => result.applicable && result.compatible === true,
+  },
+  {
+    noteCondition: 'a18_2_note4',
+    noteContent:
+      'Group "G" explosives UN0019, UN0300, UN0301, and UN0325 may be loaded and transported with all other explosives compatible with group "S" explosives on cargo aircraft only. Passenger deviations are not authorized.',
+    rule: rule4,
+    shouldRecord: result => result.applicable && result.compatible === true,
+  },
+  {
+    noteCondition: 'a18_2_note5',
+    noteContent:
+      'Group "G" explosives UN0009, UN0018, UN0314, UN0315, UN0317, UN0319, and UN0320 may be transported with groups "C," "D," and "E" explosives on cargo aircraft only. Passenger deviations are not authorized.',
+    rule: rule5,
+    shouldRecord: result => result.applicable && result.compatible === true,
+  },
+  {
+    noteCondition: 'a18_2_note6',
+    noteContent:
+      'Group "L" explosives may only be loaded and transported with an identical item.',
+    rule: rule6,
+    shouldRecord: result => result.applicable,
+  },
+  {
+    noteCondition: 'a18_2_note7',
+    noteContent:
+      'Class 1.1 and 1.2 explosives may not be shipped with UN0333, UN0334, UN0335, UN0336, and UN0337.',
+    rule: rule7,
+    shouldRecord: result => result.applicable,
+  },
+  {
+    noteCondition: 'a18_2_note8',
+    noteContent:
+      'Class 1.4, Compatibility Groups B and G may be loaded and transported together or with Class 1.4 Compatibility Groups C, D, and E on cargo aircraft only.',
+    rule: rule8,
+    shouldRecord: result => result.applicable && result.compatible === true,
+  },
+];
+
+export function evaluateClass1PairWithNotes(
+  a: HazmatCompatibilityKey,
+  b: HazmatCompatibilityKey
+): { compatible: boolean; appliedNotes: AppliedA18_2Note[] } {
+  if (!a || !b) {
+    return { compatible: true, appliedNotes: [] };
+  }
+
+  const baseCompatible = isCompatible({ a, b });
+  const evaluatedRules = a18_2RuleDescriptors
+    .map(descriptor => ({
+      descriptor,
+      result: descriptor.rule({ a, b }),
+    }))
+    .filter(item => item.result.applicable);
+
+  const compatible = evaluatedRules.reduce((curr, item) => {
+    const rule = item.result;
+    if (rule.type === 'ADD') {
+      return !!rule.compatible || curr;
+    }
+    if (rule.type === 'RESTRICT') {
+      return !!rule.compatible && curr;
+    }
+    return curr;
+  }, baseCompatible);
+
+  const appliedNotes = evaluatedRules
+    .filter(item => item.descriptor.shouldRecord(item.result))
+    .map(item => ({
+      noteCondition: item.descriptor.noteCondition,
+      noteContent: item.descriptor.noteContent,
+    }))
+    .filter((note, index, arr) =>
+      arr.findIndex(existing => existing.noteCondition === note.noteCondition) === index
+    );
+
+  return { compatible, appliedNotes };
+}
+
 export const checkCompatibility = (
   input: HazmatCompatibilityKey[],
   debug?: boolean,
@@ -427,29 +570,11 @@ export const checkCompatibility = (
         ),
     );
 
-  const rules = [rule1, rule3, rule4, rule5, rule6, rule7, rule8];
-
   const res = pairs
     .map(([a, b]) => ({
       a,
       b,
-      compatible: isCompatible({ a, b }),
-      applicableRules: rules
-        .map((rule) => rule({ a, b }))
-        .filter((result) => result.applicable),
-    }))
-    .map(({ a, b, compatible, applicableRules }) => ({
-      a,
-      b,
-      compatible: applicableRules.reduce((curr, rule) => {
-        if (rule.type === 'ADD') {
-          return !!rule.compatible || curr;
-        }
-        if (rule.type == 'RESTRICT') {
-          return !!rule.compatible && curr;
-        }
-        return curr;
-      }, compatible),
+      compatible: evaluateClass1PairWithNotes(a, b).compatible,
     }))
     .filter((checked) => !checked.compatible);
 

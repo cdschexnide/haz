@@ -11,9 +11,11 @@ import {
 import {
   VehicleLabelingNotice,
   StandardLabelingContent,
+  UnityPackagePreview,
 } from '@/components/preparer';
 import { useHazProStore } from '@/stores/useHazProStore';
 import { useNavigationRef } from '@/contexts/NavigationRefProvider/useNavigationRef';
+import { getContainerDescriptionFromCode } from '@/utils/getContainerDescriptionFromPackagingCode';
 import { getDocumentNodes } from '../../../server/documentNodes';
 import renderDocumentNodes from '../../../server/renderDocumentNodes/renderDocumentNodes';
 
@@ -39,8 +41,10 @@ export const LabelingAndMarkingScreen: React.FC<LabelingAndMarkingScreenProps> =
 
   const completedSubsteps = state.hazProPreparerContext.completedSubsteps;
   const isVehicle = state.hazProPreparerContext.hazardousMaterial?.unid === 'UN3166';
-  const isExceptedQuantity = state.hazProPreparerContext.isExceptedQuantity;
-  const isLimitedQuantity = state.hazProPreparerContext.isLimitedQuantity ?? false;
+  const packageCode = state.hazProPreparerContext.packaging?.inputPOPMarking?.B ?? '';
+  const packageType = getContainerDescriptionFromCode(packageCode) ?? '';
+  // EQ/LQ logic intentionally disabled for demo purposes.
+  const isLimitedQuantity = false;
 
   // Update required markings and labels when relevant state changes
   useEffect(() => {
@@ -52,8 +56,8 @@ export const LabelingAndMarkingScreen: React.FC<LabelingAndMarkingScreenProps> =
     state.hazProPreparerContext.lithiumBatteryData,
     state.hazProPreparerContext.dryIceData,
     state.hazProPreparerContext.technicalName,
-    state.hazProPreparerContext.isLithiumBatteryExceptedQuantity,
-    state.hazProPreparerContext.isLimitedQuantity,
+    // state.hazProPreparerContext.isLithiumBatteryExceptedQuantity,
+    // state.hazProPreparerContext.isLimitedQuantity,
     state.hazProPreparerContext.usesCaaCertification,
     state.hazProPreparerContext.usesCoeCertification,
     state.hazProPreparerContext.lookupFunctionsOutput,
@@ -100,16 +104,47 @@ export const LabelingAndMarkingScreen: React.FC<LabelingAndMarkingScreenProps> =
     navigation.navigate('ShippersDeclarationScreen');
   }, [completedSubsteps, navigation, store.hazProPreparerContext]);
 
-  // Excepted Quantities are EXEMPT from labels - redirect to confirmation screen
-  useEffect(() => {
-    if (isExceptedQuantity) {
-      navigation.navigate('ExceptedQuantityConfirmationScreen');
-    }
-  }, [isExceptedQuantity, navigation]);
+  // EQ/LQ routing intentionally disabled for demo purposes.
 
-  if (isExceptedQuantity) {
-    return null;
-  }
+  const prepareShipmentData = useCallback(() => {
+    const shipment = state.hazProPreparerContext.shipment;
+    const shipper = state.hazProPreparerContext.shipper;
+    const consignee = state.hazProPreparerContext.consignee;
+
+    const shipperAddress = [
+      shipper?.address?.shipperStreet,
+      shipper?.address?.shipperCity,
+      shipper?.address?.shipperState,
+      shipper?.address?.shipperZipcode,
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .trim();
+
+    const consigneeAddress = [
+      consignee?.address?.consigneeStreet,
+      consignee?.address?.consigneeCity,
+      consignee?.address?.consigneeState,
+      consignee?.address?.consigneeZipcode,
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .trim();
+
+    return {
+      tcn: shipment?.tcn || '',
+      fromDodaac: shipment?.tcn?.substring(0, 6) || '',
+      fromAddress: shipperAddress,
+      poe: shipment?.poe?.substring(0, 3)?.toUpperCase() || '',
+      pod: shipment?.pod?.substring(0, 3)?.toUpperCase() || '',
+      consigneeDodaac: consignee?.address?.consigneeDodaac || '',
+      consigneeAddress,
+    };
+  }, [
+    state.hazProPreparerContext.consignee,
+    state.hazProPreparerContext.shipment,
+    state.hazProPreparerContext.shipper,
+  ]);
 
   // Common footer buttons for both vehicle and standard shipments
   const footerButtons = [
@@ -151,6 +186,13 @@ export const LabelingAndMarkingScreen: React.FC<LabelingAndMarkingScreenProps> =
           requiredMarkings={requiredMarkings}
           limitedQuantity={isLimitedQuantity}
           onInfoPress={handleInfoPress}
+        />
+        <UnityPackagePreview
+          requiredMarkings={requiredMarkings}
+          requiredLabels={requiredLabels}
+          packageCode={packageCode}
+          packageType={packageType}
+          shipmentData={prepareShipmentData()}
         />
       </ScrollView>
 

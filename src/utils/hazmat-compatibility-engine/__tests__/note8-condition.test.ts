@@ -70,7 +70,7 @@ describe('Note 8 Condition: Class 8 corrosive liquids segregation from Class 4 a
       expect(result.noteCondition).toBe('note8');
     });
 
-    test('UN1789 (Class 8 corrosive liquid) + Class 4.2 = Segregation required (Note 8)', async () => {
+    test('UN1789 (Class 8 corrosive liquid) + Class 4.2 = Incompatible by base table (not Note 8)', async () => {
       const un1789 = createMaterial(
         '8',
         'UN1789',
@@ -86,12 +86,12 @@ describe('Note 8 Condition: Class 8 corrosive liquids segregation from Class 4 a
 
       const result = await evaluatePair(un1789, class42);
 
-      expect(result.incompatible).toBe(false);
-      expect(result.requiresSegregation).toBe(true);
-      expect(result.noteCondition).toBe('note8');
+      expect(result.incompatible).toBe(true);
+      expect(result.requiresSegregation).toBe(false);
+      expect(result.noteCondition).toBeNull();
     });
 
-    test('UN1830 (Class 8 corrosive liquid) + Class 4.3 = Segregation required (Note 8)', async () => {
+    test('UN1830 (Class 8 corrosive liquid) + Class 4.3 = Segregation by base table (not Note 8)', async () => {
       const un1830 = createMaterial(
         '8',
         'UN1830',
@@ -109,7 +109,7 @@ describe('Note 8 Condition: Class 8 corrosive liquids segregation from Class 4 a
 
       expect(result.incompatible).toBe(false);
       expect(result.requiresSegregation).toBe(true);
-      expect(result.noteCondition).toBe('note8');
+      expect(result.noteCondition).toBeNull();
     });
 
     test('UN1824 (Class 8 corrosive liquid) + Class 5.1 = Segregation required (Note 8)', async () => {
@@ -307,9 +307,8 @@ describe('Note 8 Condition: Class 8 corrosive liquids segregation from Class 4 a
 
       const result = await evaluatePair(class8NotInList, class41);
 
-      // Table A18.1: Class 8 + Class 4.1 = 'X' (incompatible)
-      // Without Note 8, this follows normal incompatibility rules
-      expect(result.incompatible).toBe(true);
+      // Non-liquid Class 8 does not map to A18.1 "8 liquid only" restrictions.
+      expect(result.incompatible).toBe(false);
       expect(result.requiresSegregation).toBe(false);
       expect(result.noteCondition).toBeNull();
     });
@@ -400,8 +399,8 @@ describe('Note 8 Condition: Class 8 corrosive liquids segregation from Class 4 a
 
       const result = await evaluatePair(un1789, class3);
 
-      // Table A18.1: Class 8 + Class 3 = 'X' (incompatible)
-      expect(result.incompatible).toBe(true);
+      // A18.1 does not define a Class 8 liquid + Class 3 restriction.
+      expect(result.incompatible).toBe(false);
       expect(result.requiresSegregation).toBe(false);
       expect(result.noteCondition).toBeNull();
     });
@@ -422,8 +421,8 @@ describe('Note 8 Condition: Class 8 corrosive liquids segregation from Class 4 a
 
       const result = await evaluatePair(un1830, class61);
 
-      // Table A18.1: Class 8 + Class 6.1 = '' (compatible)
-      expect(result.incompatible).toBe(false);
+      // With PG unspecified, Class 6.1 resolves to PG I and is incompatible with Class 8 liquid.
+      expect(result.incompatible).toBe(true);
       expect(result.requiresSegregation).toBe(false);
       expect(result.noteCondition).toBeNull();
     });
@@ -581,9 +580,8 @@ describe('Note 8 Condition: Class 8 corrosive liquids segregation from Class 4 a
 
       const result = await evaluatePair(un3499, class41);
 
-      // UN3499 is not in the list, so Note 8 should not apply
-      // Table A18.1: Class 8 + Class 4.1 = 'X' (incompatible)
-      expect(result.incompatible).toBe(true);
+      // UN3499 is not in Note 8 list and does not map to A18.1 8-liquid restrictions.
+      expect(result.incompatible).toBe(false);
       expect(result.requiresSegregation).toBe(false);
       expect(result.noteCondition).toBeNull();
     });
@@ -635,7 +633,7 @@ describe('Note 8 Condition: Class 8 corrosive liquids segregation from Class 4 a
       expect(result2.noteCondition).toBe('note8');
     });
 
-    test('All Class 4 subdivisions (4.1, 4.2, 4.3) trigger Note 8', async () => {
+    test('Only Class 4.1 triggers Note 8 (not 4.2/4.3)', async () => {
       const un1789 = createMaterial(
         '8',
         'UN1789',
@@ -652,8 +650,8 @@ describe('Note 8 Condition: Class 8 corrosive liquids segregation from Class 4 a
       const result3 = await evaluatePair(un1789, class43);
 
       expect(result1.noteCondition).toBe('note8');
-      expect(result2.noteCondition).toBe('note8');
-      expect(result3.noteCondition).toBe('note8');
+      expect(result2.noteCondition).toBeNull();
+      expect(result3.noteCondition).toBeNull();
     });
 
     test('All Class 5 subdivisions (5.1, 5.2) trigger Note 8', async () => {
@@ -774,8 +772,8 @@ describe('Note 8 Condition: Class 8 corrosive liquids segregation from Class 4 a
       // Pairs evaluated:
       // 1. UN1789 + UN2794 = Compatible (both Class 8)
       // 2. UN1789 + Class 4.1 = Segregation (Note 8)
-      // 3. UN2794 + Class 4.1 = Incompatible (Table A18.1: Class 8 + 4.1 = 'X')
-      expect(result.hazmatCompatibilityKeys.length).toBe(1);
+      // 3. UN2794 + Class 4.1 = Compatible (non-liquid Class 8)
+      expect(result.hazmatCompatibilityKeys.length).toBe(0);
       expect(result.segregatedHazmatMaterials.length).toBe(1);
 
       // Verify segregation is for corrosive liquid
@@ -783,10 +781,7 @@ describe('Note 8 Condition: Class 8 corrosive liquids segregation from Class 4 a
       expect(segregationPair.noteCondition).toBe('note8');
       expect(segregationPair.hazmatObjectPair.some(m => m.unid === 'UN1789')).toBe(true);
 
-      // Verify incompatibility is for non-corrosive liquid
-      const incompatiblePair = result.hazmatCompatibilityKeys[0];
-      expect(incompatiblePair.some(m => m.unid === 'UN2794')).toBe(true);
-      expect(incompatiblePair.some(m => m.unid === 'UN1325')).toBe(true);
+      // Non-corrosive Class 8 pair stays compatible, so no incompatible pairs are expected.
     });
 
     test('Corrosive liquid + Class 4.1 + Class 3 = Note 8 and incompatibility', async () => {
@@ -813,12 +808,12 @@ describe('Note 8 Condition: Class 8 corrosive liquids segregation from Class 4 a
 
       // Pairs evaluated:
       // 1. UN1789 + Class 4.1 = Segregation (Note 8)
-      // 2. UN1789 + Class 3 = Incompatible (Table A18.1: Class 8 + 3 = 'X')
-      // 3. Class 4.1 + Class 3 = Incompatible (Table A18.1: Class 4.1 + 3 = 'X')
-      expect(result.hazmatCompatibilityKeys.length).toBe(2);
-      expect(result.segregatedHazmatMaterials.length).toBe(1);
+      // 2. UN1789 + Class 3 = Compatible
+      // 3. Class 4.1 + Class 3 = Segregation (base table).
+      expect(result.hazmatCompatibilityKeys.length).toBe(0);
+      expect(result.segregatedHazmatMaterials.length).toBe(2);
 
-      expect(result.segregatedHazmatMaterials[0].noteCondition).toBe('note8');
+      expect(result.segregatedHazmatMaterials.some(pair => pair.noteCondition === 'note8')).toBe(true);
     });
 
     test('Multiple corrosive liquids with multiple Class 4 and 5 materials', async () => {
@@ -859,8 +854,8 @@ describe('Note 8 Condition: Class 8 corrosive liquids segregation from Class 4 a
 
       const result = await evaluatePair(class8NotInList, class41);
 
-      // Verify baseline: without Note 8, they are incompatible
-      expect(result.incompatible).toBe(true);
+      // Verify baseline: without Note 8, this pair is compatible (non-liquid Class 8).
+      expect(result.incompatible).toBe(false);
       expect(result.requiresSegregation).toBe(false);
     });
 

@@ -295,9 +295,26 @@ function InspectorMarkingsLabelsValidationScreenComponent({
 
       // Get required labels
       const requiredLabels = isExceptedQuantity ? {} : evaluateLabelingRequirements(inspection);
+      const currentUnIdNo = inspection.verificationCopy?.unIdNo || "";
 
       const labelItems: ValidationItem[] = Object.entries(requiredLabels).map(
         ([label, expectedValues], index) => {
+          // UN2807 (Magnetized Material) / UN1845 (Dry Ice): Primary Hazard auto-validate
+          if (label === "Primary Hazard" && (currentUnIdNo === "UN2807" || currentUnIdNo === "UN1845")) {
+            const itemId = `label-${index}-${label.replace(/\s+/g, "-").toLowerCase()}`;
+            return {
+              id: itemId,
+              category: "label" as const,
+              label,
+              expectedValues,
+              matchStatus: "matched" as const,
+              matchedDetection: null,
+              matchConfidence: 1.0,
+              validationStatus: "validated" as const,
+              afmanReference: "AFMAN 24-604",
+            };
+          }
+
           // Find matching ML detection
           const matchedDetection = findMatchingDetection(
             label,

@@ -154,5 +154,8 @@ jest.mock('react-native-webview', () => ({
   WebView: 'WebView',
 }));
 
+// Mock @azesmway/react-native-unity
+jest.mock('@azesmway/react-native-unity', () => 'UnityView');
+
 // Global timeout for async tests
 jest.setTimeout(30000);

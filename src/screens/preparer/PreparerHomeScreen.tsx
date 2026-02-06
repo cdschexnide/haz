@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import { SavedShipment } from '@/contexts/HazProPreparerProvider/reducer';
 import { RootStackParamList } from '@/contexts/NavigationRefProvider/NavigationRefContext';
@@ -21,7 +22,6 @@ import {
 import DatabaseErrorDisplay from '@/components/DatabaseErrorDisplay';
 import TopNavBar from '@/components/TopNavBar';
 import {
-  ToolButtonsBar,
   ShipmentTable,
   ShipmentContextMenu,
 } from '@/components/preparer';
@@ -29,6 +29,7 @@ import GasCalculatorTool from '@/components/GasCalculatorTool';
 import DryIceCalculator from '@/components/DryIceCalculator';
 import UnitConversionTool from '@/components/UnitConversionTool';
 import PlacardingTool from '@/components/PlacardingTool';
+import CompatibilitySegregationModal from '@/components/CompatibilitySegregationModal';
 
 interface PreparerHomeScreenProps {
   navigation: any;
@@ -53,41 +54,12 @@ export const PreparerHomeScreen: React.FC<PreparerHomeScreenProps> = ({
     useState(false);
   const [placardingModalVisible, setPlacardingModalVisible] = useState(false);
   const [placardingModalExpanded, setPlacardingModalExpanded] = useState(false);
+  const [compatibilityModalVisible, setCompatibilityModalVisible] = useState(false);
 
   // Context menu state
   const [bottomSheetVisible, setBottomSheetVisible] = useState(false);
   const [selectedShipment, setSelectedShipment] =
     useState<SavedShipment | null>(null);
-
-  // Tool buttons configuration
-  const toolButtons = [
-    {
-      icon: 'calculate' as const,
-      label: 'Gas Calculator',
-      onPress: () => setGasModalVisible(true),
-    },
-    {
-      icon: 'ac-unit' as const,
-      label: 'Dry Ice Calculator',
-      onPress: () => setDryIceModalVisible(true),
-    },
-    {
-      icon: 'swap-horiz' as const,
-      label: 'Unit Converter',
-      onPress: () => setUnitConversionModalVisible(true),
-    },
-    {
-      icon: 'signpost' as const,
-      label: 'Placarding Tool',
-      onPress: () => setPlacardingModalVisible(true),
-    },
-    {
-      icon: 'compare-arrows' as const,
-      label: 'Compatibility/Segregation Tool',
-      onPress: () => {},
-      disabled: true,
-    },
-  ];
 
   // Convert shipments index to SavedShipment array
   const loadAndConvertShipments = useCallback(async (): Promise<SavedShipment[]> => {
@@ -262,8 +234,66 @@ export const PreparerHomeScreen: React.FC<PreparerHomeScreenProps> = ({
             />
           )}
 
-          {/* Tool Buttons */}
-          <ToolButtonsBar tools={toolButtons} />
+          {/* Tool Button Row */}
+          <View style={styles.toolButtonRow}>
+            <TouchableOpacity
+              style={styles.calcSoft}
+              onPress={() => setGasModalVisible(true)}
+            >
+              <MaterialCommunityIcons
+                name="calculator"
+                size={20}
+                color={colors.primary}
+              />
+              <Text style={styles.calcTextSoft}>Gas Calculator</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.calcSoft}
+              onPress={() => setDryIceModalVisible(true)}
+            >
+              <MaterialCommunityIcons
+                name="calculator"
+                size={20}
+                color={colors.primary}
+              />
+              <Text style={styles.calcTextSoft}>Dry Ice Calculator</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.calcSoft}
+              onPress={() => setUnitConversionModalVisible(true)}
+            >
+              <MaterialCommunityIcons
+                name="swap-horizontal"
+                size={20}
+                color={colors.primary}
+              />
+              <Text style={styles.calcTextSoft}>Unit Converter</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.calcSoft}
+              onPress={() => setPlacardingModalVisible(true)}
+            >
+              <MaterialCommunityIcons
+                name="sign-direction"
+                size={20}
+                color={colors.primary}
+              />
+              <Text style={styles.calcTextSoft}>Placarding Tool</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.calcSoft}
+              onPress={() => setCompatibilityModalVisible(true)}
+            >
+              <MaterialCommunityIcons
+                name="shield-check"
+                size={20}
+                color={colors.primary}
+              />
+              <Text style={styles.calcTextSoft}>
+                Compatibility/Segregation Tool
+              </Text>
+            </TouchableOpacity>
+          </View>
 
           {/* Header Row */}
           <View style={styles.headerRow}>
@@ -333,6 +363,10 @@ export const PreparerHomeScreen: React.FC<PreparerHomeScreenProps> = ({
         }}
         onExpandChange={setPlacardingModalExpanded}
       />
+      <CompatibilitySegregationModal
+        visible={compatibilityModalVisible}
+        onClose={() => setCompatibilityModalVisible(false)}
+      />
     </>
   );
 };
@@ -387,6 +421,30 @@ const styles = StyleSheet.create({
     color: colors.surface,
     fontSize: 20,
     fontWeight: 'bold',
+  },
+  toolButtonRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
+    marginBottom: spacing.sm,
+    marginTop: spacing.xs,
+  },
+  calcSoft: {
+    backgroundColor: colors.infoLight,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.md,
+    borderRadius: borderRadius.sm,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: spacing.xs,
+    minWidth: 220,
+  },
+  calcTextSoft: {
+    color: colors.primary,
+    fontSize: 20,
+    fontWeight: '600',
   },
 });
 

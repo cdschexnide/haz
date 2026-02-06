@@ -351,7 +351,7 @@ describe('Note 6 Condition: Charged electric storage batteries with Class 1.1 an
   });
 
   describe('NEGATIVE TESTS: Note 6 does NOT apply - normal rules prevail', () => {
-    test('Battery (UN2794) + Class 1.3 = Incompatible (normal rule, not Note 6)', async () => {
+    test('Battery (UN2794) + Class 1.3 = Compatible when Note 6 does not apply', async () => {
       const un2794 = createMaterial(
         '8',
         'UN2794',
@@ -367,9 +367,9 @@ describe('Note 6 Condition: Charged electric storage batteries with Class 1.1 an
 
       const result = await evaluatePair(un2794, class13);
 
-      // Table A18.1: Class 8 + Class 1.3 = 'X' (incompatible)
-      // Note 6 doesn't apply (only for 1.1 and 1.2)
-      expect(result.incompatible).toBe(true);
+      // Non-liquid Class 8 items are outside A18.1 "8 liquid only" base mapping.
+      // Note 6 doesn't apply here (only for 1.1 and 1.2).
+      expect(result.incompatible).toBe(false);
       expect(result.requiresSegregation).toBe(false);
       // Note 6 should NOT be in noteConditionPairs since it's not 1.1 or 1.2
       const hasNote6 = result.noteConditionPairs.some(pair => pair.noteCondition === 'note6');
@@ -392,14 +392,14 @@ describe('Note 6 Condition: Charged electric storage batteries with Class 1.1 an
 
       const result = await evaluatePair(un2795, class14);
 
-      // Table A18.1: Class 8 + Class 1.4 = '' (compatible)
+      // Table A18.1: no additional restriction for this non-liquid Class 8 pair.
       expect(result.incompatible).toBe(false);
-      expect(result.requiresSegregation).toBe(true);
+      expect(result.requiresSegregation).toBe(false);
       const hasNote6 = result.noteConditionPairs.some(pair => pair.noteCondition === 'note6');
       expect(hasNote6).toBe(false);
     });
 
-    test('Battery (UN2800) + Class 1.5 = Incompatible (normal rule)', async () => {
+    test('Battery (UN2800) + Class 1.5 = Compatible when Note 6 does not apply', async () => {
       const un2800 = createMaterial(
         '8',
         'UN2800',
@@ -415,8 +415,8 @@ describe('Note 6 Condition: Charged electric storage batteries with Class 1.1 an
 
       const result = await evaluatePair(un2800, class15);
 
-      // Table A18.1: Class 8 + Class 1.5 = 'X' (incompatible)
-      expect(result.incompatible).toBe(true);
+      // Non-liquid Class 8 items do not map to A18.1 "8 liquid only" restrictions.
+      expect(result.incompatible).toBe(false);
       expect(result.requiresSegregation).toBe(false);
       const hasNote6 = result.noteConditionPairs.some(pair => pair.noteCondition === 'note6');
       expect(hasNote6).toBe(false);
@@ -445,7 +445,7 @@ describe('Note 6 Condition: Charged electric storage batteries with Class 1.1 an
       expect(hasNote6).toBe(false);
     });
 
-    test('Battery (UN2794) + Class 2.1 = Segregation required (normal rule)', async () => {
+    test('Battery (UN2794) + Class 2.1 = Compatible when Note 6 does not apply', async () => {
       const un2794 = createMaterial(
         '8',
         'UN2794',
@@ -461,15 +461,14 @@ describe('Note 6 Condition: Charged electric storage batteries with Class 1.1 an
 
       const result = await evaluatePair(un2794, class21);
 
-      // Table A18.1: Class 8 + Class 2.1 = '0' (segregation required)
+      // Non-liquid Class 8 items do not map to A18.1 "8 liquid only" restrictions.
       expect(result.incompatible).toBe(false);
-      expect(result.requiresSegregation).toBe(true);
-      expect(result.segregationMessage).toBe('88 Inches of Separation');
+      expect(result.requiresSegregation).toBe(false);
       const hasNote6 = result.noteConditionPairs.some(pair => pair.noteCondition === 'note6');
       expect(hasNote6).toBe(false);
     });
 
-    test('Battery (UN2795) + Class 3 = Incompatible (normal rule)', async () => {
+    test('Battery (UN2795) + Class 3 = Compatible when Note 6 does not apply', async () => {
       const un2795 = createMaterial(
         '8',
         'UN2795',
@@ -485,8 +484,8 @@ describe('Note 6 Condition: Charged electric storage batteries with Class 1.1 an
 
       const result = await evaluatePair(un2795, class3);
 
-      // Table A18.1: Class 8 + Class 3 = 'X' (incompatible)
-      expect(result.incompatible).toBe(true);
+      // Non-liquid Class 8 items do not map to A18.1 "8 liquid only" restrictions.
+      expect(result.incompatible).toBe(false);
       expect(result.requiresSegregation).toBe(false);
       const hasNote6 = result.noteConditionPairs.some(pair => pair.noteCondition === 'note6');
       expect(hasNote6).toBe(false);
@@ -652,7 +651,7 @@ describe('Note 6 Condition: Charged electric storage batteries with Class 1.1 an
       expect(result.requiresSegregation).toBe(false);
     });
 
-    test('Similar UN number UN2793 (NOT in battery list) + Class 1.1 = Incompatible (no Note 6)', async () => {
+    test('Similar UN number UN2793 (NOT in battery list) + Class 1.1 = Compatible (no Note 6)', async () => {
       const un2793 = createMaterial(
         '8',
         'UN2793',
@@ -668,9 +667,8 @@ describe('Note 6 Condition: Charged electric storage batteries with Class 1.1 an
 
       const result = await evaluatePair(un2793, class11);
 
-      // UN2793 is adjacent to UN2794 but not in the battery list
-      // Class 8 + Class 1.1 = 'X' (incompatible), but no Note 6
-      expect(result.incompatible).toBe(true);
+      // UN2793 is adjacent to UN2794 but not in the Note 6 list and not in 8-liquid mapping.
+      expect(result.incompatible).toBe(false);
       expect(result.requiresSegregation).toBe(false);
       const hasNote6 = result.noteConditionPairs.some(pair => pair.noteCondition === 'note6');
       expect(hasNote6).toBe(false);
@@ -722,7 +720,7 @@ describe('Note 6 Condition: Charged electric storage batteries with Class 1.1 an
       expect(hasNote6).toBe(false);
     });
 
-    test('Similar UN number UN3029 (NOT in battery list) + Class 1.1 = Incompatible (no Note 6)', async () => {
+    test('Similar UN number UN3029 (NOT in battery list) + Class 1.1 = Compatible (no Note 6)', async () => {
       const un3029 = createMaterial(
         '8',
         'UN3029',
@@ -738,14 +736,14 @@ describe('Note 6 Condition: Charged electric storage batteries with Class 1.1 an
 
       const result = await evaluatePair(un3029, class11);
 
-      // UN3029 is adjacent to UN3028 but not in the battery list
-      expect(result.incompatible).toBe(true);
+      // UN3029 is adjacent to UN3028 but not in the Note 6 list and not in 8-liquid mapping.
+      expect(result.incompatible).toBe(false);
       expect(result.requiresSegregation).toBe(false);
       const hasNote6 = result.noteConditionPairs.some(pair => pair.noteCondition === 'note6');
       expect(hasNote6).toBe(false);
     });
 
-    test('Prefix match UN27940 (hypothetical) = Does not apply', async () => {
+    test('Prefix match UN27940 (hypothetical) = Note 6 does not apply', async () => {
       const notUN2794 = createMaterial(
         '8',
         'UN27940',
@@ -761,8 +759,8 @@ describe('Note 6 Condition: Charged electric storage batteries with Class 1.1 an
 
       const result = await evaluatePair(notUN2794, class11);
 
-      // Should not match UN2794 (exact matching required)
-      expect(result.incompatible).toBe(true);
+      // Should not match UN2794 (exact matching required); pair remains compatible.
+      expect(result.incompatible).toBe(false);
       expect(result.requiresSegregation).toBe(false);
       const hasNote6 = result.noteConditionPairs.some(pair => pair.noteCondition === 'note6');
       expect(hasNote6).toBe(false);
@@ -905,10 +903,10 @@ describe('Note 6 Condition: Charged electric storage batteries with Class 1.1 an
       const result = await runGraphEngineOptimized([un2800, class13, class14], [], false);
 
       // Pairs evaluated:
-      // 1. UN2800 + Class 1.3 = Incompatible (Table A18.1, not Note 6)
+      // 1. UN2800 + Class 1.3 = Compatible (outside 8-liquid mapping)
       // 2. UN2800 + Class 1.4 = Compatible
       // 3. Class 1.3 + Class 1.4 = Compatible
-      expect(result.hazmatCompatibilityKeys.length).toBe(1);
+      expect(result.hazmatCompatibilityKeys.length).toBe(0);
 
       // Should NOT have Note 6 (only applies to 1.1 and 1.2)
       const note6Pairs = result.noteConditionPairs.filter(pair => pair.noteCondition === 'note6');

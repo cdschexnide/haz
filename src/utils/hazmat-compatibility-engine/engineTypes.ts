@@ -1,15 +1,46 @@
 import { Rule } from 'json-rules-engine';
 
+export type NoteCondition =
+  | 'note1'
+  | 'note2'
+  | 'note3'
+  | 'note4'
+  | 'note5'
+  | 'note6'
+  | 'note7'
+  | 'note8'
+  | 'note9'
+  | 'note10'
+  | 'note11'
+  | 'note12'
+  | 'a18_2_note1'
+  | 'a18_2_note2'
+  | 'a18_2_note3'
+  | 'a18_2_note4'
+  | 'a18_2_note5'
+  | 'a18_2_note6'
+  | 'a18_2_note7'
+  | 'a18_2_note8'
+  | 'chapter3_general'
+  | 'chapter3_note1'
+  | 'chapter3_note2'
+  | 'chapter3_note3'
+  | 'chapter3_note4'
+  | 'chapter3_note5';
+
 export type NoteConditionPair = {
   hazmatObjectPair: HazmatPairBeforeLookup;
-  noteCondition: 'note1' | 'note4' | 'note5' | 'note6' | 'note8' | 'note9' | 'note11' | 'note12';
+  pairIndices?: [number, number];
+  noteCondition: NoteCondition;
   noteContent: string;
   status: 'compatible' | 'incompatible' | 'segregation';
 };
 
 export type CheckCompatibleHazmatOutput = {
   hazmatCompatibilityKeys: HazmatCompatibilityKey[][];
+  incompatiblePairIndices?: [number, number][];
   segregatedHazmatMaterials: SegregatedHazmatMaterial[];
+  segregationPairIndices?: [number, number][];
   noteConditionPairs: NoteConditionPair[];
 };
 
@@ -68,8 +99,9 @@ export type CheckHazmatCompatibilityInput = {
 
 export type SegregatedHazmatMaterial = {
   hazmatObjectPair: HazmatPairBeforeLookup;
+  pairIndices?: [number, number];
   segregationDescription: string;
-  noteCondition?: 'note1' | 'note4' | 'note5' | 'note6' | 'note8' | 'note9' | 'note11' | 'note12' | null;
+  noteCondition?: NoteCondition | null;
 };
 
 export type HazmatCompatibilityKeyLookup = {

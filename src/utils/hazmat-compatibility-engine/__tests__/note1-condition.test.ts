@@ -293,10 +293,9 @@ describe('Note 1 Condition: UN2067 with Class 1.1 and 1.5', () => {
 
       const result = await evaluatePair(un2067, class21);
 
-      // Class 5.1 + Class 2.1 = '0' (segregation required) per Table A18.1
-      expect(result.incompatible).toBe(false);
-      expect(result.requiresSegregation).toBe(true);
-      expect(result.segregationMessage).toBe('88 Inches of Separation');
+      // As transcribed in docs/TableA18.1.relationships.md, 5.1 + 2.1 resolves to incompatible.
+      expect(result.incompatible).toBe(true);
+      expect(result.requiresSegregation).toBe(false);
     });
 
     test('UN2067 (Class 5.1) + Class 3 = Follow normal rules', async () => {
@@ -315,9 +314,9 @@ describe('Note 1 Condition: UN2067 with Class 1.1 and 1.5', () => {
 
       const result = await evaluatePair(un2067, class3);
 
-      // Class 5.1 + Class 3 = '' (compatible) per Table A18.1
+      // Table A18.1: Class 5.1 + Class 3 = '0' (segregation required).
       expect(result.incompatible).toBe(false);
-      expect(result.requiresSegregation).toBe(false);
+      expect(result.requiresSegregation).toBe(true);
     });
 
     test('UN2067 (Class 5.1) + Class 6.1 = Follow normal rules (incompatible)', async () => {

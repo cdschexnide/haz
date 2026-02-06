@@ -37,8 +37,10 @@ const KNOWN_LABELS = [
   "NATURE AND QUALITY", "DANGEROUS GOODS",
   "DANGEROUS GOODS IDENTIFICATION",
   "TRANSPORTATION DETAILS",
+  "TRANSPORT DETAILS",
   "WARNING", "FAILURE TO COMPLY",
   "COMPLETED AND SIGNED", "DECLARATION MUST",
+  "HANDED TO THE OPERATOR",
   "THIS IS WITHIN", "THIS SHIPMENT IS WITHIN", "LIMITATIONS PRESCRIBED",
   "I HEREBY DECLARE", "ACCURATELY DESCRIBED",
   "AMC IMT", "20050204",
@@ -193,6 +195,25 @@ export function findValueBlocks(
     maxY: anchorBox.y + anchorBox.height + searchConfig.searchBelow,
   };
 
+  // Apply boundedBy constraints from anchor config
+  // Each entry explicitly declares which axis it constrains
+  if (config.valueRegionRules.boundedBy) {
+    for (const bound of config.valueRegionRules.boundedBy) {
+      const boundAnchor = allAnchors.get(bound.anchorId);
+      if (!boundAnchor) continue;
+
+      if (bound.constrains === "maxY" && boundAnchor.boundingBox.y < searchArea.maxY) {
+        searchArea.maxY = boundAnchor.boundingBox.y;
+      } else if (bound.constrains === "maxX" && boundAnchor.boundingBox.x < searchArea.maxX) {
+        searchArea.maxX = boundAnchor.boundingBox.x;
+      }
+    }
+  }
+
+  console.log(
+    `🔍 ${anchor.fieldId} search area: x=[${Math.round(searchArea.minX)}, ${Math.round(searchArea.maxX)}] y=[${Math.round(searchArea.minY)}, ${Math.round(searchArea.maxY)}]`
+  );
+
   // Reference point for distance calculations (bottom-right of anchor label)
   const refX = anchorBox.x + anchorBox.width;
   const refY = anchorBox.y + anchorBox.height;
@@ -201,11 +222,18 @@ export function findValueBlocks(
   const candidates: Array<{ block: TextBlock; distance: number }> = [];
 
   for (const block of textBlocks) {
-    // Skip the anchor itself
+    // Skip the anchor itself, but recover any non-label residual text
     if (
       Math.abs(block.boundingBox.x - anchorBox.x) < 5 &&
       Math.abs(block.boundingBox.y - anchorBox.y) < 5
     ) {
+      // Check if anchor text has extra content beyond the label (e.g., "Consignee SW3119")
+      const residual = block.text
+        .replace(/^(SHIPPER|CONSIGNEE|ADDITIONAL\s*HANDLING\s*INFORMATION)\s*/i, "")
+        .trim();
+      if (residual && residual !== block.text.trim()) {
+        candidates.push({ block: { ...block, text: residual }, distance: 0 });
+      }
       continue;
     }
 
@@ -298,7 +326,7 @@ export function extractValueFromBlocks(blocks: TextBlock[]): string {
   if (blocks.length === 0) return "";
 
   // Sort blocks by reading order (top-to-bottom, left-to-right)
-  const LINE_THRESHOLD = 20; // pixels - blocks within 20px vertically are on same line
+  const LINE_THRESHOLD = 15; // pixels - blocks within 15px vertically are on same line
 
   const sortedBlocks = [...blocks].sort((a, b) => {
     const yDiff = a.boundingBox.y - b.boundingBox.y;

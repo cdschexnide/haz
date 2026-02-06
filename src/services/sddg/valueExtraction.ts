@@ -290,6 +290,7 @@ function resolveWithXBlocks(
       if (
         normalizedText === normalizedLabel ||
         (normalizedText.includes(normalizedLabel) &&
+          !normalizedText.includes("NON-" + normalizedLabel) &&
           normalizedText.length <= normalizedLabel.length + 5)
       ) {
         optionBlocks.push({ option: opt, block });

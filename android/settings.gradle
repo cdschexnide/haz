@@ -37,3 +37,6 @@ expoAutolinking.useExpoVersionCatalog()
 
 include ':app'
 includeBuild(expoAutolinking.reactNativeGradlePlugin)
+
+include ':unityLibrary'
+project(':unityLibrary').projectDir=new File('..\\unity\\builds\\android\\unityLibrary')

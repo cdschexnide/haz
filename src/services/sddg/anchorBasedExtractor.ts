@@ -260,8 +260,17 @@ export async function extractWithAnchors(
 
       if (config.patternType === "checkbox-pair") {
         // Checkbox pairs detect which option is NOT X'd out
+        // Scope text blocks to the anchor's region to prevent cross-contamination
+        // (e.g., aircraft type X-marks bleeding into shipment type detection)
+        const checkboxBlocks = anchor
+          ? textBlocks.filter(block => {
+              const blockCenterY = block.boundingBox.y + block.boundingBox.height / 2;
+              const anchorY = anchor.boundingBox.y;
+              return Math.abs(blockCenterY - anchorY) < 150;
+            })
+          : textBlocks;
         const value = extractCheckboxValue(
-          textBlocks,
+          checkboxBlocks.length > 0 ? checkboxBlocks : textBlocks,
           config.valueRegionRules.options || []
         );
         results.set(config.fieldId, {

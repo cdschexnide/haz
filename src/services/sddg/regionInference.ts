@@ -35,8 +35,8 @@ export function computeLabelTopLeftRegion(
   const MIN_Y_SEPARATION = 30; // Minimum Y gap to consider an anchor as "below"
   let maxY = imageHeight;
   if (rules.boundedBy) {
-    for (const boundId of rules.boundedBy) {
-      const boundAnchor = allAnchors.get(boundId);
+    for (const bound of rules.boundedBy) {
+      const boundAnchor = allAnchors.get(bound.anchorId);
       if (boundAnchor && boundAnchor.boundingBox.y > startY + MIN_Y_SEPARATION) {
         maxY = Math.min(maxY, boundAnchor.boundingBox.y - PADDING);
       }
@@ -48,8 +48,8 @@ export function computeLabelTopLeftRegion(
   const MIN_X_SEPARATION = 50;
   let maxX = imageWidth;
   if (rules.boundedBy) {
-    for (const boundId of rules.boundedBy) {
-      const boundAnchor = allAnchors.get(boundId);
+    for (const bound of rules.boundedBy) {
+      const boundAnchor = allAnchors.get(bound.anchorId);
       if (boundAnchor && boundAnchor.boundingBox.x > anchorBox.x + anchorBox.width + MIN_X_SEPARATION) {
         maxX = Math.min(maxX, boundAnchor.boundingBox.x - PADDING);
       }
@@ -96,8 +96,8 @@ export function computeLabelLeftValueRightRegion(
   // Find bounding anchor to the right (for width)
   let maxX = imageWidth;
   if (rules.boundedBy) {
-    for (const boundId of rules.boundedBy) {
-      const boundAnchor = allAnchors.get(boundId);
+    for (const bound of rules.boundedBy) {
+      const boundAnchor = allAnchors.get(bound.anchorId);
       if (boundAnchor && boundAnchor.boundingBox.x > startX) {
         maxX = Math.min(maxX, boundAnchor.boundingBox.x - PADDING);
       }
@@ -140,8 +140,8 @@ export function computeLabelTopValueBottomRegion(
   // Find bounding anchor below (for height)
   let maxY = startY + DEFAULT_REGION_HEIGHT;
   if (rules.boundedBy) {
-    for (const boundId of rules.boundedBy) {
-      const boundAnchor = allAnchors.get(boundId);
+    for (const bound of rules.boundedBy) {
+      const boundAnchor = allAnchors.get(bound.anchorId);
       if (boundAnchor && boundAnchor.boundingBox.y > startY) {
         maxY = Math.min(maxY, boundAnchor.boundingBox.y - PADDING);
       }

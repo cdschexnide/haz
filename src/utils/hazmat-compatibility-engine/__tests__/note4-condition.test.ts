@@ -281,7 +281,7 @@ describe('Note 4 Condition: Cyanides (Class 6.1) with Class 8 materials', () => 
   });
 
   describe('NEGATIVE TESTS: Note 4 does NOT apply - normal rules prevail', () => {
-    test('Non-cyanide Class 6.1 + Class 8 = Compatible (no restrictions)', async () => {
+    test('Non-cyanide Class 6.1 PG I + Class 8 = Incompatible per base table (no Note 4)', async () => {
       const nonCyanide61 = createMaterial(
         '6.1',
         'UN1541',
@@ -298,14 +298,14 @@ describe('Note 4 Condition: Cyanides (Class 6.1) with Class 8 materials', () => 
 
       const result = await evaluatePair(nonCyanide61, class8);
 
-      // Without Note 4, Class 6.1 + Class 8 = '' (compatible)
-      expect(result.incompatible).toBe(false);
+      // Base Table A18.1: Class 6.1 PG I + Class 8 liquid = 'X' (incompatible)
+      expect(result.incompatible).toBe(true);
       expect(result.requiresSegregation).toBe(false);
       expect(result.segregationMessage).toBe('N/A');
       expect(result.noteCondition).toBeNull();
     });
 
-    test('Cyanide (UN1689) + Class 3 = Segregation required (follow normal rules)', async () => {
+    test('Cyanide (UN1689) + Class 3 = Incompatible (follow normal rules)', async () => {
       const un1689 = createMaterial(
         '6.1',
         'UN1689',
@@ -322,10 +322,9 @@ describe('Note 4 Condition: Cyanides (Class 6.1) with Class 8 materials', () => 
 
       const result = await evaluatePair(un1689, class3);
 
-      // Table A18.1: Class 6.1 + Class 3 = '0' (segregation required)
-      expect(result.incompatible).toBe(false);
-      expect(result.requiresSegregation).toBe(true);
-      expect(result.segregationMessage).toBe('88 Inches of Separation');
+      // Table A18.1: Class 6.1 PG I + Class 3 = 'X' (incompatible)
+      expect(result.incompatible).toBe(true);
+      expect(result.requiresSegregation).toBe(false);
       expect(result.noteCondition).toBeNull();
     });
 
@@ -422,7 +421,7 @@ describe('Note 4 Condition: Cyanides (Class 6.1) with Class 8 materials', () => 
       expect(result.noteCondition).toBeNull();
     });
 
-    test('Cyanide (UN1051) + Class 9 = Incompatible (follow normal rules)', async () => {
+    test('Cyanide (UN1051) + non-lithium Class 9 = Compatible (outside A18.1 scoped Class 9)', async () => {
       const un1051 = createMaterial(
         '6.1',
         'UN1051',
@@ -439,8 +438,8 @@ describe('Note 4 Condition: Cyanides (Class 6.1) with Class 8 materials', () => 
 
       const result = await evaluatePair(un1051, class9);
 
-      // Table A18.1: Class 6.1 + Class 9 = 'X' (incompatible)
-      expect(result.incompatible).toBe(true);
+      // Table A18.1 Class 9 rules apply only to UN3480/UN3090.
+      expect(result.incompatible).toBe(false);
       expect(result.requiresSegregation).toBe(false);
       expect(result.noteCondition).toBeNull();
     });
@@ -541,7 +540,7 @@ describe('Note 4 Condition: Cyanides (Class 6.1) with Class 8 materials', () => 
       expect(result.noteCondition).toBeNull();
     });
 
-    test('Similar UN number UN1050 (NOT a cyanide) + Class 8 = Compatible', async () => {
+    test('Similar UN number UN1050 (NOT a cyanide) + Class 8 = Incompatible by base table', async () => {
       const un1050 = createMaterial(
         '6.1',
         'UN1050',
@@ -558,14 +557,13 @@ describe('Note 4 Condition: Cyanides (Class 6.1) with Class 8 materials', () => 
 
       const result = await evaluatePair(un1050, class8);
 
-      // UN1050 is adjacent to UN1051 but not in the cyanide list
-      // Should follow normal Class 6.1 + Class 8 = '' (compatible)
-      expect(result.incompatible).toBe(false);
+      // UN1050 is not in Note 4 list, but 6.1 PG I + 8 liquid is still incompatible.
+      expect(result.incompatible).toBe(true);
       expect(result.requiresSegregation).toBe(false);
       expect(result.noteCondition).toBeNull();
     });
 
-    test('Similar UN number UN1690 (NOT a cyanide) + Class 8 = Compatible', async () => {
+    test('Similar UN number UN1690 (NOT a cyanide) + Class 8 = Incompatible by base table', async () => {
       const un1690 = createMaterial(
         '6.1',
         'UN1690',
@@ -582,13 +580,13 @@ describe('Note 4 Condition: Cyanides (Class 6.1) with Class 8 materials', () => 
 
       const result = await evaluatePair(un1690, class8);
 
-      // UN1690 is adjacent to UN1689 but not in the cyanide list
-      expect(result.incompatible).toBe(false);
+      // UN1690 is not in Note 4 list, but 6.1 PG I + 8 liquid is still incompatible.
+      expect(result.incompatible).toBe(true);
       expect(result.requiresSegregation).toBe(false);
       expect(result.noteCondition).toBeNull();
     });
 
-    test('Prefix match UN10510 (hypothetical) = Does not apply', async () => {
+    test('Prefix match UN10510 (hypothetical) = Note 4 does not apply, base table still does', async () => {
       const notUN1051 = createMaterial(
         '6.1',
         'UN10510',
@@ -605,13 +603,13 @@ describe('Note 4 Condition: Cyanides (Class 6.1) with Class 8 materials', () => 
 
       const result = await evaluatePair(notUN1051, class8);
 
-      // Should not match UN1051 (exact matching required)
-      expect(result.incompatible).toBe(false);
+      // Should not match UN1051 (exact matching required), but 6.1 PG I + 8 liquid remains incompatible.
+      expect(result.incompatible).toBe(true);
       expect(result.requiresSegregation).toBe(false);
       expect(result.noteCondition).toBeNull();
     });
 
-    test('UN1052 (NOT a cyanide, but close to UN1051) + Class 8 = Compatible', async () => {
+    test('UN1052 (NOT a cyanide, but close to UN1051) + Class 8 = Incompatible by base table', async () => {
       const un1052 = createMaterial(
         '6.1',
         'UN1052',
@@ -628,8 +626,8 @@ describe('Note 4 Condition: Cyanides (Class 6.1) with Class 8 materials', () => 
 
       const result = await evaluatePair(un1052, class8);
 
-      // UN1052 is adjacent to UN1051 but not in the cyanide list
-      expect(result.incompatible).toBe(false);
+      // UN1052 is not in Note 4 list, but 6.1 PG I + 8 liquid remains incompatible.
+      expect(result.incompatible).toBe(true);
       expect(result.requiresSegregation).toBe(false);
       expect(result.noteCondition).toBeNull();
     });
@@ -759,8 +757,8 @@ describe('Note 4 Condition: Cyanides (Class 6.1) with Class 8 materials', () => 
       // Pairs evaluated:
       // 1. UN1689 + UN1789 = Incompatible (Note 4)
       // 2. UN1689 + UN1541 = Compatible (Class 6.1 + 6.1)
-      // 3. UN1789 + UN1541 = Compatible (Class 8 + 6.1 = '', no Note 4)
-      expect(result.hazmatCompatibilityKeys.length).toBe(1);
+      // 3. UN1789 + UN1541 = Incompatible (Class 8 liquid + 6.1 PG I)
+      expect(result.hazmatCompatibilityKeys.length).toBe(2);
       expect(result.segregatedHazmatMaterials.length).toBe(0);
 
       // Verify the incompatible pair is cyanide + Class 8
@@ -794,15 +792,15 @@ describe('Note 4 Condition: Cyanides (Class 6.1) with Class 8 materials', () => 
 
       // Pairs evaluated:
       // 1. UN1689 + UN1789 = Incompatible (Note 4)
-      // 2. UN1689 + UN1090 = Segregation required (Table A18.1: 6.1 + 3 = '0')
-      // 3. UN1789 + UN1090 = Incompatible (Table A18.1: 8 + 3 = 'X')
+      // 2. UN1689 + UN1090 = Incompatible (Table A18.1: 6.1 PG I + 3 = 'X')
+      // 3. UN1789 + UN1090 = Compatible (Table A18.1 has no 8 liquid + 3 relationship)
       expect(result.hazmatCompatibilityKeys.length).toBe(2);
-      expect(result.segregatedHazmatMaterials.length).toBe(1);
+      expect(result.segregatedHazmatMaterials.length).toBe(0);
     });
   });
 
   describe('VERIFICATION: Confirm Note 4 is causing incompatibility', () => {
-    test('Baseline: Non-cyanide Class 6.1 + Class 8 = Compatible (no restrictions)', async () => {
+    test('Baseline: Non-cyanide Class 6.1 + Class 8 = Incompatible by base table', async () => {
       const nonCyanide61 = createMaterial(
         '6.1',
         'UN1541',
@@ -819,8 +817,8 @@ describe('Note 4 Condition: Cyanides (Class 6.1) with Class 8 materials', () => 
 
       const result = await evaluatePair(nonCyanide61, class8);
 
-      // Verify baseline: without Note 4, Class 6.1 + Class 8 = '' (compatible)
-      expect(result.incompatible).toBe(false);
+      // Verify baseline: without Note 4, Class 6.1 PG I + Class 8 liquid is already incompatible.
+      expect(result.incompatible).toBe(true);
       expect(result.requiresSegregation).toBe(false);
       expect(result.segregationMessage).toBe('N/A');
     });

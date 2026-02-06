@@ -770,6 +770,7 @@ const InteractiveSDDGComplianceScreenComponent: React.FC<
       <ScrollView style={styles.content}>
         <InteractiveSDDGForm
           extractedData={formData}
+          inspectorName={inspection.inspector?.inspectorName || ""}
           frustratedFields={frustratedFields}
           recommendedFrustrations={recommendedFrustrations}
           onFieldPress={handleFieldPress}

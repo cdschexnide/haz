@@ -11,7 +11,10 @@ export const SDDG_ANCHORS: AnchorConfig[] = [
     labelPatterns: ["SHIPPER", "Shipper"],
     patternType: "label-top-left-value-fills-box",
     valueRegionRules: {
-      boundedBy: ["phone_number", "consignee", "air_waybill"],
+      boundedBy: [
+        { anchorId: "consignee", constrains: "maxY" },
+        { anchorId: "air_waybill", constrains: "maxX" },
+      ],
       direction: "below-and-right"
     },
     postProcessing: ["remove_label_prefix", "trim"]
@@ -27,7 +30,10 @@ export const SDDG_ANCHORS: AnchorConfig[] = [
     labelPatterns: ["CONSIGNEE", "Consignee"],
     patternType: "label-top-left-value-fills-box",
     valueRegionRules: {
-      boundedBy: ["airport_departure", "aircraft_type", "shipment_type"],
+      boundedBy: [
+        { anchorId: "airport_departure", constrains: "maxY" },
+        { anchorId: "shipment_type", constrains: "maxX" },
+      ],
       direction: "below-and-right"
     },
     postProcessing: ["remove_label_prefix", "trim"]
@@ -217,7 +223,10 @@ export const SDDG_ANCHORS: AnchorConfig[] = [
     ],
     patternType: "label-top-left-value-fills-box",
     valueRegionRules: {
-      boundedBy: ["emergency_telephone", "name_title_signatory"],
+      boundedBy: [
+        { anchorId: "emergency_telephone", constrains: "maxY" },
+        { anchorId: "name_title_signatory", constrains: "maxX" },
+      ],
       direction: "below-and-right"
     },
     postProcessing: ["remove_label_prefix"]

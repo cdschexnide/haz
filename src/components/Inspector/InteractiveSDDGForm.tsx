@@ -48,6 +48,7 @@ export interface InteractiveSDDGFormProps {
     placeAndDate: string;
     signature: string;
   };
+  inspectorName?: string;
   frustratedFields: Set<string>;
   recommendedFrustrations: Map<string, { message: string; expectedValue?: string }>;
   onFieldPress: (
@@ -90,6 +91,56 @@ export interface ShipperInfo {
   phone: string;
   dsn: string;
 }
+
+const parseTCN = (raw: string): string => {
+  if (!raw) return "";
+  const colonIndex = raw.indexOf(":");
+  if (colonIndex !== -1) {
+    return raw.substring(colonIndex + 1).trim();
+  }
+  return raw.trim();
+};
+
+const AIRPORT_NOISE_PATTERNS = [
+  /legal\s*penalties/i,
+  /materials?\/?/i,
+  /subject\s*to/i,
+  /law/i,
+  /haz\w*/i,
+  /baige/i,
+  /comply/i,
+  /breach/i,
+  /failure/i,
+  /regulations?/i,
+  /dangerous\s*goods/i,
+  /applicable/i,
+  /^TO$/i,
+];
+
+const cleanAirportValue = (raw: string): string => {
+  if (!raw) return "";
+  const lines = raw
+    .split("\n")
+    .map(line => line.trim())
+    .filter(line => line.length > 0);
+
+  const cleanLines: string[] = [];
+  for (const line of lines) {
+    const isNoise = AIRPORT_NOISE_PATTERNS.some(p => p.test(line));
+    if (!isNoise) {
+      cleanLines.push(line);
+    } else {
+      // Check if the line ends with a short airport code after noise text
+      const tokens = line.split(/\s+/);
+      const lastToken = tokens[tokens.length - 1];
+      if (lastToken && lastToken.length <= 5 && /^[A-Z]{2,5}$/i.test(lastToken)) {
+        cleanLines.push(lastToken.toUpperCase());
+      }
+    }
+  }
+
+  return cleanLines.join("\n").trim();
+};
 
 const parseEmergencyNumbers = (emergencyTelephoneNumber: string) => {
   const numbers = emergencyTelephoneNumber.split(" | ");
@@ -211,57 +262,24 @@ export const parseShipperInfo = (shipper: string): ShipperInfo => {
   return { addressLines, phone, dsn };
 };
 
-const parseConsigneeInfo = (consignee: string) => {
+export const parseConsigneeInfo = (consignee: string): { addressLines: string[] } => {
   if (!consignee) {
-    return {
-      name: "No consignee data",
-      street: "",
-      city: "",
-      phone: "",
-    };
+    return { addressLines: ["No consignee data"] };
   }
 
-  // Multi-line format (separated by \n)
-  const lines = consignee.split("\n");
-  if (lines.length > 1) {
-    return {
-      name: lines[0]?.trim() || "",
-      street: lines[1]?.trim() || "",
-      city: lines[2]?.trim() || "",
-      phone: lines[3]?.trim() || "",
-    };
+  const OCR_NOISE = ["OF THIS", "DEC"];
+
+  const lines = consignee
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0)
+    .filter((line) => !OCR_NOISE.some((noise) => line.toUpperCase() === noise));
+
+  if (lines.length === 0) {
+    return { addressLines: ["No consignee data"] };
   }
 
-  // Comma-separated format
-  const commaParts = consignee.trim().split(",");
-  if (commaParts.length >= 3) {
-    return {
-      name: commaParts[0].trim(),
-      street: commaParts[1].trim(),
-      city: commaParts.slice(2).join(",").trim(), // ALL remaining parts
-      phone: "",
-    };
-  }
-
-  // Space-separated format - capture ALL words, don't truncate
-  const parts = consignee.trim().split(" ");
-  if (parts.length >= 6) {
-    // Strategy: First few words are organization, middle words are department, rest is address
-    return {
-      name: parts.slice(0, 4).join(" "), // First 4 words for org name
-      street: parts.slice(4, 8).join(" "), // Next 4 words for department/unit
-      city: parts.slice(8).join(" "), // ALL remaining words for address
-      phone: "",
-    };
-  }
-
-  // Fallback: treat as single-line data
-  return {
-    name: consignee,
-    street: "",
-    city: "",
-    phone: "",
-  };
+  return { addressLines: lines };
 };
 
 /**
@@ -270,6 +288,7 @@ const parseConsigneeInfo = (consignee: string) => {
  */
 const InteractiveSDDGForm: React.FC<InteractiveSDDGFormProps> = ({
   extractedData,
+  inspectorName,
   frustratedFields,
   recommendedFrustrations,
   onFieldPress,
@@ -313,7 +332,7 @@ const InteractiveSDDGForm: React.FC<InteractiveSDDGFormProps> = ({
         {/* Top Section */}
         <View style={styles.row}>
           {/* Key 1: Shipper */}
-          <View style={{ flex: 2 }}>
+          <View style={{ flex: 1.2 }}>
             <TappableSDDGField
               fieldKey="shipper"
               fieldLabel="SHIPPER (Key 1)"
@@ -373,7 +392,7 @@ const InteractiveSDDGForm: React.FC<InteractiveSDDGFormProps> = ({
             <TappableSDDGField
               fieldKey="shippersReferenceNumber"
               fieldLabel="TCN (Key 5)"
-              fieldValue={extractedData.shippersReferenceNumber}
+              fieldValue={parseTCN(extractedData.shippersReferenceNumber)}
               isFrustrated={frustratedFields.has("shippersReferenceNumber")}
               isRecommended={recommendedFrustrations.has(
                 "shippersReferenceNumber"
@@ -383,7 +402,7 @@ const InteractiveSDDGForm: React.FC<InteractiveSDDGFormProps> = ({
               <View>
                 <Text style={styles.text}>SHIPPER'S REFERENCE NUMBER</Text>
                 <Text style={styles.text4}>
-                  TCN: {extractedData.shippersReferenceNumber}
+                  TCN: {parseTCN(extractedData.shippersReferenceNumber)}
                 </Text>
               </View>
             </TappableSDDGField>
@@ -392,7 +411,7 @@ const InteractiveSDDGForm: React.FC<InteractiveSDDGFormProps> = ({
 
         <View style={styles.row}>
           {/* Key 2: Consignee */}
-          <View style={{ flex: 2 }}>
+          <View style={{ flex: 1.2 }}>
             <TappableSDDGField
               fieldKey="consignee"
               fieldLabel="CONSIGNEE (Key 2)"
@@ -403,14 +422,23 @@ const InteractiveSDDGForm: React.FC<InteractiveSDDGFormProps> = ({
             >
               <View style={styles.boxLeft}>
                 <Text style={styles.label}>Consignee</Text>
-                <Text style={[styles.text, { paddingLeft: 25 }]}>{consigneeInfo.name}</Text>
-                <Text style={[styles.text, { paddingLeft: 25 }]}>{consigneeInfo.street}</Text>
-                <Text style={[styles.text, { paddingLeft: 25 }]}>{consigneeInfo.city}</Text>
+                {consigneeInfo.addressLines.map((line, i) => (
+                  <Text key={i} style={[styles.text, { paddingLeft: 25 }]}>
+                    {line}
+                  </Text>
+                ))}
               </View>
             </TappableSDDGField>
           </View>
 
-          <View style={styles.boxRight} />
+          {/* Key 6: Inspected By */}
+          <View style={styles.boxRight}>
+            {/* <Text style={styles.label}>Inspected By</Text>
+            {inspectorName ? (
+              <Text style={styles.text4}>{inspectorName}</Text>
+            ) : null} */}
+            <Text>{null}</Text>
+          </View>
         </View>
 
         <View style={styles.row}>
@@ -452,17 +480,17 @@ const InteractiveSDDGForm: React.FC<InteractiveSDDGFormProps> = ({
               <TappableSDDGField
                 fieldKey="airportOfDeparture"
                 fieldLabel="AIRPORT OF DEPARTURE (Key 8)"
-                fieldValue={extractedData.airportOfDeparture}
+                fieldValue={cleanAirportValue(extractedData.airportOfDeparture)}
                 isFrustrated={frustratedFields.has("airportOfDeparture")}
                 isRecommended={recommendedFrustrations.has(
                   "airportOfDeparture"
                 )}
                 onPress={onFieldPress}
               >
-                <View style={[styles.airportBox, { flex: 1 }]}>
+                <View style={[styles.airportBox, styles.airportBoxEqual]}>
                   <Text style={styles.label}>Airport of Departure:</Text>
                   <Text style={styles.text}>
-                    {extractedData.airportOfDeparture}
+                    {cleanAirportValue(extractedData.airportOfDeparture)}
                   </Text>
                 </View>
               </TappableSDDGField>
@@ -478,7 +506,7 @@ const InteractiveSDDGForm: React.FC<InteractiveSDDGFormProps> = ({
                 )}
                 onPress={onFieldPress}
               >
-                <View style={[styles.airportBox, { flex: 1 }]}>
+                <View style={[styles.airportBox, styles.airportBoxEqual]}>
                   <Text style={styles.label}>Airport of Destination:</Text>
                   <Text style={styles.text}>
                     {extractedData.airportOfDestination}
@@ -573,14 +601,14 @@ const InteractiveSDDGForm: React.FC<InteractiveSDDGFormProps> = ({
                 key: "hazardClass",
                 label: "CLASS or DIVISION (Key 13)",
                 value:
-                  [hazmat.hazardClass, hazmat.subsidiaryRisk]
+                  [hazmat.hazardClass || (hazmat.unIdNo === "UN2807" ? "9" : ""), hazmat.subsidiaryRisk]
                     .filter(Boolean)
                     .join(" ") || "",
               },
               {
                 key: "packingGroup",
                 label: "PACKING GROUP (Key 15)",
-                value: hazmat.packingGroup || "—",
+                value: hazmat.packingGroup || (hazmat.unIdNo === "UN2807" ? "—" : "—"),
               },
               {
                 key: "quantityAndPacking",
@@ -789,7 +817,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   boxLeft: {
-    flex: 2,
+    flex: 1,
     borderWidth: 1,
     borderColor: "#000",
     padding: 8,
@@ -1028,5 +1056,9 @@ const styles = StyleSheet.create({
     padding: 8,
     backgroundColor: "#fff",
     marginRight: 4,
+  },
+  airportBoxEqual: {
+    flex: 1,
+    minHeight: 80,
   },
 });

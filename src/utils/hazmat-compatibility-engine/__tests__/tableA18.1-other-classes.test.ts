@@ -94,17 +94,14 @@ describe('PHASE 7: Class 2.1 (Flammable Gases) Relationships (Table A18.1)', () 
       expect(result.requiresSegregation).toBe(true);
     });
 
-    test('Class 2.1 + Class 2.3 Gas Other than Zone A = Incompatible (engine limitation)', async () => {
+    test('Class 2.1 + Class 2.3 Gas Other than Zone A = Segregation Required', async () => {
       const class21 = createMaterial('2.1', 'UN1011', 'BUTANE', 'N/A');
       const class23Other = createMaterial('2.3', 'UN1098', 'ALLYL ALCOHOL', 'N/A');
 
       const result = await evaluatePair(class21, class23Other);
 
-      // NOTE: Per TableA18.1.relationships.md, this SHOULD be segregation required
-      // but the engine currently treats all 2.3 gases the same (no zone differentiation)
-      // so it returns incompatible (same as Zone A). This is a known engine limitation.
-      expect(result.incompatible).toBe(true);
-      expect(result.requiresSegregation).toBe(false);
+      expect(result.incompatible).toBe(false);
+      expect(result.requiresSegregation).toBe(true);
     });
 
     test('Class 2.1 + Class 3 = Segregation Required', async () => {
@@ -117,44 +114,44 @@ describe('PHASE 7: Class 2.1 (Flammable Gases) Relationships (Table A18.1)', () 
       expect(result.requiresSegregation).toBe(true);
     });
 
-    test('Class 2.1 + Class 4.2 = Segregation Required', async () => {
+    test('Class 2.1 + Class 4.2 = Incompatible', async () => {
       const class21 = createMaterial('2.1', 'UN1011', 'BUTANE', 'N/A');
       const class42 = createMaterial('4.2', 'UN1369', 'p-NITROSODIMETHYLANILINE', 'N/A');
 
       const result = await evaluatePair(class21, class42);
 
-      expect(result.incompatible).toBe(false);
-      expect(result.requiresSegregation).toBe(true);
+      expect(result.incompatible).toBe(true);
+      expect(result.requiresSegregation).toBe(false);
     });
 
-    test('Class 2.1 + Class 4.3 = Segregation Required', async () => {
+    test('Class 2.1 + Class 4.3 = Incompatible', async () => {
       const class21 = createMaterial('2.1', 'UN1011', 'BUTANE', 'N/A');
       const class43 = createMaterial('4.3', 'UN1428', 'SODIUM', 'N/A');
 
       const result = await evaluatePair(class21, class43);
 
-      expect(result.incompatible).toBe(false);
-      expect(result.requiresSegregation).toBe(true);
+      expect(result.incompatible).toBe(true);
+      expect(result.requiresSegregation).toBe(false);
     });
 
-    test('Class 2.1 + Class 5.1 = Segregation Required', async () => {
+    test('Class 2.1 + Class 5.1 = Incompatible', async () => {
       const class21 = createMaterial('2.1', 'UN1011', 'BUTANE', 'N/A');
       const class51 = createMaterial('5.1', 'UN1479', 'OXIDIZING SOLID, N.O.S.', 'N/A');
 
       const result = await evaluatePair(class21, class51);
 
-      expect(result.incompatible).toBe(false);
-      expect(result.requiresSegregation).toBe(true);
+      expect(result.incompatible).toBe(true);
+      expect(result.requiresSegregation).toBe(false);
     });
 
-    test('Class 2.1 + Class 5.2 = Segregation Required', async () => {
+    test('Class 2.1 + Class 5.2 = Incompatible', async () => {
       const class21 = createMaterial('2.1', 'UN1011', 'BUTANE', 'N/A');
       const class52 = createMaterial('5.2', 'UN3109', 'ORGANIC PEROXIDE TYPE F, LIQUID', 'N/A');
 
       const result = await evaluatePair(class21, class52);
 
-      expect(result.incompatible).toBe(false);
-      expect(result.requiresSegregation).toBe(true);
+      expect(result.incompatible).toBe(true);
+      expect(result.requiresSegregation).toBe(false);
     });
 
     test('Class 2.1 + Class 6.1 = Segregation Required', async () => {

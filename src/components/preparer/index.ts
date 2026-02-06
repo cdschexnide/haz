@@ -11,5 +11,6 @@ export * from './ShipmentContextMenu';
 export * from './ShipmentTable';
 export * from './StandardLabelingContent';
 export * from './ToolButtonsBar';
+export * from './UnityPackagePreview';
 export * from './VehicleLabelingNotice';
 export * from './SpecialtyMaterialScreen';

@@ -31,7 +31,7 @@ export interface CheckboxOption {
 
 export interface ValueRegionRules {
   direction?: "below" | "right" | "below-and-right";
-  boundedBy?: string[];           // Other anchor fieldIds that bound this region
+  boundedBy?: Array<{ anchorId: string; constrains: "maxY" | "maxX" }>;  // Explicit boundary constraints
   fallback?: "below" | "right";   // Fallback direction if primary fails
   columnIndex?: number;           // For table columns
   rowBoundedBy?: string[];        // For table rows

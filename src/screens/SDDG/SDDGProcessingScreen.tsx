@@ -213,8 +213,8 @@ export default function ProcessingScreen() {
 
       console.log("🔄 Mapped to hazpro format:", mappedContent);
 
-      // Save to InspectionFormProvider context
-      setExtractedSDDGContent(mappedContent, imageUri);
+      // Save to InspectionFormProvider context (persists SDDG image to durable storage)
+      await setExtractedSDDGContent(mappedContent, imageUri);
       console.log("💾 Saved to InspectionFormProvider");
 
       // Navigate to verification screen

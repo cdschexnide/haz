@@ -16,6 +16,9 @@ import SimpleFieldEditModal from "../../components/Inspector/SimpleFieldEditModa
 import TappableSDDGField from "../../components/Inspector/TappableSDDGField";
 import TappableTableCell from "../../components/Inspector/TappableTableCell";
 import { useHazProStore } from "../../stores/useHazProStore";
+import MaterialLookupModal from "../../components/Inspector/MaterialLookupModal";
+import { HazardousMaterialItem } from "../../hazardousMaterials/hazardousMaterialsList";
+import { mapMaterialToSDDGFields } from "../../components/Inspector/materialLookupUtils";
 
 interface SDDGManualEntryScreenProps {
   navigation: any;
@@ -69,6 +72,7 @@ const SDDGManualEntryScreen: React.FC<SDDGManualEntryScreenProps> = ({
   // Local form state
   const [formData, setFormData] = useState<ExtractedSDDGContent>(EMPTY_FORM);
   const [modalVisible, setModalVisible] = useState(false);
+  const [materialLookupVisible, setMaterialLookupVisible] = useState(false);
   const [selectedField, setSelectedField] = useState<{
     key: keyof ExtractedSDDGContent;
     label: string;
@@ -86,10 +90,16 @@ const SDDGManualEntryScreen: React.FC<SDDGManualEntryScreenProps> = ({
     setExtractedSDDGContent(EMPTY_FORM);
   }, []);
 
-  // Handle field press - open simple text input modal
+  // Handle field press - open appropriate modal
   const handleFieldPress = useCallback(
     (fieldKey: string, fieldLabel: string, fieldValue: string) => {
       Vibration.vibrate(10);
+
+      // Special case: UN/ID No. opens the material lookup modal
+      if (fieldKey === "unIdNo") {
+        setMaterialLookupVisible(true);
+        return;
+      }
 
       // Determine if field should be multiline
       const multilineFields = [
@@ -128,6 +138,55 @@ const SDDGManualEntryScreen: React.FC<SDDGManualEntryScreenProps> = ({
     },
     [selectedField, formData, updateVerificationField]
   );
+
+  // Handle material selection from lookup modal
+  const handleMaterialSelect = useCallback(
+    (material: HazardousMaterialItem) => {
+      const mapped = mapMaterialToSDDGFields(material);
+
+      const updatedFormData = {
+        ...formData,
+        unIdNo: mapped.unIdNo,
+        properShippingName: mapped.properShippingName,
+        hazardClass: mapped.hazardClass,
+        subsidiaryRisk: mapped.subsidiaryRisk,
+        packingGroup: mapped.packingGroup,
+        packingInstruction: mapped.packingInstruction,
+        authorization: mapped.authorization,
+      };
+
+      setFormData(updatedFormData);
+
+      // Update each field in context
+      updateVerificationField("unIdNo", mapped.unIdNo);
+      updateVerificationField("properShippingName", mapped.properShippingName);
+      updateVerificationField("hazardClass", mapped.hazardClass);
+      updateVerificationField("subsidiaryRisk", mapped.subsidiaryRisk);
+      updateVerificationField("packingGroup", mapped.packingGroup);
+      updateVerificationField("packingInstruction", mapped.packingInstruction);
+      updateVerificationField("authorization", mapped.authorization);
+
+      setMaterialLookupVisible(false);
+
+      console.log(
+        `🔍 [ManualEntry] Material selected: ${material.unid} - ${material.properShippingName}`
+      );
+    },
+    [formData, updateVerificationField]
+  );
+
+  // Handle manual entry fallback from lookup modal
+  const handleMaterialLookupManualEntry = useCallback(() => {
+    setMaterialLookupVisible(false);
+
+    // Open the standard SimpleFieldEditModal for the unIdNo field
+    setSelectedField({
+      key: "unIdNo" as keyof ExtractedSDDGContent,
+      label: "UN or ID NO. (Key 11)",
+      multiline: false,
+    });
+    setModalVisible(true);
+  }, []);
 
   // Handle aircraft type direct selection
   const handleAircraftTypeSelect = useCallback(
@@ -711,6 +770,14 @@ const SDDGManualEntryScreen: React.FC<SDDGManualEntryScreenProps> = ({
           placeholder={`Enter ${selectedField.label.toLowerCase()}...`}
         />
       )}
+
+      {/* Material Lookup Modal */}
+      <MaterialLookupModal
+        visible={materialLookupVisible}
+        onClose={() => setMaterialLookupVisible(false)}
+        onSelect={handleMaterialSelect}
+        onManualEntry={handleMaterialLookupManualEntry}
+      />
     </SafeAreaView>
   );
 };

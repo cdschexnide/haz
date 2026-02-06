@@ -5,6 +5,10 @@ import {
 import { allHazmatCompatibilityKeys } from "@/utils/hazmat-compatibility-engine/allHazmatCompatibilityKeys";
 import { runGraphEngineOptimized } from "@/utils/hazmat-compatibility-engine/optimizedEngine";
 import { NoteConditionPair } from "@/utils/hazmat-compatibility-engine/engineTypes";
+import {
+  buildCompatibilityMatrix,
+  CellDetail,
+} from "@/utils/hazmat-compatibility-engine/matrixBuilder";
 import { Feather } from "@expo/vector-icons";
 import React, { useEffect, useRef, useState } from "react";
 import {
@@ -63,17 +67,6 @@ interface HazmatRow {
   selectedPackingGroup?: string; // User's choice
 }
 
-interface CellDetail {
-  status: "X" | "0" | "✓" | "-";
-  noteCondition: string | null;
-  noteContent?: string;
-  message: string;
-  material1Unid: string;
-  material2Unid: string;
-  material1Class: string;
-  material2Class: string;
-}
-
 // Type for grouped and deduplicated notes
 type GroupedNoteCondition = {
   noteCondition: string;
@@ -83,6 +76,78 @@ type GroupedNoteCondition = {
     material1: { unid: string; hazardClass: string };
     material2: { unid: string; hazardClass: string };
   }>;
+};
+
+const getNoteMetadata = (
+  noteCondition: string
+): { table: "A18.1" | "A18.2" | "A18.4" | "UNKNOWN"; number: number } => {
+  const a182Match = noteCondition.match(/^a18_2_note(\d+)$/);
+  if (a182Match) {
+    return { table: "A18.2", number: parseInt(a182Match[1], 10) };
+  }
+
+  const chapter3Match = noteCondition.match(/^chapter3_note(\d+)$/);
+  if (chapter3Match) {
+    return { table: "A18.4", number: parseInt(chapter3Match[1], 10) };
+  }
+
+  if (noteCondition === "chapter3_general") {
+    return { table: "A18.4", number: 0 };
+  }
+
+  const a181Match = noteCondition.match(/^note(\d+)$/);
+  if (a181Match) {
+    return { table: "A18.1", number: parseInt(a181Match[1], 10) };
+  }
+
+  return { table: "UNKNOWN", number: 999 };
+};
+
+const getNoteSortKey = (noteCondition: string): number => {
+  const metadata = getNoteMetadata(noteCondition);
+  const tableOrder =
+    metadata.table === "A18.1"
+      ? 1000
+      : metadata.table === "A18.2"
+      ? 2000
+      : metadata.table === "A18.4"
+      ? 3000
+      : 9000;
+  return tableOrder + metadata.number;
+};
+
+const formatNoteLabel = (noteCondition: string): string => {
+  if (noteCondition === "chapter3_general") {
+    return "CHAPTER 3 AUTHORIZATION";
+  }
+
+  const metadata = getNoteMetadata(noteCondition);
+  if (metadata.table === "UNKNOWN") {
+    return noteCondition.toUpperCase();
+  }
+
+  if (metadata.table === "A18.4") {
+    return `CHAPTER 3 RULE ${metadata.number}`;
+  }
+
+  return `TABLE ${metadata.table} NOTE ${metadata.number}`;
+};
+
+const formatNoteReference = (noteCondition: string): string => {
+  if (noteCondition === "chapter3_general") {
+    return "AFMAN 24-604 A18.4";
+  }
+
+  const metadata = getNoteMetadata(noteCondition);
+  if (metadata.table === "UNKNOWN") {
+    return "AFMAN 24-604";
+  }
+
+  if (metadata.table === "A18.4") {
+    return `AFMAN 24-604 A18.4.${metadata.number}`;
+  }
+
+  return `AFMAN 24-604 Table ${metadata.table} Note ${metadata.number}`;
 };
 
 interface CompatibilitySegregationModalProps {
@@ -127,9 +192,7 @@ const deduplicateAndSortNotes = (
 
   // Sort by noteCondition (note1, note4, note5, etc.)
   return Array.from(groupedMap.values()).sort((a, b) => {
-    const numA = parseInt(a.noteCondition.replace("note", ""));
-    const numB = parseInt(b.noteCondition.replace("note", ""));
-    return numA - numB;
+    return getNoteSortKey(a.noteCondition) - getNoteSortKey(b.noteCondition);
   });
 };
 
@@ -323,22 +386,13 @@ const CompatibilitySegregationModal: React.FC<
   }, []);
 
   const clearAll = React.useCallback(() => {
-    Alert.alert("Clear All", "Are you sure you want to clear all entries?", [
-      { text: "Cancel", style: "cancel" },
+    setHazmatRows([
       {
-        text: "Clear",
-        style: "destructive",
-        onPress: () => {
-          setHazmatRows([
-            {
-              id: "1",
-              unNumber: "",
-              properShippingName: "",
-              hazardClass: "",
-              packingGroup: "",
-            },
-          ]);
-        },
+        id: "1",
+        unNumber: "",
+        properShippingName: "",
+        hazardClass: "",
+        packingGroup: "",
       },
     ]);
   }, []);
@@ -610,139 +664,6 @@ const CompatibilitySegregationModal: React.FC<
     };
   };
 
-  const buildCompatibilityMatrix = (
-    hazmatInputs: CheckCompatibleHazmatInput[],
-    engineResult: any
-  ) => {
-    const n = hazmatInputs.length;
-    const matrix: string[][] = Array(n)
-      .fill(null)
-      .map(() => Array(n).fill(""));
-    const cellDetails: CellDetail[][] = Array(n)
-      .fill(null)
-      .map(() =>
-        Array(n)
-          .fill(null)
-          .map(() => ({
-            status: "✓" as const,
-            noteCondition: null,
-            message: "No Restrictions",
-            material1Unid: "",
-            material2Unid: "",
-            material1Class: "",
-            material2Class: "",
-          }))
-      );
-
-    const headers = hazmatInputs.map(h => h.unid.replace("UN", ""));
-
-    // Initialize cell details with material info
-    for (let i = 0; i < n; i++) {
-      for (let j = 0; j < n; j++) {
-        cellDetails[i][j].material1Unid = hazmatInputs[i].unid;
-        cellDetails[i][j].material2Unid = hazmatInputs[j].unid;
-        cellDetails[i][j].material1Class =
-          hazmatInputs[i].hazardClassDivisionNumber;
-        cellDetails[i][j].material2Class =
-          hazmatInputs[j].hazardClassDivisionNumber;
-
-        // Diagonal cells
-        if (i === j) {
-          cellDetails[i][j].status = "-";
-          cellDetails[i][j].message = "Same Material";
-        }
-      }
-    }
-
-    if (engineResult.hazmatCompatibilityKeys) {
-      engineResult.hazmatCompatibilityKeys.forEach((pair: any[]) => {
-        if (pair.length === 2) {
-          const idx1 = hazmatInputs.findIndex(
-            h =>
-              h.unid === pair[0].unid &&
-              h.properShippingName === pair[0].properShippingName
-          );
-          const idx2 = hazmatInputs.findIndex(
-            h =>
-              h.unid === pair[1].unid &&
-              h.properShippingName === pair[1].properShippingName
-          );
-
-          if (idx1 !== -1 && idx2 !== -1 && idx1 !== idx2) {
-            matrix[idx1][idx2] = "X";
-            matrix[idx2][idx1] = "X";
-            cellDetails[idx1][idx2].status = "X";
-            cellDetails[idx2][idx1].status = "X";
-            cellDetails[idx1][idx2].message = "Cannot Be Loaded";
-            cellDetails[idx2][idx1].message = "Cannot Be Loaded";
-          }
-        }
-      });
-    }
-
-    if (engineResult.segregatedHazmatMaterials) {
-      engineResult.segregatedHazmatMaterials.forEach((item: any) => {
-        if (item.hazmatObjectPair && item.hazmatObjectPair.length === 2) {
-          const idx1 = hazmatInputs.findIndex(
-            h =>
-              h.unid === item.hazmatObjectPair[0].unid &&
-              h.properShippingName ===
-                item.hazmatObjectPair[0].properShippingName
-          );
-          const idx2 = hazmatInputs.findIndex(
-            h =>
-              h.unid === item.hazmatObjectPair[1].unid &&
-              h.properShippingName ===
-                item.hazmatObjectPair[1].properShippingName
-          );
-
-          if (idx1 !== -1 && idx2 !== -1 && idx1 !== idx2) {
-            if (matrix[idx1][idx2] !== "X") {
-              matrix[idx1][idx2] = "0";
-              matrix[idx2][idx1] = "0";
-              cellDetails[idx1][idx2].status = "0";
-              cellDetails[idx2][idx1].status = "0";
-              cellDetails[idx1][idx2].message =
-                item.segregationDescription || "88 Inches of Separation";
-              cellDetails[idx2][idx1].message =
-                item.segregationDescription || "88 Inches of Separation";
-              cellDetails[idx1][idx2].noteCondition =
-                item.noteCondition || null;
-              cellDetails[idx2][idx1].noteCondition =
-                item.noteCondition || null;
-            }
-          }
-        }
-      });
-    }
-
-    // Process note condition pairs to add noteContent
-    if (engineResult.noteConditionPairs) {
-      engineResult.noteConditionPairs.forEach((item: any) => {
-        const idx1 = hazmatInputs.findIndex(
-          h =>
-            h.unid === item.hazmatObjectPair[0].unid &&
-            h.properShippingName === item.hazmatObjectPair[0].properShippingName
-        );
-        const idx2 = hazmatInputs.findIndex(
-          h =>
-            h.unid === item.hazmatObjectPair[1].unid &&
-            h.properShippingName === item.hazmatObjectPair[1].properShippingName
-        );
-
-        if (idx1 !== -1 && idx2 !== -1) {
-          // Add noteContent and noteCondition to cellDetails (works for all statuses)
-          cellDetails[idx1][idx2].noteCondition = item.noteCondition;
-          cellDetails[idx2][idx1].noteCondition = item.noteCondition;
-          cellDetails[idx1][idx2].noteContent = item.noteContent;
-          cellDetails[idx2][idx1].noteContent = item.noteContent;
-        }
-      });
-    }
-
-    return { matrix, headers, cellDetails };
-  };
-
   const handleRun = async () => {
     const invalidRows = hazmatRows.filter(
       row =>
@@ -774,7 +695,9 @@ const CompatibilitySegregationModal: React.FC<
         "formattedInputs: ",
         JSON.stringify(formattedInputs, null, 2)
       );
-      const result = await runGraphEngineOptimized(formattedInputs, rules);
+      const result = await runGraphEngineOptimized(formattedInputs, rules, false, {
+        chapter3Enabled,
+      });
 
       console.log("!! Engine result:", JSON.stringify(result, null, 2));
 
@@ -929,6 +852,76 @@ const CompatibilitySegregationModal: React.FC<
         description:
           "UN3528 does NOT require segregation from other hazardous materials, removing normal segregation requirements.",
       },
+      a18_2_note1: {
+        title: "Table A18.2 Note 1 - Group B Exception",
+        description:
+          'Group "B" explosives UN0255, UN0257, UN0267, and UN0361 may be loaded with groups "C," "D," and "E".',
+      },
+      a18_2_note2: {
+        title: "Table A18.2 Note 2 - MK 663 MOD 0",
+        description:
+          'Group "B" explosives in an EOD MK 663, MOD 0 container may be loaded with groups "C" through "H" and group "S".',
+      },
+      a18_2_note3: {
+        title: "Table A18.2 Note 3 - Group F Exception",
+        description:
+          'Group "F" explosives UN0292 may be loaded with groups "C," "D," and "E".',
+      },
+      a18_2_note4: {
+        title: "Table A18.2 Note 4 - Group G/S Exception",
+        description:
+          'Group "G" explosives UN0019, UN0300, UN0301, and UN0325 may be loaded with explosives compatible with group "S".',
+      },
+      a18_2_note5: {
+        title: "Table A18.2 Note 5 - Group G Exception",
+        description:
+          'Group "G" explosives UN0009, UN0018, UN0314, UN0315, UN0317, UN0319, and UN0320 may be loaded with groups "C," "D," and "E".',
+      },
+      a18_2_note6: {
+        title: "Table A18.2 Note 6 - Group L Restriction",
+        description:
+          'Group "L" explosives may only be loaded and transported with an identical item.',
+      },
+      a18_2_note7: {
+        title: "Table A18.2 Note 7 - UN0333 to UN0337 Restriction",
+        description:
+          "Class 1.1 and 1.2 explosives may not be shipped with UN0333, UN0334, UN0335, UN0336, and UN0337.",
+      },
+      a18_2_note8: {
+        title: "Table A18.2 Note 8 - Class 1.4 Group Exception",
+        description:
+          'Class 1.4 groups "B" and "G" may be loaded together or with Class 1.4 groups "C," "D," and "E".',
+      },
+      chapter3_general: {
+        title: "Chapter 3 Authorization",
+        description:
+          "Chapter 3 authorization permits deviations from Table A18.1 and Table A18.2; normally incompatible hazardous materials may be transported on the same aircraft when separated to the maximum extent possible.",
+      },
+      chapter3_note1: {
+        title: "Chapter 3 Rule 1 - Groups A/J/K/L Restriction",
+        description:
+          "Explosives in compatibility groups A, J, K, and L can only be shipped with material in compatibility group S and Class 9.",
+      },
+      chapter3_note2: {
+        title: "Chapter 3 Rule 2 - Class 7 Restriction",
+        description:
+          "Fissile class III radioactive materials (Class 7) cannot be loaded, transported, or stored on the same aircraft with any other hazardous material.",
+      },
+      chapter3_note3: {
+        title: "Chapter 3 Rule 3 - Inhalation Hazard Zone A Restriction",
+        description:
+          "Class 1.1, 1.2, and 1.3 cannot be shipped with any Inhalation Hazard Zone A material.",
+      },
+      chapter3_note4: {
+        title: "Chapter 3 Rule 4 - Class 6.1 PG I Restriction",
+        description:
+          "Class 1.1, 1.2, and 1.3 cannot be shipped with Class 6.1 poisonous liquids, PG I.",
+      },
+      chapter3_note5: {
+        title: "Chapter 3 Rule 5 - Cyanide Restriction",
+        description:
+          "Cyanides or cyanide mixtures (Class 6.1) cannot be loaded, transported, or stored with any corrosive Class 8 material.",
+      },
     };
 
     return noteDescriptions[noteCondition] || null;
@@ -975,7 +968,7 @@ const CompatibilitySegregationModal: React.FC<
         <View style={[styles.noteCard, borderColorStyle]}>
           <View style={styles.noteCardHeader}>
             <Text style={styles.noteNumber}>
-              {item.noteCondition.replace("note", "NOTE ").toUpperCase()}
+              {formatNoteLabel(item.noteCondition)}
             </Text>
             <View style={[styles.noteStatusBadgeSmall, badgeStyle]}>
               <Text style={styles.noteStatusText}>
@@ -1301,16 +1294,10 @@ const CompatibilitySegregationModal: React.FC<
                             if (!isDiagonal && cellDetailsMatrix.length > 0) {
                               // Get the original indices if we're in Class 1 only mode
                               const originalRowIndex = showClass1Only
-                                ? hazmatInputs.findIndex(
-                                    m =>
-                                      m.unid === displayedInputs[rowIndex].unid
-                                  )
+                                ? hazmatInputs.indexOf(displayedInputs[rowIndex])
                                 : rowIndex;
                               const originalColIndex = showClass1Only
-                                ? hazmatInputs.findIndex(
-                                    m =>
-                                      m.unid === displayedInputs[colIndex].unid
-                                  )
+                                ? hazmatInputs.indexOf(displayedInputs[colIndex])
                                 : colIndex;
 
                               if (
@@ -1935,20 +1922,15 @@ const CompatibilitySegregationModal: React.FC<
                       <View style={styles.noteHeader}>
                         <Feather name="info" size={20} color={colors.primary} />
                         <Text style={styles.noteTitle}>
-                          {selectedCellDetails.noteCondition
-                            .replace("note", "Note ")
-                            .toUpperCase()}
+                          {formatNoteLabel(selectedCellDetails.noteCondition)}
                         </Text>
                       </View>
                       <Text style={styles.noteDescription}>
                         {selectedCellDetails.noteContent}
                       </Text>
                       <Text style={styles.noteReference}>
-                        Reference: AFMAN 24-604 Table A18.1{" "}
-                        {selectedCellDetails.noteCondition.replace(
-                          "note",
-                          "Note "
-                        )}
+                        Reference:{" "}
+                        {formatNoteReference(selectedCellDetails.noteCondition)}
                       </Text>
                     </View>
                   )}

@@ -6,6 +6,7 @@ import React, {
   useCallback,
   useRef,
 } from "react";
+import * as FileSystem from "expo-file-system";
 import * as SQLite from "expo-sqlite";
 import { InspectorShipment, SDDGInspectionContext } from "@/types/sddg";
 import { initializeDatabase, DATABASE_NAME } from "./schema";
@@ -452,7 +453,18 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       const db = getDb();
       console.log("📊 [DataProvider] Deleting inspection:", id);
 
+      // Load inspection first to get the SDDG image URI for cleanup
+      const inspection = await loadInspection(id);
+      const imageUri = inspection?.inspectionContext?.originalImageUri;
+
       await db.runAsync("DELETE FROM inspector_shipments WHERE id = ?", [id]);
+
+      // Clean up persisted SDDG image file
+      if (imageUri && imageUri.includes("sddg_images/")) {
+        await FileSystem.deleteAsync(imageUri, { idempotent: true }).catch(err => {
+          console.warn("📊 [DataProvider] Failed to delete SDDG image:", err);
+        });
+      }
 
       console.log("📊 [DataProvider] Inspection deleted successfully");
     } catch (err) {
@@ -463,7 +475,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         err
       );
     }
-  }, []);
+  }, [loadInspection]);
 
   /**
    * List inspections with optional filters

@@ -246,8 +246,8 @@ describe('Note 5 Condition: Nitric acid in carboys segregation from other Class 
 
       const result = await evaluatePair(un2031, class3);
 
-      // Table A18.1: Class 8 + Class 3 = 'X' (incompatible)
-      expect(result.incompatible).toBe(true);
+      // Table A18.1 has no Class 8 liquid + Class 3 rule in docs/table mapping.
+      expect(result.incompatible).toBe(false);
       expect(result.requiresSegregation).toBe(false);
       expect(result.noteCondition).toBeNull();
     });
@@ -617,9 +617,9 @@ describe('Note 5 Condition: Nitric acid in carboys segregation from other Class 
 
       // Pairs evaluated:
       // 1. UN2031 + UN1789 = Segregation (Note 5)
-      // 2. UN2031 + UN1090 = Incompatible (Class 8 + 3 = 'X')
-      // 3. UN1789 + UN1090 = Incompatible (Class 8 + 3 = 'X')
-      expect(result.hazmatCompatibilityKeys.length).toBe(2);
+      // 2. UN2031 + UN1090 = Compatible
+      // 3. UN1789 + UN1090 = Compatible
+      expect(result.hazmatCompatibilityKeys.length).toBe(0);
       expect(result.segregatedHazmatMaterials.length).toBe(1);
 
       // Verify segregation pair is the nitric acid + other Class 8

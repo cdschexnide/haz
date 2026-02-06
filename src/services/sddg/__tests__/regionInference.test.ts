@@ -30,7 +30,7 @@ describe("regionInference", () => {
 
       const region = computeLabelTopLeftRegion(
         anchor,
-        { boundedBy: ["consignee"], direction: "below-and-right" },
+        { boundedBy: [{ anchorId: "consignee", constrains: "maxY" }], direction: "below-and-right" },
         boundingAnchors,
         imageWidth,
         imageHeight

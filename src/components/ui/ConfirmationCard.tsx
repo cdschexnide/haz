@@ -35,15 +35,15 @@ export const ConfirmationCard: React.FC<ConfirmationCardProps> = ({
       </View>
       <View style={styles.buttonRow}>
         <Button
-          label={declineLabel}
-          onPress={onDecline}
-          variant="destructive"
-          style={styles.button}
-        />
-        <Button
           label={acceptLabel}
           onPress={onAccept}
           variant="primary"
+          style={styles.button}
+        />
+        <Button
+          label={declineLabel}
+          onPress={onDecline}
+          variant="destructive"
           style={styles.button}
         />
       </View>

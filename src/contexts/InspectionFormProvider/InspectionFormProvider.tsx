@@ -20,6 +20,7 @@ import {
 } from "@/types/sddg";
 import { ExceptedQuantityData, LimitedQuantityData, Inspector } from "../../../types";
 import { InnerPackagingInspectionData } from "@/types/innerPackaging";
+import * as FileSystem from "expo-file-system";
 import { useDatabase } from "../DataProvider";
 import {
   InspectionFormState,
@@ -60,7 +61,7 @@ interface InspectionFormContextValue {
   setExtractedSDDGContent: (
     content: ExtractedSDDGContent,
     imageUri?: string
-  ) => void;
+  ) => Promise<void>;
   setVerificationCopy: (content: ExtractedSDDGContent) => void;
   updateVerificationField: <K extends keyof ExtractedSDDGContent>(
     field: K,
@@ -597,19 +598,46 @@ export function InspectionFormProvider({
   }, [inspectionId, database]);
 
   const setExtractedSDDGContent = useCallback(
-    (content: ExtractedSDDGContent, imageUri: string = "") => {
+    async (content: ExtractedSDDGContent, imageUri: string = "") => {
       console.log("📝 [InspectionForm] Setting extracted SDDG content");
+
+      // Persist scanned SDDG image to durable storage before setting state
+      let persistentImageUri = imageUri || null;
+      if (imageUri) {
+        try {
+          const dir = `${FileSystem.documentDirectory}sddg_images/`;
+          const dirInfo = await FileSystem.getInfoAsync(dir);
+          if (!dirInfo.exists) {
+            await FileSystem.makeDirectoryAsync(dir, { intermediates: true });
+          }
+          // Preserve original file extension
+          const ext = imageUri.includes(".") ? imageUri.substring(imageUri.lastIndexOf(".")) : ".jpg";
+          const filename = `sddg_${Date.now()}${ext}`;
+          const destUri = `${dir}${filename}`;
+          await FileSystem.copyAsync({ from: imageUri, to: destUri });
+          persistentImageUri = destUri;
+          console.log("📝 [InspectionForm] SDDG image persisted to:", destUri);
+        } catch (err) {
+          console.error("📝 [InspectionForm] Failed to persist SDDG image, using original URI:", err);
+          // Keep the original temp URI as fallback
+        }
+      }
 
       setInspection(prev => {
         // CRITICAL: Preserve existing frustrations
         const existingFrustrations = [...prev.frustrations];
         const existingPackageFrustrations = [...prev.packageFrustrations];
 
+        // Clean up old persisted image only after new one is safely stored
+        if (prev.originalImageUri && prev.originalImageUri.includes("sddg_images/")) {
+          FileSystem.deleteAsync(prev.originalImageUri, { idempotent: true }).catch(() => {});
+        }
+
         return {
           ...prev,
           extractedContent: { ...content },
           verificationCopy: { ...content }, // Create copy for user modifications
-          originalImageUri: imageUri,
+          originalImageUri: persistentImageUri,
           inspectionStartTime: new Date(),
           inspectionCompleteTime: null,
           // PRESERVE frustrations

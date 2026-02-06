@@ -103,6 +103,10 @@ jest.mock('@/components/preparer', () => {
           React.createElement(Text, null, 'Info')
         )
       ),
+    UnityPackagePreview: () =>
+      React.createElement(View, { testID: 'unity-preview' },
+        React.createElement(Text, null, 'Unity Preview')
+      ),
   };
 });
 
@@ -163,6 +167,7 @@ describe('LabelingAndMarkingScreen', () => {
 
       await waitFor(() => {
         expect(getByTestId('standard-content')).toBeTruthy();
+        expect(getByTestId('unity-preview')).toBeTruthy();
         expect(getByText('Labels: 2')).toBeTruthy();
         expect(getByText('Markings: 2')).toBeTruthy();
       });
@@ -234,6 +239,7 @@ describe('LabelingAndMarkingScreen', () => {
       await waitFor(() => {
         expect(getByTestId('vehicle-notice')).toBeTruthy();
         expect(queryByTestId('standard-content')).toBeNull();
+        expect(queryByTestId('unity-preview')).toBeNull();
       });
     });
   });
@@ -245,13 +251,15 @@ describe('LabelingAndMarkingScreen', () => {
       };
     });
 
-    it('navigates to ExceptedQuantityConfirmationScreen for excepted quantities', async () => {
-      render(
+    it('does not auto-route when excepted quantity routing is disabled', async () => {
+      const { getByTestId } = render(
         <LabelingAndMarkingScreen navigation={mockNavigation as any} />
       );
 
       await waitFor(() => {
-        expect(mockNavigation.navigate).toHaveBeenCalledWith('ExceptedQuantityConfirmationScreen');
+        expect(getByTestId('standard-content')).toBeTruthy();
+        expect(getByTestId('unity-preview')).toBeTruthy();
+        expect(mockNavigation.navigate).not.toHaveBeenCalledWith('ExceptedQuantityConfirmationScreen');
       });
     });
   });
@@ -263,13 +271,13 @@ describe('LabelingAndMarkingScreen', () => {
       };
     });
 
-    it('shows limited quantity notice when applicable', async () => {
-      const { getByTestId } = render(
+    it('does not show limited quantity notice while LQ flow is disabled', async () => {
+      const { queryByTestId } = render(
         <LabelingAndMarkingScreen navigation={mockNavigation as any} />
       );
 
       await waitFor(() => {
-        expect(getByTestId('limited-qty-notice')).toBeTruthy();
+        expect(queryByTestId('limited-qty-notice')).toBeNull();
       });
     });
   });
