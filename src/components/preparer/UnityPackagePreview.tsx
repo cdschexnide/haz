@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import {
+  BackHandler,
   ActivityIndicator,
   Modal,
   StyleSheet,
@@ -61,6 +62,16 @@ export const UnityPackagePreview: React.FC<UnityPackagePreviewProps> = ({
     }, 150);
   }, []);
 
+  // Android hardware back button closes fullscreen
+  useEffect(() => {
+    if (!isExpanded) return;
+    const sub = BackHandler.addEventListener("hardwareBackPress", () => {
+      handleClose();
+      return true;
+    });
+    return () => sub.remove();
+  }, [isExpanded, handleClose]);
+
   useEffect(() => {
     if (!isExpanded) {
       setShouldRenderFullscreenUnity(false);
@@ -73,35 +84,37 @@ export const UnityPackagePreview: React.FC<UnityPackagePreviewProps> = ({
         <Text style={styles.headerText}>3D Package Preview</Text>
       </View>
 
-      <View style={styles.unityContainer} testID="unity-preview">
-        {isMiniLoading && (
-          <View style={styles.miniLoadingOverlay}>
-            <ActivityIndicator size="large" color={colors.primary} />
-            <Text style={styles.miniLoadingText}>Loading...</Text>
+      {!isExpanded && (
+        <View style={styles.unityContainer} testID="unity-preview">
+          {isMiniLoading && (
+            <View style={styles.miniLoadingOverlay}>
+              <ActivityIndicator size="large" color={colors.primary} />
+              <Text style={styles.miniLoadingText}>Loading...</Text>
+            </View>
+          )}
+
+          <View style={[styles.unityContent, isMiniLoading && styles.hiddenContent]}>
+            <UnityApp
+              key={`mini-unity-${unityKey}`}
+              requiredMarkings={requiredMarkings}
+              requiredLabels={requiredLabels}
+              packageCode={packageCode}
+              packageType={packageType}
+              isFullscreen={false}
+              shipmentData={shipmentData}
+            />
           </View>
-        )}
 
-        <View style={[styles.unityContent, isMiniLoading && styles.hiddenContent]}>
-          <UnityApp
-            key={`mini-unity-${unityKey}`}
-            requiredMarkings={requiredMarkings}
-            requiredLabels={requiredLabels}
-            packageCode={packageCode}
-            packageType={packageType}
-            isFullscreen={false}
-            shipmentData={shipmentData}
-          />
+          {!isMiniLoading && (
+            <TouchableOpacity
+              testID="unity-expand-overlay"
+              style={styles.unityOverlay}
+              activeOpacity={1}
+              onPress={handleExpand}
+            />
+          )}
         </View>
-
-        {!isMiniLoading && (
-          <TouchableOpacity
-            testID="unity-expand-overlay"
-            style={styles.unityOverlay}
-            activeOpacity={1}
-            onPress={handleExpand}
-          />
-        )}
-      </View>
+      )}
 
       <Modal
         visible={isExpanded}

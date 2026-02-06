@@ -23,6 +23,7 @@ interface UnityAppProps {
 
 const UNITY_READY_FALLBACK_MS = 800;
 const SEND_DELAY_MS = 200;
+const RESEND_DELAY_MS = 500;
 
 const UnityApp = ({
   requiredMarkings = [],
@@ -33,6 +34,7 @@ const UnityApp = ({
   isFullscreen = false,
 }: UnityAppProps) => {
   const unityRef = useRef<UnityView>(null);
+  const lastLayoutRef = useRef<{ width: number; height: number } | null>(null);
   const [isUnityReady, setIsUnityReady] = useState(false);
 
   const postMessage = useCallback(
@@ -58,14 +60,32 @@ const UnityApp = ({
 
   const handleLayout = useCallback(
     (event: LayoutChangeEvent) => {
-      if (!isUnityReady) {
-        return;
-      }
       const { width, height } = event.nativeEvent.layout;
-      postMessage("Resize", JSON.stringify({ width, height }));
+      lastLayoutRef.current = { width, height };
+
+      if (isUnityReady) {
+        setTimeout(() => {
+          postMessage("Resize", JSON.stringify({ width, height }));
+        }, 200);
+      }
     },
     [isUnityReady, postMessage]
   );
+
+  // Replay the latest measured layout once Unity transitions to "ready".
+  // This prevents first-open aspect/input issues when onLayout fires earlier.
+  useEffect(() => {
+    if (!isUnityReady || !lastLayoutRef.current) {
+      return;
+    }
+
+    const { width, height } = lastLayoutRef.current;
+    const timer = setTimeout(() => {
+      postMessage("Resize", JSON.stringify({ width, height }));
+    }, 200);
+
+    return () => clearTimeout(timer);
+  }, [isUnityReady, postMessage]);
 
   useEffect(() => {
     if (!isUnityReady) {
@@ -100,6 +120,46 @@ const UnityApp = ({
     requiredMarkings,
     shipmentData,
   ]);
+
+  // Re-send labels at 500ms — fires on prop change regardless of isUnityReady.
+  // Unity needs this early send during its initialization window to properly
+  // render labels with correct positioning and curvature.
+  useEffect(() => {
+    if (requiredLabels.length > 0) {
+      const timer = setTimeout(() => {
+        postMessage("GetRequiredLabels", JSON.stringify(requiredLabels));
+      }, RESEND_DELAY_MS);
+      return () => clearTimeout(timer);
+    }
+  }, [requiredLabels, postMessage]);
+
+  // Re-send package data at 500ms — same pattern as labels.
+  // Ensures Unity properly initializes the 3D model rendering.
+  useEffect(() => {
+    if (packageCode || packageType) {
+      const timer = setTimeout(() => {
+        postMessage(
+          "GetPackageData",
+          JSON.stringify({ code: packageCode || "", type: packageType || "" })
+        );
+      }, RESEND_DELAY_MS);
+      return () => clearTimeout(timer);
+    }
+  }, [packageCode, packageType, postMessage]);
+
+  // Re-send markings at 500ms — ensures proper marking rendering
+  // (white boxes, text positioning on drum surface).
+  useEffect(() => {
+    if (requiredMarkings.length > 0) {
+      const timer = setTimeout(() => {
+        postMessage(
+          "GetRequiredMarkings",
+          JSON.stringify(requiredMarkings)
+        );
+      }, RESEND_DELAY_MS);
+      return () => clearTimeout(timer);
+    }
+  }, [requiredMarkings, postMessage]);
 
   return (
     <View style={styles.container} onLayout={handleLayout}>
