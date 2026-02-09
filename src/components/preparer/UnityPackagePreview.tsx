@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect } from "react";
 import {
-  BackHandler,
   ActivityIndicator,
+  BackHandler,
   Modal,
   StyleSheet,
   Text,
@@ -29,54 +29,51 @@ export const UnityPackagePreview: React.FC<UnityPackagePreviewProps> = ({
   packageType,
   shipmentData,
 }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [shouldRenderFullscreenUnity, setShouldRenderFullscreenUnity] =
-    useState(false);
-  const [isUnityLoading, setIsUnityLoading] = useState(false);
-  const [isMiniLoading, setIsMiniLoading] = useState(false);
-  const [unityKey, setUnityKey] = useState(0);
+  const [isExpanded, setIsExpanded] = React.useState(false);
+  const [isFullscreenStable, setIsFullscreenStable] = React.useState(false);
 
   const handleExpand = useCallback(() => {
     setIsExpanded(true);
-    setIsUnityLoading(true);
-    setUnityKey(prev => prev + 1);
-
-    setTimeout(() => {
-      setShouldRenderFullscreenUnity(true);
-      setTimeout(() => {
-        setIsUnityLoading(false);
-      }, 1000);
-    }, 150);
+    setIsFullscreenStable(false);
   }, []);
 
   const handleClose = useCallback(() => {
-    setShouldRenderFullscreenUnity(false);
-    setIsUnityLoading(false);
-    setIsMiniLoading(true);
+    setIsExpanded(false);
+    setIsFullscreenStable(false);
+  }, []);
 
-    setTimeout(() => {
-      setIsExpanded(false);
-      setTimeout(() => {
-        setIsMiniLoading(false);
-      }, 1000);
-    }, 150);
+  const handleFullscreenUnityMessage = useCallback((message: string) => {
+    if (message.toLowerCase().includes("canvas resized")) {
+      setIsFullscreenStable(true);
+    }
   }, []);
 
   // Android hardware back button closes fullscreen
   useEffect(() => {
-    if (!isExpanded) return;
+    if (!isExpanded) {
+      return;
+    }
+
     const sub = BackHandler.addEventListener("hardwareBackPress", () => {
       handleClose();
       return true;
     });
+
     return () => sub.remove();
   }, [isExpanded, handleClose]);
 
+  // Fallback so fullscreen doesn't stay blocked if Unity doesn't emit resize logs.
   useEffect(() => {
-    if (!isExpanded) {
-      setShouldRenderFullscreenUnity(false);
+    if (!isExpanded || isFullscreenStable) {
+      return;
     }
-  }, [isExpanded]);
+
+    const timer = setTimeout(() => {
+      setIsFullscreenStable(true);
+    }, 2500);
+
+    return () => clearTimeout(timer);
+  }, [isExpanded, isFullscreenStable]);
 
   return (
     <View style={styles.container}>
@@ -86,33 +83,21 @@ export const UnityPackagePreview: React.FC<UnityPackagePreviewProps> = ({
 
       {!isExpanded && (
         <View style={styles.unityContainer} testID="unity-preview">
-          {isMiniLoading && (
-            <View style={styles.miniLoadingOverlay}>
-              <ActivityIndicator size="large" color={colors.primary} />
-              <Text style={styles.miniLoadingText}>Loading...</Text>
-            </View>
-          )}
+          <UnityApp
+            requiredMarkings={requiredMarkings}
+            requiredLabels={requiredLabels}
+            packageCode={packageCode}
+            packageType={packageType}
+            isFullscreen={false}
+            shipmentData={shipmentData}
+          />
 
-          <View style={[styles.unityContent, isMiniLoading && styles.hiddenContent]}>
-            <UnityApp
-              key={`mini-unity-${unityKey}`}
-              requiredMarkings={requiredMarkings}
-              requiredLabels={requiredLabels}
-              packageCode={packageCode}
-              packageType={packageType}
-              isFullscreen={false}
-              shipmentData={shipmentData}
-            />
-          </View>
-
-          {!isMiniLoading && (
-            <TouchableOpacity
-              testID="unity-expand-overlay"
-              style={styles.unityOverlay}
-              activeOpacity={1}
-              onPress={handleExpand}
-            />
-          )}
+          <TouchableOpacity
+            testID="unity-expand-overlay"
+            style={styles.unityOverlay}
+            activeOpacity={1}
+            onPress={handleExpand}
+          />
         </View>
       )}
 
@@ -121,41 +106,36 @@ export const UnityPackagePreview: React.FC<UnityPackagePreviewProps> = ({
         transparent={false}
         animationType="fade"
         onRequestClose={handleClose}
-        hardwareAccelerated={true}
-        statusBarTranslucent={true}
+        hardwareAccelerated
+        statusBarTranslucent={false}
       >
         <View style={styles.fullscreenUnityWrapper}>
-          <TouchableOpacity
-            testID="unity-close-button"
-            onPress={handleClose}
-            style={styles.closeButtonLarge}
-          >
-            <Ionicons name="close" size={32} color="#fff" />
-          </TouchableOpacity>
-
-          {isUnityLoading && (
-            <View style={styles.loadingOverlay}>
-              <ActivityIndicator size="large" color="#fff" />
-              <Text style={styles.loadingText}>Loading 3D View...</Text>
-            </View>
-          )}
-
-          {shouldRenderFullscreenUnity && (
-            <View
-              style={[
-                styles.fullscreenUnityContent,
-                isUnityLoading && styles.hiddenContent,
-              ]}
+          <View style={styles.closeButtonContainer} pointerEvents="box-none">
+            <TouchableOpacity
+              testID="unity-close-button"
+              onPress={handleClose}
+              style={styles.closeButtonLarge}
             >
-              <UnityApp
-                key={`fullscreen-unity-${unityKey}`}
-                requiredMarkings={requiredMarkings}
-                requiredLabels={requiredLabels}
-                packageCode={packageCode}
-                packageType={packageType}
-                isFullscreen={true}
-                shipmentData={shipmentData}
-              />
+              <Ionicons name="close" size={32} color="#fff" />
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.fullscreenUnityContent}>
+            <UnityApp
+              requiredMarkings={requiredMarkings}
+              requiredLabels={requiredLabels}
+              packageCode={packageCode}
+              packageType={packageType}
+              isFullscreen
+              shipmentData={shipmentData}
+              onUnityBridgeMessage={handleFullscreenUnityMessage}
+            />
+          </View>
+
+          {!isFullscreenStable && (
+            <View style={styles.fullscreenLoadingOverlay} pointerEvents="none">
+              <ActivityIndicator size="large" color="#fff" />
+              <Text style={styles.fullscreenLoadingText}>Preparing 3D View...</Text>
             </View>
           )}
         </View>
@@ -187,9 +167,6 @@ const styles = StyleSheet.create({
     position: "relative",
     backgroundColor: colors.surface,
   },
-  unityContent: {
-    flex: 1,
-  },
   unityOverlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: "transparent",
@@ -198,51 +175,39 @@ const styles = StyleSheet.create({
   fullscreenUnityWrapper: {
     flex: 1,
     backgroundColor: "black",
-    width: "100%",
-    height: "100%",
   },
   fullscreenUnityContent: {
     flex: 1,
     width: "100%",
     height: "100%",
   },
-  closeButtonLarge: {
+  closeButtonContainer: {
     position: "absolute",
-    top: 40,
-    right: 20,
-    zIndex: 10,
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 20,
+  },
+  closeButtonLarge: {
+    alignSelf: "flex-end",
+    marginTop: 40,
+    marginRight: 20,
     backgroundColor: "rgba(0,0,0,0.6)",
     borderRadius: 20,
     padding: 6,
   },
-  miniLoadingOverlay: {
+  fullscreenLoadingOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(255,255,255,0.95)",
+    backgroundColor: "black",
     justifyContent: "center",
     alignItems: "center",
-    zIndex: 999,
-    borderRadius: 10,
+    zIndex: 10,
   },
-  miniLoadingText: {
-    color: colors.primary,
-    fontSize: 16,
-    marginTop: 12,
-    fontWeight: "600",
-  },
-  loadingOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0, 0, 0, 0.8)",
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 999,
-  },
-  loadingText: {
+  fullscreenLoadingText: {
     color: "#fff",
-    fontSize: 18,
     marginTop: 12,
-  },
-  hiddenContent: {
-    opacity: 0,
+    fontSize: 16,
+    fontWeight: "600",
   },
 });
 

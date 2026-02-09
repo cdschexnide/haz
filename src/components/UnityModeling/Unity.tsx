@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import UnityView from "@azesmway/react-native-unity";
-import { LayoutChangeEvent, StyleSheet, View } from "react-native";
+import { LayoutChangeEvent, Platform, StyleSheet, View } from "react-native";
 
 export interface UnityShipmentData {
   tcn: string;
@@ -19,11 +19,13 @@ interface UnityAppProps {
   packageType?: string;
   shipmentData?: UnityShipmentData;
   isFullscreen?: boolean;
+  onUnityBridgeMessage?: (message: string) => void;
 }
 
-const UNITY_READY_FALLBACK_MS = 800;
-const SEND_DELAY_MS = 200;
-const RESEND_DELAY_MS = 500;
+const UNITY_READY_FALLBACK_MS = 3000;
+const RESIZE_RETRY_DELAYS_MS = [0, 120, 300, 700, 1300, 2200, 3500, 5000, 7000];
+const DATA_RETRY_DELAYS_MS = [250, 700, 1400, 2400, 3600, 5200, 7000, 9000];
+const FOCUS_RETRY_DELAYS_MS = [0, 120, 360, 750, 1300, 2000];
 
 const UnityApp = ({
   requiredMarkings = [],
@@ -32,87 +34,57 @@ const UnityApp = ({
   packageType = "",
   shipmentData,
   isFullscreen = false,
+  onUnityBridgeMessage,
 }: UnityAppProps) => {
   const unityRef = useRef<UnityView>(null);
   const lastLayoutRef = useRef<{ width: number; height: number } | null>(null);
+  const resizeBurstCleanupRef = useRef<(() => void) | null>(null);
   const [isUnityReady, setIsUnityReady] = useState(false);
 
-  const postMessage = useCallback(
-    (method: string, payload: string) => {
-      unityRef.current?.postMessage?.("ReactToUnity", method, payload);
+  const postMessage = useCallback((method: string, payload: string) => {
+    unityRef.current?.postMessage?.("ReactToUnity", method, payload);
+  }, []);
+
+  const scheduleBurst = useCallback(
+    (callback: () => void, delays: number[]) => {
+      const timers: ReturnType<typeof setTimeout>[] = delays.map(delay =>
+        setTimeout(callback, delay)
+      );
+
+      return () => {
+        timers.forEach(clearTimeout);
+      };
     },
     []
   );
 
-  const handleUnityMessage = useCallback((result: any) => {
-    const message = result?.nativeEvent?.message;
-    if (message === "UnityReady" || message === "ready") {
-      setIsUnityReady(true);
-    }
-  }, []);
-
-  // Unity currently does not consistently emit a ready event.
-  useEffect(() => {
-    setIsUnityReady(false);
-    const timer = setTimeout(() => setIsUnityReady(true), UNITY_READY_FALLBACK_MS);
-    return () => clearTimeout(timer);
-  }, [isFullscreen]);
-
-  const handleLayout = useCallback(
-    (event: LayoutChangeEvent) => {
-      const { width, height } = event.nativeEvent.layout;
-      lastLayoutRef.current = { width, height };
-
-      if (isUnityReady) {
-        setTimeout(() => {
-          postMessage("Resize", JSON.stringify({ width, height }));
-        }, 200);
+  const sendResize = useCallback(
+    (width: number, height: number) => {
+      if (width <= 0 || height <= 0) {
+        return () => {};
       }
+
+      const payload = JSON.stringify({ width, height });
+      return scheduleBurst(
+        () => postMessage("Resize", payload),
+        RESIZE_RETRY_DELAYS_MS
+      );
     },
-    [isUnityReady, postMessage]
+    [postMessage, scheduleBurst]
   );
 
-  // Replay the latest measured layout once Unity transitions to "ready".
-  // This prevents first-open aspect/input issues when onLayout fires earlier.
-  useEffect(() => {
-    if (!isUnityReady || !lastLayoutRef.current) {
-      return;
+  const pushSceneData = useCallback(() => {
+    postMessage("GetRequiredMarkings", JSON.stringify(requiredMarkings));
+    postMessage("GetRequiredLabels", JSON.stringify(requiredLabels));
+    postMessage(
+      "GetPackageData",
+      JSON.stringify({ code: packageCode || "", type: packageType || "" })
+    );
+
+    if (shipmentData) {
+      postMessage("GetShipmentData", JSON.stringify(shipmentData));
     }
-
-    const { width, height } = lastLayoutRef.current;
-    const timer = setTimeout(() => {
-      postMessage("Resize", JSON.stringify({ width, height }));
-    }, 200);
-
-    return () => clearTimeout(timer);
-  }, [isUnityReady, postMessage]);
-
-  useEffect(() => {
-    if (!isUnityReady) {
-      return;
-    }
-
-    const timer = setTimeout(() => {
-      if (requiredMarkings.length > 0) {
-        postMessage("GetRequiredMarkings", JSON.stringify(requiredMarkings));
-      }
-      if (requiredLabels.length > 0) {
-        postMessage("GetRequiredLabels", JSON.stringify(requiredLabels));
-      }
-      if (packageCode || packageType) {
-        postMessage(
-          "GetPackageData",
-          JSON.stringify({ code: packageCode || "", type: packageType || "" })
-        );
-      }
-      if (shipmentData) {
-        postMessage("GetShipmentData", JSON.stringify(shipmentData));
-      }
-    }, SEND_DELAY_MS);
-
-    return () => clearTimeout(timer);
   }, [
-    isUnityReady,
     packageCode,
     packageType,
     postMessage,
@@ -121,52 +93,101 @@ const UnityApp = ({
     shipmentData,
   ]);
 
-  // Re-send labels at 500ms — fires on prop change regardless of isUnityReady.
-  // Unity needs this early send during its initialization window to properly
-  // render labels with correct positioning and curvature.
-  useEffect(() => {
-    if (requiredLabels.length > 0) {
-      const timer = setTimeout(() => {
-        postMessage("GetRequiredLabels", JSON.stringify(requiredLabels));
-      }, RESEND_DELAY_MS);
-      return () => clearTimeout(timer);
-    }
-  }, [requiredLabels, postMessage]);
+  const refreshFocusAndResize = useCallback(() => {
+    unityRef.current?.windowFocusChanged?.(true);
+    unityRef.current?.resumeUnity?.();
 
-  // Re-send package data at 500ms — same pattern as labels.
-  // Ensures Unity properly initializes the 3D model rendering.
-  useEffect(() => {
-    if (packageCode || packageType) {
-      const timer = setTimeout(() => {
-        postMessage(
-          "GetPackageData",
-          JSON.stringify({ code: packageCode || "", type: packageType || "" })
-        );
-      }, RESEND_DELAY_MS);
-      return () => clearTimeout(timer);
+    if (lastLayoutRef.current) {
+      postMessage("Resize", JSON.stringify(lastLayoutRef.current));
     }
-  }, [packageCode, packageType, postMessage]);
+  }, [postMessage]);
 
-  // Re-send markings at 500ms — ensures proper marking rendering
-  // (white boxes, text positioning on drum surface).
-  useEffect(() => {
-    if (requiredMarkings.length > 0) {
-      const timer = setTimeout(() => {
-        postMessage(
-          "GetRequiredMarkings",
-          JSON.stringify(requiredMarkings)
-        );
-      }, RESEND_DELAY_MS);
-      return () => clearTimeout(timer);
+  const resetResizeBurst = useCallback(
+    (width: number, height: number) => {
+      if (resizeBurstCleanupRef.current) {
+        resizeBurstCleanupRef.current();
+      }
+
+      resizeBurstCleanupRef.current = sendResize(width, height);
+    },
+    [sendResize]
+  );
+
+  const handleUnityMessage = useCallback((result: any) => {
+    const message = result?.nativeEvent?.message;
+    if (message) {
+      onUnityBridgeMessage?.(message);
+      // Treat any Unity -> RN bridge message as proof the player is initialized.
+      setIsUnityReady(true);
     }
-  }, [requiredMarkings, postMessage]);
+  }, [onUnityBridgeMessage]);
+
+  // Some builds do not emit a strict ready event; fallback keeps retries alive.
+  useEffect(() => {
+    setIsUnityReady(false);
+    const timer = setTimeout(() => setIsUnityReady(true), UNITY_READY_FALLBACK_MS);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (resizeBurstCleanupRef.current) {
+        resizeBurstCleanupRef.current();
+      }
+    };
+  }, []);
+
+  const handleLayout = useCallback(
+    (event: LayoutChangeEvent) => {
+      const { width, height } = event.nativeEvent.layout;
+      if (width <= 0 || height <= 0) {
+        return;
+      }
+
+      lastLayoutRef.current = { width, height };
+      resetResizeBurst(width, height);
+    },
+    [resetResizeBurst]
+  );
+
+  // Replay the latest measured layout once Unity transitions to ready.
+  useEffect(() => {
+    if (!isUnityReady || !lastLayoutRef.current) {
+      return;
+    }
+
+    const { width, height } = lastLayoutRef.current;
+    return sendResize(width, height);
+  }, [isUnityReady, sendResize]);
+
+  // Force focus + resize on fullscreen transitions for reliable gesture input.
+  useEffect(() => {
+    const delays = isFullscreen ? FOCUS_RETRY_DELAYS_MS : [0, 400];
+    return scheduleBurst(refreshFocusAndResize, delays);
+  }, [isFullscreen, refreshFocusAndResize, scheduleBurst]);
+
+  // Keep trying until Unity native libs are ready to accept bridge messages.
+  useEffect(() => {
+    return scheduleBurst(pushSceneData, DATA_RETRY_DELAYS_MS);
+  }, [pushSceneData, scheduleBurst]);
+
+  // Once bridge communication is confirmed, do a short immediate flush.
+  useEffect(() => {
+    if (!isUnityReady) {
+      return;
+    }
+
+    return scheduleBurst(pushSceneData, [0, 250, 700]);
+  }, [isUnityReady, pushSceneData, scheduleBurst]);
 
   return (
     <View style={styles.container} onLayout={handleLayout}>
       <UnityView
         ref={unityRef}
-        style={[styles.unityView, isFullscreen && styles.fullscreenUnity]}
+        style={styles.unityView}
         onUnityMessage={handleUnityMessage}
+        androidKeepPlayerMounted={Platform.OS === "android"}
+        fullScreen={isFullscreen}
       />
     </View>
   );
@@ -182,13 +203,6 @@ const styles = StyleSheet.create({
     flex: 1,
     width: "100%",
     height: "100%",
-  },
-  fullscreenUnity: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
   },
 });
 
