@@ -1,12 +1,15 @@
 // src/screens/preparer/LabelingAndMarkingScreen.tsx
 
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, ScrollView, StyleSheet } from 'react-native';
+import { View, ScrollView, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 import {
   ActionFooter,
   DocumentModal,
   colors,
   spacing,
+  borderRadius,
+  typography,
 } from '@/components/ui';
 import {
   VehicleLabelingNotice,
@@ -40,10 +43,10 @@ export const LabelingAndMarkingScreen: React.FC<LabelingAndMarkingScreenProps> =
   const [modalContent, setModalContent] = useState('');
 
   const completedSubsteps = state.hazProPreparerContext.completedSubsteps;
-  const isVehicle = state.hazProPreparerContext.hazardousMaterial?.unid === 'UN3166';
+  const hazMat = state.hazProPreparerContext.hazardousMaterial;
+  const isVehicle = hazMat?.unid === 'UN3166';
   const packageCode = state.hazProPreparerContext.packaging?.inputPOPMarking?.B ?? '';
   const packageType = getContainerDescriptionFromCode(packageCode) ?? '';
-  // EQ/LQ logic intentionally disabled for demo purposes.
   const isLimitedQuantity = false;
 
   // Update required markings and labels when relevant state changes
@@ -69,9 +72,8 @@ export const LabelingAndMarkingScreen: React.FC<LabelingAndMarkingScreenProps> =
   };
 
   // Handle info button press - show packaging regulations modal
-  const handleInfoPress = useCallback((id: string) => {
-    const packagingParagraph =
-      state.hazProPreparerContext.hazardousMaterial?.packagingParagraph;
+  const handleInfoPress = useCallback(() => {
+    const packagingParagraph = hazMat?.packagingParagraph;
     if (packagingParagraph) {
       const attachmentNumber = getAttachmentNumber(packagingParagraph);
       const documentNodesList = getDocumentNodes(attachmentNumber);
@@ -82,7 +84,7 @@ export const LabelingAndMarkingScreen: React.FC<LabelingAndMarkingScreenProps> =
       setModalContent(renderedContent);
       setIsModalVisible(true);
     }
-  }, [state.hazProPreparerContext.hazardousMaterial?.packagingParagraph]);
+  }, [hazMat?.packagingParagraph]);
 
   // Navigation handlers
   const handleCancel = useCallback(() => {
@@ -103,8 +105,6 @@ export const LabelingAndMarkingScreen: React.FC<LabelingAndMarkingScreenProps> =
     ];
     navigation.navigate('ShippersDeclarationScreen');
   }, [completedSubsteps, navigation, store.hazProPreparerContext]);
-
-  // EQ/LQ routing intentionally disabled for demo purposes.
 
   const prepareShipmentData = useCallback(() => {
     const shipment = state.hazProPreparerContext.shipment;
@@ -146,7 +146,6 @@ export const LabelingAndMarkingScreen: React.FC<LabelingAndMarkingScreenProps> =
     state.hazProPreparerContext.shipper,
   ]);
 
-  // Common footer buttons for both vehicle and standard shipments
   const footerButtons = [
     {
       label: 'Cancel',
@@ -165,36 +164,83 @@ export const LabelingAndMarkingScreen: React.FC<LabelingAndMarkingScreenProps> =
     },
   ];
 
-  // Vehicle shipment - simplified view
+  const subtitle = [
+    hazMat?.unid,
+    hazMat?.properShippingName,
+    hazMat?.hazclassDiv ? `Class ${hazMat.hazclassDiv}` : '',
+  ]
+    .filter(Boolean)
+    .join(' \u00B7 ');
+
+  // Vehicle shipment - simplified view (still with 3D preview)
   if (isVehicle) {
     return (
       <View style={styles.container}>
-        <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-          <VehicleLabelingNotice />
-        </ScrollView>
+        <View style={styles.columnsContainer}>
+          <View style={styles.leftColumn}>
+            <ScrollView contentContainerStyle={styles.leftContent}>
+              <View style={styles.header}>
+                <Text style={styles.headerTitle}>Labeling & Marking Requirements</Text>
+                <Text style={styles.headerSubtitle}>{subtitle}</Text>
+              </View>
+              <VehicleLabelingNotice />
+            </ScrollView>
+          </View>
+          <View style={styles.rightColumn}>
+            <UnityPackagePreview
+              requiredMarkings={requiredMarkings}
+              requiredLabels={requiredLabels}
+              packageCode={packageCode}
+              packageType={packageType}
+              shipmentData={prepareShipmentData()}
+            />
+          </View>
+        </View>
         <ActionFooter buttons={footerButtons} />
       </View>
     );
   }
 
-  // Standard shipment - full labeling and marking content
+  // Standard shipment - two-column layout
   return (
     <View style={styles.container}>
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-        <StandardLabelingContent
-          requiredLabels={requiredLabels}
-          requiredMarkings={requiredMarkings}
-          limitedQuantity={isLimitedQuantity}
-          onInfoPress={handleInfoPress}
-        />
-        <UnityPackagePreview
-          requiredMarkings={requiredMarkings}
-          requiredLabels={requiredLabels}
-          packageCode={packageCode}
-          packageType={packageType}
-          shipmentData={prepareShipmentData()}
-        />
-      </ScrollView>
+      <View style={styles.columnsContainer}>
+        <View style={styles.leftColumn}>
+          <ScrollView contentContainerStyle={styles.leftContent}>
+            <View style={styles.header}>
+              <View style={styles.headerTopRow}>
+                <Text style={styles.headerTitle}>Labeling & Marking Requirements</Text>
+                <TouchableOpacity
+                  testID="info-button"
+                  style={styles.infoButton}
+                  onPress={handleInfoPress}
+                  accessibilityLabel="View packaging regulations"
+                  accessibilityRole="button"
+                >
+                  <MaterialIcons name="menu-book" size={20} color={colors.primary} />
+                  <Text style={styles.infoButtonText}>Regs</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <StandardLabelingContent
+              requiredLabels={requiredLabels}
+              requiredMarkings={requiredMarkings}
+              limitedQuantity={isLimitedQuantity}
+            />
+          </ScrollView>
+        </View>
+
+        <View style={styles.rightColumn}>
+          <UnityPackagePreview
+            requiredMarkings={requiredMarkings}
+            requiredLabels={requiredLabels}
+            packageCode={packageCode}
+            packageType={packageType}
+            shipmentData={prepareShipmentData()}
+          />
+        </View>
+      </View>
 
       <ActionFooter buttons={footerButtons} />
 
@@ -213,11 +259,52 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  scrollView: {
+  columnsContainer: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  leftColumn: {
+    flex: 45,
+  },
+  leftContent: {
+    paddingBottom: spacing.lg,
+  },
+  rightColumn: {
+    flex: 55,
+    borderLeftWidth: 1,
+    borderLeftColor: colors.border,
+  },
+  header: {
+    padding: spacing.lg,
+    paddingBottom: spacing.md,
+  },
+  headerTopRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  headerTitle: {
+    ...typography.headerTitle,
+    color: colors.textPrimary,
     flex: 1,
   },
-  scrollContent: {
-    paddingBottom: spacing.lg,
+  headerSubtitle: {
+    ...typography.caption,
+    marginTop: spacing.xs,
+  },
+  infoButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.sm,
+    borderRadius: borderRadius.md,
+    backgroundColor: colors.infoLight,
+  },
+  infoButtonText: {
+    ...typography.caption,
+    color: colors.primary,
+    fontWeight: '600',
   },
 });
 

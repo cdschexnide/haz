@@ -42,6 +42,7 @@ import { DevBenchmarkButton } from "../../components/dev/DevBenchmarkButton";
 import { Form1015Viewer } from "../../components/Inspector/Form1015Viewer";
 import { useRenderTracker, useContextRenderTracker } from "@/hooks/useRenderTracker";
 import { hazardousMaterialsList } from "@/hazardousMaterials/hazardousMaterialsList";
+import Svg, { Circle, Line } from "react-native-svg";
 import {
   colors,
   spacing,
@@ -647,6 +648,59 @@ function InspectorHomeScreenComponent({
             </TouchableOpacity>
           </View>
 
+          <View style={styles.shareIconPreviewRow}>
+            <Text style={styles.shareIconPreviewLabel}>Share Icon Preview</Text>
+            <TouchableOpacity
+              style={styles.shareIconPreviewButton}
+              activeOpacity={0.7}
+              onPress={() => {}}
+            >
+              <Svg width={28} height={28} viewBox="0 0 64 64" fill="none">
+                <Line
+                  x1="25.5"
+                  y1="32"
+                  x2="38.5"
+                  y2="22"
+                  stroke="#223654"
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <Line
+                  x1="25.5"
+                  y1="32"
+                  x2="38.5"
+                  y2="42"
+                  stroke="#223654"
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <Circle
+                  cx="20"
+                  cy="32"
+                  r="5.5"
+                  stroke="#223654"
+                  strokeWidth="4"
+                />
+                <Circle
+                  cx="44"
+                  cy="18"
+                  r="5.5"
+                  stroke="#223654"
+                  strokeWidth="4"
+                />
+                <Circle
+                  cx="44"
+                  cy="46"
+                  r="5.5"
+                  stroke="#223654"
+                  strokeWidth="4"
+                />
+              </Svg>
+            </TouchableOpacity>
+          </View>
+
           {/* === TABLE HEADER === */}
           <View style={styles.tableHeader}>
             <Text style={[styles.headerText, styles.flex1]}>TCN</Text>
@@ -660,7 +714,7 @@ function InspectorHomeScreenComponent({
             <Text style={[styles.headerText, styles.flex1]}>SDDG</Text>
             <Text style={[styles.headerText, styles.flex1]}>Package</Text>
             <Text style={[styles.headerText, styles.flex1]}>Inspector</Text>
-            <Text style={[styles.headerText, styles.flex1]}>View</Text>
+            <Text style={[styles.headerText, styles.flex1]}>AMC 1015</Text>
           </View>
         </View>
       </View>
@@ -994,6 +1048,29 @@ const styles = StyleSheet.create({
     color: colors.white,
     fontSize: 20,
     fontWeight: "bold",
+  },
+  shareIconPreviewRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    marginBottom: spacing.sm,
+    marginHorizontal: spacing.sm,
+    gap: spacing.sm,
+  },
+  shareIconPreviewLabel: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    fontWeight: "600",
+  },
+  shareIconPreviewButton: {
+    width: 44,
+    height: 44,
+    borderRadius: borderRadius.sm,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.background,
   },
   tableHeader: {
     flexDirection: "row",

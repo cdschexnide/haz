@@ -10,7 +10,7 @@ import { check_A19_2_1_12_ExceptedQuantityCondition } from "./notPermittedAsExce
 import { check_A19_2_1_2_ExceptedQuantityCondition } from "./notPermittedAsExceptedQuantities/A19.2.1.2/checkA19.2.1.2ExceptedQuantityCondition";
 import { check_A19_2_1_3_ExceptedQuantityCondition } from "./notPermittedAsExceptedQuantities/A19.2.1.3/checkA19.2.1.3ExceptedQuantityCondition";
 import { check_A19_2_1_4_ExceptedQuantityCondition } from "./notPermittedAsExceptedQuantities/A19.2.1.4/checkA19.2.1.4ExceptedQuantityCondition";
-// import { check_A19_2_1_5_ExceptedQuantityCondition } from "./notPermittedAsExceptedQuantities/A19.2.1.5/checkA19.2.1.5ExceptedQuantityCondition";
+import { check_A19_2_1_5_ExceptedQuantityCondition } from "./notPermittedAsExceptedQuantities/A19.2.1.5/checkA19.2.1.5ExceptedQuantityCondition";
 import { check_A19_2_1_6_ExceptedQuantityCondition } from "./notPermittedAsExceptedQuantities/A19.2.1.6/checkA19.2.1.6ExceptedQuantityCondition";
 import { check_A19_2_1_7_ExceptedQuantityCondition } from "./notPermittedAsExceptedQuantities/A19.2.1.7/checkA19.2.1.7ExceptedQuantityCondition";
 import { check_A19_2_1_8_ExceptedQuantityCondition } from "./notPermittedAsExceptedQuantities/A19.2.1.8/checkA19.2.1.8ExceptedQuantityCondition";
@@ -46,7 +46,7 @@ export interface IsHazardousMaterialExceptedQuantityOutput {
 
 export function isHazardousMaterialExceptedQuantity(
   input: IsHazardousMaterialExceptedQuantityInput
-): IsHazardousMaterialExceptedQuantityOutput | undefined {
+): IsHazardousMaterialExceptedQuantityOutput {
   // A19.2.1 - Check for materials that are not permitted as an excepted quantity
   const conditions = [
     check_A19_2_1_1_ExceptedQuantityCondition,
@@ -75,25 +75,25 @@ export function isHazardousMaterialExceptedQuantity(
     }
   }
 
-  // // check A19.2.1.5. excepted quantity condition
-  // const resultCheckA19_2_1_5ExceptedQuantityCondition =
-  //   check_A19_2_1_5_ExceptedQuantityCondition({
-  //     material: input.material,
-  //     containedInChemicalKitOrFirstAidKit:
-  //       input.containedInChemicalKitOrFirstAidKit,
-  //   });
+  // A19.2.1.5 - Class 5 PG I disqualification (except chemical/first aid kits)
+  const resultCheckA19_2_1_5ExceptedQuantityCondition =
+    check_A19_2_1_5_ExceptedQuantityCondition({
+      material: input.material,
+      containedInChemicalKitOrFirstAidKit:
+        input.containedInChemicalKitOrFirstAidKit === true,
+    });
 
-  // if (
-  //   typeof resultCheckA19_2_1_5ExceptedQuantityCondition !== "undefined" &&
-  //   !resultCheckA19_2_1_5ExceptedQuantityCondition.isExcepted
-  // ) {
-  //   return {
-  //     isExcepted: resultCheckA19_2_1_5ExceptedQuantityCondition.isExcepted,
-  //     reason: resultCheckA19_2_1_5ExceptedQuantityCondition.reason,
-  //     applicableRule:
-  //       resultCheckA19_2_1_5ExceptedQuantityCondition.applicableRule,
-  //   };
-  // }
+  if (
+    typeof resultCheckA19_2_1_5ExceptedQuantityCondition !== "undefined" &&
+    !resultCheckA19_2_1_5ExceptedQuantityCondition.isExcepted
+  ) {
+    return {
+      isExcepted: false,
+      reason: resultCheckA19_2_1_5ExceptedQuantityCondition.reason,
+      applicableRule:
+        resultCheckA19_2_1_5ExceptedQuantityCondition.applicableRule,
+    };
+  }
 
   // // A3.3.9.2.3 - Check lithium battery excepted quantity conditions
   const lithiumBatteriesUNIDs: string[] = [
@@ -134,10 +134,7 @@ export function isHazardousMaterialExceptedQuantity(
       outerPackagingQuantityIn_mLs: input.outerPackagingQuantityIn_mLs,
     });
 
-  if (
-    typeof packagingLimitsForExceptedQuantityCheckResult !== "undefined" &&
-    !packagingLimitsForExceptedQuantityCheckResult.isExcepted
-  ) {
+  if (!packagingLimitsForExceptedQuantityCheckResult.isExcepted) {
     return {
       isExcepted: false,
       reason: packagingLimitsForExceptedQuantityCheckResult.reason,
@@ -145,4 +142,11 @@ export function isHazardousMaterialExceptedQuantity(
         packagingLimitsForExceptedQuantityCheckResult.applicableRule,
     };
   }
+
+  return {
+    isExcepted: true,
+    reason:
+      "Material satisfies A19.2 excepted-quantity disqualifier and packaging quantity checks.",
+    applicableRule: "A19.2",
+  };
 }

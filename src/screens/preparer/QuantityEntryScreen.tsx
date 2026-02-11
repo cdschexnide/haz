@@ -30,6 +30,7 @@ import {
   getAllowedPackagingTypes,
   PackagingTypeSelection,
 } from '@/utils/getAllowedPackagingTypes';
+import { evaluateAttachment19Eligibility } from '@/utils/eligibility/attachment19Eligibility';
 import { hasSpecialProvisionAlphaCode } from '@/utils/specialProvisions';
 // TODO: Re-enable EQ/LQ imports after demo
 // import {
@@ -540,22 +541,63 @@ export const QuantityEntryScreen = ({ navigation }: { navigation: any }) => {
 
     if (step === 1) {
       if (!isQuantityStepValid) return;
-      // TODO: Re-enable EQ/LQ eligibility check after demo
-      // setIsValidating(true);
-      // try {
-      //   const result = await evaluateEligibility();
-      //   if (result.status === 'standard') {
-      //     actions.clearExceptedLimitedQuantityData();
-      //     navigation.navigate('GeneralPackagingAcknowledgement');
-      //     return;
-      //   }
-      //   setEligibilityResult(result);
-      //   setStep(2);
-      // } finally {
-      //   setIsValidating(false);
-      // }
 
-      // For demo: skip EQ/LQ check, go straight to standard packaging
+      const totalValue = parseNumber(formData.totalQuantity);
+      if (totalValue === null || totalValue <= 0) return;
+
+      const isCombination =
+        packagingType === 'combination' || packagingType === 'composite';
+      const innerCount = isCombination
+        ? Math.max(1, Math.floor(parseNumber(formData.numberOfInnerPackages) ?? 1))
+        : 1;
+
+      const rawPerInnerValue = isCombination
+        ? parseNumber(formData.quantityPerInnerPackage) ?? 0
+        : totalValue;
+      const rawPerInnerUnit = isCombination
+        ? formData.quantityPerInnerPackageUnit
+        : formData.totalQuantityUnit;
+      const normalizedPerInnerValue = isLiquid
+        ? toMl(rawPerInnerValue, rawPerInnerUnit)
+        : toGrams(rawPerInnerValue, rawPerInnerUnit);
+
+      const grossWeightValue = parseNumber(formData.grossWeight);
+      const eligibility = evaluateAttachment19Eligibility({
+        material,
+        quantities: {
+          isInKit,
+          numberOfInnerPackages: innerCount,
+          quantityPerInnerPackage: {
+            value: normalizedPerInnerValue,
+            unit: isLiquid ? 'mL' : 'g',
+          },
+          totalPerPackage: {
+            value: totalValue,
+            unit: formData.totalQuantityUnit,
+          },
+          grossWeight:
+            grossWeightValue !== null
+              ? { value: grossWeightValue, unit: formData.grossWeightUnit }
+              : undefined,
+        },
+      });
+
+      if (eligibility.quantityType === 'excepted') {
+        actions.updateExceptedQuantityData(eligibility.exceptedQuantityData);
+        actions.setIsExceptedQuantity(true);
+        actions.setIsLimitedQuantity(false);
+        navigation.navigate('ExceptedQuantityPackagingGuidance');
+        return;
+      }
+
+      if (eligibility.quantityType === 'limited') {
+        actions.updateLimitedQuantityData(eligibility.limitedQuantityData);
+        actions.setIsLimitedQuantity(true);
+        actions.setIsExceptedQuantity(false);
+        navigation.navigate('LimitedQuantityPackagingGuidance');
+        return;
+      }
+
       actions.clearExceptedLimitedQuantityData();
       navigation.navigate('GeneralPackagingAcknowledgement');
     }

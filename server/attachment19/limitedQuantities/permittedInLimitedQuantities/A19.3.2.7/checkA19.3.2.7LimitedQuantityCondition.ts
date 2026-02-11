@@ -53,182 +53,126 @@ export const checkA19_3_2_7QuantityLimitsForLimitedConditions = (
   const A19_3_2_7Condition =
     material.hazclassDiv === "5.1" && packingGroupIIOrIII;
 
-  if (A19_3_2_7Condition) {
-    const normalizedInnerPackagingQuantityIn_grams =
-      innerPackagingQuantityIn_g ??
-      (innerPackagingQuantityIn_kg
-        ? innerPackagingQuantityIn_kg * 1000
-        : undefined);
+  if (!A19_3_2_7Condition) {
+    return undefined;
+  }
 
-    const normalizedInnerPackagingQuantityIn_mL =
-      innerPackagingVolumeIn_mL ??
-      (innerPackagingVolumeIn_L ? innerPackagingVolumeIn_L * 1000 : undefined);
+  const normalizedInnerPackagingQuantityIn_grams =
+    innerPackagingQuantityIn_g ??
+    (innerPackagingQuantityIn_kg ? innerPackagingQuantityIn_kg * 1000 : undefined);
 
-    const normalizedQuantityPerPackageIn_grams =
-      quantityPerPackageIn_g ??
-      (quantityPerPackageIn_kg ? quantityPerPackageIn_kg * 1000 : undefined);
+  const normalizedInnerPackagingQuantityIn_mL =
+    innerPackagingVolumeIn_mL ??
+    (innerPackagingVolumeIn_L ? innerPackagingVolumeIn_L * 1000 : undefined);
 
-    const normalizedQuantityPerPackageIn_mL =
-      quantityPerPackageIn_mL ??
-      (quantityPerPackageIn_L ? quantityPerPackageIn_L * 1000 : undefined);
+  const normalizedQuantityPerPackageIn_grams =
+    quantityPerPackageIn_g ??
+    (quantityPerPackageIn_kg ? quantityPerPackageIn_kg * 1000 : undefined);
+
+  const normalizedQuantityPerPackageIn_mL =
+    quantityPerPackageIn_mL ??
+    (quantityPerPackageIn_L ? quantityPerPackageIn_L * 1000 : undefined);
+
+  if (
+    (physicalState === PhysicalState.SOLID &&
+      typeof normalizedInnerPackagingQuantityIn_grams === "undefined" &&
+      typeof normalizedQuantityPerPackageIn_grams === "undefined") ||
+    (physicalState === PhysicalState.LIQUID &&
+      typeof normalizedInnerPackagingQuantityIn_mL === "undefined" &&
+      typeof normalizedQuantityPerPackageIn_mL === "undefined")
+  ) {
+    return {
+      isApplicable: true,
+      isLimited: false,
+      reason:
+        "Error checking limited quantities condition A19.3.2.7: Either an inner packaging quantity or a quantity per package are required to make a determination for limited quantities.",
+      applicableRule: "Table A19.2",
+    };
+  }
+
+  if (physicalState === PhysicalState.SOLID) {
+    const limits =
+      material.packingGroup === "II"
+        ? table_A19_2_LimitedQuantityLimitsForHazardClass5["5.1"].II.solid
+        : table_A19_2_LimitedQuantityLimitsForHazardClass5["5.1"].III.solid;
 
     if (
-      (physicalState === PhysicalState.SOLID &&
-        typeof normalizedInnerPackagingQuantityIn_grams === "undefined" &&
-        typeof normalizedQuantityPerPackageIn_grams === "undefined") ||
-      (physicalState === PhysicalState.LIQUID &&
-        typeof normalizedInnerPackagingQuantityIn_mL === "undefined" &&
-        typeof normalizedQuantityPerPackageIn_mL === "undefined")
+      typeof normalizedInnerPackagingQuantityIn_grams !== "undefined" &&
+      normalizedInnerPackagingQuantityIn_grams > limits.innerPackagingQuantityLimit.g
     ) {
       return {
         isApplicable: true,
         isLimited: false,
-        reason:
-          "Error checking limited quantities condition A19.3.2.7: Either an inner packaging quantity or a quantity per package are required to make a determination for limited quantities.",
+        reason: `Per Table A19.2, the hazardous material exceeds quantity limits for inner packagings (${limits.innerPackagingQuantityLimit.g}g) for Hazard Class/Division 5.1, Packing Group ${material.packingGroup}.`,
         applicableRule: "Table A19.2",
       };
     }
 
     if (
-      physicalState === PhysicalState.SOLID &&
-      material.packingGroup === "II"
+      typeof normalizedQuantityPerPackageIn_grams !== "undefined" &&
+      normalizedQuantityPerPackageIn_grams > limits.quantityLimitPerPackage.g
     ) {
-      if (
-        typeof normalizedQuantityPerPackageIn_grams === "undefined" &&
-        typeof normalizedInnerPackagingQuantityIn_grams !== "undefined" &&
-        normalizedInnerPackagingQuantityIn_grams >
-          table_A19_2_LimitedQuantityLimitsForHazardClass5["5.1"].II.solid
-            .innerPackagingQuantityLimit.g
-      ) {
-        return {
-          isApplicable: true,
-          isLimited: false,
-          reason:
-            "Per Table A19.2, the hazardous material exceeds quantity limits for inner packagings (500g) for Hazard Class/Division 5.1, Packing Group II.",
-          applicableRule: "Table A19.2",
-        };
-      }
-
-      if (
-        typeof normalizedInnerPackagingQuantityIn_grams === "undefined" &&
-        typeof normalizedQuantityPerPackageIn_grams !== "undefined" &&
-        normalizedQuantityPerPackageIn_grams >
-          table_A19_2_LimitedQuantityLimitsForHazardClass5["5.1"].II.solid
-            .quantityLimitPerPackage.g
-      ) {
-        return {
-          isApplicable: true,
-          isLimited: false,
-          reason:
-            "Per Table A19.2, the hazardous material exceeds quantity limits per package (2.5kg) for Hazard Class/Division 5.1, Packing Group II.",
-          applicableRule: "Table A19.2",
-        };
-      }
-    } else if (
-      physicalState === PhysicalState.LIQUID &&
-      material.packingGroup === "II"
-    ) {
-      if (
-        typeof normalizedQuantityPerPackageIn_mL === "undefined" &&
-        typeof normalizedInnerPackagingQuantityIn_mL !== "undefined" &&
-        normalizedInnerPackagingQuantityIn_mL >
-          table_A19_2_LimitedQuantityLimitsForHazardClass5["5.1"].II.liquid
-            .innerPackagingVolumeLimit.mL
-      ) {
-        return {
-          isApplicable: true,
-          isLimited: false,
-          reason:
-            "Per Table A19.2, the hazardous material exceeds quantity limits for inner packagings (100mL) for Hazard Class/Division 5.1, Packing Group II.",
-          applicableRule: "Table A19.2",
-        };
-      }
-
-      if (
-        typeof normalizedInnerPackagingQuantityIn_mL === "undefined" &&
-        typeof normalizedQuantityPerPackageIn_mL !== "undefined" &&
-        normalizedQuantityPerPackageIn_mL >
-          table_A19_2_LimitedQuantityLimitsForHazardClass5["5.1"].II.liquid
-            .volumeLimitPerPackage.mL
-      ) {
-        return {
-          isApplicable: true,
-          isLimited: false,
-          reason:
-            "Per Table A19.2, the hazardous material exceeds quantity limits per package (500mL) for Hazard Class/Division 5.1, Packing Group II.",
-          applicableRule: "Table A19.2",
-        };
-      }
-    } else if (
-      physicalState === PhysicalState.SOLID &&
-      material.packingGroup === "III"
-    ) {
-      if (
-        typeof normalizedQuantityPerPackageIn_grams === "undefined" &&
-        typeof normalizedInnerPackagingQuantityIn_grams !== "undefined" &&
-        normalizedInnerPackagingQuantityIn_grams >
-          table_A19_2_LimitedQuantityLimitsForHazardClass5["5.1"].III.solid
-            .innerPackagingQuantityLimit.g
-      ) {
-        return {
-          isApplicable: true,
-          isLimited: false,
-          reason:
-            "Per Table A19.2, the hazardous material exceeds quantity limits for inner packagings (1kg) for Hazard Class/Division 5.1, Packing Group III.",
-          applicableRule: "Table A19.2",
-        };
-      }
-
-      if (
-        typeof normalizedInnerPackagingQuantityIn_grams === "undefined" &&
-        typeof normalizedQuantityPerPackageIn_grams !== "undefined" &&
-        normalizedQuantityPerPackageIn_grams >
-          table_A19_2_LimitedQuantityLimitsForHazardClass5["5.1"].III.solid
-            .quantityLimitPerPackage.g
-      ) {
-        return {
-          isApplicable: true,
-          isLimited: false,
-          reason:
-            "Per Table A19.2, the hazardous material exceeds quantity limits per package (10kg) for Hazard Class/Division 5.1, Packing Group III.",
-          applicableRule: "Table A19.2",
-        };
-      }
-    } else if (
-      physicalState === PhysicalState.LIQUID &&
-      material.packingGroup === "III"
-    ) {
-      if (
-        typeof normalizedQuantityPerPackageIn_mL === "undefined" &&
-        typeof normalizedInnerPackagingQuantityIn_mL !== "undefined" &&
-        normalizedInnerPackagingQuantityIn_mL >
-          table_A19_2_LimitedQuantityLimitsForHazardClass5["5.1"].III.liquid
-            .innerPackagingVolumeLimit.mL
-      ) {
-        return {
-          isApplicable: true,
-          isLimited: false,
-          reason:
-            "Per Table A19.2, the hazardous material exceeds quantity limits for inner packagings (500mL) for Hazard Class/Division 5.1, Packing Group III.",
-          applicableRule: "Table A19.2",
-        };
-      }
-
-      if (
-        typeof normalizedInnerPackagingQuantityIn_mL === "undefined" &&
-        typeof normalizedQuantityPerPackageIn_mL !== "undefined" &&
-        normalizedQuantityPerPackageIn_mL >
-          table_A19_2_LimitedQuantityLimitsForHazardClass5["5.1"].III.liquid
-            .volumeLimitPerPackage.mL
-      ) {
-        return {
-          isApplicable: true,
-          isLimited: false,
-          reason:
-            "Per Table A19.2, the hazardous material exceeds quantity limits per package (1L) for Hazard Class/Division 5.1, Packing Group III.",
-          applicableRule: "Table A19.2",
-        };
-      }
+      return {
+        isApplicable: true,
+        isLimited: false,
+        reason: `Per Table A19.2, the hazardous material exceeds quantity limits per package (${limits.quantityLimitPerPackage.g}g) for Hazard Class/Division 5.1, Packing Group ${material.packingGroup}.`,
+        applicableRule: "Table A19.2",
+      };
     }
+
+    return {
+      isApplicable: true,
+      isLimited: true,
+      reason:
+        "Material meets limited quantity requirements for Class 5.1 solids (excluding PG I) per Table A19.2.",
+      applicableRule: "A19.3.2.7",
+    };
   }
+
+  if (physicalState === PhysicalState.LIQUID) {
+    const limits =
+      material.packingGroup === "II"
+        ? table_A19_2_LimitedQuantityLimitsForHazardClass5["5.1"].II.liquid
+        : table_A19_2_LimitedQuantityLimitsForHazardClass5["5.1"].III.liquid;
+
+    if (
+      typeof normalizedInnerPackagingQuantityIn_mL !== "undefined" &&
+      normalizedInnerPackagingQuantityIn_mL > limits.innerPackagingVolumeLimit.mL
+    ) {
+      return {
+        isApplicable: true,
+        isLimited: false,
+        reason: `Per Table A19.2, the hazardous material exceeds quantity limits for inner packagings (${limits.innerPackagingVolumeLimit.mL}mL) for Hazard Class/Division 5.1, Packing Group ${material.packingGroup}.`,
+        applicableRule: "Table A19.2",
+      };
+    }
+
+    if (
+      typeof normalizedQuantityPerPackageIn_mL !== "undefined" &&
+      normalizedQuantityPerPackageIn_mL > limits.volumeLimitPerPackage.mL
+    ) {
+      return {
+        isApplicable: true,
+        isLimited: false,
+        reason: `Per Table A19.2, the hazardous material exceeds quantity limits per package (${limits.volumeLimitPerPackage.mL}mL) for Hazard Class/Division 5.1, Packing Group ${material.packingGroup}.`,
+        applicableRule: "Table A19.2",
+      };
+    }
+
+    return {
+      isApplicable: true,
+      isLimited: true,
+      reason:
+        "Material meets limited quantity requirements for Class 5.1 liquids (excluding PG I) per Table A19.2.",
+      applicableRule: "A19.3.2.7",
+    };
+  }
+
+  return {
+    isApplicable: true,
+    isLimited: false,
+    reason:
+      "Physical state is required to determine limited quantity eligibility for Hazard Class/Division 5.1.",
+    applicableRule: "Table A19.2",
+  };
 };

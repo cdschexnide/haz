@@ -24,8 +24,21 @@ const PackagingScreen = ({ navigation }: { navigation: any }) => {
     store.hazProPreparerContext.activeStep = 2;
   }, []);
 
+  const clearSpecialAuthorizationState = () => {
+    store.hazProPreparerContext.usesCoeCertification = false;
+    store.hazProPreparerContext.usesCaaCertification = false;
+    store.hazProPreparerContext.usesDotSpPermit = false;
+    store.hazProPreparerContext.specialAuthorizationType = null;
+    store.hazProPreparerContext.specialAuthorizationReference = null;
+    store.hazProPreparerContext.specialAuthorizationAttested = false;
+    store.hazProPreparerContext.packingInstruction =
+      store.hazProPreparerContext.hazardousMaterial?.packagingParagraph || null;
+  };
+
   const handleScanPOP = () => {
     if (isClass2) return;
+
+    clearSpecialAuthorizationState();
 
     store.hazProPreparerContext.completedSubsteps = [
       ...completedSubsteps,
@@ -58,6 +71,8 @@ const PackagingScreen = ({ navigation }: { navigation: any }) => {
   };
 
   const handleEnterPOP = () => {
+    clearSpecialAuthorizationState();
+
     store.hazProPreparerContext.completedSubsteps = [
       ...completedSubsteps,
       "PackagingScreen",
@@ -84,6 +99,8 @@ const PackagingScreen = ({ navigation }: { navigation: any }) => {
 
   const handleWalkthrough = () => {
     if (isClass2) return;
+
+    clearSpecialAuthorizationState();
 
     store.hazProPreparerContext.completedSubsteps = [
       ...completedSubsteps,
@@ -120,6 +137,9 @@ const PackagingScreen = ({ navigation }: { navigation: any }) => {
       ...completedSubsteps,
       "PackagingScreen",
     ];
+    store.hazProPreparerContext.specialAuthorizationType = null;
+    store.hazProPreparerContext.specialAuthorizationReference = null;
+    store.hazProPreparerContext.specialAuthorizationAttested = false;
     navigation.navigate("CoeAndCaaDisclaimer");
   };
 
@@ -128,6 +148,9 @@ const PackagingScreen = ({ navigation }: { navigation: any }) => {
       ...completedSubsteps,
       "PackagingScreen",
     ];
+    store.hazProPreparerContext.specialAuthorizationType = null;
+    store.hazProPreparerContext.specialAuthorizationReference = null;
+    store.hazProPreparerContext.specialAuthorizationAttested = false;
     navigation.navigate("DotSpScreen");
   };
 

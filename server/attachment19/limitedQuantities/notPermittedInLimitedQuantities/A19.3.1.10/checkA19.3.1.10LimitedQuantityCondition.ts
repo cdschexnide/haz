@@ -25,7 +25,7 @@ export const check_A19_3_1_10_LimitedQuantityCondition = (
     "UN3335",
   ]);
 
-  const A19_3_1_10ConditionA = input.material.hazclassDiv === "8";
+  const A19_3_1_10ConditionA = input.material.hazclassDiv === "9";
   const A19_3_1_10ConditionB = !authorizedUNNumbers.has(input.material.unid);
 
   if (A19_3_1_10ConditionA && A19_3_1_10ConditionB) {

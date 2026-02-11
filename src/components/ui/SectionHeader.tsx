@@ -24,13 +24,6 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
         )}
         <Text style={styles.title}>{title}</Text>
       </View>
-      {count && (
-        <View style={styles.countBadge}>
-          <Text style={styles.countText}>
-            {count.completed}/{count.total}
-          </Text>
-        </View>
-      )}
     </View>
   );
 };

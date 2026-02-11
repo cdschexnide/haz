@@ -201,10 +201,10 @@ export const evaluateAttachment19Eligibility = (
   };
 
   const eqResult = isHazardousMaterialExceptedQuantity(eqInput);
-  const isExceptedEligible = typeof eqResult === "undefined";
+  const isExceptedEligible = eqResult.isExcepted;
   const eqExceedsLimits =
-    eqResult?.applicableRule?.includes("A19.2.2") ||
-    eqResult?.applicableRule?.includes("Table A19.1") ||
+    eqResult.applicableRule?.includes("A19.2.2") ||
+    eqResult.applicableRule?.includes("Table A19.1") ||
     false;
 
   const lqInput: IsHazardousMaterialLimitedQuantityInput = {
@@ -213,6 +213,8 @@ export const evaluateAttachment19Eligibility = (
         material,
         packagingQuantities: {
           physicalState: material.physicalState,
+          containedInPolyesterResinKitOrChemicalKitOrFirstAidKit:
+            quantities.isInKit === true,
           innerPackagingVolumeIn_mL:
             isLiquid && innerQuantityUnit
               ? toMl(innerQuantityValue, innerQuantityUnit)
@@ -254,7 +256,7 @@ export const evaluateAttachment19Eligibility = (
     quantityType,
     exceptedQuantityData: buildExceptedData(
       isExceptedEligible,
-      isExceptedEligible ? undefined : eqResult?.applicableRule,
+      isExceptedEligible ? undefined : eqResult.applicableRule,
       eqExceedsLimits
     ),
     limitedQuantityData: buildLimitedData(

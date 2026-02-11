@@ -42,13 +42,24 @@ export const checkHazardClass8QuantityLimitsForExceptedConditions = (
     "UN3477",
   ];
 
-  if (
+  const hasClass8Risk =
     inputMaterialHazardClassNumber === 8 ||
-    (inputMaterialSubsidiaryRiskHazardClassNumbers.includes(8) &&
-      !class8HazardousMaterialsNotPermittedInExceptedQuantities.includes(
-        inputMaterialUnid
-      ))
+    inputMaterialSubsidiaryRiskHazardClassNumbers.includes(8);
+
+  if (
+    hasClass8Risk &&
+    class8HazardousMaterialsNotPermittedInExceptedQuantities.includes(
+      inputMaterialUnid
+    )
   ) {
+    return {
+      isExcepted: false,
+      reason: `${inputMaterialUnid} is not permitted in excepted quantities for Class 8 per Table A19.1 note 4.`,
+      applicableRule: "Table A19.1 note 4",
+    };
+  }
+
+  if (hasClass8Risk) {
     if (
       inputMaterialPackingGroup === "II" &&
       (innerPackagingQuantityIn_mLs || innerPackagingQuantityIn_grams) &&

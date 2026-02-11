@@ -88,20 +88,17 @@ jest.mock('@/stores/useHazProStore', () => ({
 // Mock VehicleLabelingNotice and StandardLabelingContent
 jest.mock('@/components/preparer', () => {
   const React = require('react');
-  const { View, Text, TouchableOpacity } = require('react-native');
+  const { View, Text } = require('react-native');
   return {
     VehicleLabelingNotice: () =>
       React.createElement(View, { testID: 'vehicle-notice' },
         React.createElement(Text, null, 'Vehicle Labeling Notice')
       ),
-    StandardLabelingContent: ({ requiredLabels, requiredMarkings, limitedQuantity, onInfoPress }: any) =>
+    StandardLabelingContent: ({ requiredLabels, requiredMarkings, limitedQuantity }: any) =>
       React.createElement(View, { testID: 'standard-content' },
         React.createElement(Text, null, `Labels: ${requiredLabels.length}`),
         React.createElement(Text, null, `Markings: ${requiredMarkings.length}`),
-        limitedQuantity && React.createElement(Text, { testID: 'limited-qty-notice' }, 'Limited Quantity'),
-        React.createElement(TouchableOpacity, { testID: 'info-trigger', onPress: () => onInfoPress('test') },
-          React.createElement(Text, null, 'Info')
-        )
+        limitedQuantity && React.createElement(Text, { testID: 'limited-qty-notice' }, 'Limited Quantity')
       ),
     UnityPackagePreview: () =>
       React.createElement(View, { testID: 'unity-preview' },
@@ -138,12 +135,22 @@ jest.mock('@/components/ui', () => {
       background: '#F8F9FA',
       surface: '#FFFFFF',
       primary: '#007AFF',
+      border: '#E5E5EA',
+      infoLight: '#E3F2FD',
+      textPrimary: '#1D1D1F',
     },
     spacing: {
       xs: 4,
       sm: 8,
       md: 12,
       lg: 16,
+    },
+    borderRadius: {
+      md: 8,
+    },
+    typography: {
+      headerTitle: { fontSize: 18, fontWeight: '600' },
+      caption: { fontSize: 12 },
     },
   };
 });
@@ -238,8 +245,24 @@ describe('LabelingAndMarkingScreen', () => {
 
       await waitFor(() => {
         expect(getByTestId('vehicle-notice')).toBeTruthy();
+        expect(getByTestId('unity-preview')).toBeTruthy();
         expect(queryByTestId('standard-content')).toBeNull();
-        expect(queryByTestId('unity-preview')).toBeNull();
+      });
+    });
+  });
+
+  describe('Info Button', () => {
+    it('opens packaging modal from header info button', async () => {
+      const { getByTestId, getByText } = render(
+        <LabelingAndMarkingScreen navigation={mockNavigation as any} />
+      );
+
+      await waitFor(() => {
+        fireEvent.press(getByTestId('info-button'));
+      });
+
+      await waitFor(() => {
+        expect(getByText('Packaging Information')).toBeTruthy();
       });
     });
   });

@@ -146,8 +146,8 @@ export const UnityPackagePreview: React.FC<UnityPackagePreviewProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginHorizontal: spacing.md,
-    marginBottom: spacing.lg,
+    flex: 1,
+    padding: spacing.md,
   },
   headerRow: {
     marginBottom: spacing.sm,
@@ -158,8 +158,7 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
   },
   unityContainer: {
-    width: "100%",
-    height: 260,
+    flex: 1,
     borderRadius: 10,
     overflow: "hidden",
     borderWidth: 1,
