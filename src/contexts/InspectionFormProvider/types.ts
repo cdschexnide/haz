@@ -105,6 +105,14 @@ export const initialInspectionContext: SDDGInspectionContext = {
   exceptedQuantityData: null,
   limitedQuantityData: null,
   packagePackagingType: null,
+  specialAuthorizationType: null,
+  specialAuthorizationReference: null,
+  specialAuthorizationAttested: false,
+  coeAndCaaDocuments: {
+    coeDocuments: [],
+    caaDocuments: [],
+  },
+  dotSpWaivers: [],
   inspector: {
     inspectorName: "",
     inspectorRank: null,

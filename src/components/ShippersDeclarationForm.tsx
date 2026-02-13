@@ -84,6 +84,18 @@ const ShippersDeclarationForm = ({
       ? armyOperationsCenterDsnEmergencyNumber
       : internationalEmergencyNumberForNonClass1Materials;
 
+  const specialAuthorizationType =
+    state.hazProPreparerContext.specialAuthorizationType;
+  const isCoeAuthorization =
+    specialAuthorizationType === "COE" ||
+    state.hazProPreparerContext.usesCoeCertification;
+  const isCaaAuthorization =
+    specialAuthorizationType === "CAA" ||
+    state.hazProPreparerContext.usesCaaCertification;
+  const isDotSpAuthorization =
+    specialAuthorizationType === "DOT-SP" ||
+    state.hazProPreparerContext.usesDotSpPermit;
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.redStripeLeft} />
@@ -687,7 +699,7 @@ const ShippersDeclarationForm = ({
             {typeof state.hazProPreparerContext.lifeSavingApplianceData !==
               "undefined" &&
               state.hazProPreparerContext.lifeSavingApplianceData.components.map(
-                (component, index) => {
+                (component: any, index: number) => {
                   return (
                     <Text
                       key={`${component.properShippingName}-${index}`}
@@ -697,18 +709,24 @@ const ShippersDeclarationForm = ({
                 }
               )}
 
-            {packingInstruction === "COE" && (
+            {isCoeAuthorization && (
               <Text style={styles.infoLine}>
-                {`Item packaged as approved by the ${state.hazProPreparerContext.coeApprovalEntity}. See attached waiver.`}
+                {`Item packaged as approved by the ${state.hazProPreparerContext.coeApprovalEntity || "issuing authority"}. See attached COE.`}
               </Text>
             )}
 
-            {packingInstruction === "CAA" && (
+            {isCaaAuthorization && (
               <Text style={styles.infoLine}>
                 {/* {`Item packaged as approved by the ${state.hazProPreparerContext.caaApprovalEntity}. See attached waiver.`} */}
                 {
                   "PACKAGING AUTHORIZED BY COMPETENT AUTHORITY OF THE UNITED STATES OF AMERICA (USA)"
                 }
+              </Text>
+            )}
+
+            {isDotSpAuthorization && (
+              <Text style={styles.infoLine}>
+                {`Packaging authorized under DOT-SP ${packingInstruction || state.hazProPreparerContext.specialAuthorizationReference || ""}. See attached permit.`}
               </Text>
             )}
 

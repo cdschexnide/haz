@@ -10,6 +10,10 @@ import { InspectorHazmatQuantityEntryScreen } from "./InspectorHazmatQuantityEnt
 import InspectorInitialQuestioningScreen from "./InspectorInitialQuestioningScreen";
 import { InspectorExceptedOrLimitedQuantities } from "./InspectorExceptedOrLimitedQuantities";
 import InteractiveSDDGComplianceScreen from "./InteractiveSDDGComplianceScreen";
+import InspectorSpecialAuthorizationCheckScreen from "./InspectorSpecialAuthorizationCheckScreen";
+import InspectorSpecialAuthorizationAttestationScreen from "./InspectorSpecialAuthorizationAttestationScreen";
+import InspectorCoeAndCaaScreen from "./InspectorCoeAndCaaScreen";
+import InspectorDotSpScreen from "./InspectorDotSpScreen";
 import SDDGManualEntryScreen from "./SDDGManualEntryScreen";
 import InspectorQuantityTypeSelectionScreen from "./InspectorQuantityTypeSelectionScreen";
 import InspectorPackagingTypeSelectionScreen from "./InspectorPackagingTypeSelectionScreen";
@@ -146,6 +150,22 @@ const InspectorWrappedStack = ({ navigation }: { navigation: any }) => (
       <MainStack.Screen
         name="InteractiveSDDGComplianceScreen"
         component={InteractiveSDDGComplianceScreen}
+      />
+      <MainStack.Screen
+        name="InspectorSpecialAuthorizationCheckScreen"
+        component={InspectorSpecialAuthorizationCheckScreen}
+      />
+      <MainStack.Screen
+        name="InspectorSpecialAuthorizationAttestationScreen"
+        component={InspectorSpecialAuthorizationAttestationScreen}
+      />
+      <MainStack.Screen
+        name="InspectorCoeAndCaaScreen"
+        component={InspectorCoeAndCaaScreen}
+      />
+      <MainStack.Screen
+        name="InspectorDotSpScreen"
+        component={InspectorDotSpScreen}
       />
       <MainStack.Screen
         name="InspectorQuantityTypeSelectionScreen"

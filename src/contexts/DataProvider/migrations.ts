@@ -127,14 +127,31 @@ async function migrateInspection(
 
     // Serialize inspection context
     const inspectionContextJson = JSON.stringify(inspection.inspectionContext);
+    const inspectionContext = inspection.inspectionContext;
+    const specialAuthType = inspectionContext?.specialAuthorizationType || null;
+    const specialAuthAttested =
+      inspectionContext?.specialAuthorizationAttested === true ? 1 : 0;
+    const specialAuthDocCount =
+      specialAuthType === "COE"
+        ? inspectionContext?.coeAndCaaDocuments?.coeDocuments?.length || 0
+        : specialAuthType === "CAA"
+        ? inspectionContext?.coeAndCaaDocuments?.caaDocuments?.length || 0
+        : specialAuthType === "DOT-SP"
+        ? inspectionContext?.dotSpWaivers?.length || 0
+        : 0;
+    const inspectorName =
+      typeof inspection.inspector === "string"
+        ? inspection.inspector
+        : inspection.inspector?.inspectorName ?? "Unknown";
 
     // Insert into SQLite
     await db.runAsync(
       `INSERT OR REPLACE INTO inspector_shipments
        (id, status, inspected_at, inspection_context, tcn, un_id, proper_shipping_name,
         inspector, sddg_status, package_status, total_frustrations, sddg_frustrations,
-        package_frustrations, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        package_frustrations, special_auth_type, special_auth_attested, special_auth_doc_count,
+        created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         inspection.id,
         inspection.status,
@@ -143,12 +160,15 @@ async function migrateInspection(
         inspection.tcn,
         inspection.unId,
         inspection.properShippingName,
-        inspection.inspector,
+        inspectorName,
         inspection.sddgStatus,
         inspection.packageStatus,
         inspection.totalFrustrations,
         inspection.sddgFrustrations,
         inspection.packageFrustrations,
+        specialAuthType,
+        specialAuthAttested,
+        specialAuthDocCount,
         createdAt,
         updatedAt,
       ]

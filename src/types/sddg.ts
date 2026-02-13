@@ -1,6 +1,9 @@
 import { Inspector, ExceptedQuantityData, LimitedQuantityData } from "../../types";
 import { InnerPackagingInspectionData } from "./innerPackaging";
 import type { AggregatedAnalysis } from "@/ml/types/ocr";
+import type { SpecialAuthorizationType } from "@/utils/afmanPackagingParagraphs";
+
+export type { Inspector } from "../../types";
 
 // SDDG Form Data Types
 export interface ExtractedSDDGContent {
@@ -119,6 +122,41 @@ export interface KitInspectionData {
   contents: KitInspectionItem[];
 }
 
+export interface InspectorCOEDocument {
+  id: string;
+  documentType: "COE";
+  uri?: string;
+  base64Data: string;
+  name: string;
+  agency?: string;
+  dateAdded: string;
+}
+
+export interface InspectorCAADocument {
+  id: string;
+  documentType: "CAA";
+  uri?: string;
+  base64Data: string;
+  name: string;
+  agency?: string;
+  dateAdded: string;
+}
+
+export interface InspectorCoeAndCaaDocuments {
+  coeDocuments: InspectorCOEDocument[];
+  caaDocuments: InspectorCAADocument[];
+}
+
+export interface InspectorDotSpWaiver {
+  id: string;
+  uri: string;
+  base64Data: string;
+  waiverNumber: string;
+  description?: string;
+  agency?: string;
+  dateAdded: string;
+}
+
 // SDDG Compliance Validation State
 export interface SDDGInspectionContext {
   extractedContent: ExtractedSDDGContent | null;
@@ -138,6 +176,11 @@ export interface SDDGInspectionContext {
   exceptedQuantityData?: ExceptedQuantityData | null;
   limitedQuantityData?: LimitedQuantityData | null;
   packagePackagingType?: "single" | "combination" | "composite" | null;
+  specialAuthorizationType?: SpecialAuthorizationType | null;
+  specialAuthorizationReference?: string | null;
+  specialAuthorizationAttested?: boolean;
+  coeAndCaaDocuments?: InspectorCoeAndCaaDocuments;
+  dotSpWaivers?: InspectorDotSpWaiver[];
   inspector: {
     inspectorName: string;
     inspectorRank: string | null;
@@ -165,6 +208,9 @@ export interface InspectorShipment {
   totalFrustrations: number;
   sddgFrustrations: number;
   packageFrustrations: number;
+  specialAuthorizationType?: SpecialAuthorizationType | null;
+  specialAuthorizationAttested?: boolean;
+  specialAuthorizationDocumentCount?: number;
 }
 
 // Field definition for the wizard

@@ -4,7 +4,7 @@ import * as SQLite from 'expo-sqlite';
  * Database schema version
  * Increment this when making schema changes
  */
-export const SCHEMA_VERSION = 2;
+export const SCHEMA_VERSION = 3;
 
 /**
  * Database name
@@ -30,6 +30,9 @@ CREATE TABLE IF NOT EXISTS inspector_shipments (
   total_frustrations INTEGER NOT NULL DEFAULT 0,
   sddg_frustrations INTEGER NOT NULL DEFAULT 0,
   package_frustrations INTEGER NOT NULL DEFAULT 0,
+  special_auth_type TEXT CHECK(special_auth_type IN ('COE', 'CAA', 'DOT-SP')),
+  special_auth_attested INTEGER NOT NULL DEFAULT 0,
+  special_auth_doc_count INTEGER NOT NULL DEFAULT 0,
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
 );
@@ -41,6 +44,7 @@ CREATE INDEX IF NOT EXISTS idx_inspector ON inspector_shipments(inspector);
 CREATE INDEX IF NOT EXISTS idx_inspected_at ON inspector_shipments(inspected_at DESC);
 CREATE INDEX IF NOT EXISTS idx_sddg_status ON inspector_shipments(sddg_status);
 CREATE INDEX IF NOT EXISTS idx_package_status ON inspector_shipments(package_status);
+CREATE INDEX IF NOT EXISTS idx_special_auth_type ON inspector_shipments(special_auth_type);
 
 -- Migration tracking table
 CREATE TABLE IF NOT EXISTS migrations (
@@ -102,6 +106,68 @@ async function migrateV1ToV2(db: SQLite.SQLiteDatabase): Promise<void> {
 }
 
 /**
+ * Migrate from version 2 to version 3
+ * Changes:
+ * - Add special authorization summary columns for fast list rendering
+ */
+async function migrateV2ToV3(db: SQLite.SQLiteDatabase): Promise<void> {
+  console.log('📊 [Database] Migrating from v2 to v3...');
+
+  await db.execAsync(`
+    ALTER TABLE inspector_shipments ADD COLUMN special_auth_type TEXT;
+    ALTER TABLE inspector_shipments ADD COLUMN special_auth_attested INTEGER NOT NULL DEFAULT 0;
+    ALTER TABLE inspector_shipments ADD COLUMN special_auth_doc_count INTEGER NOT NULL DEFAULT 0;
+    CREATE INDEX IF NOT EXISTS idx_special_auth_type ON inspector_shipments(special_auth_type);
+  `);
+
+  const rows = await db.getAllAsync<{ id: string; inspection_context: string }>(
+    "SELECT id, inspection_context FROM inspector_shipments"
+  );
+
+  for (const row of rows) {
+    let specialAuthType: string | null = null;
+    let specialAuthAttested = 0;
+    let specialAuthDocCount = 0;
+
+    try {
+      const context = JSON.parse(row.inspection_context || "{}");
+      const type = context?.specialAuthorizationType;
+      const attested = context?.specialAuthorizationAttested === true;
+      const coeDocs = context?.coeAndCaaDocuments?.coeDocuments || [];
+      const caaDocs = context?.coeAndCaaDocuments?.caaDocuments || [];
+      const dotSpDocs = context?.dotSpWaivers || [];
+
+      specialAuthType =
+        type === "COE" || type === "CAA" || type === "DOT-SP" ? type : null;
+      specialAuthAttested = attested ? 1 : 0;
+      specialAuthDocCount =
+        specialAuthType === "COE"
+          ? coeDocs.length
+          : specialAuthType === "CAA"
+          ? caaDocs.length
+          : specialAuthType === "DOT-SP"
+          ? dotSpDocs.length
+          : 0;
+    } catch (error) {
+      console.warn(
+        "📊 [Database] Failed to parse inspection context during v3 backfill:",
+        row.id,
+        error
+      );
+    }
+
+    await db.runAsync(
+      `UPDATE inspector_shipments
+       SET special_auth_type = ?, special_auth_attested = ?, special_auth_doc_count = ?
+       WHERE id = ?`,
+      [specialAuthType, specialAuthAttested, specialAuthDocCount, row.id]
+    );
+  }
+
+  console.log('📊 [Database] Migration v2 to v3 complete');
+}
+
+/**
  * Initialize database with schema
  */
 export async function initializeDatabase(db: SQLite.SQLiteDatabase): Promise<void> {
@@ -159,11 +225,31 @@ export async function initializeDatabase(db: SQLite.SQLiteDatabase): Promise<voi
       // Run migrations
       console.log('📊 [Database] Running migrations from v' + currentVersion + ' to v' + SCHEMA_VERSION);
 
-      if (currentVersion === 1 && SCHEMA_VERSION >= 2) {
+      let migratedVersion = currentVersion;
+      const previousAsyncStorageMigrationStatus = await db.getAllAsync<{
+        async_storage_migration_complete: number;
+      }>(
+        "SELECT async_storage_migration_complete FROM migrations ORDER BY version DESC LIMIT 1"
+      );
+      const asyncStorageMigrationComplete =
+        previousAsyncStorageMigrationStatus[0]?.async_storage_migration_complete === 1
+          ? 1
+          : 0;
+
+      if (migratedVersion === 1 && SCHEMA_VERSION >= 2) {
         await migrateV1ToV2(db);
         await db.runAsync(
           'INSERT INTO migrations (version, migrated_at, async_storage_migration_complete) VALUES (?, ?, ?)',
-          [2, new Date().toISOString(), 1]
+          [2, new Date().toISOString(), asyncStorageMigrationComplete]
+        );
+        migratedVersion = 2;
+      }
+
+      if (migratedVersion === 2 && SCHEMA_VERSION >= 3) {
+        await migrateV2ToV3(db);
+        await db.runAsync(
+          'INSERT INTO migrations (version, migrated_at, async_storage_migration_complete) VALUES (?, ?, ?)',
+          [3, new Date().toISOString(), asyncStorageMigrationComplete]
         );
       }
 
@@ -193,6 +279,7 @@ export async function dropAllTables(db: SQLite.SQLiteDatabase): Promise<void> {
       DROP INDEX IF EXISTS idx_inspected_at;
       DROP INDEX IF EXISTS idx_sddg_status;
       DROP INDEX IF EXISTS idx_package_status;
+      DROP INDEX IF EXISTS idx_special_auth_type;
     `);
     console.log('📊 [Database] All tables dropped successfully');
   } catch (error) {

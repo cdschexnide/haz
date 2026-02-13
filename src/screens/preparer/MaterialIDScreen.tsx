@@ -311,12 +311,31 @@ const MaterialIDScreen = ({ navigation }: { navigation: any }) => {
     }
   };
 
+  const resetSpecialAuthorizationState = (
+    packingInstructionValue?: string
+  ) => {
+    store.hazProPreparerContext.usesCoeCertification = false;
+    store.hazProPreparerContext.usesCaaCertification = false;
+    store.hazProPreparerContext.usesDotSpPermit = false;
+    store.hazProPreparerContext.specialAuthorizationType = null;
+    store.hazProPreparerContext.specialAuthorizationReference = null;
+    store.hazProPreparerContext.specialAuthorizationAttested = false;
+    store.hazProPreparerContext.specialAuthorizationPackingDescription = null;
+    store.hazProPreparerContext.specialAuthorizationQuantityAndTypeOfPacking =
+      null;
+    store.hazProPreparerContext.packingInstruction =
+      packingInstructionValue ||
+      store.hazProPreparerContext.hazardousMaterial?.packagingParagraph ||
+      null;
+  };
+
   const handleMaterialSelect = (material: HazardousMaterialItem) => {
     setSelectedMaterial(material);
 
     // Deep clone the material object to avoid Valtio proxy issues with frozen/sealed objects
     store.hazProPreparerContext.hazardousMaterial = JSON.parse(JSON.stringify(material));
     store.hazProPreparerContext.allowablePackingGroups = material.packingGroup;
+    resetSpecialAuthorizationState(material.packagingParagraph);
 
     if (material.packingGroup.split(" ").length > 1) {
       return;
@@ -393,6 +412,8 @@ const MaterialIDScreen = ({ navigation }: { navigation: any }) => {
       store.hazProPreparerContext.hazardousMaterial.subsidiaryRisk =
         subsidiaryRisk;
     }
+
+    resetSpecialAuthorizationState(packagingParagraph);
 
     processSpecialProvisions(specialProvisions);
     resetAcknowledgements();

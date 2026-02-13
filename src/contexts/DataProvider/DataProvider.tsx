@@ -164,12 +164,25 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       : typeof inspection.inspectedAt === 'string'
         ? inspection.inspectedAt
         : new Date().toISOString();
+    const context = inspection.inspectionContext;
+    const specialAuthType =
+      context?.specialAuthorizationType || null;
+    const specialAuthAttested =
+      context?.specialAuthorizationAttested === true ? 1 : 0;
+    const specialAuthDocCount =
+      specialAuthType === "COE"
+        ? context?.coeAndCaaDocuments?.coeDocuments?.length || 0
+        : specialAuthType === "CAA"
+        ? context?.coeAndCaaDocuments?.caaDocuments?.length || 0
+        : specialAuthType === "DOT-SP"
+        ? context?.dotSpWaivers?.length || 0
+        : 0;
 
     return {
       id: inspection.id || Date.now().toString(),
       status: inspection.status || "pending",
       inspected_at: inspectedAtStr,
-      inspection_context: JSON.stringify(inspection.inspectionContext || {}),
+      inspection_context: JSON.stringify(context || {}),
       tcn: inspection.tcn || "N/A",
       un_id: inspection.unId || "N/A",
       proper_shipping_name: inspection.properShippingName || "N/A",
@@ -179,6 +192,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       total_frustrations: inspection.totalFrustrations ?? 0,
       sddg_frustrations: inspection.sddgFrustrations ?? 0,
       package_frustrations: inspection.packageFrustrations ?? 0,
+      special_auth_type: specialAuthType,
+      special_auth_attested: specialAuthAttested,
+      special_auth_doc_count: specialAuthDocCount,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
@@ -188,7 +204,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
    * Convert database row to InspectorShipment
    */
   const rowToInspection = (row: InspectorShipmentRow): InspectorShipment => {
-    const context: SDDGInspectionContext = JSON.parse(row.inspection_context);
+    const context: SDDGInspectionContext = JSON.parse(
+      row.inspection_context || "{}"
+    );
 
     // Convert date strings back to Date objects
     if (context.inspectionStartTime) {
@@ -226,12 +244,19 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       tcn: row.tcn,
       unId: row.un_id,
       properShippingName: row.proper_shipping_name,
-      inspector: row.inspector,
+      inspector: {
+        inspectorName: row.inspector,
+        inspectorRank: null,
+        inspectorTitle: "",
+      },
       sddgStatus: row.sddg_status,
       packageStatus: row.package_status,
       totalFrustrations: row.total_frustrations,
       sddgFrustrations: row.sddg_frustrations,
       packageFrustrations: row.package_frustrations,
+      specialAuthorizationType: row.special_auth_type || null,
+      specialAuthorizationAttested: row.special_auth_attested === 1,
+      specialAuthorizationDocumentCount: row.special_auth_doc_count || 0,
     };
   };
 
@@ -242,16 +267,23 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     return {
       id: row.id,
       status: row.status,
-      inspectedAt: row.inspected_at,
+      inspectedAt: new Date(row.inspected_at),
       tcn: row.tcn,
       unId: row.un_id,
       properShippingName: row.proper_shipping_name,
-      inspector: row.inspector,
+      inspector: {
+        inspectorName: row.inspector,
+        inspectorRank: null,
+        inspectorTitle: "",
+      },
       sddgStatus: row.sddg_status,
       packageStatus: row.package_status,
       totalFrustrations: row.total_frustrations,
       sddgFrustrations: row.sddg_frustrations,
       packageFrustrations: row.package_frustrations,
+      specialAuthorizationType: row.special_auth_type || null,
+      specialAuthorizationAttested: row.special_auth_attested === 1,
+      specialAuthorizationDocumentCount: row.special_auth_doc_count || 0,
     };
   };
 
@@ -297,6 +329,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
           row.total_frustrations ?? 0,
           row.sddg_frustrations ?? 0,
           row.package_frustrations ?? 0,
+          row.special_auth_type ?? null,
+          row.special_auth_attested ?? 0,
+          row.special_auth_doc_count ?? 0,
           row.created_at || new Date().toISOString(),
           row.updated_at || new Date().toISOString(),
         ];
@@ -308,8 +343,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
           `INSERT OR REPLACE INTO inspector_shipments
          (id, status, inspected_at, inspection_context, tcn, un_id, proper_shipping_name,
           inspector, sddg_status, package_status, total_frustrations, sddg_frustrations,
-          package_frustrations, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          package_frustrations, special_auth_type, special_auth_attested, special_auth_doc_count,
+          created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           values
         );
         const sqlTime = performance.now() - sqlStart;
@@ -456,6 +492,18 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       // Load inspection first to get the SDDG image URI for cleanup
       const inspection = await loadInspection(id);
       const imageUri = inspection?.inspectionContext?.originalImageUri;
+      const coeUris =
+        inspection?.inspectionContext?.coeAndCaaDocuments?.coeDocuments
+          ?.map(doc => doc.uri)
+          .filter(Boolean) || [];
+      const caaUris =
+        inspection?.inspectionContext?.coeAndCaaDocuments?.caaDocuments
+          ?.map(doc => doc.uri)
+          .filter(Boolean) || [];
+      const dotSpUris =
+        inspection?.inspectionContext?.dotSpWaivers
+          ?.map(doc => doc.uri)
+          .filter(Boolean) || [];
 
       await db.runAsync("DELETE FROM inspector_shipments WHERE id = ?", [id]);
 
@@ -465,6 +513,17 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
           console.warn("📊 [DataProvider] Failed to delete SDDG image:", err);
         });
       }
+
+      const attachmentUris = [...coeUris, ...caaUris, ...dotSpUris].filter(
+        (uri): uri is string => typeof uri === "string" && uri.length > 0
+      );
+      await Promise.all(
+        attachmentUris.map(uri =>
+          FileSystem.deleteAsync(uri, { idempotent: true }).catch(err => {
+            console.warn("📊 [DataProvider] Failed to delete attachment:", err);
+          })
+        )
+      );
 
       console.log("📊 [DataProvider] Inspection deleted successfully");
     } catch (err) {
@@ -497,7 +556,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         // OPTIMIZATION: Only select columns needed for listing, NOT the huge inspection_context blob
         let query = `SELECT id, status, inspected_at, tcn, un_id, proper_shipping_name,
                      inspector, sddg_status, package_status, total_frustrations,
-                     sddg_frustrations, package_frustrations
+                     sddg_frustrations, package_frustrations, special_auth_type,
+                     special_auth_attested, special_auth_doc_count
                      FROM inspector_shipments WHERE 1=1`;
         const params: any[] = [];
 

@@ -1,13 +1,15 @@
-import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Feather, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { Button, ListItem } from "react-native-elements";
 import { StatusBar } from "expo-status-bar";
-import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   FlatList,
   KeyboardAvoidingView,
   Modal,
   Platform,
+  BackHandler,
   RefreshControl,
   StyleSheet,
   Text,
@@ -26,7 +28,6 @@ import { HazProPreparerContext } from "../../contexts/HazProPreparerProvider/Haz
 import TopNavBar from "../../components/TopNavBar";
 import { useNavigationRef } from "../../contexts/NavigationRefProvider/useNavigationRef";
 import { HazProInspectorContext } from "../../contexts/HazProInspectorProvider/HazProInspectorContext";
-import { BottomSheet } from "@rneui/themed";
 import legacyColors from "../../theming/colors";
 import GasCalculatorTool from "../../components/GasCalculatorTool";
 import DryIceCalculator from "../../components/DryIceCalculator";
@@ -40,9 +41,21 @@ import { useFocusEffect } from "@react-navigation/native";
 import { MLDetectionScreen } from "./MLDetectionScreen";
 import { DevBenchmarkButton } from "../../components/dev/DevBenchmarkButton";
 import { Form1015Viewer } from "../../components/Inspector/Form1015Viewer";
+import { SDDGImageViewer } from "../../components/Inspector/SDDGImageViewer";
 import { useRenderTracker, useContextRenderTracker } from "@/hooks/useRenderTracker";
 import { hazardousMaterialsList } from "@/hazardousMaterials/hazardousMaterialsList";
 import Svg, { Circle, Line } from "react-native-svg";
+import * as FileSystem from "expo-file-system";
+import * as Sharing from "expo-sharing";
+import {
+  buildForm1015PdfData,
+  generateForm1015Pdf,
+} from "../../utils/form1015PdfGenerator";
+import {
+  cleanupInspectorDocumentTempUris,
+  composeInspectorSddgPdf,
+} from "@/utils/inspectorSddgDocumentComposer";
+import { mergePdfDocuments } from "@/utils/sddgPdfGenerator";
 import {
   colors,
   spacing,
@@ -51,6 +64,11 @@ import {
 } from "../../components/ui";
 
 console.warn = () => {};
+
+type SelectedDocumentType = "sddg" | "1015";
+
+const sanitizeFilenameSegment = (value: string): string =>
+  value.replace(/[^a-zA-Z0-9]/g, "_");
 
 function InspectorHomeScreenComponent({
   navigation,
@@ -82,12 +100,19 @@ function InspectorHomeScreenComponent({
   // Form 1015 viewer modal (FlatList-based, works on Android)
   const [form1015ModalVisible, setForm1015ModalVisible] = useState<boolean>(false);
   const [selectedInspectionForForm, setSelectedInspectionForForm] = useState<InspectorShipment | null>(null);
+  const [sddgViewerModalVisible, setSddgViewerModalVisible] = useState<boolean>(false);
+  const [selectedInspectionForSDDG, setSelectedInspectionForSDDG] =
+    useState<InspectorShipment | null>(null);
   const [mlModalVisible, setMlModalVisible] = useState<boolean>(false);
-
-  const [bottomSheetVisible, setBottomSheetVisible] = useState<boolean>(false);
-  const [selectedInspection, setSelectedInspection] =
-    useState<InspectorShipment>();
   const [inspections, setInspections] = useState<InspectorShipment[]>([]);
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedDocuments, setSelectedDocuments] = useState<
+    Map<string, Set<SelectedDocumentType>>
+  >(new Map());
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const [sddgImageUriCache, setSddgImageUriCache] = useState<
+    Map<string, string | null>
+  >(new Map());
 
   const logWrappedStackDepth = () => {
     const rootState = navigationRef?.getRootState?.();
@@ -120,7 +145,7 @@ function InspectorHomeScreenComponent({
   //   compatibilityModalVisible,
   //   form1015ModalVisible,
   //   mlModalVisible,
-  //   bottomSheetVisible,
+  //   selectionMode,
   //   inspectionsCount: inspections.length,
   //   dbInitialized: database.isInitialized,
   // });
@@ -143,42 +168,63 @@ function InspectorHomeScreenComponent({
     }
   };
 
-  const handleLongPress = (inspection: InspectorShipment) => {
-    setSelectedInspection(inspection);
-    setBottomSheetVisible(true);
-  };
+  const getSddgImageUri = useCallback(
+    (inspection: InspectorShipment): string | null =>
+      inspection.inspectionContext?.originalImageUri ||
+      sddgImageUriCache.get(inspection.id) ||
+      null,
+    [sddgImageUriCache]
+  );
 
-  const handleOptionSelect = async (option: string) => {
-    setBottomSheetVisible(false);
+  const exitSelectionMode = useCallback(() => {
+    setSelectionMode(false);
+    setSelectedDocuments(new Map());
+  }, []);
 
-    if (!selectedInspection) return;
+  const handleLongPress = useCallback(
+    (inspection: InspectorShipment) => {
+      const docs = new Set<SelectedDocumentType>();
+      if (getSddgImageUri(inspection)) {
+        docs.add("sddg");
+      }
+      docs.add("1015");
+      setSelectionMode(true);
+      setSelectedDocuments(new Map([[inspection.id, docs]]));
+    },
+    [getSddgImageUri]
+  );
 
-    switch (option) {
-      case "Load Inspection":
-        await loadInspectionForEdit(selectedInspection.id);
-        navigate("InspectorWrappedStack", {
-          screen: "SDDGFrustrationSummary",
-        });
-        break;
-      case "Delete Inspection":
-        Alert.alert(
-          "Delete Inspection",
-          `Are you sure you want to delete inspection ${selectedInspection.tcn}?`,
-          [
-            { text: "Cancel", style: "cancel" },
-            {
-              text: "Delete",
-              style: "destructive",
-              onPress: async () => {
-                await database.deleteInspection(selectedInspection.id);
-                await onRefresh();
-              },
-            },
-          ]
-        );
-        break;
-    }
-  };
+  const toggleDocumentSelection = useCallback(
+    (
+      inspectionId: string,
+      docType: SelectedDocumentType,
+      isDocAvailable: boolean
+    ) => {
+      if (!isDocAvailable) {
+        return;
+      }
+
+      setSelectedDocuments(prev => {
+        const next = new Map(prev);
+        const existing = next.get(inspectionId);
+        const docs = new Set<SelectedDocumentType>(existing ? Array.from(existing) : []);
+
+        if (docs.has(docType)) {
+          docs.delete(docType);
+        } else {
+          docs.add(docType);
+        }
+
+        if (docs.size === 0) {
+          next.delete(inspectionId);
+        } else {
+          next.set(inspectionId, docs);
+        }
+        return next;
+      });
+    },
+    []
+  );
 
   // Get inspector shipments from local state
   const inspectorShipments = inspections;
@@ -197,14 +243,69 @@ function InspectorHomeScreenComponent({
     }
 
     const searchLower = searchQuery.toLowerCase();
+    const inspectorValue =
+      typeof inspection.inspector === "string"
+        ? inspection.inspector
+        : inspection.inspector?.inspectorName || "";
     return (
       inspection.tcn.toLowerCase().includes(searchLower) ||
       inspection.unId.toLowerCase().includes(searchLower) ||
       inspection.properShippingName.toLowerCase().includes(searchLower) ||
-      inspection.inspector.toLowerCase().includes(searchLower) ||
+      inspectorValue.toLowerCase().includes(searchLower) ||
       inspection.status.toLowerCase().includes(searchLower)
     );
   });
+
+  const totalSelectedCount = useMemo(
+    () =>
+      Array.from(selectedDocuments.values()).reduce(
+        (count, docs) => count + docs.size,
+        0
+      ),
+    [selectedDocuments]
+  );
+
+  useEffect(() => {
+    if (!database.isInitialized || inspections.length === 0) {
+      return;
+    }
+
+    let cancelled = false;
+
+    const loadSddgImageUris = async () => {
+      const results = await Promise.all(
+        inspections.map(async inspection => {
+          try {
+            const fullInspection = await database.loadInspection(inspection.id);
+            return {
+              inspectionId: inspection.id,
+              imageUri: fullInspection?.inspectionContext?.originalImageUri || null,
+            };
+          } catch {
+            return { inspectionId: inspection.id, imageUri: null };
+          }
+        })
+      );
+
+      if (cancelled) {
+        return;
+      }
+
+      setSddgImageUriCache(prev => {
+        const next = new Map(prev);
+        results.forEach(({ inspectionId, imageUri }) => {
+          next.set(inspectionId, imageUri);
+        });
+        return next;
+      });
+    };
+
+    loadSddgImageUris();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [database, database.isInitialized, inspections]);
 
   // Reset contexts on mount
   useEffect(() => {
@@ -269,6 +370,24 @@ function InspectorHomeScreenComponent({
 
       loadInspections();
     }, [database.isInitialized, loadInspections])
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!selectionMode) {
+        return;
+      }
+
+      const subscription = BackHandler.addEventListener(
+        "hardwareBackPress",
+        () => {
+          exitSelectionMode();
+          return true;
+        }
+      );
+
+      return () => subscription.remove();
+    }, [exitSelectionMode, selectionMode])
   );
 
   // Function to handle SDDG status click - load real inspection data
@@ -378,7 +497,7 @@ function InspectorHomeScreenComponent({
                 navigate("InspectorWrappedStack", {
                   screen: "MLDetectionScreen",
                   params: { unIdNo },
-                });
+                } as any);
               } catch (error) {
                 Alert.alert("Error", "Failed to load inspection data. Please try again.");
               }
@@ -436,6 +555,185 @@ function InspectorHomeScreenComponent({
       );
     }
   };
+
+  const handleViewSDDG = async (inspection: InspectorShipment) => {
+    try {
+      const fullInspection = await database.loadInspection(inspection.id);
+      if (!fullInspection?.inspectionContext?.originalImageUri) {
+        Alert.alert("Not Available", "No SDDG image for this inspection.");
+        return;
+      }
+
+      const fileInfo = await FileSystem.getInfoAsync(
+        fullInspection.inspectionContext.originalImageUri
+      );
+      if (!fileInfo.exists) {
+        Alert.alert("Not Available", "SDDG image not available.");
+        return;
+      }
+
+      setSelectedInspectionForSDDG(fullInspection);
+      setSddgViewerModalVisible(true);
+    } catch (error) {
+      console.error("Failed to load SDDG image:", error);
+      Alert.alert("Error", "Failed to load inspection data. Please try again.");
+    }
+  };
+
+  const handleShareSelected = useCallback(async () => {
+    if (totalSelectedCount === 0) {
+      return;
+    }
+
+    setIsGeneratingPdf(true);
+
+    let pdfUri: string | null = null;
+    let namedUri: string | null = null;
+    const tempUrisToCleanup: string[] = [];
+
+    try {
+      const selectedSnapshot = new Map(selectedDocuments);
+      const inspectionIds = Array.from(selectedSnapshot.keys());
+      const errors: string[] = [];
+      const warnings: string[] = [];
+      const documentUris: string[] = [];
+      const sddgIncludesAuthByInspection = new Map<string, boolean>();
+
+      const inspectionResults = await Promise.allSettled(
+        inspectionIds.map(id => database.loadInspection(id))
+      );
+
+      const loadedInspections = new Map<string, InspectorShipment>();
+      inspectionResults.forEach((result, index) => {
+        const inspectionId = inspectionIds[index];
+        if (result.status === "fulfilled" && result.value) {
+          loadedInspections.set(inspectionId, result.value);
+        } else {
+          errors.push(`Inspection ${inspectionId} could not be loaded`);
+        }
+      });
+
+      for (const inspectionId of inspectionIds) {
+        const docs = selectedSnapshot.get(inspectionId);
+        if (!docs || docs.size === 0) {
+          continue;
+        }
+
+        const inspection = loadedInspections.get(inspectionId);
+        if (!inspection) {
+          continue;
+        }
+
+        if (docs.has("sddg")) {
+          try {
+            const composed = await composeInspectorSddgPdf(inspection);
+            documentUris.push(composed.pdfUri);
+            tempUrisToCleanup.push(...composed.tempUris);
+            sddgIncludesAuthByInspection.set(
+              inspectionId,
+              composed.includesAuthAttachments
+            );
+            warnings.push(
+              ...composed.warnings.map(
+                warning => `${inspection.tcn || inspection.id}: ${warning}`
+              )
+            );
+          } catch (error) {
+            errors.push(`SDDG document missing for ${inspection.tcn}`);
+          }
+        }
+
+        if (docs.has("1015")) {
+          try {
+            const form1015Data = buildForm1015PdfData(inspection);
+            const form1015PdfUri = await generateForm1015Pdf(form1015Data);
+            documentUris.push(form1015PdfUri);
+            tempUrisToCleanup.push(form1015PdfUri);
+          } catch (error) {
+            errors.push(`AMC 1015 document missing for ${inspection.tcn}`);
+          }
+        }
+      }
+
+      if (documentUris.length === 0) {
+        Alert.alert("Error", "No valid documents were available to share.");
+        return;
+      }
+
+      if (documentUris.length === 1) {
+        pdfUri = documentUris[0];
+      } else {
+        pdfUri = await mergePdfDocuments(documentUris, {
+          title: "Inspector Document Bundle",
+          subject: "Inspector shipment document export",
+          keywords: ["inspector", "SDDG", "AMC1015", "hazpro"],
+          outputFilenamePrefix: "inspector_documents",
+        });
+        tempUrisToCleanup.push(pdfUri);
+      }
+
+      const singleInspectionId = inspectionIds[0];
+      const singleSelectionSet =
+        inspectionIds.length === 1 ? selectedSnapshot.get(singleInspectionId) : null;
+      const includesSingleSddgWithAuth =
+        inspectionIds.length === 1 &&
+        totalSelectedCount === 1 &&
+        singleSelectionSet?.has("sddg") &&
+        sddgIncludesAuthByInspection.get(singleInspectionId) === true;
+
+      const currentDate = new Date().toISOString().split("T")[0];
+      const isSingleInspection = inspectionIds.length === 1;
+      const singleInspection = isSingleInspection
+        ? loadedInspections.get(inspectionIds[0])
+        : null;
+
+      let filename: string;
+      if (isSingleInspection && totalSelectedCount === 1) {
+        const selectedSet = selectedSnapshot.get(inspectionIds[0]);
+        const singleDocType = selectedSet ? Array.from(selectedSet)[0] : "1015";
+        const tcn = sanitizeFilenameSegment(singleInspection?.tcn || "unknown");
+        if (singleDocType === "sddg") {
+          filename = includesSingleSddgWithAuth
+            ? `SDDG_${tcn}_WITH_AUTH_${currentDate}.pdf`
+            : `SDDG_${tcn}_${currentDate}.pdf`;
+        } else {
+          filename = `AMC1015_${tcn}_${currentDate}.pdf`;
+        }
+      } else if (isSingleInspection) {
+        const tcn = sanitizeFilenameSegment(singleInspection?.tcn || "unknown");
+        filename = `Inspection_${tcn}_${currentDate}.pdf`;
+      } else {
+        filename = `Inspections_${currentDate}.pdf`;
+      }
+
+      namedUri = `${FileSystem.cacheDirectory}${filename}`;
+      await FileSystem.copyAsync({ from: pdfUri, to: namedUri });
+
+      await Sharing.shareAsync(namedUri, {
+        mimeType: "application/pdf",
+        dialogTitle: "Share Inspections",
+        UTI: "com.adobe.pdf",
+      });
+
+      if (errors.length > 0 || warnings.length > 0) {
+        Alert.alert(
+          "Warning",
+          `${errors.length + warnings.length} issue(s) detected:\n${[
+            ...errors,
+            ...warnings,
+          ].join("\n")}`
+        );
+      }
+
+      exitSelectionMode();
+    } catch (error) {
+      console.error("Failed to generate/share combined PDF:", error);
+      Alert.alert("Error", "Failed to generate PDF. Please try again.");
+    } finally {
+      await cleanupInspectorDocumentTempUris(tempUrisToCleanup);
+      setIsGeneratingPdf(false);
+    }
+  }, [database, exitSelectionMode, selectedDocuments, totalSelectedCount]);
 
   // Render functions for Swipeable actions
   const renderLeftActions =
@@ -629,6 +927,7 @@ function InspectorHomeScreenComponent({
             />
             <TouchableOpacity
               style={styles.createButton}
+              testID="start-new-inspection-button"
               onPress={() => {
                 console.log("🧭 [InspectorHome] Start New Inspection pressed");
                 startNewInspection();
@@ -648,59 +947,6 @@ function InspectorHomeScreenComponent({
             </TouchableOpacity>
           </View>
 
-          <View style={styles.shareIconPreviewRow}>
-            <Text style={styles.shareIconPreviewLabel}>Share Icon Preview</Text>
-            <TouchableOpacity
-              style={styles.shareIconPreviewButton}
-              activeOpacity={0.7}
-              onPress={() => {}}
-            >
-              <Svg width={28} height={28} viewBox="0 0 64 64" fill="none">
-                <Line
-                  x1="25.5"
-                  y1="32"
-                  x2="38.5"
-                  y2="22"
-                  stroke="#223654"
-                  strokeWidth="4"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <Line
-                  x1="25.5"
-                  y1="32"
-                  x2="38.5"
-                  y2="42"
-                  stroke="#223654"
-                  strokeWidth="4"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <Circle
-                  cx="20"
-                  cy="32"
-                  r="5.5"
-                  stroke="#223654"
-                  strokeWidth="4"
-                />
-                <Circle
-                  cx="44"
-                  cy="18"
-                  r="5.5"
-                  stroke="#223654"
-                  strokeWidth="4"
-                />
-                <Circle
-                  cx="44"
-                  cy="46"
-                  r="5.5"
-                  stroke="#223654"
-                  strokeWidth="4"
-                />
-              </Svg>
-            </TouchableOpacity>
-          </View>
-
           {/* === TABLE HEADER === */}
           <View style={styles.tableHeader}>
             <Text style={[styles.headerText, styles.flex1]}>TCN</Text>
@@ -714,7 +960,9 @@ function InspectorHomeScreenComponent({
             <Text style={[styles.headerText, styles.flex1]}>SDDG</Text>
             <Text style={[styles.headerText, styles.flex1]}>Package</Text>
             <Text style={[styles.headerText, styles.flex1]}>Inspector</Text>
-            <Text style={[styles.headerText, styles.flex1]}>AMC 1015</Text>
+            <Text style={[styles.headerText, styles.authHeaderCell]}>Auth</Text>
+            <Text style={[styles.headerText, styles.docHeaderCell]}>SDDG Doc</Text>
+            <Text style={[styles.headerText, styles.docHeaderCell]}>AMC 1015</Text>
           </View>
         </View>
       </View>
@@ -744,68 +992,65 @@ function InspectorHomeScreenComponent({
           })}
           keyboardShouldPersistTaps="handled"
           ListHeaderComponent={ListHeaderContent}
+          contentContainerStyle={selectionMode ? styles.listWithSelectionFooter : undefined}
           renderItem={({ item }) => {
-            const inspectionDate = new Date(
-              item.inspectedAt
-            ).toLocaleDateString();
-            const statusColor =
-              item.status === "completed"
-                ? "#2D7D32"
-                : item.status === "frustrated"
-                ? "#D32F2F"
-                : "#FF8F00";
+            const sddgImageUri = getSddgImageUri(item);
+            const hasSddgDoc = Boolean(sddgImageUri);
+            const selectedForInspection = selectedDocuments.get(item.id);
+            const sddgSelected = selectedForInspection?.has("sddg") || false;
+            const formSelected = selectedForInspection?.has("1015") || false;
+            const inspectorName =
+              typeof item.inspector === "string"
+                ? item.inspector
+                : item.inspector?.inspectorName || "";
+            const authType = item.specialAuthorizationType || null;
+            const authDocCount = item.specialAuthorizationDocumentCount || 0;
+            const authAttested = item.specialAuthorizationAttested === true;
+            const authLabel = authType
+              ? `${authType}${authDocCount > 0 ? ` (${authDocCount})` : ""}`
+              : authDocCount > 0
+              ? `Docs (${authDocCount})`
+              : "None";
 
-            return (
-              <Swipeable
-                renderLeftActions={renderLeftActions(item)}
-                renderRightActions={renderRightActions(item)}
-                overshootLeft={false}
-                overshootRight={false}
-                friction={2}
-                leftThreshold={40}
-                rightThreshold={40}
-                onSwipeableOpen={direction => {
-                  console.log(`Swiped ${direction}`);
+            const rowContent = (
+              <TouchableOpacity
+                onLongPress={() => {
+                  if (!selectionMode) {
+                    handleLongPress(item);
+                  }
                 }}
+                style={styles.listItemContainer}
+                activeOpacity={1}
               >
-                <TouchableOpacity
-                  onLongPress={() => handleLongPress(item)}
-                  style={styles.listItemContainer}
-                  activeOpacity={1}
-                >
-                  <View style={styles.listItemRow}>
-                    <Text style={styles.columnText}>{item.tcn}</Text>
-                    <Text style={styles.columnText}>{item.unId}</Text>
-                    <Text style={styles.columnText}>
-                      {item.properShippingName}
-                    </Text>
-                    {/* <Text style={styles.columnText}>{inspectionDate}</Text> */}
+                <View style={styles.listItemRow}>
+                  <Text style={styles.columnText}>{item.tcn}</Text>
+                  <Text style={styles.columnText}>{item.unId}</Text>
+                  <Text style={styles.columnText}>{item.properShippingName}</Text>
 
-                    {/* SDDG Status Cell with TapGestureHandler for priority */}
-                    <View style={styles.sddgStatusTouchable}>
+                  <View style={styles.sddgStatusTouchable}>
+                    {selectionMode ? (
+                      <View style={styles.statusCellCenter}>
+                        <Text
+                          style={[
+                            styles.columnText,
+                            styles.statusText,
+                            item.sddgStatus === "verified"
+                              ? styles.verifiedStatus
+                              : styles.frustratedStatus,
+                          ]}
+                        >
+                          {item.sddgStatus === "verified" ? "Verified" : "Frustrated"}
+                        </Text>
+                      </View>
+                    ) : (
                       <TapGestureHandler
                         onHandlerStateChange={({ nativeEvent }) => {
                           if (nativeEvent.state === State.ACTIVE) {
-                            console.log(
-                              "🔍 [InspectorHome] TapGestureHandler activated for SDDG status"
-                            );
-                            console.log(
-                              "🔍 [InspectorHome] Item:",
-                              item.tcn,
-                              "Status:",
-                              item.sddgStatus
-                            );
                             handleSDDGStatusClick(item);
                           }
                         }}
                       >
-                        <View
-                          style={{
-                            flex: 1,
-                            alignItems: "center",
-                            justifyContent: "center",
-                          }}
-                        >
+                        <View style={styles.statusCellCenter}>
                           <Text
                             style={[
                               styles.columnText,
@@ -815,33 +1060,43 @@ function InspectorHomeScreenComponent({
                                 : styles.frustratedStatus,
                             ]}
                           >
-                            {item.sddgStatus === "verified"
-                              ? "Verified"
-                              : "Frustrated"}
+                            {item.sddgStatus === "verified" ? "Verified" : "Frustrated"}
                           </Text>
                         </View>
                       </TapGestureHandler>
-                    </View>
+                    )}
+                  </View>
 
-                    {/* Package Status Cell with TapGestureHandler for priority */}
-                    <View style={styles.sddgStatusTouchable}>
+                  <View style={styles.sddgStatusTouchable}>
+                    {selectionMode ? (
+                      <View style={styles.statusCellCenter}>
+                        <Text
+                          style={[
+                            styles.columnText,
+                            styles.statusText,
+                            item.packageStatus === null
+                              ? styles.naStatus
+                              : item.packageStatus === "verified"
+                              ? styles.verifiedStatus
+                              : styles.frustratedStatus,
+                          ]}
+                        >
+                          {item.packageStatus === null
+                            ? "N/A"
+                            : item.packageStatus === "verified"
+                            ? "Verified"
+                            : "Frustrated"}
+                        </Text>
+                      </View>
+                    ) : (
                       <TapGestureHandler
                         onHandlerStateChange={({ nativeEvent }) => {
                           if (nativeEvent.state === State.ACTIVE) {
-                            console.log(
-                              "📦 [InspectorHome] TapGestureHandler activated for Package status"
-                            );
                             handlePackageStatusClick(item);
                           }
                         }}
                       >
-                        <View
-                          style={{
-                            flex: 1,
-                            alignItems: "center",
-                            justifyContent: "center",
-                          }}
-                        >
+                        <View style={styles.statusCellCenter}>
                           <Text
                             style={[
                               styles.columnText,
@@ -861,62 +1116,176 @@ function InspectorHomeScreenComponent({
                           </Text>
                         </View>
                       </TapGestureHandler>
-                    </View>
+                    )}
+                  </View>
 
-                    <Text style={styles.columnText}>
-                      {/* {item.inspector} */}
-                      Cody Schexnider
+                  <Text style={styles.columnText}>{inspectorName || "N/A"}</Text>
+                  <View style={styles.authColumn}>
+                    <Text
+                      style={[
+                        styles.authBadgeText,
+                        authType
+                          ? authAttested
+                            ? styles.authBadgeActive
+                            : styles.authBadgePending
+                          : styles.authBadgeNone,
+                      ]}
+                    >
+                      {authLabel}
                     </Text>
+                  </View>
+
+                  {selectionMode ? (
+                    <View style={styles.iconColumn}>
+                      {hasSddgDoc ? (
+                        <TapGestureHandler
+                          onHandlerStateChange={({ nativeEvent }) => {
+                            if (nativeEvent.state === State.ACTIVE) {
+                              toggleDocumentSelection(item.id, "sddg", hasSddgDoc);
+                            }
+                          }}
+                        >
+                          <View style={styles.checkboxIconHitArea}>
+                            <MaterialIcons
+                              name={sddgSelected ? "check-box" : "check-box-outline-blank"}
+                              size={26}
+                              color={sddgSelected ? colors.primary : colors.textSecondary}
+                            />
+                          </View>
+                        </TapGestureHandler>
+                      ) : (
+                        <Text style={styles.docUnavailableText}>-</Text>
+                      )}
+                    </View>
+                  ) : (
+                    <View style={styles.iconColumn}>
+                      {hasSddgDoc ? (
+                        <TouchableOpacity onPress={() => handleViewSDDG(item)}>
+                          <MaterialCommunityIcons
+                            name="file-document"
+                            size={30}
+                            color={colors.primary}
+                          />
+                        </TouchableOpacity>
+                      ) : (
+                        <Text style={styles.docUnavailableText}>-</Text>
+                      )}
+                    </View>
+                  )}
+
+                  {selectionMode ? (
+                    <View style={styles.iconColumn}>
+                      <TapGestureHandler
+                        onHandlerStateChange={({ nativeEvent }) => {
+                          if (nativeEvent.state === State.ACTIVE) {
+                            toggleDocumentSelection(item.id, "1015", true);
+                          }
+                        }}
+                      >
+                        <View style={styles.checkboxIconHitArea}>
+                          <MaterialIcons
+                            name={formSelected ? "check-box" : "check-box-outline-blank"}
+                            size={26}
+                            color={formSelected ? colors.primary : colors.textSecondary}
+                          />
+                        </View>
+                      </TapGestureHandler>
+                    </View>
+                  ) : (
                     <TouchableOpacity
                       onPress={() => handleViewForm1015(item)}
-                      style={[styles.columnText, styles.iconColumn]}
+                      style={styles.iconColumn}
                     >
                       <MaterialCommunityIcons
                         name="file-document"
                         size={30}
-                        color="#007AFF"
+                        color={colors.primary}
                       />
                     </TouchableOpacity>
-                  </View>
-                </TouchableOpacity>
+                  )}
+                </View>
+              </TouchableOpacity>
+            );
+
+            if (selectionMode) {
+              return rowContent;
+            }
+
+            return (
+              <Swipeable
+                renderLeftActions={renderLeftActions(item)}
+                renderRightActions={renderRightActions(item)}
+                overshootLeft={false}
+                overshootRight={false}
+                friction={2}
+                leftThreshold={40}
+                rightThreshold={40}
+                onSwipeableOpen={direction => {
+                  console.log(`Swiped ${direction}`);
+                }}
+              >
+                {rowContent}
               </Swipeable>
             );
           }}
         />
-        <StatusBar style="auto" />
 
-        {/* === BOTTOM SHEET MENU === */}
-        <BottomSheet
-          modalProps={{ animationType: "slide", transparent: true }}
-          isVisible={bottomSheetVisible}
-          containerStyle={styles.bottomSheetContainer}
-          backdropStyle={styles.backdropStyle}
-        >
-          <View style={styles.bottomSheetContent}>
-            <Text style={styles.bottomSheetTitle}>Select an Option</Text>
-
+        {selectionMode && (
+          <View style={styles.selectionActionBar}>
             <TouchableOpacity
-              style={styles.bottomSheetOption}
-              onPress={() => handleOptionSelect("Load Inspection")}
+              onPress={exitSelectionMode}
+              style={styles.selectionActionIconButton}
             >
-              <Text style={styles.bottomSheetOptionText}>📂 SDDG</Text>
+              <MaterialIcons name="close" size={24} color={colors.textSecondary} />
             </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.bottomSheetOption}
-              onPress={() => handleOptionSelect("Delete Inspection")}
-            >
-              <Text style={styles.bottomSheetOptionText}>Package</Text>
-            </TouchableOpacity>
+            <Text style={styles.selectionCountText}>
+              {totalSelectedCount} document{totalSelectedCount !== 1 ? "s" : ""} selected
+            </Text>
 
             <TouchableOpacity
-              style={styles.bottomSheetCancel}
-              onPress={() => setBottomSheetVisible(false)}
+              onPress={handleShareSelected}
+              disabled={totalSelectedCount === 0 || isGeneratingPdf}
+              style={[
+                styles.selectionActionIconButton,
+                (totalSelectedCount === 0 || isGeneratingPdf) &&
+                  styles.selectionActionButtonDisabled,
+              ]}
             >
-              <Text style={styles.bottomSheetCancelText}>Cancel</Text>
+              {isGeneratingPdf ? (
+                <ActivityIndicator size="small" color={colors.primary} />
+              ) : (
+                <Svg width={28} height={28} viewBox="0 0 64 64" fill="none">
+                  <Line
+                    x1="25.5"
+                    y1="32"
+                    x2="38.5"
+                    y2="22"
+                    stroke="#223654"
+                    strokeWidth="4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <Line
+                    x1="25.5"
+                    y1="32"
+                    x2="38.5"
+                    y2="42"
+                    stroke="#223654"
+                    strokeWidth="4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <Circle cx="20" cy="32" r="5.5" stroke="#223654" strokeWidth="4" />
+                  <Circle cx="44" cy="18" r="5.5" stroke="#223654" strokeWidth="4" />
+                  <Circle cx="44" cy="46" r="5.5" stroke="#223654" strokeWidth="4" />
+                </Svg>
+              )}
             </TouchableOpacity>
           </View>
-        </BottomSheet>
+        )}
+
+        <StatusBar style="auto" />
 
         {/* === GAS CALCULATOR MODAL === */}
         <GasCalculatorTool
@@ -967,7 +1336,10 @@ function InspectorHomeScreenComponent({
           visible={form1015ModalVisible}
           animationType="slide"
           presentationStyle="fullScreen"
-          onRequestClose={() => setForm1015ModalVisible(false)}
+          onRequestClose={() => {
+            setForm1015ModalVisible(false);
+            setSelectedInspectionForForm(null);
+          }}
         >
           {selectedInspectionForForm && (
             <Form1015Viewer
@@ -975,6 +1347,27 @@ function InspectorHomeScreenComponent({
               onClose={() => {
                 setForm1015ModalVisible(false);
                 setSelectedInspectionForForm(null);
+              }}
+            />
+          )}
+        </Modal>
+
+        {/* === SDDG IMAGE VIEWER MODAL === */}
+        <Modal
+          visible={sddgViewerModalVisible}
+          animationType="slide"
+          presentationStyle="fullScreen"
+          onRequestClose={() => {
+            setSddgViewerModalVisible(false);
+            setSelectedInspectionForSDDG(null);
+          }}
+        >
+          {selectedInspectionForSDDG && (
+            <SDDGImageViewer
+              inspection={selectedInspectionForSDDG}
+              onClose={() => {
+                setSddgViewerModalVisible(false);
+                setSelectedInspectionForSDDG(null);
               }}
             />
           )}
@@ -1049,29 +1442,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
   },
-  shareIconPreviewRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "flex-end",
-    marginBottom: spacing.sm,
-    marginHorizontal: spacing.sm,
-    gap: spacing.sm,
-  },
-  shareIconPreviewLabel: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    fontWeight: "600",
-  },
-  shareIconPreviewButton: {
-    width: 44,
-    height: 44,
-    borderRadius: borderRadius.sm,
-    borderWidth: 1,
-    borderColor: colors.border,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: colors.background,
-  },
   tableHeader: {
     flexDirection: "row",
     backgroundColor: colors.background,
@@ -1087,41 +1457,53 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: colors.textPrimary,
   },
-  tableRow: {
-    flexDirection: "row",
-    padding: spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    alignItems: "center",
+  docHeaderCell: {
+    width: 74,
+    fontSize: 14,
   },
-  rowText: {
-    fontSize: 15,
-    textAlign: "center",
-    color: colors.textPrimary,
-  },
-  checkboxContainer: {
-    width: 40,
-    alignItems: "center",
+  authHeaderCell: {
+    width: 92,
+    fontSize: 14,
   },
   flex1: { flex: 1 },
-  iconColumn: {
-    width: 40,
+  authColumn: {
+    width: 92,
     alignItems: "center",
-  },
-  columnIcon: {
-    marginRight: spacing.xs,
-    marginLeft: spacing.xs,
-  },
-  rowIcon: {
-    marginRight: spacing.xs,
-    marginLeft: spacing.xs,
-  },
-  listItem: {
-    paddingVertical: spacing.sm,
     justifyContent: "center",
-    height: 60,
+    paddingHorizontal: spacing.xs,
   },
-
+  authBadgeText: {
+    fontSize: 12,
+    fontWeight: "600",
+    borderRadius: borderRadius.lg,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    overflow: "hidden",
+    textAlign: "center",
+    minWidth: 74,
+  },
+  authBadgeActive: {
+    backgroundColor: colors.infoLight,
+    color: colors.primary,
+  },
+  authBadgePending: {
+    backgroundColor: colors.warningLight,
+    color: colors.warning,
+  },
+  authBadgeNone: {
+    backgroundColor: colors.background,
+    color: colors.textSecondary,
+  },
+  iconColumn: {
+    width: 74,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  docUnavailableText: {
+    fontSize: 24,
+    color: colors.textSecondary,
+    textAlign: "center",
+  },
   listItemRow: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -1156,37 +1538,45 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
     color: colors.textSecondary,
   },
-  backdropStyle: {
+  selectionActionBar: {
     position: "absolute",
-    width: "100%",
-    height: "100%",
-  },
-  bottomSheetContainer: {
-    flex: 1,
-    height: "100%",
-    justifyContent: "flex-start",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-  bottomSheetContent: {
-    height: "100%",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
     backgroundColor: colors.surface,
-    padding: spacing.xl,
-    borderTopLeftRadius: borderRadius.lg,
-    borderTopRightRadius: borderRadius.lg,
-    alignItems: "center",
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    ...shadows.light,
   },
-  bottomSheetTitle: { fontSize: 18, fontWeight: "bold", marginBottom: spacing.sm },
-  bottomSheetOption: { padding: spacing.sm, width: "100%", alignItems: "center" },
-  bottomSheetOptionText: { fontSize: 16 },
-  bottomSheetCancel: {
-    marginTop: spacing.sm,
-    padding: spacing.sm,
-    backgroundColor: colors.border,
+  selectionActionIconButton: {
+    width: 44,
+    height: 44,
     borderRadius: borderRadius.sm,
-    width: "100%",
+    borderWidth: 1,
+    borderColor: colors.border,
     alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.background,
   },
-  bottomSheetCancelText: { fontSize: 16, fontWeight: "bold" },
+  selectionActionButtonDisabled: {
+    opacity: 0.55,
+  },
+  selectionCountText: {
+    flex: 1,
+    marginHorizontal: spacing.md,
+    fontSize: 16,
+    fontWeight: "600",
+    color: colors.textPrimary,
+    textAlign: "center",
+  },
+  listWithSelectionFooter: {
+    paddingBottom: 88,
+  },
   toolButtonRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -1234,6 +1624,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: spacing.sm,
+  },
+  statusCellCenter: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  checkboxIconHitArea: {
+    minWidth: 36,
+    minHeight: 36,
+    alignItems: "center",
+    justifyContent: "center",
   },
   pressed: {
     opacity: 0.5,

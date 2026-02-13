@@ -17,6 +17,7 @@ import {
   ReinspectionAttempt,
   KitInspectionData,
   LabelingContext,
+  InspectorDotSpWaiver,
 } from "@/types/sddg";
 import { ExceptedQuantityData, LimitedQuantityData, Inspector } from "../../../types";
 import { InnerPackagingInspectionData } from "@/types/innerPackaging";
@@ -34,6 +35,7 @@ import {
   perfTracker,
   PERFORMANCE_TRACKING_ENABLED,
 } from "@/utils/performanceUtils";
+import type { SpecialAuthorizationType } from "@/utils/afmanPackagingParagraphs";
 
 interface InspectionFormContextValue {
   // State
@@ -152,6 +154,30 @@ interface InspectionFormContextValue {
   setPackagePackagingType: (
     packagingType: "single" | "combination" | "composite" | null
   ) => void;
+  setSpecialAuthorizationData: (
+    data: {
+      type: SpecialAuthorizationType;
+      referenceNumber: string;
+      attested: boolean;
+    } | null
+  ) => void;
+  addCoeCaaDocument: (document: {
+    documentType: "COE" | "CAA";
+    uri?: string;
+    base64Data: string;
+    name: string;
+    agency?: string;
+    id?: string;
+    dateAdded?: string;
+  }) => void;
+  removeCoeCaaDocument: (id: string, documentType: "COE" | "CAA") => void;
+  addDotSpWaiver: (document: Omit<InspectorDotSpWaiver, "id" | "dateAdded"> & {
+    id?: string;
+    dateAdded?: string;
+  }) => void;
+  removeDotSpWaiver: (id: string) => void;
+  clearAllAuthorizationDocuments: () => void;
+  pruneAuthorizationDocumentsByType: (type: SpecialAuthorizationType) => void;
 
   // Inspector management
   setInspector: (
@@ -243,7 +269,7 @@ export function InspectionFormProvider({
         console.log("📝 [InspectionForm] Loaded inspection TCN:", loaded.tcn);
         console.log(
           "📝 [InspectionForm] Loaded inspection frustrations count:",
-          loaded.inspectionContext.frustrations?.length || 0
+          loaded.inspectionContext?.frustrations?.length || 0
         );
 
         // Store the inspection ID
@@ -252,24 +278,36 @@ export function InspectionFormProvider({
 
         // Measure state update time
         const stateUpdateStart = performance.now();
+        const loadedContext = loaded.inspectionContext || initialInspectionContext;
 
         // Load inspection context (with backward compatibility for resolved frustrations)
         console.log("📝 [InspectionForm] Setting inspection context...");
         setInspection({
-          ...loaded.inspectionContext,
+          ...loadedContext,
           resolvedFrustrations:
-            loaded.inspectionContext.resolvedFrustrations || [],
+            loadedContext.resolvedFrustrations || [],
           resolvedPackageFrustrations:
-            loaded.inspectionContext.resolvedPackageFrustrations || [],
-          quantityType: loaded.inspectionContext.quantityType || "standard",
+            loadedContext.resolvedPackageFrustrations || [],
+          quantityType: loadedContext.quantityType || "standard",
           exceptedQuantityData:
-            loaded.inspectionContext.exceptedQuantityData || null,
+            loadedContext.exceptedQuantityData || null,
           limitedQuantityData:
-            loaded.inspectionContext.limitedQuantityData || null,
+            loadedContext.limitedQuantityData || null,
           packagePackagingType:
-            loaded.inspectionContext.packagePackagingType || null,
+            loadedContext.packagePackagingType || null,
           labelingContext:
-            loaded.inspectionContext.labelingContext || null,
+            loadedContext.labelingContext || null,
+          specialAuthorizationType:
+            loadedContext.specialAuthorizationType || null,
+          specialAuthorizationReference:
+            loadedContext.specialAuthorizationReference || null,
+          specialAuthorizationAttested:
+            loadedContext.specialAuthorizationAttested || false,
+          coeAndCaaDocuments: loadedContext.coeAndCaaDocuments || {
+            coeDocuments: [],
+            caaDocuments: [],
+          },
+          dotSpWaivers: loadedContext.dotSpWaivers || [],
         });
 
         // Reset workflow to appropriate state based on inspection status
@@ -1471,6 +1509,247 @@ export function InspectionFormProvider({
     []
   );
 
+  const setSpecialAuthorizationData = useCallback(
+    (
+      data: {
+        type: SpecialAuthorizationType;
+        referenceNumber: string;
+        attested: boolean;
+      } | null
+    ) => {
+      console.log(
+        "📝 [InspectionForm] Setting special authorization data:",
+        data
+      );
+      setInspection(prev => ({
+        ...prev,
+        specialAuthorizationType: data?.type || null,
+        specialAuthorizationReference: data?.referenceNumber || null,
+        specialAuthorizationAttested: data?.attested || false,
+        ...(data
+          ? {}
+          : {
+              coeAndCaaDocuments: {
+                coeDocuments: [],
+                caaDocuments: [],
+              },
+              dotSpWaivers: [],
+            }),
+      }));
+      setHasUnsavedChanges(true);
+    },
+    []
+  );
+
+  const addCoeCaaDocument = useCallback(
+    (document: {
+      documentType: "COE" | "CAA";
+      uri?: string;
+      base64Data: string;
+      name: string;
+      agency?: string;
+      id?: string;
+      dateAdded?: string;
+    }) => {
+      const id = document.id || Date.now().toString();
+      const dateAdded = document.dateAdded || new Date().toISOString();
+      console.log("📝 [InspectionForm] Adding COE/CAA document:", {
+        id,
+        documentType: document.documentType,
+        name: document.name,
+      });
+
+      setInspection(prev => {
+        const existing = prev.coeAndCaaDocuments || {
+          coeDocuments: [],
+          caaDocuments: [],
+        };
+
+        if (document.documentType === "COE") {
+          return {
+            ...prev,
+            coeAndCaaDocuments: {
+              coeDocuments: [
+                ...existing.coeDocuments,
+                {
+                  id,
+                  documentType: "COE",
+                  uri: document.uri,
+                  base64Data: document.base64Data,
+                  name: document.name,
+                  agency: document.agency,
+                  dateAdded,
+                },
+              ],
+              caaDocuments: [...existing.caaDocuments],
+            },
+          };
+        }
+
+        return {
+          ...prev,
+          coeAndCaaDocuments: {
+            coeDocuments: [...existing.coeDocuments],
+            caaDocuments: [
+              ...existing.caaDocuments,
+              {
+                id,
+                documentType: "CAA",
+                uri: document.uri,
+                base64Data: document.base64Data,
+                name: document.name,
+                agency: document.agency,
+                dateAdded,
+              },
+            ],
+          },
+        };
+      });
+      setHasUnsavedChanges(true);
+    },
+    []
+  );
+
+  const removeCoeCaaDocument = useCallback(
+    (id: string, documentType: "COE" | "CAA") => {
+      console.log("📝 [InspectionForm] Removing COE/CAA document:", {
+        id,
+        documentType,
+      });
+      setInspection(prev => {
+        const existing = prev.coeAndCaaDocuments || {
+          coeDocuments: [],
+          caaDocuments: [],
+        };
+
+        if (documentType === "COE") {
+          return {
+            ...prev,
+            coeAndCaaDocuments: {
+              coeDocuments: existing.coeDocuments.filter(doc => doc.id !== id),
+              caaDocuments: [...existing.caaDocuments],
+            },
+          };
+        }
+
+        return {
+          ...prev,
+          coeAndCaaDocuments: {
+            coeDocuments: [...existing.coeDocuments],
+            caaDocuments: existing.caaDocuments.filter(doc => doc.id !== id),
+          },
+        };
+      });
+      setHasUnsavedChanges(true);
+    },
+    []
+  );
+
+  const addDotSpWaiver = useCallback(
+    (
+      document: Omit<InspectorDotSpWaiver, "id" | "dateAdded"> & {
+        id?: string;
+        dateAdded?: string;
+      }
+    ) => {
+      const id = document.id || Date.now().toString();
+      const dateAdded = document.dateAdded || new Date().toISOString();
+      console.log("📝 [InspectionForm] Adding DOT-SP waiver:", {
+        id,
+        waiverNumber: document.waiverNumber,
+      });
+
+      setInspection(prev => ({
+        ...prev,
+        dotSpWaivers: [
+          ...(prev.dotSpWaivers || []),
+          {
+            id,
+            uri: document.uri,
+            base64Data: document.base64Data,
+            waiverNumber: document.waiverNumber,
+            description: document.description,
+            agency: document.agency,
+            dateAdded,
+          },
+        ],
+      }));
+      setHasUnsavedChanges(true);
+    },
+    []
+  );
+
+  const removeDotSpWaiver = useCallback((id: string) => {
+    console.log("📝 [InspectionForm] Removing DOT-SP waiver:", id);
+    setInspection(prev => ({
+      ...prev,
+      dotSpWaivers: (prev.dotSpWaivers || []).filter(doc => doc.id !== id),
+    }));
+    setHasUnsavedChanges(true);
+  }, []);
+
+  const clearAllAuthorizationDocuments = useCallback(() => {
+    console.log("📝 [InspectionForm] Clearing all authorization documents");
+    setInspection(prev => ({
+      ...prev,
+      coeAndCaaDocuments: {
+        coeDocuments: [],
+        caaDocuments: [],
+      },
+      dotSpWaivers: [],
+    }));
+    setHasUnsavedChanges(true);
+  }, []);
+
+  const pruneAuthorizationDocumentsByType = useCallback(
+    (type: SpecialAuthorizationType) => {
+      console.log(
+        "📝 [InspectionForm] Pruning authorization documents for type:",
+        type
+      );
+
+      setInspection(prev => {
+        const coeDocuments = prev.coeAndCaaDocuments?.coeDocuments || [];
+        const caaDocuments = prev.coeAndCaaDocuments?.caaDocuments || [];
+        const dotSpWaivers = prev.dotSpWaivers || [];
+
+        if (type === "COE") {
+          return {
+            ...prev,
+            coeAndCaaDocuments: {
+              coeDocuments: [...coeDocuments],
+              caaDocuments: [],
+            },
+            dotSpWaivers: [],
+          };
+        }
+
+        if (type === "CAA") {
+          return {
+            ...prev,
+            coeAndCaaDocuments: {
+              coeDocuments: [],
+              caaDocuments: [...caaDocuments],
+            },
+            dotSpWaivers: [],
+          };
+        }
+
+        return {
+          ...prev,
+          coeAndCaaDocuments: {
+            coeDocuments: [],
+            caaDocuments: [],
+          },
+          dotSpWaivers: [...dotSpWaivers],
+        };
+      });
+
+      setHasUnsavedChanges(true);
+    },
+    []
+  );
+
   const setInspector = useCallback(
     (
       inspector:
@@ -1543,6 +1822,13 @@ export function InspectionFormProvider({
       setExceptedQuantityData,
       setLimitedQuantityData,
       setPackagePackagingType,
+      setSpecialAuthorizationData,
+      addCoeCaaDocument,
+      removeCoeCaaDocument,
+      addDotSpWaiver,
+      removeDotSpWaiver,
+      clearAllAuthorizationDocuments,
+      pruneAuthorizationDocumentsByType,
       setInspector,
     }),
     [
@@ -1597,6 +1883,13 @@ export function InspectionFormProvider({
       setExceptedQuantityData,
       setLimitedQuantityData,
       setPackagePackagingType,
+      setSpecialAuthorizationData,
+      addCoeCaaDocument,
+      removeCoeCaaDocument,
+      addDotSpWaiver,
+      removeDotSpWaiver,
+      clearAllAuthorizationDocuments,
+      pruneAuthorizationDocumentsByType,
       setInspector,
     ]
   );
@@ -1688,6 +1981,14 @@ export function useInspectionFormActions() {
     setExceptedQuantityData: context.setExceptedQuantityData,
     setLimitedQuantityData: context.setLimitedQuantityData,
     setPackagePackagingType: context.setPackagePackagingType,
+    setSpecialAuthorizationData: context.setSpecialAuthorizationData,
+    addCoeCaaDocument: context.addCoeCaaDocument,
+    removeCoeCaaDocument: context.removeCoeCaaDocument,
+    addDotSpWaiver: context.addDotSpWaiver,
+    removeDotSpWaiver: context.removeDotSpWaiver,
+    clearAllAuthorizationDocuments: context.clearAllAuthorizationDocuments,
+    pruneAuthorizationDocumentsByType:
+      context.pruneAuthorizationDocumentsByType,
     setInspector: context.setInspector,
   };
 }

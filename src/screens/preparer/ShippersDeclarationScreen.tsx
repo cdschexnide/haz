@@ -161,8 +161,13 @@ const useSDDGFormData = () => {
     if (ctx.cylinderProperties) {
       return summarizeCylinderDescriptionForSddg(ctx.cylinderProperties as any);
     }
-    if (ctx.usesCoeCertification || ctx.usesCaaCertification) {
-      return '';
+    if (
+      (ctx.specialAuthorizationAttested && ctx.specialAuthorizationType) ||
+      ctx.usesCoeCertification ||
+      ctx.usesCaaCertification ||
+      ctx.usesDotSpPermit
+    ) {
+      return ctx.specialAuthorizationQuantityAndTypeOfPacking || '';
     }
 
     // Explosives container description
@@ -208,23 +213,89 @@ const useSDDGFormData = () => {
     return '';
   }, [ctx.megcProperties]);
 
+  const specialAuthorizationType = useMemo(() => {
+    if (ctx.specialAuthorizationAttested && ctx.specialAuthorizationType) {
+      return ctx.specialAuthorizationType;
+    }
+    if (ctx.usesDotSpPermit) {
+      return 'DOT-SP';
+    }
+    if (ctx.usesCoeCertification) {
+      return 'COE';
+    }
+    if (ctx.usesCaaCertification) {
+      return 'CAA';
+    }
+    return null;
+  }, [
+    ctx.specialAuthorizationAttested,
+    ctx.specialAuthorizationType,
+    ctx.usesDotSpPermit,
+    ctx.usesCoeCertification,
+    ctx.usesCaaCertification,
+  ]);
+
+  const specialAuthorizationReference = useMemo(() => {
+    if (ctx.specialAuthorizationReference) {
+      return ctx.specialAuthorizationReference;
+    }
+
+    if (specialAuthorizationType === 'COE') {
+      return (
+        ctx.coeAndCaaDocuments?.coeDocuments?.[
+          (ctx.coeAndCaaDocuments?.coeDocuments?.length || 1) - 1
+        ]?.name ?? ''
+      );
+    }
+    if (specialAuthorizationType === 'CAA') {
+      return (
+        ctx.coeAndCaaDocuments?.caaDocuments?.[
+          (ctx.coeAndCaaDocuments?.caaDocuments?.length || 1) - 1
+        ]?.name ?? ''
+      );
+    }
+    if (specialAuthorizationType === 'DOT-SP') {
+      return (
+        ctx.dotSpWaivers?.[(ctx.dotSpWaivers?.length || 1) - 1]?.waiverNumber ??
+        ''
+      );
+    }
+
+    return '';
+  }, [
+    ctx.specialAuthorizationReference,
+    ctx.coeAndCaaDocuments,
+    ctx.dotSpWaivers,
+    specialAuthorizationType,
+  ]);
+
   // Calculate packing instruction
   const packingInstruction = useMemo(() => {
-    if (ctx.usesCoeCertification) return 'COE';
-    if (ctx.usesCaaCertification) return 'CAA';
-    return ctx.hazardousMaterial?.packagingParagraph ?? '';
-  }, [ctx.usesCoeCertification, ctx.usesCaaCertification, ctx.hazardousMaterial?.packagingParagraph]);
+    if (specialAuthorizationType) {
+      return (
+        specialAuthorizationReference ||
+        ctx.packingInstruction ||
+        ctx.hazardousMaterial?.packagingParagraph ||
+        ''
+      );
+    }
+    return ctx.packingInstruction || ctx.hazardousMaterial?.packagingParagraph || '';
+  }, [
+    specialAuthorizationType,
+    specialAuthorizationReference,
+    ctx.packingInstruction,
+    ctx.hazardousMaterial?.packagingParagraph,
+  ]);
 
   // Calculate authorization
   const authorization = useMemo(() => {
-    if (ctx.usesCoeCertification) {
-      return ctx.coeAndCaaDocuments?.coeDocuments[0]?.name ?? '';
-    }
-    if (ctx.usesCaaCertification) {
-      return ctx.coeAndCaaDocuments?.caaDocuments[0]?.name ?? '';
+    if (specialAuthorizationType) {
+      return specialAuthorizationType;
     }
     return 'AFMAN24-604';
-  }, [ctx.usesCoeCertification, ctx.usesCaaCertification, ctx.coeAndCaaDocuments]);
+  }, [
+    specialAuthorizationType,
+  ]);
 
   // Determine if cargo aircraft only
   const isCargoAircraftOnly = useMemo(() => {
@@ -360,7 +431,7 @@ export const ShippersDeclarationScreen: React.FC<ShippersDeclarationScreenProps>
   };
 
   /**
-   * Generates and shares the SDDG PDF, optionally including COE/CAA attachments.
+   * Generates and shares the SDDG PDF, optionally including authorization attachments.
    */
   const generateAndSharePdf = useCallback(async () => {
     try {
@@ -375,17 +446,55 @@ export const ShippersDeclarationScreen: React.FC<ShippersDeclarationScreenProps>
       const sddgPdfUri = await convertHtmlToPdf(html);
       console.log('Created SDDG PDF at:', sddgPdfUri);
 
-      // Get COE and CAA documents
+      // Resolve available authorization documents
       const coeAndCaaDocuments = state.hazProPreparerContext.coeAndCaaDocuments ?? {
         coeDocuments: [],
         caaDocuments: [],
       };
       const coeDocuments = coeAndCaaDocuments.coeDocuments ?? [];
       const caaDocuments = coeAndCaaDocuments.caaDocuments ?? [];
+      const dotSpDocuments = state.hazProPreparerContext.dotSpWaivers ?? [];
 
-      console.log(`Found ${coeDocuments.length} COE docs and ${caaDocuments.length} CAA docs`);
+      const specialAuthorizationType =
+        (state.hazProPreparerContext.specialAuthorizationAttested
+          ? state.hazProPreparerContext.specialAuthorizationType
+          : null) ??
+        (state.hazProPreparerContext.usesDotSpPermit
+          ? 'DOT-SP'
+          : state.hazProPreparerContext.usesCoeCertification
+          ? 'COE'
+          : state.hazProPreparerContext.usesCaaCertification
+          ? 'CAA'
+          : null);
 
-      const hasDocuments = coeDocuments.length > 0 || caaDocuments.length > 0;
+      let documentsToMerge: ReadonlyArray<{ base64Data: string }> = [];
+      let docType = '';
+
+      if (specialAuthorizationType === 'COE') {
+        documentsToMerge = coeDocuments;
+        docType = 'COE';
+      } else if (specialAuthorizationType === 'CAA') {
+        documentsToMerge = caaDocuments;
+        docType = 'CAA';
+      } else if (specialAuthorizationType === 'DOT-SP') {
+        documentsToMerge = dotSpDocuments;
+        docType = 'DOT-SP';
+      } else if (coeDocuments.length > 0) {
+        documentsToMerge = coeDocuments;
+        docType = 'COE';
+      } else if (caaDocuments.length > 0) {
+        documentsToMerge = caaDocuments;
+        docType = 'CAA';
+      } else if (dotSpDocuments.length > 0) {
+        documentsToMerge = dotSpDocuments;
+        docType = 'DOT-SP';
+      }
+
+      console.log(
+        `Found ${coeDocuments.length} COE docs, ${caaDocuments.length} CAA docs, and ${dotSpDocuments.length} DOT-SP docs`
+      );
+
+      const hasDocuments = documentsToMerge.length > 0;
 
       // If no attachments, just share the SDDG
       if (!hasDocuments) {
@@ -394,13 +503,13 @@ export const ShippersDeclarationScreen: React.FC<ShippersDeclarationScreenProps>
           mimeType: 'application/pdf',
           dialogTitle: 'Share SDDG',
         });
-        await FileSystem.deleteAsync(sddgPdfUri, { idempotent: true });
+        // Delay cleanup so target apps (Outlook, Teams) can finish uploading
+        setTimeout(() => {
+          FileSystem.deleteAsync(sddgPdfUri, { idempotent: true });
+        }, 60000);
         return;
       }
 
-      // Prepare attachment documents for merging
-      const documentsToMerge = coeDocuments.length > 0 ? coeDocuments : caaDocuments;
-      const docType = coeDocuments.length > 0 ? 'COE' : 'CAA';
       console.log(`Using ${documentsToMerge.length} ${docType} documents to merge`);
 
       // Write attachment PDFs to temporary files
@@ -428,14 +537,14 @@ export const ShippersDeclarationScreen: React.FC<ShippersDeclarationScreenProps>
             UTI: 'com.adobe.pdf',
           });
 
-          // Cleanup temporary files
-          await FileSystem.deleteAsync(sddgPdfUri, { idempotent: true });
-          for (const uri of attachmentUris) {
-            await FileSystem.deleteAsync(uri, { idempotent: true });
-          }
+          // Delay cleanup so target apps (Outlook, Teams) can finish uploading
           setTimeout(() => {
+            FileSystem.deleteAsync(sddgPdfUri, { idempotent: true });
+            for (const uri of attachmentUris) {
+              FileSystem.deleteAsync(uri, { idempotent: true });
+            }
             FileSystem.deleteAsync(mergedPdfUri, { idempotent: true });
-          }, 5000);
+          }, 60000);
 
           console.log('PDF generation and sharing completed');
           return;
@@ -458,14 +567,26 @@ export const ShippersDeclarationScreen: React.FC<ShippersDeclarationScreenProps>
         mimeType: 'application/pdf',
         dialogTitle: 'Share SDDG',
       });
-      await FileSystem.deleteAsync(sddgPdfUri, { idempotent: true });
+      // Delay cleanup so target apps (Outlook, Teams) can finish uploading
+      setTimeout(() => {
+        FileSystem.deleteAsync(sddgPdfUri, { idempotent: true });
+      }, 60000);
     } catch (error) {
       console.error('Error generating or sharing PDF:', error);
       Alert.alert('Error', 'Failed to generate or share PDF');
     } finally {
       setIsGeneratingPdf(false);
     }
-  }, [formData, state.hazProPreparerContext.coeAndCaaDocuments]);
+  }, [
+    formData,
+    state.hazProPreparerContext.coeAndCaaDocuments,
+    state.hazProPreparerContext.dotSpWaivers,
+    state.hazProPreparerContext.specialAuthorizationType,
+    state.hazProPreparerContext.specialAuthorizationAttested,
+    state.hazProPreparerContext.usesCoeCertification,
+    state.hazProPreparerContext.usesCaaCertification,
+    state.hazProPreparerContext.usesDotSpPermit,
+  ]);
 
   // Navigation handlers
   const handleCancel = useCallback(() => {

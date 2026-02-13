@@ -3006,9 +3006,8 @@ const styles = StyleSheet.create({
     borderLeftColor: colors.success,
   },
   noteCardHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: "column",
+    alignItems: "flex-start",
     marginBottom: 8,
   },
   noteNumber: {
@@ -3016,11 +3015,18 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: colors.darkGray,
     letterSpacing: 0.5,
+    flex: 1,
+    flexShrink: 1,
+    minWidth: 0,
+    paddingRight: 0,
+    marginBottom: 6,
   },
   noteStatusBadgeSmall: {
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 4,
+    flexShrink: 0,
+    alignSelf: "flex-start",
   },
   noteStatusBadgeIncompatible: {
     backgroundColor: colors.danger,

@@ -154,6 +154,15 @@ jest.mock('react-native-webview', () => ({
   WebView: 'WebView',
 }));
 
+// Mock react-native-pdf (native module dependency)
+jest.mock('react-native-pdf', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+  return function MockPdf(props) {
+    return React.createElement(View, { ...props, testID: props.testID || 'mock-pdf' });
+  };
+});
+
 // Mock @azesmway/react-native-unity
 jest.mock('@azesmway/react-native-unity', () => 'UnityView');
 

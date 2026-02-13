@@ -4,6 +4,7 @@ type InspectionLike = {
   verificationCopy?: { unIdNo?: string; packingInstruction?: string };
   extractedContent?: { unIdNo?: string; packingInstruction?: string };
   quantityType?: "standard" | "limited" | "excepted";
+  specialAuthorizationAttested?: boolean;
 };
 
 export type NextRoute = { screen: string; params?: Record<string, any> };
@@ -84,6 +85,7 @@ export const getSpecialMaterialRoute = (
 export const shouldSkipPopMarking = (inspection: InspectionLike): boolean => {
   const quantityType = inspection?.quantityType || "standard";
 
+  if (inspection?.specialAuthorizationAttested) return true;
   if (getSpecialMaterialRoute(inspection)) return true;
   if (quantityType === "excepted" || quantityType === "limited") return true;
   if (getPackingInstruction(inspection).toUpperCase().startsWith("A6")) return true;

@@ -11,6 +11,14 @@ export type RootStackParamList = {
   PackagingScreen: undefined;
   LabelingAndMarking: undefined;
   ShippersDeclarationScreen: undefined;
+  SpecialAuthorizationPackingDataScreen: {
+    authorizationType: "COE" | "CAA" | "DOT-SP";
+    referenceNumber: string;
+  };
+  SpecialAuthorizationAttestationScreen: {
+    authorizationType: "COE" | "CAA" | "DOT-SP";
+    referenceNumber: string;
+  };
   Certify: undefined;
   CertifyForm: undefined;
   Identify: undefined;
@@ -41,6 +49,16 @@ export type RootStackParamList = {
   InspectorInitialQuestioningScreen: undefined;
   InspectorPackageMarkingsScreen: undefined;
   InspectorLabelingExceptionsScreen: undefined;
+  InspectorSpecialAuthorizationCheckScreen: {
+    packingInstruction?: string;
+  };
+  InspectorSpecialAuthorizationAttestationScreen: {
+    referenceNumber?: string;
+  };
+  InspectorCoeAndCaaScreen: {
+    documentType?: "COE" | "CAA";
+  };
+  InspectorDotSpScreen: undefined;
   InspectorWrappedStack: {
     screen: string;
   };
@@ -80,7 +98,7 @@ export const NavigationRefContext = React.createContext<{
     ref: React.RefObject<NavigationContainerRefWithCurrent<RootStackParamList>>
   ) => void;
 }>({
-  navigationRef: { current: null } as React.RefObject<
+  navigationRef: ({ current: null } as unknown) as React.RefObject<
     NavigationContainerRefWithCurrent<RootStackParamList>
   >,
 });

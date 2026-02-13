@@ -53,6 +53,12 @@ export interface HazProPreparerContext {
   usesCoeCertification: boolean;
   usesCaaCertification: boolean;
   usesDotSpPermit: boolean;
+  packingInstruction?: string | null;
+  specialAuthorizationType?: "COE" | "CAA" | "DOT-SP" | null;
+  specialAuthorizationReference?: string | null;
+  specialAuthorizationAttested?: boolean;
+  specialAuthorizationPackingDescription?: string | null;
+  specialAuthorizationQuantityAndTypeOfPacking?: string | null;
   allowablePackingGroups: string;
   magnetizedMaterialData?: MagnetizedMaterialData;
   kitPreparationData?: KitPreparationData;
@@ -71,15 +77,19 @@ export interface HazProPreparerContext {
     coeDocuments: Array<{
       id: string;
       documentType: "COE";
+      uri?: string;
       base64Data: string;
       name: string;
+      agency?: string;
       dateAdded: string;
     }>;
     caaDocuments: Array<{
       id: string;
       documentType: "CAA";
+      uri?: string;
       base64Data: string;
       name: string;
+      agency?: string;
       dateAdded: string;
     }>;
   };
@@ -89,6 +99,7 @@ export interface HazProPreparerContext {
     base64Data: string;
     waiverNumber: string;
     description?: string;
+    agency?: string;
     dateAdded: string;
   }>;
   exceptedLithiumBatteryEmergencyContact?: string;
@@ -1284,6 +1295,12 @@ export const initialHazProPreparerContext: HazProPreparerContext = {
   usesCoeCertification: false,
   usesCaaCertification: false,
   usesDotSpPermit: false,
+  packingInstruction: null,
+  specialAuthorizationType: null,
+  specialAuthorizationReference: null,
+  specialAuthorizationAttested: false,
+  specialAuthorizationPackingDescription: null,
+  specialAuthorizationQuantityAndTypeOfPacking: null,
   isLimitedQuantity: false,
   isExceptedQuantity: false,
   shipment: {

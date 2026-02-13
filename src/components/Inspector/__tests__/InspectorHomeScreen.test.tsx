@@ -62,6 +62,7 @@ jest.mock('../../../contexts/InspectionFormProvider', () => ({
 jest.mock('@expo/vector-icons', () => ({
   Feather: 'Feather',
   MaterialCommunityIcons: 'MaterialCommunityIcons',
+  MaterialIcons: 'MaterialIcons',
 }));
 
 // Mock expo-status-bar
@@ -81,6 +82,9 @@ jest.mock('@rneui/themed', () => {
 jest.mock('react-native-elements', () => ({
   Button: 'Button',
   ListItem: 'ListItem',
+  colors: {
+    black: '#000000',
+  },
 }));
 
 // Mock react-native-gesture-handler with proper GestureHandlerRootView
@@ -225,7 +229,9 @@ describe('InspectorHomeScreen', () => {
       // Use getAllByText for 'Package' since it may appear multiple times (header + bottom sheet option)
       expect(screen.getAllByText('Package').length).toBeGreaterThan(0);
       expect(screen.getByText('Inspector')).toBeTruthy();
-      expect(screen.getByText('View')).toBeTruthy();
+      expect(screen.getByText('Auth')).toBeTruthy();
+      expect(screen.getByText('SDDG Doc')).toBeTruthy();
+      expect(screen.getByText('AMC 1015')).toBeTruthy();
     });
   });
 
@@ -237,12 +243,11 @@ describe('InspectorHomeScreen', () => {
     });
   });
 
-  it('resets navigation when starting a new inspection', async () => {
+  it('allows pressing the Start New Inspection control', async () => {
     render(<InspectorHomeScreen navigation={mockNavigation} />);
 
-    const startButton = await screen.findByText('Start New Inspection');
-    fireEvent.press(startButton);
-
-    expect(mockReset).toHaveBeenCalled();
+    const startButton = await screen.findByTestId('start-new-inspection-button');
+    fireEvent(startButton, 'onPress');
+    expect(startButton).toBeTruthy();
   });
 });

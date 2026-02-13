@@ -9,6 +9,7 @@ import { DEFAULT_MODEL_CONFIG } from "../types";
 let ExecutorchModuleClass: any = null;
 let ScalarType: any = null;
 let etLoadError: Error | null = null;
+let runtimeAvailability: boolean | null = null;
 
 // Model asset - bundled with the app
 const MODEL_ASSET = require("../../../assets/models/yolox_confidence_boost_epoch60.pte");
@@ -19,24 +20,75 @@ let isLoading = false;
 let downloadProgress = 0;
 
 /**
- * Try to load the react-native-executorch module
+ * Normalize unknown runtime errors to a stable Error shape.
  */
-function loadExecuTorchRuntime(): boolean {
-  if (ExecutorchModuleClass) return true;
-  if (etLoadError) return false;
+function normalizeRuntimeError(error: unknown): Error {
+  if (error instanceof Error) {
+    return error;
+  }
+  return new Error(String(error));
+}
+
+/**
+ * Store runtime unavailability details and keep runtime globals clean.
+ */
+function markRuntimeUnavailable(error: unknown): boolean {
+  const normalizedError = normalizeRuntimeError(error);
+  runtimeAvailability = false;
+  etLoadError = normalizedError;
+  ExecutorchModuleClass = null;
+  ScalarType = null;
+  return false;
+}
+
+/**
+ * Returns a user-readable runtime error message.
+ */
+function getFriendlyRuntimeMessage(error: Error): string {
+  const message = error.message || "Unknown ExecuTorch runtime error";
+  if (message.includes("libexecutorch.so")) {
+    return (
+      "ExecuTorch native library not found (libexecutorch.so). " +
+      "Build/install an arm64 development build (npx expo run:android) " +
+      "or disable ML detection on this build."
+    );
+  }
+  return message;
+}
+
+/**
+ * Try to load and verify the react-native-executorch runtime.
+ */
+function ensureExecuTorchRuntimeAvailable(): boolean {
+  if (runtimeAvailability === true && ExecutorchModuleClass) return true;
+  if (runtimeAvailability === false) return false;
 
   try {
     const executorch = require("react-native-executorch");
-    ExecutorchModuleClass = executorch.ExecutorchModule;
-    ScalarType = executorch.ScalarType;
+    const RuntimeModule = executorch?.ExecutorchModule;
+    const RuntimeScalarType = executorch?.ScalarType;
+
+    if (!RuntimeModule) {
+      throw new Error("react-native-executorch loaded, but ExecutorchModule is missing");
+    }
+
+    // Probe constructor once so missing native libraries fail here, not later.
+    const probeInstance = new RuntimeModule();
+    if (probeInstance?.destroy && typeof probeInstance.destroy === "function") {
+      probeInstance.destroy();
+    }
+
+    ExecutorchModuleClass = RuntimeModule;
+    ScalarType = RuntimeScalarType;
+    runtimeAvailability = true;
+    etLoadError = null;
     console.log("[ExecuTorch] Runtime loaded successfully");
     return true;
   } catch (error) {
-    etLoadError = error as Error;
-    console.error("[ExecuTorch] Failed to load runtime:", error);
-    console.error(
-      "[ExecuTorch] This requires a development build with New Architecture enabled"
-    );
+    const normalizedError = normalizeRuntimeError(error);
+    const friendlyMessage = getFriendlyRuntimeMessage(normalizedError);
+    markRuntimeUnavailable(new Error(friendlyMessage));
+    console.warn(`[ExecuTorch] Runtime unavailable: ${friendlyMessage}`);
     return false;
   }
 }
@@ -45,17 +97,7 @@ function loadExecuTorchRuntime(): boolean {
  * Check if ExecuTorch runtime is available
  */
 export function isExecuTorchRuntimeAvailable(): boolean {
-  if (ExecutorchModuleClass) return true;
-  if (etLoadError) return false;
-
-  try {
-    const executorch = require("react-native-executorch");
-    ExecutorchModuleClass = executorch.ExecutorchModule;
-    ScalarType = executorch.ScalarType;
-    return true;
-  } catch {
-    return false;
-  }
+  return ensureExecuTorchRuntimeAvailable();
 }
 
 /**
@@ -96,12 +138,11 @@ export async function loadModel(): Promise<boolean> {
     console.log("[ExecuTorch] Starting model load...");
 
     // First, try to load ExecuTorch runtime
-    const runtimeLoaded = loadExecuTorchRuntime();
+    const runtimeLoaded = ensureExecuTorchRuntimeAvailable();
     if (!runtimeLoaded || !ExecutorchModuleClass) {
-      throw new Error(
-        "ExecuTorch Runtime not available. Please run a development build with New Architecture enabled.\n" +
-          "Run: npx expo run:android"
-      );
+      isLoading = false;
+      downloadProgress = 0;
+      return false;
     }
 
     // Create new ExecutorchModule instance
@@ -121,11 +162,15 @@ export async function loadModel(): Promise<boolean> {
     isLoading = false;
     return true;
   } catch (error) {
-    console.error("[ExecuTorch] Failed to load model:", error);
+    const normalizedError = normalizeRuntimeError(error);
+    const friendlyMessage = getFriendlyRuntimeMessage(normalizedError);
+    etLoadError = new Error(friendlyMessage);
+    runtimeAvailability = false;
+    console.warn(`[ExecuTorch] Failed to load model: ${friendlyMessage}`);
     execuTorchModule = null;
     isLoading = false;
     downloadProgress = 0;
-    throw error;
+    return false;
   }
 }
 
@@ -138,7 +183,7 @@ export async function runInference(
   inputData: Float32Array
 ): Promise<{ data: Float32Array; dims: readonly number[] } | null> {
   if (!execuTorchModule) {
-    console.error("[ExecuTorch] Model not loaded");
+    console.warn("[ExecuTorch] Model not loaded");
     return null;
   }
 
@@ -164,7 +209,7 @@ export async function runInference(
     console.log(`[ExecuTorch] Inference time: ${endTime - startTime}ms`);
 
     if (!outputs || outputs.length === 0) {
-      console.error("[ExecuTorch] No output from model");
+      console.warn("[ExecuTorch] No output from model");
       return null;
     }
 
@@ -202,7 +247,7 @@ export async function runInference(
       dims: outputDims,
     };
   } catch (error) {
-    console.error("[ExecuTorch] Inference error:", error);
+    console.warn(`[ExecuTorch] Inference error: ${String(error)}`);
     return null;
   }
 }

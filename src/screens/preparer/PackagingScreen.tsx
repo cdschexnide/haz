@@ -41,15 +41,31 @@ export const PackagingScreen: React.FC<PackagingScreenProps> = ({ navigation }) 
     }
   }, [store.hazProPreparerContext.packaging]);
 
+  const clearSpecialAuthorizationState = useCallback(() => {
+    store.hazProPreparerContext.usesCoeCertification = false;
+    store.hazProPreparerContext.usesCaaCertification = false;
+    store.hazProPreparerContext.usesDotSpPermit = false;
+    store.hazProPreparerContext.specialAuthorizationType = null;
+    store.hazProPreparerContext.specialAuthorizationReference = null;
+    store.hazProPreparerContext.specialAuthorizationAttested = false;
+    store.hazProPreparerContext.specialAuthorizationPackingDescription = null;
+    store.hazProPreparerContext.specialAuthorizationQuantityAndTypeOfPacking =
+      null;
+    store.hazProPreparerContext.packingInstruction =
+      store.hazProPreparerContext.hazardousMaterial?.packagingParagraph || null;
+  }, [store.hazProPreparerContext]);
+
   const handleScanPOP = useCallback(() => {
+    clearSpecialAuthorizationState();
     markStepComplete();
     setPackagingFlags(false, true);
     store.hazProPreparerContext.packagingEntryMethod = 'scan';
     initializePOPMarking();
     navigation.navigate('POPScannerScreen');
-  }, [markStepComplete, setPackagingFlags, initializePOPMarking, navigation]);
+  }, [clearSpecialAuthorizationState, markStepComplete, setPackagingFlags, initializePOPMarking, navigation]);
 
   const handleEnterPOP = useCallback(() => {
+    clearSpecialAuthorizationState();
     markStepComplete();
     if (isClass2) {
       setPackagingFlags(true, false);
@@ -59,9 +75,10 @@ export const PackagingScreen: React.FC<PackagingScreenProps> = ({ navigation }) 
       store.hazProPreparerContext.packagingEntryMethod = 'manual';
       navigation.navigate('ManualEntryPackagingTypeSelectionScreen');
     }
-  }, [markStepComplete, setPackagingFlags, isClass2, navigation]);
+  }, [clearSpecialAuthorizationState, markStepComplete, setPackagingFlags, isClass2, navigation]);
 
   const handleWalkthrough = useCallback(() => {
+    clearSpecialAuthorizationState();
     markStepComplete();
     setPackagingFlags(false, true);
     store.hazProPreparerContext.packagingEntryMethod = 'walkthrough';
@@ -77,17 +94,19 @@ export const PackagingScreen: React.FC<PackagingScreenProps> = ({ navigation }) 
       store.hazProPreparerContext.shipment.selectedOuterPackaging = null;
     }
     navigation.navigate('PackagingWizardV2');
-  }, [markStepComplete, setPackagingFlags, navigation]);
+  }, [clearSpecialAuthorizationState, markStepComplete, setPackagingFlags, navigation]);
 
   const handleUploadCOE = useCallback(() => {
+    clearSpecialAuthorizationState();
     markStepComplete();
-    navigation.navigate('CoeAndCaaDisclaimer');
-  }, [markStepComplete, navigation]);
+    navigation.navigate('CoeAndCaaScreen');
+  }, [clearSpecialAuthorizationState, markStepComplete, navigation]);
 
   const handleUploadDOTSP = useCallback(() => {
+    clearSpecialAuthorizationState();
     markStepComplete();
     navigation.navigate('DotSpScreen');
-  }, [markStepComplete, navigation]);
+  }, [clearSpecialAuthorizationState, markStepComplete, navigation]);
 
   const banner = {
     id: 'scan',

@@ -662,6 +662,61 @@ const uint8ToBase64 = (u8Arr: Uint8Array): string => {
   return btoa(binary);
 };
 
+interface MergePdfDocumentsOptions {
+  title?: string;
+  author?: string;
+  subject?: string;
+  keywords?: string[];
+  producer?: string;
+  creator?: string;
+  outputFilenamePrefix?: string;
+}
+
+/**
+ * Merges any set of PDF file URIs into a single output PDF.
+ */
+export const mergePdfDocuments = async (
+  pdfUris: string[],
+  options: MergePdfDocumentsOptions = {}
+): Promise<string> => {
+  if (!Array.isArray(pdfUris) || pdfUris.length === 0) {
+    throw new Error('At least one PDF URI is required for merging');
+  }
+
+  const mergedPdf = await PDFDocument.create();
+
+  for (const pdfUri of pdfUris) {
+    const pdfBytes = await FileSystem.readAsStringAsync(pdfUri, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
+    const pdfUint8 = base64ToUint8Array(pdfBytes);
+    const pdfDoc = await PDFDocument.load(pdfUint8);
+    const pages = await mergedPdf.copyPages(pdfDoc, pdfDoc.getPageIndices());
+
+    for (const page of pages) {
+      mergedPdf.addPage(page);
+    }
+  }
+
+  mergedPdf.setTitle(options.title || 'Merged PDF');
+  mergedPdf.setAuthor(options.author || 'HazPro Mobile App');
+  mergedPdf.setSubject(options.subject || 'Merged PDF Document');
+  mergedPdf.setKeywords(options.keywords || ['PDF', 'merged']);
+  mergedPdf.setProducer(options.producer || 'HazPro Mobile');
+  mergedPdf.setCreator(options.creator || 'HazPro Mobile App');
+
+  const mergedPdfBytes = await mergedPdf.save();
+  const mergedBase64 = uint8ToBase64(new Uint8Array(mergedPdfBytes));
+  const prefix = options.outputFilenamePrefix || 'merged_pdf';
+  const outputPath = `${FileSystem.cacheDirectory}${prefix}_${Date.now()}.pdf`;
+
+  await FileSystem.writeAsStringAsync(outputPath, mergedBase64, {
+    encoding: FileSystem.EncodingType.Base64,
+  });
+
+  return outputPath;
+};
+
 /**
  * Merges the SDDG PDF with attachment PDFs (COE/CAA documents).
  * Uses pdf-lib to combine multiple PDF documents into one.
@@ -674,60 +729,10 @@ export const mergeSDDGWithAttachments = async (
   sddgUri: string,
   attachmentUris: string[]
 ): Promise<string> => {
-  // Create the merged PDF document
-  const mergedPdf = await PDFDocument.create();
-
-  // Read the SDDG PDF as base64
-  const sddgBytes = await FileSystem.readAsStringAsync(sddgUri, {
-    encoding: FileSystem.EncodingType.Base64,
+  return mergePdfDocuments([sddgUri, ...attachmentUris], {
+    title: 'SDDG with Attachments',
+    subject: "Shipper's Declaration for Dangerous Goods",
+    keywords: ['SDDG', 'COE', 'CAA', 'DOT-SP', 'hazardous materials'],
+    outputFilenamePrefix: 'SDDG_merged',
   });
-
-  // Convert base64 to Uint8Array and load the SDDG document
-  const sddgUint8 = base64ToUint8Array(sddgBytes);
-  const sddgDoc = await PDFDocument.load(sddgUint8);
-
-  // Add all pages from SDDG
-  const sddgPages = await mergedPdf.copyPages(sddgDoc, sddgDoc.getPageIndices());
-  for (const page of sddgPages) {
-    mergedPdf.addPage(page);
-  }
-
-  // Process each attachment
-  for (const attachmentUri of attachmentUris) {
-    const attachmentBytes = await FileSystem.readAsStringAsync(attachmentUri, {
-      encoding: FileSystem.EncodingType.Base64,
-    });
-
-    const attachmentUint8 = base64ToUint8Array(attachmentBytes);
-    const attachmentDoc = await PDFDocument.load(attachmentUint8);
-
-    const attachmentPages = await mergedPdf.copyPages(
-      attachmentDoc,
-      attachmentDoc.getPageIndices()
-    );
-    for (const page of attachmentPages) {
-      mergedPdf.addPage(page);
-    }
-  }
-
-  // Set PDF metadata
-  mergedPdf.setTitle('SDDG with Attachments');
-  mergedPdf.setAuthor('HazPro Mobile App');
-  mergedPdf.setSubject("Shipper's Declaration for Dangerous Goods");
-  mergedPdf.setKeywords(['SDDG', 'COE', 'CAA', 'hazardous materials']);
-  mergedPdf.setProducer('HazPro Mobile');
-  mergedPdf.setCreator('HazPro Mobile App');
-
-  // Save the merged PDF
-  const mergedPdfBytes = await mergedPdf.save();
-
-  // Convert to base64 and write to file
-  const mergedBase64 = uint8ToBase64(new Uint8Array(mergedPdfBytes));
-  const outputPath = `${FileSystem.cacheDirectory}SDDG_merged_${Date.now()}.pdf`;
-
-  await FileSystem.writeAsStringAsync(outputPath, mergedBase64, {
-    encoding: FileSystem.EncodingType.Base64,
-  });
-
-  return outputPath;
 };

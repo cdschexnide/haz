@@ -320,6 +320,7 @@ exports[`InspectorHomeScreen renders correctly with empty inspections 1`] = `
                                       "paddingHorizontal": 16,
                                       "paddingVertical": 8,
                                     },
+                                    "testID": "start-new-inspection-button",
                                   },
                                   "type": "View",
                                 },
@@ -416,7 +417,37 @@ exports[`InspectorHomeScreen renders correctly with empty inspections 1`] = `
                                 },
                                 {
                                   "children": [
-                                    "View",
+                                    "Auth",
+                                  ],
+                                  "props": {
+                                    "style": [
+                                      "[Circular]",
+                                      {
+                                        "fontSize": 14,
+                                        "width": 92,
+                                      },
+                                    ],
+                                  },
+                                  "type": "Text",
+                                },
+                                {
+                                  "children": [
+                                    "SDDG Doc",
+                                  ],
+                                  "props": {
+                                    "style": [
+                                      "[Circular]",
+                                      {
+                                        "fontSize": 14,
+                                        "width": 74,
+                                      },
+                                    ],
+                                  },
+                                  "type": "Text",
+                                },
+                                {
+                                  "children": [
+                                    "AMC 1015",
                                   ],
                                   "props": {
                                     "style": [
@@ -503,123 +534,6 @@ exports[`InspectorHomeScreen renders correctly with empty inspections 1`] = `
           "type": "StatusBar",
         },
         {
-          "children": [
-            {
-              "children": [
-                "Select an Option",
-              ],
-              "props": {
-                "style": {
-                  "fontSize": 18,
-                  "fontWeight": "bold",
-                  "marginBottom": 8,
-                },
-              },
-              "type": "Text",
-            },
-            {
-              "children": [
-                {
-                  "children": [
-                    "📂 SDDG",
-                  ],
-                  "props": {
-                    "style": {
-                      "fontSize": 16,
-                    },
-                  },
-                  "type": "Text",
-                },
-              ],
-              "props": {
-                "accessibilityState": {},
-                "accessibilityValue": {},
-                "accessible": true,
-                "collapsable": false,
-                "focusable": true,
-                "style": {
-                  "alignItems": "center",
-                  "opacity": 1,
-                  "padding": 8,
-                  "width": "100%",
-                },
-              },
-              "type": "View",
-            },
-            {
-              "children": [
-                {
-                  "children": [
-                    "Package",
-                  ],
-                  "props": {
-                    "style": "[Circular]",
-                  },
-                  "type": "Text",
-                },
-              ],
-              "props": {
-                "accessibilityState": {},
-                "accessibilityValue": {},
-                "accessible": true,
-                "collapsable": false,
-                "focusable": true,
-                "style": {
-                  "alignItems": "center",
-                  "opacity": 1,
-                  "padding": 8,
-                  "width": "100%",
-                },
-              },
-              "type": "View",
-            },
-            {
-              "children": [
-                {
-                  "children": [
-                    "Cancel",
-                  ],
-                  "props": {
-                    "style": {
-                      "fontSize": 16,
-                      "fontWeight": "bold",
-                    },
-                  },
-                  "type": "Text",
-                },
-              ],
-              "props": {
-                "accessibilityState": {},
-                "accessibilityValue": {},
-                "accessible": true,
-                "collapsable": false,
-                "focusable": true,
-                "style": {
-                  "alignItems": "center",
-                  "backgroundColor": "#E5E5EA",
-                  "borderRadius": 4,
-                  "marginTop": 8,
-                  "opacity": 1,
-                  "padding": 8,
-                  "width": "100%",
-                },
-              },
-              "type": "View",
-            },
-          ],
-          "props": {
-            "style": {
-              "alignItems": "center",
-              "backgroundColor": "#FFFFFF",
-              "borderTopLeftRadius": 12,
-              "borderTopRightRadius": 12,
-              "height": "100%",
-              "padding": 20,
-            },
-          },
-          "type": "View",
-        },
-        {
           "children": null,
           "props": {
             "visible": false,
@@ -653,50 +567,6 @@ exports[`InspectorHomeScreen renders correctly with empty inspections 1`] = `
             "visible": false,
           },
           "type": "CompatibilitySegregationModal",
-        },
-        {
-          "children": [
-            {
-              "children": [
-                "⏱️",
-              ],
-              "props": {
-                "style": {
-                  "fontSize": 24,
-                },
-              },
-              "type": "Text",
-            },
-          ],
-          "props": {
-            "accessibilityState": {},
-            "accessibilityValue": {},
-            "accessible": true,
-            "collapsable": false,
-            "focusable": true,
-            "style": {
-              "alignItems": "center",
-              "backgroundColor": "#6200ee",
-              "borderRadius": 25,
-              "bottom": 120,
-              "elevation": 8,
-              "height": 50,
-              "justifyContent": "center",
-              "opacity": 1,
-              "position": "absolute",
-              "right": 10,
-              "shadowColor": "#000",
-              "shadowOffset": {
-                "height": 4,
-                "width": 0,
-              },
-              "shadowOpacity": 0.3,
-              "shadowRadius": 6,
-              "width": 50,
-              "zIndex": 9999,
-            },
-          },
-          "type": "View",
         },
       ],
       "props": {

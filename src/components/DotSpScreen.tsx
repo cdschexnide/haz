@@ -178,7 +178,6 @@ const DotSpScreen = ({ navigation }: { navigation: any }) => {
         dateAdded: new Date().toISOString(),
       };
 
-      store.hazProPreparerContext.usesDotSpPermit = true;
       store.hazProPreparerContext.dotSpWaivers = [...prev, entry];
 
       Alert.alert("Success", "DOT-SP waiver document saved.");
@@ -192,6 +191,20 @@ const DotSpScreen = ({ navigation }: { navigation: any }) => {
     } finally {
       setIsProcessingPdf(false);
     }
+  };
+
+  const clearSpecialAuthorizationState = () => {
+    store.hazProPreparerContext.usesCoeCertification = false;
+    store.hazProPreparerContext.usesCaaCertification = false;
+    store.hazProPreparerContext.usesDotSpPermit = false;
+    store.hazProPreparerContext.specialAuthorizationType = null;
+    store.hazProPreparerContext.specialAuthorizationReference = null;
+    store.hazProPreparerContext.specialAuthorizationAttested = false;
+    store.hazProPreparerContext.specialAuthorizationPackingDescription = null;
+    store.hazProPreparerContext.specialAuthorizationQuantityAndTypeOfPacking =
+      null;
+    store.hazProPreparerContext.packingInstruction =
+      store.hazProPreparerContext.hazardousMaterial?.packagingParagraph || null;
   };
 
   const deleteDocument = (id: string) => {
@@ -209,13 +222,49 @@ const DotSpScreen = ({ navigation }: { navigation: any }) => {
 
             store.hazProPreparerContext.dotSpWaivers = updatedWaivers;
 
-            if (updatedWaivers.length === 0) {
-              store.hazProPreparerContext.usesDotSpPermit = false;
+            if (
+              updatedWaivers.length === 0 &&
+              (store.hazProPreparerContext.usesDotSpPermit ||
+                store.hazProPreparerContext.specialAuthorizationType ===
+                  "DOT-SP")
+            ) {
+              clearSpecialAuthorizationState();
             }
           },
         },
       ]
     );
+  };
+
+  const handleSaveAndContinue = () => {
+    const dotSpWaivers = state.hazProPreparerContext.dotSpWaivers || [];
+
+    if (dotSpWaivers.length === 0) {
+      Alert.alert(
+        "Document Required",
+        "Upload at least one DOT-SP document before continuing."
+      );
+      return;
+    }
+
+    const latestWaiver = dotSpWaivers[dotSpWaivers.length - 1];
+    const referenceNumber =
+      typeof latestWaiver?.waiverNumber === "string"
+        ? latestWaiver.waiverNumber.trim()
+        : "";
+
+    if (!referenceNumber) {
+      Alert.alert(
+        "Missing Reference Number",
+        "The latest DOT-SP document is missing a reference number."
+      );
+      return;
+    }
+
+    navigation.navigate("SpecialAuthorizationPackingDataScreen", {
+      authorizationType: "DOT-SP",
+      referenceNumber,
+    });
   };
 
   const removeImage = (index: number) => {
@@ -515,9 +564,7 @@ const DotSpScreen = ({ navigation }: { navigation: any }) => {
               title="Save & Continue"
               buttonStyle={styles.continueButton}
               titleStyle={styles.buttonText}
-              onPress={() => {
-                navigation.navigate("LabelingAndMarking");
-              }}
+              onPress={handleSaveAndContinue}
               containerStyle={styles.bottomButtonContainer}
               icon={
                 <MaterialIcons

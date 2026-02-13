@@ -1,7 +1,8 @@
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { CameraView, useCameraPermissions } from "expo-camera";
 import * as DocumentPicker from "expo-document-picker";
 import * as ImagePicker from "expo-image-picker";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -19,6 +20,7 @@ import DocumentScanner, {
 import { SafeAreaView } from "react-native-safe-area-context";
 import InteractiveSDDGComplianceScreen from "../screens/inspector/InteractiveSDDGComplianceScreen";
 // import SimplePdfToImageConverter from './SimplePdfToImageConverter';
+import { useDatabase } from "@/contexts/DataProvider";
 import { useInspectionFormActions } from "@/contexts/InspectionFormProvider";
 import { ExtractedSDDGContent } from "@/types/sddg";
 import { DevBenchmarkButton } from "./dev/DevBenchmarkButton";
@@ -78,12 +80,17 @@ function SDDGUploadAndParse({ navigation }: SDDGUploadAndParseProps) {
     setCurrentSDDGScreen,
     setExtractedSDDGContent,
     completeSDDGSubstep,
+    loadInspectionForEdit,
   } = useInspectionFormActions();
+  const database = useDatabase();
+  const [cameraPermission, requestCameraPermission] = useCameraPermissions();
 
   const [isScanning, setIsScanning] = useState(false);
   const [showDocumentScanner, setShowDocumentScanner] = useState(false);
   const [showVerification, setShowVerification] = useState(false);
   const [showPdfConverter, setShowPdfConverter] = useState(false);
+  const [showQRScanner, setShowQRScanner] = useState(false);
+  const [isLoadingQR, setIsLoadingQR] = useState(false);
   const [selectedPdfUri, setSelectedPdfUri] = useState<string | null>(null);
   const [extractedContent, setExtractedContent] =
     useState<ExtractedContent | null>(null);
@@ -91,6 +98,7 @@ function SDDGUploadAndParse({ navigation }: SDDGUploadAndParseProps) {
   const [processingProgress, setProcessingProgress] = useState<string>("");
   const [debugText, setDebugText] = useState<string>("");
   const mockDataSetRef = useRef(false);
+  const qrScannedRef = useRef(false);
 
   // Initialize workflow state when component mounts
   useEffect(() => {
@@ -2334,23 +2342,75 @@ function SDDGUploadAndParse({ navigation }: SDDGUploadAndParseProps) {
     );
   }
 
-  // Handle QR code scanning - placeholder for now
-  const handleQRCodeScan = () => {
+  // Handle QR code scan button press
+  const handleQRCodeScan = useCallback(async () => {
     console.log("🟦 [SDDG] handleQRCodeScan called");
+    qrScannedRef.current = false;
 
-    Alert.alert(
-      "Scan QR Code",
-      "This feature will allow you to scan a QR code on an SDDG prepared with HazPro.\n\nThe QR code contains the shipment UUID, which will be used to automatically populate the inspection form with the shipment data.",
-      [
-        {
-          text: "OK",
-          onPress: () => {
-            console.log("🟦 [SDDG] QR Code scan placeholder acknowledged");
-          },
-        },
-      ]
-    );
-  };
+    if (!cameraPermission?.granted) {
+      const result = await requestCameraPermission();
+      if (!result.granted) {
+        Alert.alert(
+          "Camera Permission Required",
+          "Camera access is needed to scan QR codes. Please enable it in Settings."
+        );
+        return;
+      }
+    }
+
+    setShowQRScanner(true);
+  }, [cameraPermission, requestCameraPermission]);
+
+  // Handle barcode scanned from CameraView
+  const handleBarcodeScanned = useCallback(
+    async ({ data }: { data: string }) => {
+      // Prevent duplicate fires
+      if (qrScannedRef.current) return;
+      qrScannedRef.current = true;
+
+      const scannedTCN = data.trim();
+      console.log("🟦 [SDDG] QR code scanned, TCN:", scannedTCN);
+
+      if (!scannedTCN) {
+        qrScannedRef.current = false;
+        return;
+      }
+
+      setShowQRScanner(false);
+      setIsLoadingQR(true);
+
+      try {
+        // Look up inspection by TCN
+        const results = await database.listInspections({ tcn: scannedTCN });
+        const exactMatch = results.find((r) => r.tcn === scannedTCN);
+
+        if (!exactMatch) {
+          Alert.alert(
+            "Not Found",
+            `No inspection found with TCN: ${scannedTCN}`
+          );
+          return;
+        }
+
+        // Load full inspection into context
+        await loadInspectionForEdit(exactMatch.id);
+        console.log(
+          "🟦 [SDDG] Inspection loaded from QR scan, navigating to compliance screen"
+        );
+
+        navigation.navigate("InteractiveSDDGComplianceScreen");
+      } catch (err) {
+        console.error("🟦 [SDDG] QR lookup error:", err);
+        Alert.alert(
+          "Error",
+          "Failed to look up inspection. Please try again."
+        );
+      } finally {
+        setIsLoadingQR(false);
+      }
+    },
+    [database, loadInspectionForEdit, navigation]
+  );
 
   useEffect(() => {
     // If we return from template OCR flow, transition to verification
@@ -2358,6 +2418,61 @@ function SDDGUploadAndParse({ navigation }: SDDGUploadAndParseProps) {
       setShowVerification(true);
     }
   }, [extractedContent]);
+
+  // Show QR scanner
+  if (showQRScanner) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.qrScannerContainer}>
+          <CameraView
+            style={StyleSheet.absoluteFill}
+            facing="back"
+            barcodeScannerSettings={{ barcodeTypes: ["qr"] }}
+            onBarcodeScanned={handleBarcodeScanned}
+          />
+          {/* Overlay with targeting frame */}
+          <View style={styles.qrOverlay}>
+            <View style={styles.qrOverlayTop} />
+            <View style={styles.qrOverlayMiddle}>
+              <View style={styles.qrOverlaySide} />
+              <View style={styles.qrTargetFrame} />
+              <View style={styles.qrOverlaySide} />
+            </View>
+            <View style={styles.qrOverlayBottom}>
+              <Text style={styles.qrInstructionText}>
+                Point camera at QR code on SDDG
+              </Text>
+            </View>
+          </View>
+          {/* Back button */}
+          <TouchableOpacity
+            style={styles.qrBackButton}
+            onPress={() => setShowQRScanner(false)}
+          >
+            <MaterialIcons name="arrow-back" size={24} color="#FFFFFF" />
+            <Text style={styles.qrBackButtonText}>Cancel</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  // Show QR loading state
+  if (isLoadingQR) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Loading Inspection</Text>
+        </View>
+        <View style={styles.scanningContainer}>
+          <ActivityIndicator size="large" color="#007AFF" />
+          <Text style={styles.scanningText}>
+            Looking up inspection...
+          </Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   // Show processing screen
   if (isScanning) {
@@ -2477,7 +2592,7 @@ function SDDGUploadAndParse({ navigation }: SDDGUploadAndParseProps) {
             </TouchableOpacity>
 
             {/* QR Code Scanner - Quick entry for HazPro-prepared SDDGs */}
-            {/* <TouchableOpacity
+            <TouchableOpacity
               style={[
                 styles.qrCodeButton,
                 isScanning && styles.scanButtonDisabled,
@@ -2493,7 +2608,7 @@ function SDDGUploadAndParse({ navigation }: SDDGUploadAndParseProps) {
                 />
                 <Text style={styles.scanButtonText}>Scan QR Code</Text>
               </View>
-            </TouchableOpacity> */}
+            </TouchableOpacity>
 
             <TouchableOpacity
               style={[
@@ -2799,6 +2914,67 @@ const styles = StyleSheet.create({
   },
   toggleButtonTextInactive: {
     color: "#8E8E93",
+  },
+  // QR Scanner styles
+  qrScannerContainer: {
+    flex: 1,
+    backgroundColor: "#000",
+  },
+  qrOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  qrOverlayTop: {
+    flex: 1,
+    width: "100%",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  qrOverlayMiddle: {
+    flexDirection: "row" as const,
+    width: "100%",
+    height: 250,
+  },
+  qrOverlaySide: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  qrTargetFrame: {
+    width: 250,
+    height: 250,
+    borderWidth: 2,
+    borderColor: "#FFFFFF",
+    borderRadius: 12,
+  },
+  qrOverlayBottom: {
+    flex: 1,
+    width: "100%",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    alignItems: "center",
+    paddingTop: 24,
+  },
+  qrInstructionText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "600",
+    textAlign: "center",
+  },
+  qrBackButton: {
+    position: "absolute",
+    top: 16,
+    left: 16,
+    flexDirection: "row" as const,
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+  },
+  qrBackButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "600",
+    marginLeft: 4,
   },
 });
 

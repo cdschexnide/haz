@@ -18,6 +18,9 @@ export interface InspectorShipmentRow {
   total_frustrations: number;
   sddg_frustrations: number;
   package_frustrations: number;
+  special_auth_type?: "COE" | "CAA" | "DOT-SP" | null;
+  special_auth_attested?: number; // 0/1 in SQLite
+  special_auth_doc_count?: number;
   created_at: string; // ISO datetime
   updated_at: string; // ISO datetime
 }

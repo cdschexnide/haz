@@ -5,7 +5,7 @@
  * ML Kit text recognition for package markings (POP, UN numbers, etc.)
  */
 
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import {
   CapturedImage,
   DetectionState,
@@ -253,6 +253,10 @@ export function useDetection(): UseDetectionReturn {
     loadClassMapping(CLASS_MAPPING);
   }, []);
 
+  // Probe runtime once per hook instance to avoid repeated native-module access.
+  const runtimeAvailable = useMemo(() => isRuntimeAvailable(), []);
+  const runtimeErrorMessage = useMemo(() => getRuntimeError(), [runtimeAvailable]);
+
   // Safe state update
   const safeSetState = useCallback(
     (updater: (prev: ExtendedDetectionState) => ExtendedDetectionState) => {
@@ -291,7 +295,7 @@ export function useDetection(): UseDetectionReturn {
 
       return success;
     } catch (error) {
-      console.error('[useDetection] Model load error:', error);
+      console.warn(`[useDetection] Model load error: ${String(error)}`);
       safeSetState((prev) => ({
         ...prev,
         modelLoaded: false,
@@ -307,7 +311,7 @@ export function useDetection(): UseDetectionReturn {
   const processImage = useCallback(
     async (image: CapturedImage): Promise<ImageDetectionResult | null> => {
       if (!isModelLoaded()) {
-        console.error('[useDetection] Model not loaded');
+        console.warn('[useDetection] Model not loaded');
         return null;
       }
 
@@ -354,7 +358,7 @@ export function useDetection(): UseDetectionReturn {
 
         return result;
       } catch (error) {
-        console.error('[useDetection] Process error:', error);
+        console.warn(`[useDetection] Process error: ${String(error)}`);
         return null;
       }
     },
@@ -380,7 +384,7 @@ export function useDetection(): UseDetectionReturn {
         ]);
 
         if (!detectionResult) {
-          console.error('[useDetection] Detection failed');
+          console.warn('[useDetection] Detection failed');
           return null;
         }
 
@@ -416,7 +420,7 @@ export function useDetection(): UseDetectionReturn {
 
         return result;
       } catch (error) {
-        console.error('[useDetection] Analysis error:', error);
+        console.warn(`[useDetection] Analysis error: ${String(error)}`);
         return null;
       }
     },
@@ -501,7 +505,7 @@ export function useDetection(): UseDetectionReturn {
 
         return aggregated;
       } catch (error) {
-        console.error('[useDetection] Process all analysis error:', error);
+        console.warn(`[useDetection] Process all analysis error: ${String(error)}`);
         safeSetState((prev) => ({
           ...prev,
           isProcessing: false,
@@ -568,7 +572,7 @@ export function useDetection(): UseDetectionReturn {
 
         return results;
       } catch (error) {
-        console.error('[useDetection] Process all error:', error);
+        console.warn(`[useDetection] Process all error: ${String(error)}`);
         safeSetState((prev) => ({
           ...prev,
           isProcessing: false,
@@ -636,8 +640,8 @@ export function useDetection(): UseDetectionReturn {
 
   return {
     state,
-    isRuntimeAvailable: isRuntimeAvailable(),
-    runtimeError: getRuntimeError(),
+    isRuntimeAvailable: runtimeAvailable,
+    runtimeError: runtimeErrorMessage,
     loadModelAsync,
     processImage,
     processAllImages,

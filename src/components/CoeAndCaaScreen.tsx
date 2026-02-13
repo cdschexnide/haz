@@ -112,24 +112,28 @@ const CoeAndCaaScreen = ({ navigation }: { navigation: any }) => {
     }
   };
 
-  const convertImagesToPdf = async () => {
+  const convertImagesToPdf = async ({
+    showSuccessAlert = true,
+  }: {
+    showSuccessAlert?: boolean;
+  } = {}): Promise<boolean> => {
     if (capturedImages.length === 0) {
       Alert.alert(
         "No Images",
         "Please capture at least one image before creating a PDF."
       );
-      return;
+      return false;
     }
     if (!documentName) {
       Alert.alert("Missing Information", "Please enter a document name.");
-      return;
+      return false;
     }
     if (!agencyName) {
       Alert.alert(
         "Missing Information",
         "Please enter the approval agency name."
       );
-      return;
+      return false;
     }
 
     setIsProcessingPdf(true);
@@ -177,39 +181,67 @@ const CoeAndCaaScreen = ({ navigation }: { navigation: any }) => {
         caaDocuments: [],
       };
 
-      const entry = {
-        id,
-        documentType,
-        uri: newUri,
-        base64Data: base64Pdf,
-        name: documentName,
-        agency: agencyName,
-        dateAdded: new Date().toISOString(),
-      };
-
       if (documentType === "COE") {
-        store.hazProPreparerContext.usesCoeCertification = true;
-      } else if (documentType === "CAA") {
-        store.hazProPreparerContext.usesCaaCertification = true;
+        store.hazProPreparerContext.coeAndCaaDocuments = {
+          coeDocuments: [
+            ...prev.coeDocuments,
+            {
+              id,
+              documentType: "COE",
+              uri: newUri,
+              base64Data: base64Pdf,
+              name: documentName,
+              agency: agencyName,
+              dateAdded: new Date().toISOString(),
+            },
+          ],
+          caaDocuments: [...prev.caaDocuments],
+        };
+      } else {
+        store.hazProPreparerContext.coeAndCaaDocuments = {
+          coeDocuments: [...prev.coeDocuments],
+          caaDocuments: [
+            ...prev.caaDocuments,
+            {
+              id,
+              documentType: "CAA",
+              uri: newUri,
+              base64Data: base64Pdf,
+              name: documentName,
+              agency: agencyName,
+              dateAdded: new Date().toISOString(),
+            },
+          ],
+        };
       }
 
-      store.hazProPreparerContext.coeAndCaaDocuments = {
-        ...prev,
-        [documentType === "COE" ? "coeDocuments" : "caaDocuments"]: [
-          ...(documentType === "COE" ? prev.coeDocuments : prev.caaDocuments),
-          entry,
-        ],
-      };
-
-      Alert.alert("Success", `${documentType} document saved.`);
+      if (showSuccessAlert) {
+        Alert.alert("Success", `${documentType} document saved.`);
+      }
       setCapturedImages([]);
       setIsCameraVisible(false);
+      return true;
     } catch (err) {
       console.error("PDF generation failed:", err);
       Alert.alert("Error", "Failed to generate PDF. Please try again.");
+      return false;
     } finally {
       setIsProcessingPdf(false);
     }
+  };
+
+  const clearSpecialAuthorizationState = () => {
+    store.hazProPreparerContext.usesCoeCertification = false;
+    store.hazProPreparerContext.usesCaaCertification = false;
+    store.hazProPreparerContext.usesDotSpPermit = false;
+    store.hazProPreparerContext.specialAuthorizationType = null;
+    store.hazProPreparerContext.specialAuthorizationReference = null;
+    store.hazProPreparerContext.specialAuthorizationAttested = false;
+    store.hazProPreparerContext.specialAuthorizationPackingDescription = null;
+    store.hazProPreparerContext.specialAuthorizationQuantityAndTypeOfPacking =
+      null;
+    store.hazProPreparerContext.packingInstruction =
+      store.hazProPreparerContext.hazardousMaterial?.packagingParagraph || null;
   };
 
   const deleteDocument = (id: string, type: "COE" | "CAA") => {
@@ -233,30 +265,88 @@ const CoeAndCaaScreen = ({ navigation }: { navigation: any }) => {
                 coeAndCaaDocuments.coeDocuments.filter(doc => doc.id !== id);
 
               store.hazProPreparerContext.coeAndCaaDocuments = {
-                ...coeAndCaaDocuments,
-                coeDocuments: updatedCoeDocuments,
+                coeDocuments: [...updatedCoeDocuments],
+                caaDocuments: [...coeAndCaaDocuments.caaDocuments],
               };
 
-              if (updatedCoeDocuments.length === 0) {
-                store.hazProPreparerContext.usesCoeCertification = false;
+              if (
+                updatedCoeDocuments.length === 0 &&
+                (store.hazProPreparerContext.usesCoeCertification ||
+                  store.hazProPreparerContext.specialAuthorizationType ===
+                    "COE")
+              ) {
+                clearSpecialAuthorizationState();
               }
             } else {
               const updatedCaaDocuments =
                 coeAndCaaDocuments.caaDocuments.filter(doc => doc.id !== id);
 
               store.hazProPreparerContext.coeAndCaaDocuments = {
-                ...coeAndCaaDocuments,
-                caaDocuments: updatedCaaDocuments,
+                coeDocuments: [...coeAndCaaDocuments.coeDocuments],
+                caaDocuments: [...updatedCaaDocuments],
               };
 
-              if (updatedCaaDocuments.length === 0) {
-                store.hazProPreparerContext.usesCaaCertification = false;
+              if (
+                updatedCaaDocuments.length === 0 &&
+                (store.hazProPreparerContext.usesCaaCertification ||
+                  store.hazProPreparerContext.specialAuthorizationType ===
+                    "CAA")
+              ) {
+                clearSpecialAuthorizationState();
               }
             }
           },
         },
       ]
     );
+  };
+
+  const handleSaveAndContinue = async () => {
+    if (isProcessingPdf) {
+      return;
+    }
+
+    if (capturedImages.length > 0) {
+      const didCreatePdf = await convertImagesToPdf({ showSuccessAlert: false });
+      if (!didCreatePdf) {
+        return;
+      }
+    }
+
+    const coeAndCaaDocuments = state.hazProPreparerContext.coeAndCaaDocuments || {
+      coeDocuments: [],
+      caaDocuments: [],
+    };
+
+    const selectedDocuments =
+      documentType === "COE"
+        ? coeAndCaaDocuments.coeDocuments
+        : coeAndCaaDocuments.caaDocuments;
+
+    if (selectedDocuments.length === 0) {
+      Alert.alert(
+        "Document Required",
+        `Upload at least one ${documentType} document before continuing.`
+      );
+      return;
+    }
+
+    const latestDocument = selectedDocuments[selectedDocuments.length - 1];
+    const referenceNumber =
+      typeof latestDocument?.name === "string" ? latestDocument.name.trim() : "";
+
+    if (!referenceNumber) {
+      Alert.alert(
+        "Missing Reference Number",
+        `The latest ${documentType} document is missing a reference number. Please update and upload again.`
+      );
+      return;
+    }
+
+    navigation.navigate("SpecialAuthorizationPackingDataScreen", {
+      authorizationType: documentType,
+      referenceNumber,
+    });
   };
 
   const removeImage = (index: number) => {
@@ -616,32 +706,6 @@ const CoeAndCaaScreen = ({ navigation }: { navigation: any }) => {
               />
             </View>
 
-            {documentType === "COE" && (
-              <View style={styles.warningBox}>
-                <View style={styles.warningTitleContainer}>
-                  <MaterialIcons name="warning" size={18} color="#f57c00" />
-                  <Text style={styles.warningTitle}>COE Restrictions</Text>
-                </View>
-                <Text style={styles.warningText}>
-                  • A COE may be used between a domestic Aerial Port of
-                  Embarkation (APOE) and a domestic Aerial Port of Debarkation
-                  (APOD) or on a military controlled aircraft from a nondomestic
-                  APOE to a domestic APOD.
-                </Text>
-                <Text style={styles.warningText}>
-                  • Do not use COEs for international commercial air shipments
-                  unless the item is exempted from UN specification requirements
-                  or the item, at all times, is transported by military
-                  controlled airlift including Civil Air Reserve Fleet.
-                </Text>
-                <Text style={styles.warningText}>
-                  • COE's may not be recognized by all countries and may require
-                  additional approvals for uninterrupted international
-                  transportation outside of military installations.
-                </Text>
-              </View>
-            )}
-
             {renderCapturedImages()}
 
             <View style={styles.actionsContainer}>
@@ -661,32 +725,6 @@ const CoeAndCaaScreen = ({ navigation }: { navigation: any }) => {
                 containerStyle={styles.actionButtonContainer}
               />
 
-              <Button
-                title="Create PDF"
-                icon={
-                  <MaterialIcons
-                    name="picture-as-pdf"
-                    size={22}
-                    color="white"
-                    style={{ marginRight: 8 }}
-                  />
-                }
-                buttonStyle={[
-                  styles.createPdfButton,
-                  (capturedImages.length === 0 || !documentName) &&
-                    styles.disabledButton,
-                ]}
-                titleStyle={styles.buttonText}
-                disabled={
-                  capturedImages.length === 0 ||
-                  !documentName ||
-                  isProcessingPdf
-                }
-                loading={isProcessingPdf}
-                onPress={convertImagesToPdf}
-                containerStyle={styles.actionButtonContainer}
-                loadingProps={{ color: "white" }}
-              />
             </View>
 
             {renderDocuments()}
@@ -706,9 +744,9 @@ const CoeAndCaaScreen = ({ navigation }: { navigation: any }) => {
               title="Save & Continue"
               buttonStyle={styles.continueButton}
               titleStyle={styles.buttonText}
-              onPress={() => {
-                navigation.navigate("LabelingAndMarking");
-              }}
+              onPress={handleSaveAndContinue}
+              disabled={isProcessingPdf}
+              loading={isProcessingPdf}
               containerStyle={styles.bottomButtonContainer}
               icon={
                 <MaterialIcons

@@ -31,6 +31,9 @@ const PackagingScreen = ({ navigation }: { navigation: any }) => {
     store.hazProPreparerContext.specialAuthorizationType = null;
     store.hazProPreparerContext.specialAuthorizationReference = null;
     store.hazProPreparerContext.specialAuthorizationAttested = false;
+    store.hazProPreparerContext.specialAuthorizationPackingDescription = null;
+    store.hazProPreparerContext.specialAuthorizationQuantityAndTypeOfPacking =
+      null;
     store.hazProPreparerContext.packingInstruction =
       store.hazProPreparerContext.hazardousMaterial?.packagingParagraph || null;
   };
@@ -133,24 +136,22 @@ const PackagingScreen = ({ navigation }: { navigation: any }) => {
   };
 
   const handleUploadCOE = () => {
+    clearSpecialAuthorizationState();
+
     store.hazProPreparerContext.completedSubsteps = [
       ...completedSubsteps,
       "PackagingScreen",
     ];
-    store.hazProPreparerContext.specialAuthorizationType = null;
-    store.hazProPreparerContext.specialAuthorizationReference = null;
-    store.hazProPreparerContext.specialAuthorizationAttested = false;
-    navigation.navigate("CoeAndCaaDisclaimer");
+    navigation.navigate("CoeAndCaaScreen");
   };
 
   const handleUploadDOTSP = () => {
+    clearSpecialAuthorizationState();
+
     store.hazProPreparerContext.completedSubsteps = [
       ...completedSubsteps,
       "PackagingScreen",
     ];
-    store.hazProPreparerContext.specialAuthorizationType = null;
-    store.hazProPreparerContext.specialAuthorizationReference = null;
-    store.hazProPreparerContext.specialAuthorizationAttested = false;
     navigation.navigate("DotSpScreen");
   };
 

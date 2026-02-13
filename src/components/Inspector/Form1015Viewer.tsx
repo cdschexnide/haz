@@ -10,9 +10,6 @@ import {
   SafeAreaView,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import * as FileSystem from "expo-file-system";
-import * as Print from "expo-print";
-import * as Sharing from "expo-sharing";
 import legacyColors from "../../theming/colors";
 import {
   mapFrustrationsToForm1015WithResolved,
@@ -24,6 +21,7 @@ import { getLatestReinspectionInfo } from "../../utils/reinspectionInfo";
 import { Form1015CheckBoxWithStatus } from "./Form1015CheckboxWithStatus";
 import { colors, spacing, borderRadius } from "../ui";
 import { InspectorShipment } from "../../types/sddg";
+import { buildForm1015PdfData, shareForm1015Pdf } from "../../utils/form1015PdfGenerator";
 
 interface Form1015ViewerProps {
   inspection: InspectorShipment;
@@ -48,7 +46,7 @@ export const Form1015Viewer: React.FC<Form1015ViewerProps> = ({
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
   // Get data from inspectionContext (where database stores full inspection data)
-  const context = inspection.inspectionContext || {};
+  const context = (inspection.inspectionContext || {}) as any;
 
   // Get frustrations from inspectionContext
   const sddgFrustrations = useMemo(() =>
@@ -265,37 +263,8 @@ export const Form1015Viewer: React.FC<Form1015ViewerProps> = ({
   const generateAndSharePdf = async () => {
     try {
       setIsGeneratingPdf(true);
-      // Use same HTML generation as InspectorAMC1015Form
-      const html = `<!DOCTYPE html><html><head><title>AMC Form 1015</title></head><body>
-        <h1>HAZMAT INSPECTION AND ACCEPTANCE CHECKLIST</h1>
-        <p><strong>TCN:</strong> ${tcn}</p>
-        <p><strong>Status:</strong> ${allPassed ? "COMPLIES" : "DOES NOT COMPLY"}</p>
-        <p><strong>Inspector:</strong> ${inspectedByName}</p>
-        <p><strong>Date:</strong> ${inspectedByDate}</p>
-        <hr/>
-        <h3>Comments/Frustrations:</h3>
-        ${failedItems.map(item => `<p>${item.formatted}</p>`).join("")}
-      </body></html>`;
-
-      const { uri: pdfUri } = await Print.printToFileAsync({ html, base64: false });
-
-      // Generate professional filename: AMC1015_<TCN>_<DATE>.pdf
-      const sanitizedTcn = (tcn || "NOTCN").replace(/[^a-zA-Z0-9]/g, "");
-      const filename = `AMC1015_${sanitizedTcn}_${inspectedByDate}.pdf`;
-      const newUri = `${FileSystem.cacheDirectory}${filename}`;
-
-      // Copy to new location with proper filename
-      await FileSystem.copyAsync({ from: pdfUri, to: newUri });
-
-      await Sharing.shareAsync(newUri, {
-        mimeType: "application/pdf",
-        dialogTitle: "Share AMC Form 1015",
-        UTI: "com.adobe.pdf",
-      });
-
-      // Cleanup both files
-      await FileSystem.deleteAsync(pdfUri, { idempotent: true });
-      await FileSystem.deleteAsync(newUri, { idempotent: true });
+      const pdfData = buildForm1015PdfData(inspection);
+      await shareForm1015Pdf(pdfData);
     } catch (error) {
       console.error("Error generating PDF:", error);
       Alert.alert("Error", "Failed to generate or share PDF");

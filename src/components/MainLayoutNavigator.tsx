@@ -7,7 +7,6 @@ import AccessorialQuantityEntry from "./AccessorialQuantityEntry";
 import { BatteryPoweredVehicleScreen as BatteryPoweredVehicle } from "@/screens/preparer";
 import Capacitors from "./Capacitors";
 import { CertifyFormScreen } from "@/screens/preparer";
-import CoeAndCaaDisclaimer from "./CoeAndCaaDisclaimer";
 import CoeAndCaaScreen from "./CoeAndCaaScreen";
 import CylinderEntryScreen from "./CylinderEntryScreen";
 import DangerousGoods from "./DangerousGoods";
@@ -38,6 +37,8 @@ import POPMarkingDataEntry from "./POPMarkingDataEntry";
 import { PreparerHomeScreen } from "@/screens/preparer";
 import SafetyDevicesPreparationScreen from "./SafetyDevices";
 import SDDGUploadAndParse from "./SDDGUploadAndParse";
+import SpecialAuthorizationAttestationScreen from "./SpecialAuthorizationAttestationScreen";
+import SpecialAuthorizationPackingDataScreen from "./SpecialAuthorizationPackingDataScreen";
 import { ShipmentCreationScreen } from "@/screens/preparer";
 import { ShippersDeclarationScreen } from "@/screens/preparer";
 import { UN3166FuelEntryScreen } from "@/screens/preparer";
@@ -155,6 +156,14 @@ const WrappedStack = ({ navigation }: { navigation: any }) => (
         name="ShippersDeclarationScreen"
         component={ShippersDeclarationScreen}
       />
+      <MainStack.Screen
+        name="SpecialAuthorizationPackingDataScreen"
+        component={SpecialAuthorizationPackingDataScreen}
+      />
+      <MainStack.Screen
+        name="SpecialAuthorizationAttestationScreen"
+        component={SpecialAuthorizationAttestationScreen}
+      />
       {/* <MainStack.Screen name="PackagingWizard" component={PackagingWizard} /> */}
       <MainStack.Screen
         name="PackagingWizardV2"
@@ -181,10 +190,6 @@ const WrappedStack = ({ navigation }: { navigation: any }) => (
       <MainStack.Screen
         name="DryIcePreparationScreen"
         component={DryIcePreparationScreen}
-      />
-      <MainStack.Screen
-        name="CoeAndCaaDisclaimer"
-        component={CoeAndCaaDisclaimer}
       />
       <MainStack.Screen
         name="LithiumBatteriesPrepScreen"

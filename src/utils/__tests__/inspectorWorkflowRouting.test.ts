@@ -4,6 +4,7 @@ type InspectionLike = {
   verificationCopy?: { unIdNo?: string; packingInstruction?: string };
   extractedContent?: { unIdNo?: string; packingInstruction?: string };
   quantityType?: "standard" | "limited" | "excepted";
+  specialAuthorizationAttested?: boolean;
 };
 
 const baseInspection = (overrides: InspectionLike = {}): InspectionLike => ({
@@ -85,5 +86,15 @@ test("routes lithium variants based on packing instruction", () => {
   });
   expect(getPostSddgStartRoute(lithiumPacked).screen).toBe(
     "InspectorLithiumBatteriesPackedWithEquipmentScreen"
+  );
+});
+
+test("special authorization inspections skip POP after ML", () => {
+  const inspection = baseInspection({
+    verificationCopy: { unIdNo: "UN0106", packingInstruction: "DOT-SP 12345" },
+    specialAuthorizationAttested: true,
+  });
+  expect(getPostMlDetectionRoute(inspection).screen).toBe(
+    "InspectorMarkingsLabelsValidationScreen"
   );
 });
