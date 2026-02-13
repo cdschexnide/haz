@@ -16,7 +16,10 @@ import { getKey16Quantities } from "@/utils/eligibility/getKey16Quantities";
 import { getPackagingTypeFromKey16 } from "@/utils/getPackagingTypeFromKey16";
 import { hazardousMaterialsList } from "@/hazardousMaterials/hazardousMaterialsList";
 import { hasSpecialProvisionAlphaCode } from "@/utils/specialProvisions";
-import { getPostSddgStartRoute } from "@/utils/inspectorWorkflowRouting";
+import {
+  getPostSddgStartRoute,
+  getSpecialAuthorizationGateDecision,
+} from "@/utils/inspectorWorkflowRouting";
 import {
   ScreenHeader,
   ActionFooter,
@@ -51,6 +54,7 @@ export default function SDDGFrustrationSummary({
     setExceptedQuantityData,
     setLimitedQuantityData,
     setPackagePackagingType,
+    setSpecialAuthorizationData,
   } = useInspectionForm();
   const actions = useHazProActions();
   const database = useDatabase();
@@ -176,6 +180,32 @@ export default function SDDGFrustrationSummary({
       console.log("Navigating to package workflow start screen");
 
       if (inspection.verificationCopy) {
+        const specialAuthorizationGate =
+          getSpecialAuthorizationGateDecision(inspection);
+
+        if (specialAuthorizationGate.shouldResetAuthorization) {
+          setSpecialAuthorizationData(null);
+        }
+
+        if (specialAuthorizationGate.action === "go_to_ml_detection") {
+          setQuantityType("standard");
+          setExceptedQuantityData(null);
+          setLimitedQuantityData(null);
+          setPackagePackagingType(null);
+          navigation.navigate("MLDetectionScreen", { unIdNo });
+          return;
+        }
+
+        if (
+          specialAuthorizationGate.action ===
+          "go_to_special_authorization_check"
+        ) {
+          navigation.navigate("InspectorSpecialAuthorizationCheckScreen", {
+            packingInstruction: specialAuthorizationGate.packingInstruction,
+          });
+          return;
+        }
+
         const eligibility = evaluateAttachment19Eligibility({
           sddgContent: inspection.verificationCopy,
           quantities: getKey16Quantities(inspection.verificationCopy),

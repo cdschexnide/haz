@@ -1,13 +1,30 @@
 import { resolvePackingInstruction } from "./resolvePackingInstruction";
+import { isValidAfmanPackagingParagraph } from "./afmanPackagingParagraphs";
 
 type InspectionLike = {
-  verificationCopy?: { unIdNo?: string; packingInstruction?: string };
-  extractedContent?: { unIdNo?: string; packingInstruction?: string };
+  verificationCopy?:
+    | { unIdNo?: string; packingInstruction?: string }
+    | null;
+  extractedContent?:
+    | { unIdNo?: string; packingInstruction?: string }
+    | null;
   quantityType?: "standard" | "limited" | "excepted";
   specialAuthorizationAttested?: boolean;
+  specialAuthorizationType?: "COE" | "CAA" | "DOT-SP" | null;
+  specialAuthorizationReference?: string | null;
 };
 
 export type NextRoute = { screen: string; params?: Record<string, any> };
+export type SpecialAuthorizationGateAction =
+  | "continue"
+  | "go_to_special_authorization_check"
+  | "go_to_ml_detection";
+
+export interface SpecialAuthorizationGateDecision {
+  action: SpecialAuthorizationGateAction;
+  packingInstruction: string;
+  shouldResetAuthorization: boolean;
+}
 
 const getUnIdNo = (inspection: InspectionLike) =>
   inspection?.verificationCopy?.unIdNo ||
@@ -91,6 +108,53 @@ export const shouldSkipPopMarking = (inspection: InspectionLike): boolean => {
   if (getPackingInstruction(inspection).toUpperCase().startsWith("A6")) return true;
 
   return false;
+};
+
+export const getSpecialAuthorizationGateDecision = (
+  inspection: InspectionLike
+): SpecialAuthorizationGateDecision => {
+  const packingInstruction = getPackingInstruction(inspection);
+  const hasValidAfmanParagraph =
+    isValidAfmanPackagingParagraph(packingInstruction);
+  const isAlreadyAttestedForCurrentReference =
+    inspection?.specialAuthorizationAttested === true &&
+    !!inspection?.specialAuthorizationType &&
+    (inspection?.specialAuthorizationReference || "").trim() ===
+      packingInstruction.trim();
+
+  if (!hasValidAfmanParagraph) {
+    if (isAlreadyAttestedForCurrentReference) {
+      return {
+        action: "go_to_ml_detection",
+        packingInstruction,
+        shouldResetAuthorization: false,
+      };
+    }
+
+    return {
+      action: "go_to_special_authorization_check",
+      packingInstruction,
+      shouldResetAuthorization: true,
+    };
+  }
+
+  if (
+    inspection?.specialAuthorizationType ||
+    inspection?.specialAuthorizationReference ||
+    inspection?.specialAuthorizationAttested
+  ) {
+    return {
+      action: "continue",
+      packingInstruction,
+      shouldResetAuthorization: true,
+    };
+  }
+
+  return {
+    action: "continue",
+    packingInstruction,
+    shouldResetAuthorization: false,
+  };
 };
 
 export const getPostSddgStartRoute = (inspection: InspectionLike): NextRoute => {

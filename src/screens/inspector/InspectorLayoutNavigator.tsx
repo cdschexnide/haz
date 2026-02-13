@@ -11,9 +11,8 @@ import InspectorInitialQuestioningScreen from "./InspectorInitialQuestioningScre
 import { InspectorExceptedOrLimitedQuantities } from "./InspectorExceptedOrLimitedQuantities";
 import InteractiveSDDGComplianceScreen from "./InteractiveSDDGComplianceScreen";
 import InspectorSpecialAuthorizationCheckScreen from "./InspectorSpecialAuthorizationCheckScreen";
-import InspectorSpecialAuthorizationAttestationScreen from "./InspectorSpecialAuthorizationAttestationScreen";
-import InspectorCoeAndCaaScreen from "./InspectorCoeAndCaaScreen";
-import InspectorDotSpScreen from "./InspectorDotSpScreen";
+import WaiverUploadScreen from "./WaiverUploadScreen";
+import WaiverAttestationScreen from "./WaiverAttestationScreen";
 import SDDGManualEntryScreen from "./SDDGManualEntryScreen";
 import InspectorQuantityTypeSelectionScreen from "./InspectorQuantityTypeSelectionScreen";
 import InspectorPackagingTypeSelectionScreen from "./InspectorPackagingTypeSelectionScreen";
@@ -156,16 +155,12 @@ const InspectorWrappedStack = ({ navigation }: { navigation: any }) => (
         component={InspectorSpecialAuthorizationCheckScreen}
       />
       <MainStack.Screen
-        name="InspectorSpecialAuthorizationAttestationScreen"
-        component={InspectorSpecialAuthorizationAttestationScreen}
+        name="WaiverUploadScreen"
+        component={WaiverUploadScreen}
       />
       <MainStack.Screen
-        name="InspectorCoeAndCaaScreen"
-        component={InspectorCoeAndCaaScreen}
-      />
-      <MainStack.Screen
-        name="InspectorDotSpScreen"
-        component={InspectorDotSpScreen}
+        name="WaiverAttestationScreen"
+        component={WaiverAttestationScreen}
       />
       <MainStack.Screen
         name="InspectorQuantityTypeSelectionScreen"

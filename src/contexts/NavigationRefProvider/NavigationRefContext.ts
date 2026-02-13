@@ -52,13 +52,13 @@ export type RootStackParamList = {
   InspectorSpecialAuthorizationCheckScreen: {
     packingInstruction?: string;
   };
-  InspectorSpecialAuthorizationAttestationScreen: {
-    referenceNumber?: string;
+  WaiverUploadScreen: {
+    key17Value?: string;
   };
-  InspectorCoeAndCaaScreen: {
-    documentType?: "COE" | "CAA";
+  WaiverAttestationScreen: {
+    authorizationType?: "COE" | "CAA" | "DOT-SP";
+    key17Value?: string;
   };
-  InspectorDotSpScreen: undefined;
   InspectorWrappedStack: {
     screen: string;
   };

@@ -28,8 +28,10 @@ import { getKey16Quantities } from "@/utils/eligibility/getKey16Quantities";
 import { getPackagingTypeFromKey16 } from "@/utils/getPackagingTypeFromKey16";
 import { hazardousMaterialsList } from "@/hazardousMaterials/hazardousMaterialsList";
 import { hasSpecialProvisionAlphaCode } from "@/utils/specialProvisions";
-import { getPostSddgStartRoute } from "@/utils/inspectorWorkflowRouting";
-import { isValidAfmanPackagingParagraph } from "@/utils/afmanPackagingParagraphs";
+import {
+  getPostSddgStartRoute,
+  getSpecialAuthorizationGateDecision,
+} from "@/utils/inspectorWorkflowRouting";
 import {
   ScreenHeader,
   ActionFooter,
@@ -488,40 +490,30 @@ const InteractiveSDDGComplianceScreenComponent: React.FC<
       // Route directly into package inspection
       const unIdNo = inspection?.verificationCopy?.unIdNo || "";
       if (inspection.verificationCopy) {
-        const packingInstruction =
-          inspection.verificationCopy.packingInstruction || "";
-        const hasValidAfmanParagraph = isValidAfmanPackagingParagraph(
-          packingInstruction
-        );
-        const isAlreadyAttestedForCurrentReference =
-          inspection.specialAuthorizationAttested === true &&
-          !!inspection.specialAuthorizationType &&
-          (inspection.specialAuthorizationReference || "").trim() ===
-            packingInstruction.trim();
+        const specialAuthorizationGate =
+          getSpecialAuthorizationGateDecision(inspection);
 
-        if (!hasValidAfmanParagraph) {
-          if (isAlreadyAttestedForCurrentReference) {
-            setQuantityType("standard");
-            setExceptedQuantityData(null);
-            setLimitedQuantityData(null);
-            setPackagePackagingType(null);
-            navigation.navigate("MLDetectionScreen", { unIdNo });
-            return;
-          }
-
+        if (specialAuthorizationGate.shouldResetAuthorization) {
           setSpecialAuthorizationData(null);
-          navigation.navigate("InspectorSpecialAuthorizationCheckScreen", {
-            packingInstruction,
-          });
+        }
+
+        if (specialAuthorizationGate.action === "go_to_ml_detection") {
+          setQuantityType("standard");
+          setExceptedQuantityData(null);
+          setLimitedQuantityData(null);
+          setPackagePackagingType(null);
+          navigation.navigate("MLDetectionScreen", { unIdNo });
           return;
         }
 
         if (
-          inspection.specialAuthorizationType ||
-          inspection.specialAuthorizationReference ||
-          inspection.specialAuthorizationAttested
+          specialAuthorizationGate.action ===
+          "go_to_special_authorization_check"
         ) {
-          setSpecialAuthorizationData(null);
+          navigation.navigate("InspectorSpecialAuthorizationCheckScreen", {
+            packingInstruction: specialAuthorizationGate.packingInstruction,
+          });
+          return;
         }
       }
 

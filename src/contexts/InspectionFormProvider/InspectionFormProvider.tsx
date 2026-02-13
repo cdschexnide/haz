@@ -18,6 +18,7 @@ import {
   KitInspectionData,
   LabelingContext,
   InspectorDotSpWaiver,
+  SDDGInspectionContext,
 } from "@/types/sddg";
 import { ExceptedQuantityData, LimitedQuantityData, Inspector } from "../../../types";
 import { InnerPackagingInspectionData } from "@/types/innerPackaging";
@@ -50,7 +51,7 @@ interface InspectionFormContextValue {
   loadInspectionForEdit: (id: string) => Promise<void>;
   saveCurrentInspection: () => Promise<string>;
   completeInspection: () => Promise<{ success: boolean; error?: string }>;
-  finalizeInspection: () => Promise<{ success: boolean; error?: string }>;
+  finalizeInspection: (overrides?: Partial<SDDGInspectionContext>) => Promise<{ success: boolean; error?: string }>;
   cancelInspection: () => void;
   updateReinspectedInspection: () => Promise<{
     success: boolean;
@@ -515,12 +516,13 @@ export function InspectionFormProvider({
     }
   }, [saveCurrentInspection]);
 
-  const finalizeInspection = useCallback(async () => {
+  const finalizeInspection = useCallback(async (overrides?: Partial<SDDGInspectionContext>) => {
     try {
       console.log("📝 [InspectionForm] Finalizing inspection");
 
       const updatedInspection = {
         ...inspectionRef.current,
+        ...(overrides || {}),
         inspectionCompleteTime: new Date(),
       };
 

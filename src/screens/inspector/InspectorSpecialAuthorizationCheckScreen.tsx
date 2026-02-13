@@ -1,15 +1,16 @@
 import React, { useMemo, useState } from "react";
 import { Alert, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { MaterialIcons } from "@expo/vector-icons";
 import { useInspectionForm } from "@/contexts/InspectionFormProvider";
 import {
   ActionFooter,
-  InfoBox,
-  RadioGroup,
   ScreenHeader,
+  SelectableCard,
   colors,
   spacing,
+  borderRadius,
 } from "@/components/ui";
-import { isValidAfmanPackagingParagraph } from "@/utils/afmanPackagingParagraphs";
 
 interface InspectorSpecialAuthorizationCheckScreenProps {
   navigation: any;
@@ -20,7 +21,7 @@ const InspectorSpecialAuthorizationCheckScreen = ({
   navigation,
   route,
 }: InspectorSpecialAuthorizationCheckScreenProps) => {
-  const { inspection, setSpecialAuthorizationData } = useInspectionForm();
+  const { inspection, addFrustration, completeSDDGSubstep, setCurrentSDDGStep } = useInspectionForm();
 
   const packingInstruction = useMemo(
     () =>
@@ -42,63 +43,64 @@ const InspectorSpecialAuthorizationCheckScreen = ({
     }
 
     if (selection === "yes") {
-      navigation.navigate("InspectorSpecialAuthorizationAttestationScreen", {
-        referenceNumber: packingInstruction.trim(),
+      navigation.navigate("WaiverUploadScreen", {
+        key17Value: packingInstruction.trim(),
       });
       return;
     }
 
-    setSpecialAuthorizationData(null);
-    Alert.alert(
-      "Key 17 Must Be Corrected",
-      "If this shipment is not using COE/CAA/DOT-SP, Key 17 must be a valid AFMAN 24-604 packaging paragraph."
-    );
-    navigation.goBack();
+    addFrustration({
+      key: "packingInstruction",
+      fieldLabel: "PACKING INSTRUCTION (KEY 17)",
+      fieldValue: packingInstruction,
+      correctValue: undefined,
+      defaultMessage:
+        "Key 17 does not match a valid AFMAN 24-604 packaging paragraph",
+    });
+    completeSDDGSubstep("InteractiveSDDGComplianceScreen");
+    setCurrentSDDGStep("frustration");
+    navigation.navigate("SDDGFrustrationSummary");
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <ScreenHeader
         title="Special Authorization Check"
         onBack={() => navigation.goBack()}
       />
 
       <View style={styles.content}>
-        <InfoBox
-          title="Invalid AFMAN paragraph"
-          variant="warning"
-          message={`Key 17 does not match a valid AFMAN 24-604 packaging paragraph: "${packingInstruction || "Not provided"}"`}
-        />
-
-        <View style={styles.referenceCard}>
-          <Text style={styles.label}>Key 17 Value</Text>
-          <Text style={styles.value}>{packingInstruction || "Not provided"}</Text>
+        <View style={styles.flagCard}>
+          <View style={styles.flagCardHeader}>
+            <MaterialIcons name="warning" size={22} color={colors.warning} />
+            <Text style={styles.flagCardTitle}>Key 17 Flagged</Text>
+          </View>
+          <Text style={styles.flagCardDescription}>
+            The packing instruction doesn't match a known AFMAN 24-604 paragraph.
+          </Text>
+          <View style={styles.key17ValueBox}>
+            <Text style={styles.key17Label}>KEY 17 VALUE</Text>
+            <Text style={styles.key17Value}>
+              {packingInstruction || "Not provided"}
+            </Text>
+          </View>
         </View>
 
-        {isValidAfmanPackagingParagraph(packingInstruction) ? (
-          <InfoBox
-            title="AFMAN Paragraph Detected"
-            variant="info"
-            message="Key 17 appears valid. Use Back and continue from SDDG to stay in the standard inspection path."
-          />
-        ) : (
-          <RadioGroup
-            label="Is this shipment operating under special authorization?"
-            required
-            options={[
-              {
-                label: "Yes, shipment uses COE/CAA/DOT-SP",
-                value: "yes",
-              },
-              {
-                label: "No, Key 17 should be an AFMAN paragraph",
-                value: "no",
-              },
-            ]}
-            value={selection}
-            onChange={value => setSelection(value as "yes" | "no")}
-          />
-        )}
+        <Text style={styles.questionText}>What applies to this shipment?</Text>
+
+        <SelectableCard
+          title="Uses special authorization"
+          subtitle="Shipment is operating under a COE, CAA, or DOT-SP"
+          selected={selection === "yes"}
+          onPress={() => setSelection("yes")}
+        />
+
+        <SelectableCard
+          title="Key 17 is incorrect"
+          subtitle="Should be a valid AFMAN packaging paragraph"
+          selected={selection === "no"}
+          onPress={() => setSelection("no")}
+        />
       </View>
 
       <ActionFooter
@@ -118,7 +120,7 @@ const InspectorSpecialAuthorizationCheckScreen = ({
           },
         ]}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -132,25 +134,54 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     gap: spacing.lg,
   },
-  referenceCard: {
+  flagCard: {
+    backgroundColor: colors.warningLight,
+    borderWidth: 1,
+    borderColor: colors.warning,
+    borderRadius: borderRadius.lg,
+    padding: spacing.lg,
+    gap: spacing.sm,
+  },
+  flagCardHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+  },
+  flagCardTitle: {
+    fontSize: 17,
+    fontWeight: "700",
+    color: colors.textPrimary,
+  },
+  flagCardDescription: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    lineHeight: 20,
+  },
+  key17ValueBox: {
     backgroundColor: colors.surface,
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
+    marginTop: spacing.xs,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: 12,
-    padding: spacing.md,
-    gap: spacing.xs,
   },
-  label: {
-    fontSize: 12,
+  key17Label: {
+    fontSize: 11,
+    fontWeight: "600",
     color: colors.textSecondary,
     textTransform: "uppercase",
     letterSpacing: 0.4,
-    marginTop: spacing.xs,
+    marginBottom: 4,
   },
-  value: {
-    fontSize: 16,
+  key17Value: {
+    fontSize: 18,
+    fontWeight: "700",
     color: colors.textPrimary,
+  },
+  questionText: {
+    fontSize: 16,
     fontWeight: "600",
+    color: colors.textPrimary,
   },
 });
 

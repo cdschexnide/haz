@@ -1,10 +1,16 @@
-import { getPostSddgStartRoute, getPostMlDetectionRoute } from "../inspectorWorkflowRouting";
+import {
+  getPostSddgStartRoute,
+  getPostMlDetectionRoute,
+  getSpecialAuthorizationGateDecision,
+} from "../inspectorWorkflowRouting";
 
 type InspectionLike = {
   verificationCopy?: { unIdNo?: string; packingInstruction?: string };
   extractedContent?: { unIdNo?: string; packingInstruction?: string };
   quantityType?: "standard" | "limited" | "excepted";
   specialAuthorizationAttested?: boolean;
+  specialAuthorizationType?: "COE" | "CAA" | "DOT-SP" | null;
+  specialAuthorizationReference?: string | null;
 };
 
 const baseInspection = (overrides: InspectionLike = {}): InspectionLike => ({
@@ -97,4 +103,46 @@ test("special authorization inspections skip POP after ML", () => {
   expect(getPostMlDetectionRoute(inspection).screen).toBe(
     "InspectorMarkingsLabelsValidationScreen"
   );
+});
+
+test("special authorization gate routes invalid key17 to check when not attested", () => {
+  const inspection = baseInspection({
+    verificationCopy: { unIdNo: "UN0106", packingInstruction: "DOT-SP 12345" },
+  });
+
+  expect(getSpecialAuthorizationGateDecision(inspection)).toEqual({
+    action: "go_to_special_authorization_check",
+    packingInstruction: "DOT-SP 12345",
+    shouldResetAuthorization: true,
+  });
+});
+
+test("special authorization gate routes invalid key17 to ML when already attested for same reference", () => {
+  const inspection = baseInspection({
+    verificationCopy: { unIdNo: "UN0106", packingInstruction: "DOT-SP 12345" },
+    specialAuthorizationAttested: true,
+    specialAuthorizationType: "DOT-SP",
+    specialAuthorizationReference: "DOT-SP 12345",
+  });
+
+  expect(getSpecialAuthorizationGateDecision(inspection)).toEqual({
+    action: "go_to_ml_detection",
+    packingInstruction: "DOT-SP 12345",
+    shouldResetAuthorization: false,
+  });
+});
+
+test("special authorization gate clears stale special auth state when key17 is valid AFMAN", () => {
+  const inspection = baseInspection({
+    verificationCopy: { unIdNo: "UN0106", packingInstruction: "A5.24" },
+    specialAuthorizationAttested: true,
+    specialAuthorizationType: "CAA",
+    specialAuthorizationReference: "CAA-123",
+  });
+
+  expect(getSpecialAuthorizationGateDecision(inspection)).toEqual({
+    action: "continue",
+    packingInstruction: "A5.24",
+    shouldResetAuthorization: true,
+  });
 });

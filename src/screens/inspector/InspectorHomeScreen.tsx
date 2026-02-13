@@ -960,7 +960,6 @@ function InspectorHomeScreenComponent({
             <Text style={[styles.headerText, styles.flex1]}>SDDG</Text>
             <Text style={[styles.headerText, styles.flex1]}>Package</Text>
             <Text style={[styles.headerText, styles.flex1]}>Inspector</Text>
-            <Text style={[styles.headerText, styles.authHeaderCell]}>Auth</Text>
             <Text style={[styles.headerText, styles.docHeaderCell]}>SDDG Doc</Text>
             <Text style={[styles.headerText, styles.docHeaderCell]}>AMC 1015</Text>
           </View>
@@ -1004,13 +1003,6 @@ function InspectorHomeScreenComponent({
                 ? item.inspector
                 : item.inspector?.inspectorName || "";
             const authType = item.specialAuthorizationType || null;
-            const authDocCount = item.specialAuthorizationDocumentCount || 0;
-            const authAttested = item.specialAuthorizationAttested === true;
-            const authLabel = authType
-              ? `${authType}${authDocCount > 0 ? ` (${authDocCount})` : ""}`
-              : authDocCount > 0
-              ? `Docs (${authDocCount})`
-              : "None";
 
             const rowContent = (
               <TouchableOpacity
@@ -1120,39 +1112,32 @@ function InspectorHomeScreenComponent({
                   </View>
 
                   <Text style={styles.columnText}>{inspectorName || "N/A"}</Text>
-                  <View style={styles.authColumn}>
-                    <Text
-                      style={[
-                        styles.authBadgeText,
-                        authType
-                          ? authAttested
-                            ? styles.authBadgeActive
-                            : styles.authBadgePending
-                          : styles.authBadgeNone,
-                      ]}
-                    >
-                      {authLabel}
-                    </Text>
-                  </View>
 
                   {selectionMode ? (
                     <View style={styles.iconColumn}>
                       {hasSddgDoc ? (
-                        <TapGestureHandler
-                          onHandlerStateChange={({ nativeEvent }) => {
-                            if (nativeEvent.state === State.ACTIVE) {
-                              toggleDocumentSelection(item.id, "sddg", hasSddgDoc);
-                            }
-                          }}
-                        >
-                          <View style={styles.checkboxIconHitArea}>
-                            <MaterialIcons
-                              name={sddgSelected ? "check-box" : "check-box-outline-blank"}
-                              size={26}
-                              color={sddgSelected ? colors.primary : colors.textSecondary}
-                            />
-                          </View>
-                        </TapGestureHandler>
+                        <View style={styles.sddgDocCell}>
+                          <TapGestureHandler
+                            onHandlerStateChange={({ nativeEvent }) => {
+                              if (nativeEvent.state === State.ACTIVE) {
+                                toggleDocumentSelection(item.id, "sddg", hasSddgDoc);
+                              }
+                            }}
+                          >
+                            <View style={styles.checkboxIconHitArea}>
+                              <MaterialIcons
+                                name={sddgSelected ? "check-box" : "check-box-outline-blank"}
+                                size={26}
+                                color={sddgSelected ? colors.primary : colors.textSecondary}
+                              />
+                            </View>
+                          </TapGestureHandler>
+                          {authType && (
+                            <View style={styles.authChip}>
+                              <Text style={styles.authChipText}>{authType}</Text>
+                            </View>
+                          )}
+                        </View>
                       ) : (
                         <Text style={styles.docUnavailableText}>-</Text>
                       )}
@@ -1160,12 +1145,17 @@ function InspectorHomeScreenComponent({
                   ) : (
                     <View style={styles.iconColumn}>
                       {hasSddgDoc ? (
-                        <TouchableOpacity onPress={() => handleViewSDDG(item)}>
+                        <TouchableOpacity onPress={() => handleViewSDDG(item)} style={styles.sddgDocCell}>
                           <MaterialCommunityIcons
                             name="file-document"
                             size={30}
                             color={colors.primary}
                           />
+                          {authType && (
+                            <View style={styles.authChip}>
+                              <Text style={styles.authChipText}>{authType}</Text>
+                            </View>
+                          )}
                         </TouchableOpacity>
                       ) : (
                         <Text style={styles.docUnavailableText}>-</Text>
@@ -1461,38 +1451,22 @@ const styles = StyleSheet.create({
     width: 74,
     fontSize: 14,
   },
-  authHeaderCell: {
-    width: 92,
-    fontSize: 14,
-  },
   flex1: { flex: 1 },
-  authColumn: {
-    width: 92,
+  sddgDocCell: {
     alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: spacing.xs,
   },
-  authBadgeText: {
-    fontSize: 12,
-    fontWeight: "600",
-    borderRadius: borderRadius.lg,
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    overflow: "hidden",
-    textAlign: "center",
-    minWidth: 74,
-  },
-  authBadgeActive: {
+  authChip: {
     backgroundColor: colors.infoLight,
+    borderRadius: borderRadius.sm,
+    paddingHorizontal: 4,
+    paddingVertical: 1,
+    marginTop: 2,
+  },
+  authChipText: {
+    fontSize: 9,
+    fontWeight: "700",
     color: colors.primary,
-  },
-  authBadgePending: {
-    backgroundColor: colors.warningLight,
-    color: colors.warning,
-  },
-  authBadgeNone: {
-    backgroundColor: colors.background,
-    color: colors.textSecondary,
+    textAlign: "center",
   },
   iconColumn: {
     width: 74,
