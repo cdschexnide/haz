@@ -24,7 +24,7 @@ const GrandfatheredPackagingReferenceScreen = ({ navigation }: { navigation: any
   };
 
   const handleSaveNext = () => {
-    navigation.navigate('GeneralPackagingAcknowledgement');
+    navigation.navigate('SpecialProvisionsAcknowledgement');
   };
 
   return (

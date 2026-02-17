@@ -532,6 +532,24 @@ export const QuantityEntryScreen = ({ navigation }: { navigation: any }) => {
     setStep(0);
   };
 
+  const markGeneralPackagingAcknowledged = () => {
+    if (!store.hazProPreparerContext.modifiersAndRequiredAcknowledgements) {
+      store.hazProPreparerContext.modifiersAndRequiredAcknowledgements = {
+        generalPackagingRequirementsAcknowledged: false,
+        informativeStatementsAcknowledged: false,
+        workflowModifiersAcknowledged: false,
+        specialProvisionsAcknowledged: false,
+        documentNodeInformativeStatements: [],
+        documentNodeWorkflowModifiers: [],
+        specialProvisionsInformativeStatements: {},
+        specialProvisionsWorkflowModifiers: {},
+      };
+    }
+
+    store.hazProPreparerContext.modifiersAndRequiredAcknowledgements.generalPackagingRequirementsAcknowledged =
+      true;
+  };
+
   const handleNext = async () => {
     if (step === 0) {
       if (!packagingType) return;
@@ -541,6 +559,7 @@ export const QuantityEntryScreen = ({ navigation }: { navigation: any }) => {
 
     if (step === 1) {
       if (!isQuantityStepValid) return;
+      if (!material) return;
 
       const totalValue = parseNumber(formData.totalQuantity);
       if (totalValue === null || totalValue <= 0) return;
@@ -599,7 +618,8 @@ export const QuantityEntryScreen = ({ navigation }: { navigation: any }) => {
       }
 
       actions.clearExceptedLimitedQuantityData();
-      navigation.navigate('GeneralPackagingAcknowledgement');
+      markGeneralPackagingAcknowledged();
+      navigation.navigate('SpecialProvisionsAcknowledgement');
     }
   };
 
@@ -625,7 +645,7 @@ export const QuantityEntryScreen = ({ navigation }: { navigation: any }) => {
   //
   // const handlePrepareAsStandard = () => {
   //   actions.clearExceptedLimitedQuantityData();
-  //   navigation.navigate('GeneralPackagingAcknowledgement');
+  //   navigation.navigate('SpecialProvisionsAcknowledgement');
   // };
   //
   // const handleSaveAndExit = () => {

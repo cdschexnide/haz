@@ -22,7 +22,7 @@ export const GrandfatheredPackagingReferenceScreen: React.FC<GrandfatheredPackag
   };
 
   const handleSaveNext = () => {
-    navigation.navigate('GeneralPackagingAcknowledgement');
+    navigation.navigate('SpecialProvisionsAcknowledgement');
   };
 
   return (

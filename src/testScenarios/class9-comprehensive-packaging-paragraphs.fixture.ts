@@ -82,6 +82,11 @@ export const class9ScenarioFixtures: Class9ScenarioFixture[] =
         "id": 2,
         "alteration": "POP marking shows \"Y\" instead of \"Z\"",
         "tests": "PG III requires Z code"
+      },
+      {
+        "id": 3,
+        "alteration": "Key 13 shows \"9.3\" instead of \"9\"",
+        "tests": "Class 9 has NO divisions"
       }
     ]
   },
@@ -370,11 +375,16 @@ export const class9ScenarioFixtures: Class9ScenarioFixture[] =
     "alterations": [
       {
         "id": 1,
+        "alteration": "Key 13 shows \"9.1\" instead of \"9\"",
+        "tests": "Division validation (Class 9 has NO divisions)"
+      },
+      {
+        "id": 2,
         "alteration": "Key 15 populated with \"II\"",
         "tests": "Packing group validation (should be empty)"
       },
       {
-        "id": 2,
+        "id": 3,
         "alteration": "Missing Lithium Battery Handling Mark",
         "tests": "Lithium battery marking requirement"
       }
@@ -429,6 +439,11 @@ export const class9ScenarioFixtures: Class9ScenarioFixture[] =
       },
       {
         "id": 2,
+        "alteration": "Key 13 shows \"9.2\"",
+        "tests": "Class 9 has no divisions"
+      },
+      {
+        "id": 3,
         "alteration": "Key 11 shows UN3480 instead of UN3536",
         "tests": "UN number validation for cargo transport unit"
       }

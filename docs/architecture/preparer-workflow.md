@@ -107,17 +107,17 @@ The core technical architecture uses:
     ┌─────────┴─────────┬────────────────────┐
     │                   │                    │
     ▼                   ▼                    ▼
-┌────────────┐  ┌────────────────┐  ┌─────────────────────┐
-│ Excepted   │  │ Limited        │  │ General Packaging   │
-│ Quantity   │  │ Quantity       │  │ Acknowledgement     │
-│ Packaging  │  │ Packaging      │  │                     │
-│ Guidance   │  │ Guidance       │  │ (Standard workflow) │
-└─────┬──────┘  └───────┬────────┘  └──────────┬──────────┘
-      │                 │                       │
-      ▼                 ▼                       │
+┌────────────┐  ┌────────────────┐  ┌──────────────────────────┐
+│ Excepted   │  │ Limited        │  │ Special Provisions       │
+│ Quantity   │  │ Quantity       │  │ Acknowledgement          │
+│ Packaging  │  │ Packaging      │  │ (standard workflow entry)│
+│ Guidance   │  │ Guidance       │  │                          │
+└─────┬──────┘  └───────┬────────┘  └──────────┬───────────────┘
+      │                 │                      │
+      ▼                 ▼                      │
 ┌──────────────────────────────────────────────┴──────────────┐
 │                                                              │
-│   SpecialProvisionsAcknowledgement (if applicable)          │
+│   SpecialProvisionsAcknowledgement (auto-skip if none)      │
 │                                                              │
 └───────────────────────────────┬──────────────────────────────┘
                                 │
@@ -474,33 +474,7 @@ Captures digital signature, persists the complete shipment, and resets context f
 **Navigation Out:**
 - Excepted → `ExceptedQuantityPackagingGuidance`
 - Limited → `LimitedQuantityPackagingGuidance`
-- Standard → `GeneralPackagingAcknowledgement`
-
----
-
-### GeneralPackagingAcknowledgementScreen
-
-**File:** `src/components/GeneralPackagingAcknowledgementScreen.tsx`
-
-**Purpose:** Acknowledge general packaging requirements before proceeding. Routes to specialty screens based on UN number.
-
-**Key UI Actions:**
-- Acknowledge button → Proceeds to next screen (routing varies by UNID)
-
-**State Writes:**
-- `modifiersAndRequiredAcknowledgements.generalPackagingRequirementsAcknowledged = true`
-
-**Navigation Out (UNID-based routing):**
-
-| UN Number | Route |
-|-----------|-------|
-| Grandfathered | `LabelingAndMarking` |
-| UN3166 | `UN3166FuelEntryScreen` |
-| UN2807 | `MagnetizedMaterialPrepScreen` |
-| UN3268 | `SafetyDevicesPreparationScreen` |
-| UN1845 | `DryIcePrepScreen` |
-| UN3090, UN3480 | `LithiumBatteriesPrepScreen` |
-| Default | `SpecialProvisionsAcknowledgement` (if applicable) or `PackagingScreen` |
+- Standard → `SpecialProvisionsAcknowledgement`
 
 ---
 
@@ -1174,7 +1148,6 @@ Signatures are stored as Base64-encoded PNG data URLs in `preparer.signature`. T
 | Shipment Creation | `src/components/ShipmentCreationScreen.tsx` |
 | Material ID | `src/components/MaterialIDScreen.tsx` |
 | Quantity Entry | `src/components/QuantityEntryScreen.tsx` |
-| General Packaging Acknowledgement | `src/components/GeneralPackagingAcknowledgementScreen.tsx` |
 | Special Provisions Acknowledgement | `src/components/SpecialProvisionsAcknowledgementScreen.tsx` |
 | **Packaging Screen** | `src/components/PackagingScreen.tsx` |
 | POP Scanner | `src/components/POPScannerScreen.tsx` |
@@ -1224,4 +1197,5 @@ Signatures are stored as Base64-encoded PNG data URLs in `preparer.signature`. T
 
 | Date | Author | Changes |
 |------|--------|---------|
+| 2026-02-17 | Codex | Updated workflow to remove `GeneralPackagingAcknowledgementScreen` from the standard preparer path. Standard quantity now routes directly to `SpecialProvisionsAcknowledgement` (auto-skip when no provisions), then to UN-specific screens or `PackagingScreen`. |
 | 2026-01-14 | Claude | Initial comprehensive documentation |

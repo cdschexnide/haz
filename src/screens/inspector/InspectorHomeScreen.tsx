@@ -1015,7 +1015,7 @@ function InspectorHomeScreenComponent({
                 activeOpacity={1}
               >
                 <View style={styles.listItemRow}>
-                  <Text style={styles.columnText}>{item.tcn}</Text>
+                  <Text style={styles.columnText}>{item.tcn?.replace(/^'?SREFERENCENUMBERTCN:/i, "")}</Text>
                   <Text style={styles.columnText}>{item.unId}</Text>
                   <Text style={styles.columnText}>{item.properShippingName}</Text>
 
@@ -1113,58 +1113,58 @@ function InspectorHomeScreenComponent({
 
                   <Text style={styles.columnText}>{inspectorName || "N/A"}</Text>
 
-                  {selectionMode ? (
-                    <View style={styles.iconColumn}>
-                      {hasSddgDoc ? (
-                        <View style={styles.sddgDocCell}>
-                          <TapGestureHandler
-                            onHandlerStateChange={({ nativeEvent }) => {
-                              if (nativeEvent.state === State.ACTIVE) {
-                                toggleDocumentSelection(item.id, "sddg", hasSddgDoc);
-                              }
-                            }}
-                          >
-                            <View style={styles.checkboxIconHitArea}>
-                              <MaterialIcons
-                                name={sddgSelected ? "check-box" : "check-box-outline-blank"}
-                                size={26}
-                                color={sddgSelected ? colors.primary : colors.textSecondary}
-                              />
-                            </View>
-                          </TapGestureHandler>
+                  {/* SDDG Doc column */}
+                  <View style={styles.iconColumn}>
+                    {selectionMode ? (
+                      <TapGestureHandler
+                        onHandlerStateChange={({ nativeEvent }) => {
+                          if (nativeEvent.state === State.ACTIVE) {
+                            toggleDocumentSelection(item.id, "sddg", hasSddgDoc);
+                          }
+                        }}
+                      >
+                        <View style={styles.sddgDocCellWrapper}>
+                          <MaterialIcons
+                            name={sddgSelected ? "check-box" : "check-box-outline-blank"}
+                            size={28}
+                            color={
+                              !hasSddgDoc
+                                ? colors.textSecondary
+                                : sddgSelected
+                                ? colors.primary
+                                : colors.textSecondary
+                            }
+                          />
                           {authType && (
-                            <View style={styles.authChip}>
-                              <Text style={styles.authChipText}>{authType}</Text>
+                            <View style={styles.authBadge}>
+                              <Text style={styles.authBadgeText}>{authType}</Text>
                             </View>
                           )}
                         </View>
-                      ) : (
-                        <Text style={styles.docUnavailableText}>-</Text>
-                      )}
-                    </View>
-                  ) : (
-                    <View style={styles.iconColumn}>
-                      {hasSddgDoc ? (
-                        <TouchableOpacity onPress={() => handleViewSDDG(item)} style={styles.sddgDocCell}>
+                      </TapGestureHandler>
+                    ) : hasSddgDoc ? (
+                      <TouchableOpacity onPress={() => handleViewSDDG(item)} activeOpacity={0.7}>
+                        <View style={styles.sddgDocCellWrapper}>
                           <MaterialCommunityIcons
                             name="file-document"
-                            size={30}
+                            size={28}
                             color={colors.primary}
                           />
                           {authType && (
-                            <View style={styles.authChip}>
-                              <Text style={styles.authChipText}>{authType}</Text>
+                            <View style={styles.authBadge}>
+                              <Text style={styles.authBadgeText}>{authType}</Text>
                             </View>
                           )}
-                        </TouchableOpacity>
-                      ) : (
-                        <Text style={styles.docUnavailableText}>-</Text>
-                      )}
-                    </View>
-                  )}
+                        </View>
+                      </TouchableOpacity>
+                    ) : (
+                      <Text style={styles.docUnavailableText}>—</Text>
+                    )}
+                  </View>
 
-                  {selectionMode ? (
-                    <View style={styles.iconColumn}>
+                  {/* AMC 1015 column */}
+                  <View style={styles.iconColumn}>
+                    {selectionMode ? (
                       <TapGestureHandler
                         onHandlerStateChange={({ nativeEvent }) => {
                           if (nativeEvent.state === State.ACTIVE) {
@@ -1172,27 +1172,24 @@ function InspectorHomeScreenComponent({
                           }
                         }}
                       >
-                        <View style={styles.checkboxIconHitArea}>
+                        <View>
                           <MaterialIcons
                             name={formSelected ? "check-box" : "check-box-outline-blank"}
-                            size={26}
+                            size={28}
                             color={formSelected ? colors.primary : colors.textSecondary}
                           />
                         </View>
                       </TapGestureHandler>
-                    </View>
-                  ) : (
-                    <TouchableOpacity
-                      onPress={() => handleViewForm1015(item)}
-                      style={styles.iconColumn}
-                    >
-                      <MaterialCommunityIcons
-                        name="file-document"
-                        size={30}
-                        color={colors.primary}
-                      />
-                    </TouchableOpacity>
-                  )}
+                    ) : (
+                      <TouchableOpacity onPress={() => handleViewForm1015(item)} activeOpacity={0.7}>
+                        <MaterialCommunityIcons
+                          name="file-document"
+                          size={28}
+                          color={colors.primary}
+                        />
+                      </TouchableOpacity>
+                    )}
+                  </View>
                 </View>
               </TouchableOpacity>
             );
@@ -1447,34 +1444,37 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: colors.textPrimary,
   },
+  flex1: { flex: 1 },
   docHeaderCell: {
     width: 74,
     fontSize: 14,
-  },
-  flex1: { flex: 1 },
-  sddgDocCell: {
-    alignItems: "center",
-  },
-  authChip: {
-    backgroundColor: colors.infoLight,
-    borderRadius: borderRadius.sm,
-    paddingHorizontal: 4,
-    paddingVertical: 1,
-    marginTop: 2,
-  },
-  authChipText: {
-    fontSize: 9,
-    fontWeight: "700",
-    color: colors.primary,
-    textAlign: "center",
   },
   iconColumn: {
     width: 74,
     alignItems: "center",
     justifyContent: "center",
   },
+  sddgDocCellWrapper: {
+    position: "relative",
+  },
+  authBadge: {
+    position: "absolute",
+    top: -4,
+    right: -12,
+    backgroundColor: colors.primary,
+    borderRadius: 6,
+    paddingHorizontal: 3,
+    paddingVertical: 1,
+    minWidth: 20,
+    alignItems: "center",
+  },
+  authBadgeText: {
+    fontSize: 8,
+    fontWeight: "700",
+    color: colors.white,
+  },
   docUnavailableText: {
-    fontSize: 24,
+    fontSize: 18,
     color: colors.textSecondary,
     textAlign: "center",
   },
@@ -1601,12 +1601,6 @@ const styles = StyleSheet.create({
   },
   statusCellCenter: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  checkboxIconHitArea: {
-    minWidth: 36,
-    minHeight: 36,
     alignItems: "center",
     justifyContent: "center",
   },

@@ -20,9 +20,10 @@ import DocumentScanner, {
 import { SafeAreaView } from "react-native-safe-area-context";
 import InteractiveSDDGComplianceScreen from "../screens/inspector/InteractiveSDDGComplianceScreen";
 // import SimplePdfToImageConverter from './SimplePdfToImageConverter';
-import { useDatabase } from "@/contexts/DataProvider";
 import { useInspectionFormActions } from "@/contexts/InspectionFormProvider";
 import { ExtractedSDDGContent } from "@/types/sddg";
+import ShipmentDatabase from "@/services/shipment/ShipmentDatabase";
+import { mapPreparerShipmentToInspectionSeed } from "@/utils/preparerShipmentToInspection";
 import { DevBenchmarkButton } from "./dev/DevBenchmarkButton";
 import { OLLAMA_BASE_URL } from "../config/ollama.config";
 import { getDevSettings } from "@/config/devSettings";
@@ -80,9 +81,11 @@ function SDDGUploadAndParse({ navigation }: SDDGUploadAndParseProps) {
     setCurrentSDDGScreen,
     setExtractedSDDGContent,
     completeSDDGSubstep,
-    loadInspectionForEdit,
+    startNewInspection,
+    setSpecialAuthorizationData,
+    addCoeCaaDocument,
+    addDotSpWaiver,
   } = useInspectionFormActions();
-  const database = useDatabase();
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
 
   const [isScanning, setIsScanning] = useState(false);
@@ -2380,22 +2383,107 @@ function SDDGUploadAndParse({ navigation }: SDDGUploadAndParseProps) {
       setIsLoadingQR(true);
 
       try {
-        // Look up inspection by TCN
-        const results = await database.listInspections({ tcn: scannedTCN });
-        const exactMatch = results.find((r) => r.tcn === scannedTCN);
+        // Look up preparer shipment by TCN from shipment JSON storage
+        await ShipmentDatabase.initialize();
 
-        if (!exactMatch) {
+        const matches = await ShipmentDatabase.searchShipments({ tcn: scannedTCN });
+        const normalizedScannedTcn = scannedTCN.toUpperCase();
+        const exactMatches = matches
+          .filter(
+            shipment => shipment.tcn?.trim().toUpperCase() === normalizedScannedTcn
+          )
+          .sort(
+            (a, b) =>
+              new Date(b.savedAt).getTime() - new Date(a.savedAt).getTime()
+          );
+
+        const completedMatch = exactMatches.find(
+          shipment => shipment.status === "completed"
+        );
+        const selectedShipment = completedMatch || exactMatches[0];
+
+        if (!selectedShipment) {
           Alert.alert(
             "Not Found",
-            `No inspection found with TCN: ${scannedTCN}`
+            `No preparer shipment found with TCN: ${scannedTCN}`
           );
           return;
         }
 
-        // Load full inspection into context
-        await loadInspectionForEdit(exactMatch.id);
+        const shipmentFile = await ShipmentDatabase.loadShipment(selectedShipment.id);
+        const preparerContext = shipmentFile?.hazProPreparerContext;
+
+        if (!preparerContext) {
+          Alert.alert(
+            "Data Error",
+            "Shipment was found but its data is unavailable. Please try another record."
+          );
+          return;
+        }
+
+        const seed = mapPreparerShipmentToInspectionSeed(preparerContext);
+
+        // Start a fresh inspection session and seed SDDG + authorization data
+        startNewInspection();
+        await setExtractedSDDGContent(seed.extractedContent);
+
+        if (
+          seed.specialAuthorization.type &&
+          seed.specialAuthorization.attested
+        ) {
+          setSpecialAuthorizationData({
+            type: seed.specialAuthorization.type,
+            referenceNumber: seed.specialAuthorization.referenceNumber,
+            attested: true,
+          });
+
+          if (seed.specialAuthorization.type === "COE") {
+            seed.authorizationDocuments.coeDocuments.forEach(doc => {
+              addCoeCaaDocument({
+                id: doc.id,
+                documentType: "COE",
+                uri: doc.uri,
+                base64Data: doc.base64Data,
+                name: doc.name,
+                agency: doc.agency,
+                dateAdded: doc.dateAdded,
+              });
+            });
+          } else if (seed.specialAuthorization.type === "CAA") {
+            seed.authorizationDocuments.caaDocuments.forEach(doc => {
+              addCoeCaaDocument({
+                id: doc.id,
+                documentType: "CAA",
+                uri: doc.uri,
+                base64Data: doc.base64Data,
+                name: doc.name,
+                agency: doc.agency,
+                dateAdded: doc.dateAdded,
+              });
+            });
+          } else if (seed.specialAuthorization.type === "DOT-SP") {
+            seed.authorizationDocuments.dotSpWaivers.forEach(doc => {
+              addDotSpWaiver({
+                id: doc.id,
+                uri: doc.uri,
+                base64Data: doc.base64Data,
+                waiverNumber: doc.waiverNumber,
+                description: doc.description,
+                agency: doc.agency,
+                dateAdded: doc.dateAdded,
+              });
+            });
+          }
+        } else {
+          setSpecialAuthorizationData(null);
+        }
+
+        completeSDDGSubstep("SDDGUploadAndParse");
+        setCurrentSDDGStep("compliance");
+        setCurrentSDDGScreen("InteractiveSDDGComplianceScreen");
+
         console.log(
-          "🟦 [SDDG] Inspection loaded from QR scan, navigating to compliance screen"
+          "🟦 [SDDG] Preparer shipment loaded from QR scan, navigating to compliance screen"
         );
 
         navigation.navigate("InteractiveSDDGComplianceScreen");
@@ -2403,13 +2491,23 @@ function SDDGUploadAndParse({ navigation }: SDDGUploadAndParseProps) {
         console.error("🟦 [SDDG] QR lookup error:", err);
         Alert.alert(
           "Error",
-          "Failed to look up inspection. Please try again."
+          "Failed to load shipment from QR code. Please try again."
         );
       } finally {
         setIsLoadingQR(false);
       }
     },
-    [database, loadInspectionForEdit, navigation]
+    [
+      addCoeCaaDocument,
+      addDotSpWaiver,
+      completeSDDGSubstep,
+      navigation,
+      setCurrentSDDGScreen,
+      setCurrentSDDGStep,
+      setExtractedSDDGContent,
+      setSpecialAuthorizationData,
+      startNewInspection,
+    ]
   );
 
   useEffect(() => {
@@ -2462,12 +2560,12 @@ function SDDGUploadAndParse({ navigation }: SDDGUploadAndParseProps) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Loading Inspection</Text>
+          <Text style={styles.headerTitle}>Loading Shipment</Text>
         </View>
         <View style={styles.scanningContainer}>
           <ActivityIndicator size="large" color="#007AFF" />
           <Text style={styles.scanningText}>
-            Looking up inspection...
+            Looking up shipment...
           </Text>
         </View>
       </SafeAreaView>

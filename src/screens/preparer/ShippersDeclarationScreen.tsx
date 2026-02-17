@@ -23,18 +23,16 @@ import {
 import ShippersDeclarationForm from '@/components/ShippersDeclarationForm';
 import { useHazProStore } from '@/stores/useHazProStore';
 import { useNavigationRef } from '@/contexts/NavigationRefProvider/useNavigationRef';
-import { PhysicalState } from '../../../types';
-import { buildLithiumBatteryKey16 } from '@/utils/buildLithiumBatteryKey16';
-import { getContainerDescriptionFromCode } from '@/utils/getContainerDescriptionFromPackagingCode';
 import { getHazardousMaterialPhysicalStateByHazardClass } from '@/utils/getHazardousMaterialPhysicalState';
 import { appendInhalationHazardIfNeeded } from '@/utils/specialProvisionsHelpers';
-import { summarizeCylinderDescriptionForSddg } from '@/utils/summarizeCylinderDescriptionForSddg';
+import { getSddgQuantityAndTypeOfPacking } from '@/utils/getSddgQuantityAndTypeOfPacking';
 import {
   generateSDDGDocumentHtml,
   convertHtmlToPdf,
   mergeSDDGWithAttachments,
   type SDDGFormData,
 } from '@/utils/sddgPdfGenerator';
+import { getAfmanHandlingInstructions } from '@/data/afmanHandlingInstructions';
 
 // Emergency contact numbers
 const EMERGENCY_NUMBERS = {
@@ -113,105 +111,22 @@ const useSDDGFormData = () => {
       }
     }
 
+    const afmanHandlingInstructions = getAfmanHandlingInstructions({
+      packagingParagraph: ctx.hazardousMaterial?.packagingParagraph,
+      unid: ctx.hazardousMaterial?.unid,
+    });
+
+    afmanHandlingInstructions.forEach(instruction => {
+      html += `<p class="info-line">${instruction}</p>`;
+    });
+
     return html;
   }, [ctx]);
 
-  // Calculate quantity and type of packaging
-  const calculateQuantityAndPacking = useMemo(() => {
-    // Vehicle nomenclature postfix
-    const vehiclePostfix =
-      ctx.un3166Details &&
-      typeof ctx.un3166Details?.quantity === 'string' &&
-      parseInt(ctx.un3166Details?.quantity) > 1
-        ? 's'
-        : '';
-
-    const vehiclePacking =
-      ctx.un3166Details?.vehicleNomenclature !== ''
-        ? `${ctx.un3166Details.quantity} ${ctx.un3166Details.vehicleNomenclature}${vehiclePostfix}`
-        : '';
-
-    // Handle various special packaging types
-    if (ctx.capacitorData) {
-      return ctx.capacitorData.outerPackagingDescription;
-    }
-    if (ctx.safetyDeviceData) {
-      return `${ctx.safetyDeviceData.numberOfArticles} x ${ctx.safetyDeviceData.outerPackagingTypeLabel} (${ctx.safetyDeviceData.prepType})`;
-    }
-    if (ctx.batteryVehicle) {
-      const netQty = ctx.batteryVehicle.key16.netQuantity;
-      let result = `${ctx.batteryVehicle.key16.description}, ${netQty.valueKg.toFixed(2)} kg`;
-      if (netQty.unit === 'lbs') {
-        result += ` (${netQty.value.toFixed(1)} lbs)`;
-      }
-      return result;
-    }
-    if (ctx.lifeSavingApplianceData) {
-      return ctx.lifeSavingApplianceData.key16;
-    }
-    if (ctx.geneticallyModifiedOrganism) {
-      return ctx.geneticallyModifiedOrganism.key16;
-    }
-    if (ctx.dryIceData) {
-      return `1 ${ctx.dryIceData.packagingType} x ${ctx.dryIceData.quantity}KG`;
-    }
-    if (ctx.lithiumBatteryData) {
-      return buildLithiumBatteryKey16(ctx.lithiumBatteryData);
-    }
-    if (ctx.cylinderProperties) {
-      return summarizeCylinderDescriptionForSddg(ctx.cylinderProperties as any);
-    }
-    if (
-      (ctx.specialAuthorizationAttested && ctx.specialAuthorizationType) ||
-      ctx.usesCoeCertification ||
-      ctx.usesCaaCertification ||
-      ctx.usesDotSpPermit
-    ) {
-      return ctx.specialAuthorizationQuantityAndTypeOfPacking || '';
-    }
-
-    // Explosives container description
-    if (ctx.hazardousMaterial?.hazclassDiv.startsWith('1')) {
-      const containerDesc = ctx.isGrandfatheredExplosive
-        ? `1 ${ctx.grandfatheredExplosive?.generalPackageDescription.toUpperCase()}`
-        : ctx.hazardousMaterial?.physicalState === PhysicalState.SOLID
-        ? `1 ${getContainerDescriptionFromCode(ctx.packaging?.inputPOPMarking?.B ?? undefined)?.toUpperCase()} (${ctx.packaging?.inputPOPMarking?.B}) x ${ctx.packaging?.totalNetMass?.kg} KG`
-        : `1 ${getContainerDescriptionFromCode(ctx.packaging?.inputPOPMarking?.B ?? undefined)?.toUpperCase()} (${ctx.packaging?.inputPOPMarking?.B}) x ${ctx.packaging?.totalNetVolume?.liters} L`;
-
-      const newData = ctx.isGrandfatheredExplosive
-        ? ctx.grandfatheredExplosivesContainers[0]?.grossMass
-        : ctx.shipment?.totalNetExplosiveWeight;
-
-      return `${containerDesc} (${newData}KG NEW)`;
-    }
-
-    // Magnetized material
-    if (ctx.hazardousMaterial?.unid === 'UN2807') {
-      return ctx.magnetizedMaterialData?.wantsToSpecifyWeightAndSize
-        ? `${ctx.magnetizedMaterialData?.outerPackagingDescription} (${ctx.magnetizedMaterialData?.length}in x ${ctx.magnetizedMaterialData?.width}in x ${ctx.magnetizedMaterialData?.height}in x ${ctx.magnetizedMaterialData?.weight} KG)`
-        : ctx.magnetizedMaterialData?.outerPackagingDescription ?? '';
-    }
-
-    // Vehicle packing
-    if (vehiclePacking) {
-      return vehiclePacking;
-    }
-
-    // Standard container description
-    return ctx.isGrandfatheredExplosive
-      ? `1 ${ctx.grandfatheredExplosive?.generalPackageDescription.toUpperCase()}`
-      : ctx.hazardousMaterial?.physicalState === PhysicalState.SOLID
-      ? `1 ${getContainerDescriptionFromCode(ctx.packaging?.inputPOPMarking?.B ?? undefined)?.toUpperCase()} (${ctx.packaging?.inputPOPMarking?.B}) x ${ctx.packaging?.totalNetMass?.kg} KG`
-      : `1 ${getContainerDescriptionFromCode(ctx.packaging?.inputPOPMarking?.B ?? undefined)?.toUpperCase()} (${ctx.packaging?.inputPOPMarking?.B}) x ${ctx.packaging?.totalNetVolume?.liters} L`;
-  }, [ctx]);
-
-  // Build MEGC data string
-  const megcData = useMemo(() => {
-    if (ctx.megcProperties) {
-      return `1 Multiple-Element Gas Container X ${ctx.megcProperties.quantityPerCylinder.kg} KG`;
-    }
-    return '';
-  }, [ctx.megcProperties]);
+  const quantityAndTypeOfPacking = useMemo(
+    () => getSddgQuantityAndTypeOfPacking(ctx),
+    [ctx]
+  );
 
   const specialAuthorizationType = useMemo(() => {
     if (ctx.specialAuthorizationAttested && ctx.specialAuthorizationType) {
@@ -340,7 +255,7 @@ const useSDDGFormData = () => {
     shippingName: shippingName ?? '',
     classDiv: ctx.hazardousMaterial?.hazclassDiv ?? '',
     packingGroup: ctx.hazardousMaterial?.packingGroup ?? '',
-    quantityAndTypeOfPacking: megcData || calculateQuantityAndPacking,
+    quantityAndTypeOfPacking,
     packingInstruction,
     authorization,
 
@@ -403,8 +318,18 @@ export const ShippersDeclarationScreen: React.FC<ShippersDeclarationScreenProps>
         color: { dark: '#000000', light: '#ffffff' },
       });
     } catch (error) {
-      console.error('QR code generation failed:', error);
-      return '';
+      console.warn('QR PNG generation failed, falling back to SVG:', error);
+      try {
+        const svg = await QRCode.toString(referenceNumber, {
+          type: 'svg',
+          margin: 1,
+          color: { dark: '#000000', light: '#ffffff' },
+        });
+        return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+      } catch (svgError) {
+        console.error('QR code generation failed:', svgError);
+        return '';
+      }
     }
   };
 

@@ -16,7 +16,6 @@ import DryIcePreparationScreen from "./DryIcePreparationScreen";
 import { DryIcePrepScreen } from "@/screens/preparer";
 import { EnginesInternalCombustion } from "@/screens/preparer";
 import ExplosiveDetailsWizard from "./ExplosiveDetailsWizardNew";
-import GeneralPackagingAcknowledgementScreen from "./GeneralPackagingAcknowledgementScreen";
 import GeneticallyModifiedOrganisms from "./GeneticallyModifiedOrganisms";
 import { SpecialProvisionsAcknowledgementScreen } from "@/screens/preparer";
 import GrandfatheredPackagingReferenceScreen from "./GrandfatheredPackagingReferenceScreen";
@@ -93,10 +92,6 @@ const WrappedStack = ({ navigation }: { navigation: any }) => (
       <MainStack.Screen
         name="LimitedQuantityPackagingGuidance"
         component={LimitedQuantityPackagingGuidance}
-      />
-      <MainStack.Screen
-        name="GeneralPackagingAcknowledgement"
-        component={GeneralPackagingAcknowledgementScreen}
       />
       <MainStack.Screen
         name="SpecialProvisionsAcknowledgement"

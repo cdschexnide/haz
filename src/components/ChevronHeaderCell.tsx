@@ -20,11 +20,7 @@ enum WorkflowSteps {
 }
 
 const stepSubstepMap: Record<number, string[]> = {
-  1: [
-    "MaterialID",
-    "GeneralPackagingAcknowledgement",
-    "InformativeAndWorkflowModifierAcknowledgement",
-  ],
+  1: ["MaterialID", "SpecialProvisionsAcknowledgement"],
   2: [
     "PackagingScreen",
     "WalkthroughPackagingTypeSelectionScreen",
@@ -88,9 +84,25 @@ export function ChevronHeaderCellSuccess({
     const substeps = stepSubstepMap[step];
     if (!substeps) return 0;
 
-    const completed = substeps.filter(screenName =>
-      state.hazProPreparerContext.completedSubsteps.includes(screenName)
-    );
+    const completed = substeps.filter(screenName => {
+      if (screenName !== "SpecialProvisionsAcknowledgement") {
+        return state.hazProPreparerContext.completedSubsteps.includes(
+          screenName
+        );
+      }
+
+      return (
+        state.hazProPreparerContext.completedSubsteps.includes(
+          "SpecialProvisionsAcknowledgement"
+        ) ||
+        state.hazProPreparerContext.completedSubsteps.includes(
+          "InformativeAndWorkflowModifierAcknowledgement"
+        ) ||
+        state.hazProPreparerContext.completedSubsteps.includes(
+          "GeneralPackagingAcknowledgement"
+        )
+      );
+    });
 
     const ratio = completed.length / substeps.length;
 

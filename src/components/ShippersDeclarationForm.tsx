@@ -4,6 +4,7 @@ import { getHazardousMaterialPhysicalStateByHazardClass } from "@/utils/getHazar
 import React from "react";
 import { View, Text, ScrollView, StyleSheet, Dimensions } from "react-native";
 import QRCode from "react-native-qrcode-svg";
+import { getAfmanHandlingInstructions } from "@/data/afmanHandlingInstructions";
 
 const { width } = Dimensions.get("window");
 
@@ -95,6 +96,19 @@ const ShippersDeclarationForm = ({
   const isDotSpAuthorization =
     specialAuthorizationType === "DOT-SP" ||
     state.hazProPreparerContext.usesDotSpPermit;
+
+  const afmanHandlingInstructions = React.useMemo(
+    () =>
+      getAfmanHandlingInstructions({
+        packagingParagraph:
+          state.hazProPreparerContext.hazardousMaterial?.packagingParagraph,
+        unid: state.hazProPreparerContext.hazardousMaterial?.unid,
+      }),
+    [
+      state.hazProPreparerContext.hazardousMaterial?.packagingParagraph,
+      state.hazProPreparerContext.hazardousMaterial?.unid,
+    ]
+  );
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -646,56 +660,8 @@ const ShippersDeclarationForm = ({
 
                 return null;
               })()}
-            {state.hazProPreparerContext.hazardousMaterial?.unid ===
-              "UN2807" && (
-              <Text style={styles.infoLine}>
-                {
-                  "Do not store magnetic materials suitable for military airlift closer than 4.6 m (15 feet) to compass sensing devices or other devices unduly affected by magnetic fields."
-                }
-              </Text>
-            )}
 
-            {state.hazProPreparerContext.hazardousMaterial?.unid ===
-              "UN3245" && (
-              <Text style={styles.infoLine}>
-                {state.hazProPreparerContext.geneticallyModifiedOrganism?.key19}
-              </Text>
-            )}
-
-            {state.hazProPreparerContext.hazardousMaterial?.unid ===
-              "UN1845" && (
-              <Text style={styles.infoLine}>
-                {
-                  "Dry ice is extremely cold and will damage human tissue on contact. Store only in well ventilated areas. Never store in hermetically or tightly sealed containers. To minimize carbon dioxide concentration within the aircraft during ground operations, open the cargo/ access doors and emergency escape hatches for maximum ventilation."
-                }
-              </Text>
-            )}
-
-            {(state.hazProPreparerContext.hazardousMaterial?.unid ===
-              "UN3072" ||
-              state.hazProPreparerContext.hazardousMaterial?.unid ===
-                "UN2990") && (
-              <Text style={styles.infoLine}>
-                {
-                  "Store in cool, well-ventilated areas away from fire hazards and sources of heat or ignition. Do not drop or rough handle."
-                }
-              </Text>
-            )}
-
-            {state.hazProPreparerContext.hazardousMaterial?.unid ===
-              "UN2900" && (
-              <Text style={styles.infoLine}>
-                {"This material has the potential to cause disease in animals."}
-              </Text>
-            )}
-
-            {state.hazProPreparerContext.hazardousMaterial?.unid ===
-              "UN2814" && (
-              <Text style={styles.infoLine}>
-                {"This material has the potential to cause disease in humans"}
-              </Text>
-            )}
-
+ 
             {typeof state.hazProPreparerContext.lifeSavingApplianceData !==
               "undefined" &&
               state.hazProPreparerContext.lifeSavingApplianceData.components.map(
@@ -730,184 +696,14 @@ const ShippersDeclarationForm = ({
               </Text>
             )}
 
-            {state.hazProPreparerContext.hazardousMaterial
-              ?.packagingParagraph === "A5.3." && (
-              <Text style={styles.infoLine}>
-                {`Exercise extreme caution in handling this item. Keep well
-ventilated, away from sparks, fire hazards, and oxidizing materials. Vapors are toxic when
-inhaled. Liquid is corrosive. Fuel in presence of an oxidizer is self-igniting and highly
-reactive. Approved protective clothing, gloves, safety goggles, and a positive pressure
-breathing apparatus must be available during handling of this material, and worn when
-handling leaking packages.`}
+            {afmanHandlingInstructions.map((instruction, index) => (
+              <Text
+                key={`afman-handling-instruction-${index}`}
+                style={styles.infoLine}
+              >
+                {instruction}
               </Text>
-            )}
-
-            {state.hazProPreparerContext.hazardousMaterial
-              ?.packagingParagraph === "A6.11." && (
-              <Text style={styles.infoLine}>
-                {`Store in cool, well-ventilated area away from fire hazards,
-direct rays of the sun, and organic or easily oxidizable materials such as grease and oil.
-Handle containers with extreme care. Avoid direct contact.`}
-              </Text>
-            )}
-
-            {state.hazProPreparerContext.hazardousMaterial
-              ?.packagingParagraph === "A6.15." && (
-              <Text style={styles.infoLine}>
-                {`These items are extremely dangerous. Approved chemical
-safety mask and clothing must be available when handling this material and worn when
-handling leaking packages.`}
-              </Text>
-            )}
-
-            {state.hazProPreparerContext.hazardousMaterial
-              ?.packagingParagraph === "A6.16." && (
-              <Text style={styles.infoLine}>
-                {`These materials and mixtures are extremely dangerous
-poisons. Approved chemical safety mask and clothing must be available when handling this
-material, and worn when handling leaking packages.`}
-              </Text>
-            )}
-
-            {state.hazProPreparerContext.hazardousMaterial
-              ?.packagingParagraph === "A6.18." && (
-              <Text style={styles.infoLine}>
-                {`These materials and mixtures are extremely dangerous
-poisons. Make approved chemical safety mask and clothing available when handling this
-material, and wear when handling leaking packages.`}
-              </Text>
-            )}
-
-            {state.hazProPreparerContext.hazardousMaterial
-              ?.packagingParagraph === "A6.19." && (
-              <Text style={styles.infoLine}>
-                {`These items are extremely dangerous. Make approved
-chemical safety mask and clothing available when handling this material, and wear when
-handling leaking packages.`}
-              </Text>
-            )}
-
-            {state.hazProPreparerContext.hazardousMaterial
-              ?.packagingParagraph === "A6.20." && (
-              <Text style={styles.infoLine}>
-                {`Nitric oxide is extremely dangerous and poisonous. Make
-approved chemical safety mask and clothing available when handling this material, and wear
-when handling leaking packages.`}
-              </Text>
-            )}
-
-            {state.hazProPreparerContext.hazardousMaterial
-              ?.packagingParagraph === "A7.4." && (
-              <Text style={styles.infoLine}>
-                {`In the event of a leak during transportation of hydrazine, crew
-members use their aircraft oxygen masks in a positive pressure mode.`}
-              </Text>
-            )}
-
-            {state.hazProPreparerContext.hazardousMaterial
-              ?.packagingParagraph === "A7.5." && (
-              <Text style={styles.infoLine}>
-                {`These items are extremely dangerous. Make approved chemical
-safety mask and clothing available when handling this material, and wear when handling
-leaking packages.`}
-              </Text>
-            )}
-
-            {state.hazProPreparerContext.hazardousMaterial
-              ?.packagingParagraph === "A9.9." && (
-              <Text style={styles.infoLine}>
-                {`These items are extremely dangerous. Make approved chemical
-safety mask and clothing available when handling this material, and wear when handling
-leaking packages.`}
-              </Text>
-            )}
-
-            {state.hazProPreparerContext.hazardousMaterial
-              ?.packagingParagraph === "A10.2." && (
-              <Text style={styles.infoLine}>
-                {`These items may produce extremely toxic vapors. Make
-approved chemical safety mask and clothing available when handling this material, and wear
-when handling leaking packages. See paragraph 2.8. for additional requirements.`}
-              </Text>
-            )}
-
-            {state.hazProPreparerContext.hazardousMaterial
-              ?.packagingParagraph === "A10.3." && (
-              <Text style={styles.infoLine}>
-                {`These materials and mixtures are extremely dangerous
-poisons. Make approved chemical safety mask and clothing available when handling this
-material, and wear when handling leaking packages. See paragraph 2.8. for additional
-information.`}
-              </Text>
-            )}
-
-            {state.hazProPreparerContext.hazardousMaterial
-              ?.packagingParagraph === "A7.4." && (
-              <Text style={styles.infoLine}>
-                {`In the event of a leak during transportation of hydrazine, crew members use their aircraft oxygen masks in a positive pressure mode.`}
-              </Text>
-            )}
-
-            {state.hazProPreparerContext.hazardousMaterial
-              ?.packagingParagraph === "A7.5." && (
-              <Text style={styles.infoLine}>
-                {`These items are extremely dangerous. Make approved chemical
-safety mask and clothing available when handling this material, and wear when handling
-leaking packages.`}
-              </Text>
-            )}
-
-            {state.hazProPreparerContext.hazardousMaterial
-              ?.packagingParagraph === "A10.6." && (
-              <Text style={styles.infoLine}>
-                {`These items are extremely dangerous. Make approved
-chemical safety mask and clothing available when handling this material, and wear when
-handling leaking packages.`}
-              </Text>
-            )}
-
-            {state.hazProPreparerContext.hazardousMaterial
-              ?.packagingParagraph === "A12.9." && (
-              <Text style={styles.infoLine}>
-                {`Mercury is poisonous in liquid and vapor form and can be
-absorbed through the skin at room temperature. It is corrosive to aluminum and its alloys. It
-expands on freezing, and may crack glass containers.`}
-              </Text>
-            )}
-
-            {state.hazProPreparerContext.hazardousMaterial
-              ?.packagingParagraph === "A12.11." && (
-              <Text style={styles.infoLine}>
-                {`These items are extremely dangerous. Make available
-approved chemical safety mask and clothing when handling this material, and wear when
-handling leaking packages.`}
-              </Text>
-            )}
-
-            {state.hazProPreparerContext.hazardousMaterial?.unid ===
-              "UN1941" && (
-              <Text style={styles.infoLine}>
-                {`Do not expose Dibromodifluoromethane to high temperature because, when it
-decomposes, toxic fumes are emitted. Store in a cool, ventilated area away from flame.`}
-              </Text>
-            )}
-
-            {state.hazProPreparerContext?.technicalName
-              ?.toUpperCase()
-              .includes("OTTO FUEL II") && (
-              <Text style={styles.infoLine}>
-                {`In the event of a leak, avoid direct skin contact, ingestion, or inhalation
-of vapors. Vapors are toxic and may cause severe headache and nausea.`}
-              </Text>
-            )}
-
-            {state.hazProPreparerContext.hazardousMaterial
-              ?.packagingParagraph === "A13.12." && (
-              <Text style={styles.infoLine}>
-                {`Store in cool, well-ventilated areas away from fire hazards
-and sources of heat or ignition. Do not drop or rough handle.`}
-              </Text>
-            )}
+            ))}
 
             <View style={styles.emergencyLineContainer}>
               <Text style={styles.emergencyLabel}>

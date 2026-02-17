@@ -60,6 +60,7 @@ export const SpecialProvisionsAcknowledgementScreen: React.FC<SpecialProvisionsA
           specialProvisionsWorkflowModifiers: {},
         };
       }
+      store.hazProPreparerContext.modifiersAndRequiredAcknowledgements.generalPackagingRequirementsAcknowledged = true;
       store.hazProPreparerContext.modifiersAndRequiredAcknowledgements.specialProvisionsAcknowledged = true;
       store.hazProPreparerContext.modifiersAndRequiredAcknowledgements.workflowModifiersAcknowledged = true;
       store.hazProPreparerContext.completedSubsteps = [
@@ -117,14 +118,14 @@ export const SpecialProvisionsAcknowledgementScreen: React.FC<SpecialProvisionsA
       <ActionFooter
         buttons={[
           {
-            label: 'Reject Requirements',
-            onPress: handleReject,
-            variant: 'outline',
-          },
-          {
             label: 'Acknowledge Requirements',
             onPress: handleAcknowledge,
             variant: 'primary',
+          },
+                    {
+            label: 'Reject Requirements',
+            onPress: handleReject,
+            variant: 'outline',
           },
         ]}
       />

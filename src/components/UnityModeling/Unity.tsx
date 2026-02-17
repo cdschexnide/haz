@@ -39,11 +39,20 @@ const UnityApp = ({
   const unityRef = useRef<UnityView>(null);
   const lastLayoutRef = useRef<{ width: number; height: number } | null>(null);
   const resizeBurstCleanupRef = useRef<(() => void) | null>(null);
+  const lastSentRef = useRef<Record<string, string>>({});
   const [isUnityReady, setIsUnityReady] = useState(false);
 
   const postMessage = useCallback((method: string, payload: string) => {
     unityRef.current?.postMessage?.("ReactToUnity", method, payload);
   }, []);
+
+  const postMessageOnce = useCallback((method: string, payload: string) => {
+    if (lastSentRef.current[method] === payload) {
+      return;
+    }
+    lastSentRef.current[method] = payload;
+    postMessage(method, payload);
+  }, [postMessage]);
 
   const scheduleBurst = useCallback(
     (callback: () => void, delays: number[]) => {
@@ -74,20 +83,22 @@ const UnityApp = ({
   );
 
   const pushSceneData = useCallback(() => {
-    postMessage("GetRequiredMarkings", JSON.stringify(requiredMarkings));
-    postMessage("GetRequiredLabels", JSON.stringify(requiredLabels));
-    postMessage(
+    // Package data MUST be sent first — it sets modelType in Unity, which
+    // determines label/marking positions for each container shape.
+    postMessageOnce(
       "GetPackageData",
       JSON.stringify({ code: packageCode || "", type: packageType || "" })
     );
+    postMessageOnce("GetRequiredMarkings", JSON.stringify(requiredMarkings));
+    postMessageOnce("GetRequiredLabels", JSON.stringify(requiredLabels));
 
     if (shipmentData) {
-      postMessage("GetShipmentData", JSON.stringify(shipmentData));
+      postMessageOnce("GetShipmentData", JSON.stringify(shipmentData));
     }
   }, [
     packageCode,
     packageType,
-    postMessage,
+    postMessageOnce,
     requiredLabels,
     requiredMarkings,
     shipmentData,
@@ -116,6 +127,7 @@ const UnityApp = ({
   const handleUnityMessage = useCallback((result: any) => {
     const message = result?.nativeEvent?.message;
     if (message) {
+      console.log("[UnityBridge]", message);
       onUnityBridgeMessage?.(message);
       // Treat any Unity -> RN bridge message as proof the player is initialized.
       setIsUnityReady(true);

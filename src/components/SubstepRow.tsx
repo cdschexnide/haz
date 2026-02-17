@@ -11,6 +11,7 @@ export type RootStackParamList = {
   ShipmentCreation: undefined;
   MaterialID: undefined;
   PackagingScreen: undefined;
+  SpecialProvisionsAcknowledgement: undefined;
   LabelingAndMarking: undefined;
   Certify: undefined;
   Identify: undefined;
@@ -51,7 +52,7 @@ type SubstepRowProps = {
 
 export function SubstepRow({
   activeStep,
-}: SubstepRowProps): JSX.Element | null {
+}: SubstepRowProps): React.ReactElement | null {
   const { state } = useHazProStore();
   const route = useRoute();
   const { navigate } = useNavigationRef();
@@ -66,14 +67,9 @@ export function SubstepRow({
     ? {
         // UN3166 version
         MaterialID: { step: 1, index: 0, title: "Identify" },
-        GeneralPackagingAcknowledgement: {
+        SpecialProvisionsAcknowledgement: {
           step: 1,
           index: 1,
-          title: "Packaging Requirements",
-        },
-        InformativeAndWorkflowModifierAcknowledgement: {
-          step: 1,
-          index: 2,
           title: "Special Provisions",
         },
         UN3166FuelEntryScreen: { step: 2, index: 0, title: "Fuel Level Entry" },
@@ -92,14 +88,9 @@ export function SubstepRow({
     : {
         // Standard workflow
         MaterialID: { step: 1, index: 0, title: "Identify" },
-        GeneralPackagingAcknowledgement: {
+        SpecialProvisionsAcknowledgement: {
           step: 1,
           index: 1,
-          title: "Packaging Requirements",
-        },
-        InformativeAndWorkflowModifierAcknowledgement: {
-          step: 1,
-          index: 2,
           title: "Special Provisions",
         },
         PackagingScreen: { step: 2, index: 0, title: "Identify Package" },
@@ -128,7 +119,13 @@ export function SubstepRow({
     return drawerRoute.name;
   })();
 
-  const currentMeta = subStepMap[currentScreenName];
+  const normalizedScreenName =
+    currentScreenName === "GeneralPackagingAcknowledgement" ||
+    currentScreenName === "InformativeAndWorkflowModifierAcknowledgement"
+      ? "SpecialProvisionsAcknowledgement"
+      : currentScreenName;
+
+  const currentMeta = subStepMap[normalizedScreenName];
 
   if (!activeStep || !currentMeta || currentMeta.step !== activeStep) {
     return null;
@@ -168,15 +165,24 @@ export function SubstepRow({
 
   const members: WorkflowRowMember[] = substepTitles.map(
     ([screenName, meta]) => {
-      const typedScreenName = screenName as keyof RootStackParamList;
       const isCompleted =
-        state.hazProPreparerContext.completedSubsteps.includes(screenName);
+        screenName === "SpecialProvisionsAcknowledgement"
+          ? state.hazProPreparerContext.completedSubsteps.includes(
+              "SpecialProvisionsAcknowledgement"
+            ) ||
+            state.hazProPreparerContext.completedSubsteps.includes(
+              "InformativeAndWorkflowModifierAcknowledgement"
+            ) ||
+            state.hazProPreparerContext.completedSubsteps.includes(
+              "GeneralPackagingAcknowledgement"
+            )
+          : state.hazProPreparerContext.completedSubsteps.includes(screenName);
       return {
         key: screenName,
         title: meta.title,
         percentComplete: isCompleted ? 1 : 0,
         isActive: meta.index === currentMeta.index,
-        onPress: () => navigate(typedScreenName),
+        onPress: () => navigate(screenName as any),
       };
     }
   );

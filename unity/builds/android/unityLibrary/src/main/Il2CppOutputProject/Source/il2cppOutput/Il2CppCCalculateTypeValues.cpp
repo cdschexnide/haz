@@ -4786,7 +4786,7 @@ struct U3CU3Ec_t387201505168F904C1B388E5203AD9FF8B21498A  : public RuntimeObject
 struct U3CU3Ec_tCA2AB29201855E210F02B149D793286DD9F0CE4A  : public RuntimeObject
 {
 };
-struct U3CApplyCurvatureDelayedToTextU3Ed__56_tF7995B124BF374FF35D879362511395B39EBD587  : public RuntimeObject
+struct U3CApplyCurvatureDelayedToTextU3Ed__55_t316FD821F7BFE93C738B407D154723F6894D7A85  : public RuntimeObject
 {
 	int32_t ___U3CU3E1__state;
 	RuntimeObject* ___U3CU3E2__current;
@@ -4794,7 +4794,7 @@ struct U3CApplyCurvatureDelayedToTextU3Ed__56_tF7995B124BF374FF35D879362511395B3
 	TextMeshPro_t4560AB28A3EAF503895A781A9C625273D833270E* ___textMesh;
 	float ___curvature;
 };
-struct U3CApplyCurvatureDelayedWithBackgroundU3Ed__65_t14DBEDE4B14C8E60A75886D46E4BA16DC4EA34B8  : public RuntimeObject
+struct U3CApplyCurvatureDelayedWithBackgroundU3Ed__64_tC4D3E92486A6584073C385C8C5FDEF02668A669A  : public RuntimeObject
 {
 	int32_t ___U3CU3E1__state;
 	RuntimeObject* ___U3CU3E2__current;
@@ -4803,7 +4803,7 @@ struct U3CApplyCurvatureDelayedWithBackgroundU3Ed__65_t14DBEDE4B14C8E60A75886D46
 	float ___curvature;
 	MeshFilter_t6D1CE2473A1E45AC73013400585A1163BF66B2F5* ___bgMeshFilter;
 };
-struct U3CResizeCanvasU3Ed__38_t35F7A951AC35ACBDA4AA83E1115DCDEB28D04677  : public RuntimeObject
+struct U3CResizeCanvasU3Ed__37_tA68297259C4C8BF8EBB3F1BF16701516BEDB5BDB  : public RuntimeObject
 {
 	int32_t ___U3CU3E1__state;
 	RuntimeObject* ___U3CU3E2__current;
@@ -6849,9 +6849,6 @@ struct ContextBoundObject_t06DF41701A02DD412D357DE4FFF43310AAB7956C  : public Ma
 };
 struct ContextMenu_tAD34D12FC1C28194486FB5BF28B5954D0814E8EF  : public Attribute_tFDA8EFEFB0711976D22474794576DAF28F7440AA
 {
-	String_t* ___menuItem;
-	bool ___validate;
-	int32_t ___priority;
 };
 struct ContinuationTaskFromTask_tAC326B0A0FC028C0DE2B55AB1D050D15F0C3384B  : public Task_t751C4CC3ECD055BABA8A0B6A5DFBB4283DCA8572
 {
@@ -38599,11 +38596,11 @@ const Il2CppTypeDefinitionSizes g_typeDefinitionSize3133 = { sizeof(JsonShipment
 extern const Il2CppTypeDefinitionSizes g_typeDefinitionSize3134;
 const Il2CppTypeDefinitionSizes g_typeDefinitionSize3134 = { sizeof(MilitaryTextConfig_t1189038C32E0D6941D4A0C4F674060ED15B7DEA7), -1, 0, 0 };
 extern const Il2CppTypeDefinitionSizes g_typeDefinitionSize3135;
-const Il2CppTypeDefinitionSizes g_typeDefinitionSize3135 = { sizeof(U3CApplyCurvatureDelayedToTextU3Ed__56_tF7995B124BF374FF35D879362511395B39EBD587), -1, 0, 0 };
+const Il2CppTypeDefinitionSizes g_typeDefinitionSize3135 = { sizeof(U3CApplyCurvatureDelayedToTextU3Ed__55_t316FD821F7BFE93C738B407D154723F6894D7A85), -1, 0, 0 };
 extern const Il2CppTypeDefinitionSizes g_typeDefinitionSize3136;
-const Il2CppTypeDefinitionSizes g_typeDefinitionSize3136 = { sizeof(U3CApplyCurvatureDelayedWithBackgroundU3Ed__65_t14DBEDE4B14C8E60A75886D46E4BA16DC4EA34B8), -1, 0, 0 };
+const Il2CppTypeDefinitionSizes g_typeDefinitionSize3136 = { sizeof(U3CApplyCurvatureDelayedWithBackgroundU3Ed__64_tC4D3E92486A6584073C385C8C5FDEF02668A669A), -1, 0, 0 };
 extern const Il2CppTypeDefinitionSizes g_typeDefinitionSize3137;
-const Il2CppTypeDefinitionSizes g_typeDefinitionSize3137 = { sizeof(U3CResizeCanvasU3Ed__38_t35F7A951AC35ACBDA4AA83E1115DCDEB28D04677), -1, 0, 0 };
+const Il2CppTypeDefinitionSizes g_typeDefinitionSize3137 = { sizeof(U3CResizeCanvasU3Ed__37_tA68297259C4C8BF8EBB3F1BF16701516BEDB5BDB), -1, 0, 0 };
 extern const Il2CppTypeDefinitionSizes g_typeDefinitionSize3138;
 const Il2CppTypeDefinitionSizes g_typeDefinitionSize3138 = { sizeof(DataFromReact_tB90C188C1526DFE2EC21A998A767869429EE89C4), -1, sizeof(DataFromReact_tB90C188C1526DFE2EC21A998A767869429EE89C4_StaticFields), 0 };
 extern const Il2CppTypeDefinitionSizes g_typeDefinitionSize3139;

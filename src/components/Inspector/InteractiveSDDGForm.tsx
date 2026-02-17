@@ -73,7 +73,7 @@ const parsePlaceAndDate = (placeAndDate: string) => {
   const trimmed = placeAndDate.trim();
 
   // Look for date pattern (month names or numeric dates)
-  const dateRegex = /\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|January|February|March|April|May|June|July|August|September|October|November|December|\d{1,2}\/\d{1,2}\/\d{2,4})\b/i;
+  const dateRegex = /\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|January|February|March|April|May|June|July|August|September|October|November|December|\d{1,2}\/\d{1,2}\/\d{2,4}|\d{4}-\d{2}-\d{2})\b/i;
   const dateMatch = trimmed.match(dateRegex);
 
   if (dateMatch && dateMatch.index !== undefined) {

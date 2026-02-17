@@ -194,6 +194,12 @@ export const LabelingAndMarkingScreen: React.FC<LabelingAndMarkingScreenProps> =
               packageType={packageType}
               shipmentData={prepareShipmentData()}
             />
+            <View style={styles.disclaimerRow}>
+              <MaterialIcons name="info-outline" size={20} color={colors.primary} />
+              <Text style={styles.disclaimerText}>
+                This 3D rendering is for reference only. Label and marking placement on actual packages may differ.
+              </Text>
+            </View>
           </View>
         </View>
         <ActionFooter buttons={footerButtons} />
@@ -239,6 +245,12 @@ export const LabelingAndMarkingScreen: React.FC<LabelingAndMarkingScreenProps> =
             packageType={packageType}
             shipmentData={prepareShipmentData()}
           />
+          <View style={styles.disclaimerRow}>
+            <MaterialIcons name="info-outline" size={20} color={colors.primary} />
+            <Text style={styles.disclaimerText}>
+              This 3D rendering is for reference only. Label and marking placement on actual packages may differ.
+            </Text>
+          </View>
         </View>
       </View>
 
@@ -305,6 +317,25 @@ const styles = StyleSheet.create({
     ...typography.caption,
     color: colors.primary,
     fontWeight: '600',
+  },
+  disclaimerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    marginTop: spacing.xs,
+    marginBottom: spacing.md,
+    marginHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    backgroundColor: colors.infoLight,
+    borderRadius: borderRadius.md,
+    borderLeftWidth: 3,
+    borderLeftColor: colors.primary,
+  },
+  disclaimerText: {
+    ...typography.caption,
+    color: colors.textPrimary,
+    flex: 1,
   },
 });
 
