@@ -183,7 +183,7 @@ const UN3166FuelEntryScreen = ({ navigation }: { navigation: any }) => {
 
   const handleSaveExit = () => {
     saveDetails();
-    navigation.navigate('PreparerHomeScreen');
+    navigation.navigate('PreparerHomeStack', { screen: 'PreparerHome' });
   };
 
   const handleContinue = () => {

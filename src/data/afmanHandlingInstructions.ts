@@ -201,3 +201,89 @@ export const getAfmanHandlingInstructions = ({
 
   return Array.from(new Set(instructions));
 };
+
+const normalizeTextForComparison = (text: string): string =>
+  text
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+const tokenize = (text: string): string[] =>
+  normalizeTextForComparison(text)
+    .split(' ')
+    .filter(Boolean);
+
+const buildNgrams = (words: string[], size: number): string[] => {
+  if (words.length < size) {
+    return [];
+  }
+  const ngrams: string[] = [];
+  for (let i = 0; i <= words.length - size; i += 1) {
+    ngrams.push(words.slice(i, i + size).join(' '));
+  }
+  return ngrams;
+};
+
+const isInstructionPresent = (
+  additionalHandlingInfo: string,
+  requiredInstruction: string
+): boolean => {
+  const normalizedActual = normalizeTextForComparison(additionalHandlingInfo);
+  const normalizedRequired = normalizeTextForComparison(requiredInstruction);
+
+  if (!normalizedRequired) {
+    return true;
+  }
+
+  if (normalizedActual.includes(normalizedRequired)) {
+    return true;
+  }
+
+  const actualWords = tokenize(normalizedActual);
+  const requiredWords = tokenize(normalizedRequired);
+  if (requiredWords.length === 0) {
+    return true;
+  }
+
+  const actualWordSet = new Set(actualWords);
+  const matchedWords = requiredWords.filter(word => actualWordSet.has(word));
+  const tokenCoverage = matchedWords.length / requiredWords.length;
+
+  const requiredTriGrams = buildNgrams(requiredWords, 3);
+  if (requiredTriGrams.length === 0) {
+    return tokenCoverage >= 0.85;
+  }
+
+  const actualTriGramSet = new Set(buildNgrams(actualWords, 3));
+  const matchedTriGrams = requiredTriGrams.filter(ngram =>
+    actualTriGramSet.has(ngram)
+  );
+  const triGramCoverage = matchedTriGrams.length / requiredTriGrams.length;
+
+  return tokenCoverage >= 0.7 && triGramCoverage >= 0.4;
+};
+
+export const getMissingAfmanHandlingInstructions = ({
+  packagingParagraph,
+  unid,
+  additionalHandlingInfo,
+}: {
+  packagingParagraph?: string | null;
+  unid?: string | null;
+  additionalHandlingInfo?: string | null;
+}): string[] => {
+  const requiredInstructions = getAfmanHandlingInstructions({
+    packagingParagraph,
+    unid,
+  });
+
+  if (requiredInstructions.length === 0) {
+    return [];
+  }
+
+  const actual = additionalHandlingInfo || '';
+  return requiredInstructions.filter(
+    instruction => !isInstructionPresent(actual, instruction)
+  );
+};

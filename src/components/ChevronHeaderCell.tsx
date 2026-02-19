@@ -136,7 +136,7 @@ export function ChevronHeaderCellSuccess({
   return (
     <>
       <WorkflowRow
-        height={80}
+        height={99}
         width={screenWidth - 18}
         workflowRowMembers={[
           {

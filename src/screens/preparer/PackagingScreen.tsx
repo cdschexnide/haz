@@ -82,10 +82,8 @@ export const PackagingScreen: React.FC<PackagingScreenProps> = ({ navigation }) 
     markStepComplete();
     setPackagingFlags(false, true);
     store.hazProPreparerContext.packagingEntryMethod = 'walkthrough';
-    store.hazProPreparerContext.packagingWizardStep = 0;
+    store.hazProPreparerContext.packagingWizardStep = 1;
     if (store.hazProPreparerContext.packaging) {
-      store.hazProPreparerContext.packaging.packagingType = undefined;
-      store.hazProPreparerContext.packaging.selectedPackagingOptionId = undefined;
       if (store.hazProPreparerContext.packaging.inputPOPMarking) {
         store.hazProPreparerContext.packaging.inputPOPMarking.B = null;
       }

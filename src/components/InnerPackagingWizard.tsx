@@ -6,664 +6,248 @@ import {
 import { packagingDatabaseV2 } from "../../server/lookupFunctions/packagingLookupV2";
 import { useHazProStore } from "../stores/useHazProStore";
 import { PhysicalState } from "../../types";
-import { Picker } from "@react-native-picker/picker";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import {
-  Alert,
-  Dimensions,
-  KeyboardAvoidingView,
-  Platform,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
-
-const PRIMARY_COLOR = "#007bff";
-const BORDER_COLOR = "#ccc";
-
-const screenWidth = Dimensions.get("window").width;
+  ActionFooter,
+  colors,
+  spacing,
+  typography,
+} from "@/components/ui";
 
 const InnerPackagingWizard = ({ navigation }: { navigation: any }) => {
-  const { state, store, saveCurrentShipment } = useHazProStore();
+  const { state, store } = useHazProStore();
   const physicalState =
     state.hazProPreparerContext.hazardousMaterial?.physicalState;
   const packagingParagraph =
     state.hazProPreparerContext.hazardousMaterial?.packagingParagraph || "";
+  const selectedOptionId =
+    state.hazProPreparerContext.packaging?.selectedPackagingOptionId;
+  const initialInnerPackaging =
+    state.hazProPreparerContext.packaging?.combinationPackaging?.innerPackaging
+      ?.packagingType || "";
 
-  // Get inner packaging materials from packagingDatabaseV2
+  const [selectedInnerPackaging, setSelectedInnerPackaging] =
+    useState(initialInnerPackaging);
+
+  // Use the selected packaging option to find valid inner material choices.
   const innerOptions = useMemo(() => {
-    const selectedOptionId =
-      state.hazProPreparerContext.packaging?.selectedPackagingOptionId;
     if (!packagingParagraph || !selectedOptionId) return [];
 
     const packagingEntry = packagingDatabaseV2[packagingParagraph];
     if (!packagingEntry) return [];
 
     const selectedOption = packagingEntry.packagingOptions?.find(
-      opt => opt.id === selectedOptionId
+      option => option.id === selectedOptionId
     );
 
     return selectedOption?.innerPackaging?.materials || [];
-  }, [
-    packagingParagraph,
-    state.hazProPreparerContext.packaging?.selectedPackagingOptionId,
-  ]);
+  }, [packagingParagraph, selectedOptionId]);
 
-  console.log("innerOptions: ", JSON.stringify(innerOptions, null, 2));
+  const getLiquidQuantityInLiters = (): number | undefined => {
+    const packaging = state.hazProPreparerContext.packaging;
+    if (!packaging) return undefined;
 
-  const [quantityExceedsLimit, setQuantityExceedsLimit] =
-    useState<boolean>(false);
-  const [step, setStep] = useState(0);
-  const [containerCount, setContainerCount] = useState("");
-  const [quantityPerContainer, setQuantityPerContainer] = useState("");
-  const [unit, setUnit] = useState(physicalState === "SOLID" ? "kg" : "liters");
-  const [selectedInnerPackaging, setSelectedInnerPackaging] = useState("");
-
-  const totalQuantity = useMemo(() => {
-    const count = parseFloat(containerCount);
-    const per = parseFloat(quantityPerContainer);
-    return isNaN(count) || isNaN(per)
-      ? 0
-      : parseFloat((count * per).toFixed(2));
-  }, [containerCount, quantityPerContainer]);
-
-  useEffect(() => {
+    const totalLiters = packaging.totalNetVolume?.liters;
     if (
-      !isNaN(totalQuantity) &&
-      store.hazProPreparerContext.packaging?.totalNetMass
+      typeof totalLiters === "number" &&
+      Number.isFinite(totalLiters) &&
+      totalLiters > 0
     ) {
-      store.hazProPreparerContext.packaging.totalNetMass.kg = totalQuantity;
+      return totalLiters;
     }
-  }, [totalQuantity]);
 
-  const handleNext = () => {
-    if (step < 2) setStep(step + 1);
-    else {
-      if (physicalState === PhysicalState.LIQUID) {
-        let liquidQuantityInLiters: number | undefined;
-        const packagingType =
-          state.hazProPreparerContext.packaging?.packagingType;
-        if (
-          packagingType === "Single" ||
-          packagingType === "Composite" ||
-          packagingType === "CompositePackagingWithPlasticInnerReceptacles" ||
-          packagingType ===
-            "CompositePackagingWithGlassPorcelainOrStonewareInnerReceptacles"
-        ) {
-          const qty = parseFloat(quantity);
-          if (!isNaN(qty)) {
-            liquidQuantityInLiters = unit === "gallons" ? qty * 3.78541 : qty;
-          }
-        } else if (packagingType === "Combination") {
-          const totalQty = parseFloat(totalQuantity);
-          if (!isNaN(totalQty)) {
-            liquidQuantityInLiters =
-              unit === "gallons" ? totalQty * 3.78541 : totalQty;
-          }
-        }
-
-        const lookupInput: HazProContextLookupInput = {
-          context: {
-            hazardousMaterial: state.hazProPreparerContext.hazardousMaterial,
-            physicalState,
-          },
-          specialProvisionsMap: informativeSpecialProvisionsMap,
-          dotCylinderSpecifications: [],
-
-          liquidQuantityInLiters,
-          isCombinationPackaging: packagingType === "Combination",
-          innerPackagingMaterial: selectedInnerPackaging || undefined,
-        };
-
-        const lookupOutput = hazProContextLookup(lookupInput);
-        if (typeof lookupOutput === "string") {
-          return;
-        }
-        store.hazProPreparerContext.lookupFunctionsOutput = lookupOutput;
-
-        console.log("lookupOutput: ", JSON.stringify(lookupOutput, null, 2));
-        if (
-          typeof lookupOutput !== "string" &&
-          typeof lookupOutput.absorbentCushioningCriteria !== "undefined"
-        ) {
-          store.hazProPreparerContext.absorbentStepRequired = true;
-          navigation.navigate("AbsorbentCushioningRequirements");
-          return;
-        }
-      }
-      if (store.hazProPreparerContext.packaging?.combinationPackaging) {
-        store.hazProPreparerContext.packaging.combinationPackaging.numberOfInnerContainers =
-          containerCount;
-      }
-      if (
-        store.hazProPreparerContext.packaging?.combinationPackaging
-          ?.innerPackaging
-      ) {
-        store.hazProPreparerContext.packaging.combinationPackaging.innerPackaging.packagingType =
-          selectedInnerPackaging;
-      }
-      if (store.hazProPreparerContext.packaging?.inputPOPMarking) {
-        store.hazProPreparerContext.packaging.inputPOPMarking.unit = unit;
-      }
-      navigation.navigate("LabelingAndMarking");
+    const perInnerLiters =
+      packaging.combinationPackaging?.volumePerInnerContainer?.liters;
+    const innerCount = packaging.combinationPackaging?.numberOfInnerContainers;
+    if (
+      typeof perInnerLiters === "number" &&
+      Number.isFinite(perInnerLiters) &&
+      typeof innerCount === "number" &&
+      Number.isFinite(innerCount)
+    ) {
+      const computedTotal = perInnerLiters * innerCount;
+      return computedTotal > 0 ? computedTotal : undefined;
     }
+
+    return undefined;
   };
-  const handleSaveExit = async () => {
-    if (store.hazProPreparerContext.packaging?.combinationPackaging) {
-      store.hazProPreparerContext.packaging.combinationPackaging.numberOfInnerContainers =
-        containerCount;
+
+  const handleContinue = () => {
+    if (innerOptions.length > 0 && !selectedInnerPackaging) {
+      return;
     }
+
     if (
       selectedInnerPackaging &&
-      store.hazProPreparerContext.packaging?.combinationPackaging
-        ?.innerPackaging
+      store.hazProPreparerContext.packaging?.combinationPackaging?.innerPackaging
     ) {
       store.hazProPreparerContext.packaging.combinationPackaging.innerPackaging.packagingType =
         selectedInnerPackaging;
     }
-    if (store.hazProPreparerContext.packaging?.inputPOPMarking) {
-      store.hazProPreparerContext.packaging.inputPOPMarking.unit = unit;
-    }
-    try {
-      await saveCurrentShipment("in-progress");
-      navigation.navigate("PreparerHomeStack", { screen: "PreparerHome" });
-    } catch (err) {
-      console.log("Save failed, but error is handled by context:", err);
-    }
-  };
 
-  useEffect(() => {
-    let maxAllowed: number = 0;
-    if (physicalState === PhysicalState.SOLID) {
-      maxAllowed = parseFloat(
-        state.hazProPreparerContext.packaging?.inputPOPMarking?.D || "0"
-      );
-    } else if (physicalState === PhysicalState.LIQUID) {
-      maxAllowed = parseFloat(
-        state.hazProPreparerContext.packaging?.inputPOPMarking?.E || "0"
-      );
-    }
+    if (physicalState === PhysicalState.LIQUID) {
+      const packagingType =
+        state.hazProPreparerContext.packaging?.packagingType || "";
 
-    if (!isNaN(totalQuantity) && totalQuantity > maxAllowed) {
-      if (!quantityExceedsLimit) {
-        setQuantityExceedsLimit(true);
-        Alert.alert(
-          "Total Quantity Exceeded",
-          `The total quantity (${totalQuantity}) exceeds the maximum allowed (${maxAllowed}) for this packaging.`,
-          [{ text: "OK" }]
-        );
+      const lookupInput: HazProContextLookupInput = {
+        context: {
+          hazardousMaterial: state.hazProPreparerContext.hazardousMaterial,
+          physicalState,
+        },
+        specialProvisionsMap: informativeSpecialProvisionsMap,
+        dotCylinderSpecifications: [],
+        liquidQuantityInLiters: getLiquidQuantityInLiters(),
+        isCombinationPackaging: packagingType === "Combination",
+        innerPackagingMaterial: selectedInnerPackaging || undefined,
+      };
+
+      const lookupOutput = hazProContextLookup(lookupInput);
+      if (typeof lookupOutput === "string") {
+        return;
       }
-    } else {
-      setQuantityExceedsLimit(false);
+
+      store.hazProPreparerContext.lookupFunctionsOutput = lookupOutput;
+
+      if (typeof lookupOutput.absorbentCushioningCriteria !== "undefined") {
+        store.hazProPreparerContext.absorbentStepRequired = true;
+        navigation.navigate("AbsorbentCushioningRequirements");
+        return;
+      }
     }
-  }, [containerCount, quantityPerContainer]);
 
-  const renderStep = () => {
-    switch (step) {
-      case 0:
-        return (
-          <View style={styles.section}>
-            <Text style={styles.title}>
-              Enter Container and Quantity Details
-            </Text>
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Number of inner containers</Text>
-              <TextInput
-                value={containerCount}
-                onChangeText={setContainerCount}
-                keyboardType="numeric"
-                style={styles.textInput}
-                placeholder="e.g., 2"
-                placeholderTextColor="#999"
-              />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Quantity per container</Text>
-              <View style={styles.inlineInputs}>
-                <TextInput
-                  value={quantityPerContainer}
-                  onChangeText={setQuantityPerContainer}
-                  keyboardType="numeric"
-                  placeholder="e.g., 4"
-                  placeholderTextColor="#999"
-                  style={styles.quantityInput}
-                />
-                <Picker
-                  selectedValue={unit}
-                  onValueChange={setUnit}
-                  style={styles.unitPicker}
-                >
-                  {physicalState === "SOLID" && [
-                    <Picker.Item key="kg" label="kg" value="kg" />,
-                    <Picker.Item key="lbs" label="lbs" value="lbs" />,
-                  ]}
-                  {physicalState === "LIQUID" && [
-                    <Picker.Item key="liters" label="liters" value="liters" />,
-                    <Picker.Item
-                      key="gallons"
-                      label="gallons"
-                      value="gallons"
-                    />,
-                  ]}
-                </Picker>
-              </View>
-            </View>
-
-            <View
-              style={
-                quantityExceedsLimit
-                  ? styles.totalQuantityBoxAlert
-                  : styles.totalQuantityBox
-              }
-            >
-              <Text style={styles.totalLabel}>Total Quantity:</Text>
-              <Text
-                style={[
-                  styles.totalValue,
-                  quantityExceedsLimit && { color: "red" },
-                ]}
-              >
-                {containerCount && quantityPerContainer
-                  ? `${totalQuantity} ${unit}`
-                  : "--"}
-              </Text>
-            </View>
-          </View>
-        );
-
-      case 1:
-        return (
-          <View>
-            <Text style={styles.title}>Select Inner Packaging Type</Text>
-            {innerOptions.map(opt => (
-              <TouchableOpacity
-                key={opt}
-                style={[
-                  styles.card,
-                  selectedInnerPackaging === opt && styles.cardSelected,
-                ]}
-                onPress={() => setSelectedInnerPackaging(opt)}
-              >
-                <Text
-                  style={[
-                    styles.cardTitle,
-                    selectedInnerPackaging === opt && styles.cardTitleSelected,
-                  ]}
-                >
-                  {opt}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        );
-
-      case 2:
-        return (
-          <View style={styles.summaryCard}>
-            <Text style={styles.summaryTitle}>Inner Packaging Details</Text>
-            <View style={styles.summaryItem}>
-              <Text style={styles.summaryLabel}>
-                Number of Inner Containers:
-              </Text>
-              <Text style={styles.summaryValue}>{containerCount}</Text>
-            </View>
-            <View style={styles.summaryItem}>
-              <Text style={styles.summaryLabel}>Quantity Per Container:</Text>
-              <Text style={styles.summaryValue}>
-                {quantityPerContainer} {unit}
-              </Text>
-            </View>
-            <View style={styles.summaryItem}>
-              <Text style={styles.summaryLabel}>Total Quantity:</Text>
-              <Text style={styles.summaryValue}>
-                {parseFloat(quantityPerContainer) * parseInt(containerCount)}{" "}
-                {unit}
-              </Text>
-            </View>
-            <View style={styles.summaryItem}>
-              <Text style={styles.summaryLabel}>Inner Packaging Type:</Text>
-              <Text style={styles.summaryValue}>{selectedInnerPackaging}</Text>
-            </View>
-          </View>
-        );
-    }
+    store.hazProPreparerContext.absorbentStepRequired = false;
+    navigation.navigate("LabelingAndMarking");
   };
+
+  const canContinue = innerOptions.length === 0 || !!selectedInnerPackaging;
+
+  const footerButtons = [
+    {
+      label: "Back",
+      onPress: () => navigation.goBack(),
+      variant: "outline" as const,
+    },
+    {
+      label: "Continue",
+      onPress: handleContinue,
+      variant: "primary" as const,
+      disabled: !canContinue,
+    },
+  ];
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-        style={{ flex: 1 }}
-      >
-        <ScrollView contentContainerStyle={styles.container}>
-          <Text style={styles.header}>Step {step + 1} of 3</Text>
-          {renderStep()}
-          <View style={styles.buttonContainer}>
-            {step > 0 ? (
-              <TouchableOpacity
-                style={styles.backButton}
-                onPress={() => setStep(step - 1)}
-                accessibilityLabel="Back button"
-                accessibilityRole="button"
-              >
-                <Text style={styles.backButtonText}>Back</Text>
-              </TouchableOpacity>
-            ) : (
-              <View style={{ flex: 1 }} />
-            )}
+    <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <Text style={styles.header}>Select Inner Packaging Type</Text>
 
-            <TouchableOpacity
-              style={styles.saveExitButton}
-              onPress={handleSaveExit}
-              accessibilityLabel="Save and exit button"
-              accessibilityRole="button"
-            >
-              <Text style={styles.buttonText}>Save & Exit</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[
-                styles.continueButton,
-                ((step === 0 && (!containerCount || quantityExceedsLimit)) ||
-                  (step === 1 && !selectedInnerPackaging)) &&
-                  styles.disabledButton,
-              ]}
-              onPress={handleNext}
-              disabled={
-                (step === 0 && (!containerCount || quantityExceedsLimit)) ||
-                (step === 1 && !selectedInnerPackaging)
-              }
-              accessibilityLabel={step === 2 ? "Finish button" : "Next button"}
-              accessibilityRole="button"
-              accessibilityState={{
-                disabled:
-                  (step === 0 && (!containerCount || quantityExceedsLimit)) ||
-                  (step === 1 && !selectedInnerPackaging),
-              }}
-            >
-              <Text style={styles.buttonText}>
-                {step === 2 ? "Finish" : "Next"}
-              </Text>
-            </TouchableOpacity>
+        {innerOptions.length === 0 ? (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyStateText}>
+              No specific inner packaging material options were found for this
+              packaging selection. Continue to proceed.
+            </Text>
           </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+        ) : (
+          <View style={styles.optionsList}>
+            {innerOptions.map(option => {
+              const isSelected = selectedInnerPackaging === option;
+              return (
+                <TouchableOpacity
+                  key={option}
+                  style={[styles.optionCard, isSelected && styles.optionCardSelected]}
+                  onPress={() => setSelectedInnerPackaging(option)}
+                  activeOpacity={0.7}
+                >
+                  <View style={[styles.radio, isSelected && styles.radioSelected]}>
+                    {isSelected && <View style={styles.radioInner} />}
+                  </View>
+                  <Text style={[styles.optionTitle, isSelected && styles.optionTitleSelected]}>
+                    {option}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        )}
+      </ScrollView>
+
+      <ActionFooter buttons={footerButtons} />
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
-    paddingTop: 0,
-    gap: 15,
-    backgroundColor: "#f8f8f8",
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  scrollContent: {
+    padding: spacing.lg,
+    paddingBottom: spacing.xxl,
+    gap: spacing.md,
   },
   header: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 20,
-    marginTop: 20,
-    color: "#000",
+    ...typography.headerTitle,
+    color: colors.textPrimary,
   },
-  section: {
-    marginBottom: 10,
-  },
-  label: {
-    fontSize: 16,
-    marginBottom: 10,
-    color: "#000",
-  },
-  input: {
+  emptyState: {
+    backgroundColor: colors.surface,
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 5,
-    padding: 10,
-    fontSize: 16,
-    height: 55,
-    backgroundColor: "#f9f9f9",
-    color: "#000",
+    borderColor: colors.border,
+    padding: spacing.lg,
   },
-  input2: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 5,
-    padding: 10,
-    fontSize: 16,
-    height: 55,
-    backgroundColor: "#f9f9f9",
-    width: screenWidth * 0.25,
-    color: "#000",
+  emptyStateText: {
+    ...typography.body,
+    color: colors.textSecondary,
+    lineHeight: 22,
   },
-  picker: {
-    height: 55,
-    backgroundColor: "#f9f9f9",
-    borderRadius: 5,
-    marginTop: 10,
+  optionsList: {
+    gap: spacing.sm,
   },
-  option: {
-    padding: 12,
-    borderWidth: 1,
-    borderColor: "#007bff",
-    borderRadius: 6,
-    marginBottom: 10,
-  },
-  selectedOption: {
-    backgroundColor: "#007bff",
-  },
-  optionText: {
-    color: "#000",
-    fontSize: 16,
-  },
-  navRow: {
+  optionCard: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 30,
+    alignItems: "center",
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 8,
+    backgroundColor: colors.surface,
   },
-  summaryCard: {
-    backgroundColor: "#f8f9fa",
+  optionCardSelected: {
+    borderWidth: 2,
+    borderColor: colors.primary,
+    backgroundColor: colors.primary + "10",
+  },
+  radio: {
+    width: 20,
+    height: 20,
     borderRadius: 10,
-    padding: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  summaryTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    marginBottom: 16,
-    color: "#333",
-    textAlign: "center",
-  },
-  summaryItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: "#e0e0e0",
-  },
-  summaryLabel: {
-    fontSize: 16,
-    color: "#555",
-    flex: 1,
-  },
-  summaryValue: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#222",
-    textAlign: "right",
-    flex: 1,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "700",
-    marginBottom: 12,
-    color: "#000",
-  },
-  card: {
-    padding: 15,
-    borderWidth: 1,
-    borderRadius: 8,
-    borderColor: BORDER_COLOR,
-    backgroundColor: "#fff",
-    marginBottom: 10,
-  },
-  cardSelected: {
-    borderColor: PRIMARY_COLOR,
-    backgroundColor: "#e6f0ff",
-  },
-  cardTitle: {
-    fontSize: 16,
-    color: "#000",
-    fontWeight: "600",
-  },
-  cardTitleSelected: {
-    color: PRIMARY_COLOR,
-  },
-  cardDesc: {
-    fontSize: 13,
-    color: "#666",
-  },
-  inlineRow: {
-    flexDirection: "row",
+    borderWidth: 2,
+    borderColor: colors.border,
     alignItems: "center",
+    justifyContent: "center",
+    marginRight: spacing.md,
   },
-  inlinePicker: {
-    height: 55,
-    width: screenWidth * 0.15,
-    backgroundColor: "#f9f9f9",
+  radioSelected: {
+    borderColor: colors.primary,
+  },
+  radioInner: {
+    width: 10,
+    height: 10,
     borderRadius: 5,
-    borderColor: "#ccc",
-    borderWidth: 1,
-    marginLeft: 10,
+    backgroundColor: colors.primary,
   },
-  totalQuantity: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#333",
-    paddingTop: 4,
+  optionTitle: {
+    fontSize: 15,
+    fontWeight: "500" as const,
+    color: colors.textPrimary,
   },
-  inputGroup: {
-    marginBottom: 20,
-  },
-  textInput: {
-    borderWidth: 1,
-    borderColor: BORDER_COLOR,
-    borderRadius: 6,
-    backgroundColor: "#fff",
-    paddingHorizontal: 12,
-    paddingVertical: 14,
-    fontSize: 16,
-    color: "#000",
-  },
-  inlineInputs: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-  },
-  quantityInput: {
-    flex: 0.5,
-    borderWidth: 1,
-    borderColor: BORDER_COLOR,
-    borderRadius: 6,
-    backgroundColor: "#fff",
-    paddingHorizontal: 12,
-    paddingVertical: 14,
-    fontSize: 16,
-    height: 55,
-    color: "#000",
-  },
-  unitPicker: {
-    flex: 0.15,
-    height: 55,
-    borderWidth: 1,
-    borderColor: BORDER_COLOR,
-    borderRadius: 6,
-    color: "#000",
-    backgroundColor: "#fff",
-  },
-  totalQuantityBox: {
-    backgroundColor: "#fff",
-    borderRadius: 8,
-    padding: 16,
-    marginTop: 10,
-    elevation: 1,
-  },
-  totalQuantityBoxAlert: {
-    backgroundColor: "#ffe6e6",
-    borderRadius: 8,
-    padding: 16,
-    marginTop: 10,
-    elevation: 1,
-  },
-  totalLabel: {
-    fontSize: 16,
-    fontWeight: "500",
-    color: "#555",
-    marginBottom: 4,
-  },
-  totalValue: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#1e293b",
-  },
-  buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    padding: 16,
-    borderTopWidth: 1,
-    borderTopColor: "#e9ecef",
-    marginTop: 30,
-  },
-  backButton: {
-    flex: 1,
-    height: 48,
-    borderWidth: 1,
-    borderColor: "#003366",
-    borderRadius: 4,
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 8,
-  },
-  backButtonText: {
-    color: "#003366",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  saveExitButton: {
-    flex: 1,
-    height: 48,
-    backgroundColor: "#6C757D",
-    borderRadius: 4,
-    justifyContent: "center",
-    alignItems: "center",
-    marginHorizontal: 8,
-  },
-  continueButton: {
-    flex: 1,
-    height: 48,
-    backgroundColor: "#0057B7",
-    borderRadius: 4,
-    justifyContent: "center",
-    alignItems: "center",
-    marginLeft: 8,
-  },
-  buttonText: {
-    color: "#ffffff",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  disabledButton: {
-    backgroundColor: "#a0a0a0",
-    opacity: 0.7,
+  optionTitleSelected: {
+    color: colors.primary,
+    fontWeight: "600" as const,
   },
 });
 

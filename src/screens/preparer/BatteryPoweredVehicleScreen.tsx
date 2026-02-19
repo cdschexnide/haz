@@ -169,7 +169,7 @@ const YesNoToggle: React.FC<YesNoToggleProps> = ({
 );
 
 export const BatteryPoweredVehicleScreen = ({ navigation }: { navigation: any }) => {
-  const { state, actions } = useHazProStore();
+  const { state, actions, saveCurrentShipment } = useHazProStore();
   const { navigate } = useNavigationRef();
   const batteryVehicle = state.hazProPreparerContext.batteryVehicle;
   const completedSubsteps = state.hazProPreparerContext.completedSubsteps;
@@ -302,8 +302,8 @@ export const BatteryPoweredVehicleScreen = ({ navigation }: { navigation: any })
     }, 500);
   };
 
-  const handleSaveExit = () => {
-    actions.saveShipment({ id: Date.now().toString(), status: 'in-progress' });
+  const handleSaveExit = async () => {
+    await saveCurrentShipment('in-progress');
     navigate('PreparerHomeStack', { screen: 'PreparerHome' });
   };
 

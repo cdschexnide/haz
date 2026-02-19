@@ -67,18 +67,7 @@ const InspectorMainLayout = ({
 
   const activePersona = state.hazProInspectorContext.activePersona;
 
-  const hasTcn = state.hazProInspectorContext.shipment?.tcn !== "";
-
-  const titleHasTcnAndUnid =
-    state.hazProInspectorContext.shipment?.tcn &&
-    state.hazProInspectorContext.hazardousMaterial?.unid;
-  const titleHasTcnOnly =
-    state.hazProInspectorContext.shipment?.tcn &&
-    typeof state.hazProInspectorContext.hazardousMaterial?.unid === "undefined";
-  const tcnIsEmpty =
-    state.hazProInspectorContext.shipment?.tcn &&
-    typeof state.hazProInspectorContext.hazardousMaterial?.unid === "undefined";
-  const hasSubstepChevronRow = false;
+  const tcn = state.hazProInspectorContext.shipment?.tcn || "";
 
   // Get SDDG content for left panel - prefer verificationCopy over extractedContent
   // verificationCopy contains user corrections from the verification step
@@ -168,51 +157,9 @@ const InspectorMainLayout = ({
       />
 
       {/* === HEADER ROW === */}
-      <View
-        style={
-          hasSubstepChevronRow
-            ? styles.headerWithSubstepRow
-            : styles.headerWithoutSubstepRow
-        }
-      >
-        <TouchableOpacity
-          style={
-            hasSubstepChevronRow
-              ? styles.backButtonWithSubstepRow
-              : styles.backButtonWithoutSubstepRow
-          }
-          onPress={() => navigation.goBack()}
-        >
-          <MaterialIcons name="arrow-back" size={28} color="black" />
-        </TouchableOpacity>
-        {/* <View> */}
-        <View
-          style={
-            titleHasTcnAndUnid
-              ? styles.titleWithTcnAndUnid
-              : styles.titleWithTcnOnly
-          }
-        >
-          {titleHasTcnAndUnid && (
-            <Text
-              style={styles.textWithSubstepRow}
-            >{`${state.hazProInspectorContext.shipment?.tcn}   ${state.hazProInspectorContext.hazardousMaterial?.unid}\n${state.hazProInspectorContext.hazardousMaterial?.properShippingName}`}</Text>
-          )}
-          {titleHasTcnOnly && (
-            <Text
-              style={styles.textWithSubstepRow}
-            >{`${state.hazProInspectorContext.shipment?.tcn}`}</Text>
-          )}
-          {tcnIsEmpty && <Text style={styles.textWithSubstepRow}></Text>}
-        </View>
-        {/* </View> */}
-        <View
-          style={
-            hasTcn
-              ? styles.chevronContainerWithTcn
-              : styles.chevronContainerWithoutTcn
-          }
-        >
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>{tcn}</Text>
+        <View style={styles.chevronContainer}>
           <InspectorChevronHeaderCellSuccess
             key={state.hazProInspectorContext.activeStep}
             shipment={shipment}
@@ -529,76 +476,25 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f5f5f5",
   },
-  headerWithoutSubstepRow: {
+  header: {
     flexDirection: "row",
-    alignItems: "flex-start",
+    alignItems: "center",
     justifyContent: "flex-start",
-    // paddingVertical: 10,
     paddingHorizontal: 15,
+    paddingVertical: 8,
+    minHeight: 100,
     backgroundColor: "#fff",
     borderBottomWidth: 1,
     borderBottomColor: "#ddd",
-    height: 100,
   },
-  headerWithSubstepRow: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    justifyContent: "flex-start",
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    backgroundColor: "#fff",
-    borderBottomWidth: 1,
-    borderBottomColor: "#ddd",
-    height: 130,
-  },
-  titleWithSubstepRow: {
+  headerTitle: {
     width: "32%",
-    fontSize: 22,
-    marginRight: 10,
-    marginLeft: 10,
-    fontWeight: "bold",
-    textAlign: "center",
-    paddingTop: 10,
-  },
-  textWithSubstepRow: {
     fontSize: 20.5,
-    fontWeight: "bold",
-    textAlign: "center",
-    paddingTop: 8,
-  },
-  titleWithTcnAndUnid: {
-    width: "22.7%",
-    fontSize: 22,
     marginRight: 10,
-    // marginLeft: 40,
+    marginLeft: 20,
     fontWeight: "bold",
-    textAlign: "center",
-  },
-  titleWithTcnOnly: {
-    width: "22.7%",
-    fontSize: 22,
-    marginRight: 10,
-    // marginLeft: 40,
-    fontWeight: "bold",
-    textAlign: "center",
-    paddingTop: 32,
-  },
-  titleWithSubstepRow2: {
-    width: "32%",
-    fontSize: 22,
-    marginRight: 10,
-    marginLeft: 10,
-    fontWeight: "bold",
-    textAlign: "center",
-    paddingTop: 20,
-  },
-  titleWithoutSubstepRow2: {
-    width: "32%",
-    fontSize: 22,
-    marginRight: 10,
-    marginLeft: 10,
-    fontWeight: "bold",
-    textAlign: "center",
+    textAlign: "left",
+    color: "#000",
   },
   contentContainer: {
     flex: 1,
@@ -738,13 +634,13 @@ const styles = StyleSheet.create({
   },
   modalBody: {
     fontSize: 16,
-    textAlign: "center",
+    textAlign: "left",
     flex: 1,
     paddingBottom: 10,
   },
   modalBodyWorkflowModifiers: {
     fontSize: 16,
-    textAlign: "center",
+    textAlign: "left",
     flex: 1,
     paddingBottom: 10,
     paddingHorizontal: 20,
@@ -802,12 +698,5 @@ const styles = StyleSheet.create({
     backgroundColor: "#007bff",
     height: 3,
   },
-  chevronContainerWithoutTcn: { height: 80 },
-  chevronContainerWithTcn: { height: 80 },
-  backButtonWithSubstepRow: {
-    paddingTop: 40,
-  },
-  backButtonWithoutSubstepRow: {
-    paddingTop: 35,
-  },
+  chevronContainer: { flex: 1, justifyContent: "center", marginVertical: -8 },
 });

@@ -20,6 +20,7 @@ interface UnityPackagePreviewProps {
   packageCode?: string;
   packageType?: string;
   shipmentData?: UnityShipmentData;
+  unavailableMessage?: string;
 }
 
 export const UnityPackagePreview: React.FC<UnityPackagePreviewProps> = ({
@@ -28,6 +29,7 @@ export const UnityPackagePreview: React.FC<UnityPackagePreviewProps> = ({
   packageCode,
   packageType,
   shipmentData,
+  unavailableMessage,
 }) => {
   const [isExpanded, setIsExpanded] = React.useState(false);
   const [isFullscreenStable, setIsFullscreenStable] = React.useState(false);
@@ -74,6 +76,21 @@ export const UnityPackagePreview: React.FC<UnityPackagePreviewProps> = ({
 
     return () => clearTimeout(timer);
   }, [isExpanded, isFullscreenStable]);
+
+  if (unavailableMessage) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.headerRow}>
+          <Text style={styles.headerText}>3D Package Preview</Text>
+        </View>
+        <View style={styles.unityContainer} testID="unity-preview">
+          <View style={styles.unavailableContainer}>
+            <Text style={styles.unavailableText}>{unavailableMessage}</Text>
+          </View>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -170,6 +187,18 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     backgroundColor: "transparent",
     zIndex: 2,
+  },
+  unavailableContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: spacing.lg,
+  },
+  unavailableText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: colors.textSecondary,
+    textAlign: "center",
   },
   fullscreenUnityWrapper: {
     flex: 1,

@@ -922,42 +922,67 @@ describe('Marking Requirements - Class 3 Flammable Liquids', () => {
   });
 
   describe('Orientation Marking', () => {
-    /**
-     * GAP: Orientation marking (arrows) is required for liquid combination packaging
-     * per AFMAN 24-604 but is intentionally omitted from markingRequirements.ts
-     * (noted in code comments).
-     *
-     * These tests document expected behavior when the feature is implemented.
-     */
-    test.skip('Scenario 1 Alteration 3: Orientation arrows required for liquid combination packaging', () => {
-      // GAP: Orientation marking not currently implemented
+    test('Scenario 1 Alteration 3: Orientation arrows required for liquid combination packaging', () => {
       const context = createClass3Context('UN1089', 'I', 'ACETALDEHYDE');
       context.packaging.packagingType = 'Combination';
       const result = evaluateMarkingRequirements(context);
 
-      const orientationMarking = result.find((m) => m.id === 'orientation-marking');
+      const orientationMarking = result.find((m) => m.id === 'orientation-arrows');
       expect(orientationMarking).toBeDefined();
-      expect(orientationMarking?.label).toContain('Orientation');
+      expect(orientationMarking?.label).toBe('Orientation Arrows');
     });
 
-    test.skip('Scenario 6 Alteration 3: Orientation arrows needed on two opposite sides', () => {
-      // GAP: Orientation marking placement requirements not implemented
+    test('Scenario 6 Alteration 3: Orientation arrows needed on two opposite sides', () => {
       const context = createClass3Context('UN1114', 'II', 'BENZENE');
       context.packaging.packagingType = 'Combination';
       const result = evaluateMarkingRequirements(context);
 
-      const orientationMarking = result.find((m) => m.id === 'orientation-marking');
+      const orientationMarking = result.find((m) => m.id === 'orientation-arrows');
       expect(orientationMarking).toBeDefined();
+      expect(orientationMarking?.value).toContain('opposite vertical sides');
     });
 
-    test.skip('Scenario 17 Alteration 3: Missing orientation arrows for PAINT RELATED MATERIAL', () => {
-      // GAP: Should require orientation arrows for liquid packaging
+    test('Scenario 17 Alteration 3: Missing orientation arrows for PAINT RELATED MATERIAL', () => {
       const context = createClass3Context('UN1263', 'III', 'PAINT RELATED MATERIAL');
       context.packaging.packagingType = 'Combination';
       const result = evaluateMarkingRequirements(context);
 
-      const orientationMarking = result.find((m) => m.id === 'orientation-marking');
+      const orientationMarking = result.find((m) => m.id === 'orientation-arrows');
       expect(orientationMarking).toBeDefined();
+    });
+
+    test('Orientation arrows required for liquid overpack shipments', () => {
+      const context = createClass3Context('UN1090', 'II', 'ACETONE');
+      context.packaging.packagingType = 'Single';
+      context.overpack = true;
+
+      const result = evaluateMarkingRequirements(context);
+      const orientationMarking = result.find((m) => m.id === 'orientation-arrows');
+      expect(orientationMarking).toBeDefined();
+    });
+
+    test('Orientation arrows required for liquid in single box packaging', () => {
+      const context = createClass3Context('UN1987', 'II', 'ALCOHOLS, N.O.S.', {
+        inputPOPMarking: { B: '4G' },
+      });
+      context.packaging.packagingType = 'Single';
+      context.overpack = false;
+
+      const result = evaluateMarkingRequirements(context);
+      const orientationMarking = result.find((m) => m.id === 'orientation-arrows');
+      expect(orientationMarking).toBeDefined();
+    });
+
+    test('Orientation arrows not required for liquid in single non-box packaging', () => {
+      const context = createClass3Context('UN1993', 'II', 'FLAMMABLE LIQUID, N.O.S.', {
+        inputPOPMarking: { B: '1A1' },
+      });
+      context.packaging.packagingType = 'Single';
+      context.overpack = false;
+
+      const result = evaluateMarkingRequirements(context);
+      const orientationMarking = result.find((m) => m.id === 'orientation-arrows');
+      expect(orientationMarking).toBeUndefined();
     });
   });
 

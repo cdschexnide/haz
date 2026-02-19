@@ -21,8 +21,11 @@ import {
   hasContainerRestrictions,
   isCategoryFullyProhibited,
   isContainerProhibited,
-  isInnerPackagingRequired,
 } from "@/utils/packagingWizardV2Helpers";
+import {
+  getPackagingTypeSelectionFromContext,
+  resolvePackagingOptionForSelection,
+} from "@/utils/getAllowedPackagingTypes";
 import { isSinglePackagingProhibited } from "@/utils/specialProvisionsHelpers";
 import React, { JSX, useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -41,7 +44,6 @@ import ExampleSolidPopMarking from "./ExampleSolidPopMarking";
 import Breadcrumb from "./PackagingWizardV2/Breadcrumb";
 import ContainerCodeCard from "./PackagingWizardV2/ContainerCodeCard";
 import NotesModal from "./PackagingWizardV2/NotesModal";
-import PackagingTypeCard from "./PackagingWizardV2/PackagingTypeCard";
 import ExampleLiquidPopMarking from "./ExampleLiquidPopMarking";
 import PackagingCategoryQuadrant from "./PackagingWizardV2/PackagingCategoryQuadrant";
 import RestrictionMessagesModal from "./PackagingWizardV2/RestrictionMessagesModal";
@@ -174,12 +176,12 @@ const PackagingWizardV2 = ({ navigation }: PackagingWizardV2Props) => {
   const { state, store, saveCurrentShipment } = useHazProStore();
   const completedSubsteps = state.hazProPreparerContext.completedSubsteps;
 
-  const [step, setStep] = useState<number>(0);
+  const [step, setStep] = useState<number>(1);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const [selectedPackagingOptionId, setSelectedPackagingOptionId] = useState<
     string | null
-  >(null);
+  >(state.hazProPreparerContext.packaging?.selectedPackagingOptionId || null);
   const [selectedCategoryType, setSelectedCategoryType] = useState<
     string | null
   >(null);
@@ -253,6 +255,14 @@ const PackagingWizardV2 = ({ navigation }: PackagingWizardV2Props) => {
 
   const packingGroupChoices: string[] = allowablePackingGroups();
 
+  const selectedPackagingSelection = useMemo(
+    () =>
+      getPackagingTypeSelectionFromContext(
+        state.hazProPreparerContext.packaging?.packagingType
+      ),
+    [state.hazProPreparerContext.packaging?.packagingType]
+  );
+
   // Get available packaging options
   const availablePackagingOptions = useMemo<PackagingOption[]>(() => {
     if (!packagingData) return [];
@@ -311,19 +321,50 @@ const PackagingWizardV2 = ({ navigation }: PackagingWizardV2Props) => {
     );
   }, [packagingData, selectedPackagingOption]);
 
-  // Handler functions
-  const handleSelectPackagingType = (optionId: string): void => {
-    setSelectedPackagingOptionId(optionId);
-    setSelectedCategoryType(null);
-    setSelectedContainerCode(null);
-    setSelectedContainerIndex(null);
-
-    // Update store
-    const option = availablePackagingOptions.find(opt => opt.id === optionId);
-    if (store.hazProPreparerContext.packaging && option) {
-      store.hazProPreparerContext.packaging.packagingType = option.type as any;
+  // Ensure packaging option/type are hydrated from QuantityEntry packaging selection.
+  useEffect(() => {
+    if (!packagingParagraphId || !selectedPackagingSelection) {
+      return;
     }
-  };
+
+    const resolvedSelection = resolvePackagingOptionForSelection({
+      packagingParagraph: packagingParagraphId,
+      selection: selectedPackagingSelection,
+      hasA2Restriction: isSinglePackagingProhibited(
+        state.hazProPreparerContext.specialProvisionsMap
+      ),
+      unIdNo: state.hazProPreparerContext.hazardousMaterial?.unid,
+      properShippingName:
+        state.hazProPreparerContext.hazardousMaterial?.properShippingName,
+      existingOptionId:
+        selectedPackagingOptionId ||
+        state.hazProPreparerContext.packaging?.selectedPackagingOptionId ||
+        null,
+    });
+
+    if (!resolvedSelection.optionId || !resolvedSelection.optionType) {
+      return;
+    }
+
+    if (selectedPackagingOptionId !== resolvedSelection.optionId) {
+      setSelectedPackagingOptionId(resolvedSelection.optionId);
+    }
+
+    if (store.hazProPreparerContext.packaging) {
+      store.hazProPreparerContext.packaging.selectedPackagingOptionId =
+        resolvedSelection.optionId;
+      store.hazProPreparerContext.packaging.packagingType =
+        resolvedSelection.optionType as any;
+    }
+  }, [
+    packagingParagraphId,
+    selectedPackagingOptionId,
+    selectedPackagingSelection,
+    state.hazProPreparerContext.hazardousMaterial?.properShippingName,
+    state.hazProPreparerContext.hazardousMaterial?.unid,
+    state.hazProPreparerContext.packaging?.selectedPackagingOptionId,
+    state.hazProPreparerContext.specialProvisionsMap,
+  ]);
 
   const handleSelectCategory = (categoryType: string): void => {
     setSelectedCategoryType(categoryType);
@@ -380,8 +421,6 @@ const PackagingWizardV2 = ({ navigation }: PackagingWizardV2Props) => {
 
   const canContinue = (): boolean => {
     switch (step) {
-      case 0:
-        return selectedPackagingOptionId !== null;
       case 1:
         return selectedCategoryType !== null;
       case 2:
@@ -416,7 +455,7 @@ const PackagingWizardV2 = ({ navigation }: PackagingWizardV2Props) => {
   };
 
   const handleBack = (): void => {
-    if (step > 0) {
+    if (step > 1) {
       const prevStep = step - 1;
       setStep(prevStep);
       store.hazProPreparerContext.packagingWizardStep = prevStep;
@@ -441,8 +480,12 @@ const PackagingWizardV2 = ({ navigation }: PackagingWizardV2Props) => {
 
   useEffect(() => {
     const savedStep = state.hazProPreparerContext.packagingWizardStep;
-    if (typeof savedStep === "number" && savedStep >= 0 && savedStep <= 2) {
+    if (savedStep === 2 || savedStep === 1) {
       setStep(savedStep);
+      return;
+    }
+    if (savedStep === 0) {
+      setStep(1);
     }
   }, []);
 
@@ -503,44 +546,20 @@ const PackagingWizardV2 = ({ navigation }: PackagingWizardV2Props) => {
 
     return (
       <View style={styles.stepContent}>
-        {/* STEP 0: Select Packaging Type */}
-        {step === 0 && (
-          <View style={styles.stepContainer}>
-            <Text style={styles.stepTitle}>Select Packaging Type</Text>
-            <Text style={styles.stepDescription}>
-              {packagingData.description}
+        {!selectedPackagingOption && (
+          <View style={styles.errorContainer}>
+            <Icon name="error" size={48} color={theme.colors.danger} />
+            <Text style={styles.errorText}>
+              No packaging option was resolved from the Quantity Entry selection.
             </Text>
-
-            {availablePackagingOptions.map((option: PackagingOption) => {
-              const isSinglePackaging = option.type === "single";
-              const singlePackagingProhibited = isSinglePackagingProhibited(
-                state.hazProPreparerContext.specialProvisionsMap
-              );
-              const isDisabled = isSinglePackaging && singlePackagingProhibited;
-              const disabledReason = isDisabled
-                ? state.hazProPreparerContext.specialProvisionsMap?.["A2"]
-                : undefined;
-
-              return (
-                <PackagingTypeCard
-                  key={option.id}
-                  type={option.type}
-                  label={getPackagingTypeLabel(option.type)}
-                  description={option.description}
-                  innerRequired={isInnerPackagingRequired(option)}
-                  noteCount={option.notes?.length || 0}
-                  selected={selectedPackagingOptionId === option.id}
-                  disabled={isDisabled}
-                  disabledReason={disabledReason}
-                  onPress={() => handleSelectPackagingType(option.id)}
-                />
-              );
-            })}
+            <Text style={styles.errorSubtext}>
+              Please go back and reselect the packaging type.
+            </Text>
           </View>
         )}
 
         {/* STEP 1: Select Container Category */}
-        {step === 1 && (
+        {step === 1 && selectedPackagingOption && (
           <View style={styles.stepContainer}>
             <View style={styles.stepTitleRow}>
               <Text style={styles.stepTitle}>Select Packaging Container</Text>
@@ -598,7 +617,7 @@ const PackagingWizardV2 = ({ navigation }: PackagingWizardV2Props) => {
         )}
 
         {/* STEP 2: Select Packaging Code */}
-        {step === 2 && (
+        {step === 2 && selectedPackagingOption && (
           <View style={styles.stepContainer}>
             <View style={styles.stepTitleRow}>
               <Text style={styles.stepTitle}>Select Packaging Code</Text>
@@ -701,7 +720,7 @@ const PackagingWizardV2 = ({ navigation }: PackagingWizardV2Props) => {
           </ScrollView>
 
           <NavigationFooter
-            canGoBack={step > 0}
+            canGoBack={step > 1 || !selectedPackagingOption}
             canContinue={canContinue()}
             isLastStep={step === 2}
             onBack={handleBack}

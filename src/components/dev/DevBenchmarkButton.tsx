@@ -27,6 +27,7 @@ import {
   clearAllPerformanceData,
 } from '@/utils/performanceUtils';
 import { useDatabase } from '@/contexts/DataProvider';
+import ShipmentDatabase from '@/services/shipment/ShipmentDatabase';
 
 interface DevBenchmarkButtonProps {
   position?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
@@ -208,7 +209,23 @@ export const DevBenchmarkButton: React.FC<DevBenchmarkButtonProps> = ({
                 }
               }}
             >
-              <Text style={styles.actionButtonText}>Reset Database</Text>
+              <Text style={styles.actionButtonText}>Reset Inspector DB</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.actionButton, styles.dangerButton]}
+              onPress={async () => {
+                try {
+                  setReport('Clearing preparer shipments...');
+                  await ShipmentDatabase.initialize();
+                  await ShipmentDatabase.clearDatabase();
+                  setReport('Preparer ShipmentDatabase cleared!');
+                } catch (err) {
+                  setReport(`Clear failed: ${err}`);
+                }
+              }}
+            >
+              <Text style={styles.actionButtonText}>Clear Preparer Shipments</Text>
             </TouchableOpacity>
 
             {error && (

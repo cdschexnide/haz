@@ -28,7 +28,9 @@ import {
 import PackagingTypeCard from '@/components/PackagingWizardV2/PackagingTypeCard';
 import {
   getAllowedPackagingTypes,
+  getPackagingTypeSelectionFromContext,
   PackagingTypeSelection,
+  resolvePackagingOptionForSelection,
 } from '@/utils/getAllowedPackagingTypes';
 import { evaluateAttachment19Eligibility } from '@/utils/eligibility/attachment19Eligibility';
 import { hasSpecialProvisionAlphaCode } from '@/utils/specialProvisions';
@@ -105,13 +107,6 @@ const parseNumber = (value: string): number | null => {
   return Number.isFinite(parsed) ? parsed : null;
 };
 
-const mapSelectionToContext = (selection: PackagingTypeSelection | '') => {
-  if (selection === 'single') return 'Single';
-  if (selection === 'combination') return 'Combination';
-  if (selection === 'composite') return 'Composite';
-  return '';
-};
-
 export const QuantityEntryScreen = ({ navigation }: { navigation: any }) => {
   const { state, store, actions, saveCurrentShipment } = useHazProStore();
   const material = state.hazProPreparerContext.hazardousMaterial;
@@ -124,10 +119,7 @@ export const QuantityEntryScreen = ({ navigation }: { navigation: any }) => {
 
   const existingPackagingType = state.hazProPreparerContext.packaging?.packagingType;
   const initialPackagingType = useMemo<PackagingTypeSelection | ''>(() => {
-    if (existingPackagingType === 'Single') return 'single';
-    if (existingPackagingType === 'Combination') return 'combination';
-    if (existingPackagingType === 'Composite') return 'composite';
-    return '';
+    return getPackagingTypeSelectionFromContext(existingPackagingType);
   }, [existingPackagingType]);
 
   const initialFormData = useMemo<QuantityFormData>(() => {
@@ -226,9 +218,43 @@ export const QuantityEntryScreen = ({ navigation }: { navigation: any }) => {
   useEffect(() => {
     if (!store.hazProPreparerContext.packaging) return;
 
+    if (!packagingType) {
+      store.hazProPreparerContext.packaging.packagingType = '';
+      store.hazProPreparerContext.packaging.selectedPackagingOptionId = undefined;
+      return;
+    }
+
+    const resolvedSelection = resolvePackagingOptionForSelection({
+      packagingParagraph: material?.packagingParagraph || '',
+      selection: packagingType,
+      hasA2Restriction,
+      unIdNo: material?.unid,
+      properShippingName: material?.properShippingName,
+      existingOptionId:
+        store.hazProPreparerContext.packaging.selectedPackagingOptionId || null,
+    });
+
+    if (resolvedSelection.optionType) {
+      // Keep concrete option type in context to match POP code validation behavior.
+      store.hazProPreparerContext.packaging.packagingType =
+        resolvedSelection.optionType as any;
+      store.hazProPreparerContext.packaging.selectedPackagingOptionId =
+        resolvedSelection.optionId || undefined;
+      return;
+    }
+
+    // Fallback to legacy label format if packaging database resolution is unavailable.
     store.hazProPreparerContext.packaging.packagingType =
-      mapSelectionToContext(packagingType) as any;
-  }, [packagingType, store.hazProPreparerContext.packaging]);
+      PACKAGING_TYPE_LABELS[packagingType] as any;
+    store.hazProPreparerContext.packaging.selectedPackagingOptionId = undefined;
+  }, [
+    hasA2Restriction,
+    material?.packagingParagraph,
+    material?.properShippingName,
+    material?.unid,
+    packagingType,
+    store.hazProPreparerContext.packaging,
+  ]);
 
   useEffect(() => {
     if (!store.hazProPreparerContext.packaging) return;
@@ -285,6 +311,7 @@ export const QuantityEntryScreen = ({ navigation }: { navigation: any }) => {
         }
       }
     }
+
   }, [
     formData.numberOfInnerPackages,
     formData.quantityPerInnerPackage,

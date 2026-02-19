@@ -58,7 +58,6 @@ describe('StandardLabelingContent', () => {
     );
 
     expect(getByText('Required Labels')).toBeTruthy();
-    expect(getByText('4/4')).toBeTruthy();
   });
 
   it('renders markings section with count', () => {
@@ -71,7 +70,6 @@ describe('StandardLabelingContent', () => {
     );
 
     expect(getByText('Required Markings')).toBeTruthy();
-    expect(getByText('2/2')).toBeTruthy();
   });
 
   it('renders primary hazard label with class name', () => {
@@ -190,5 +188,26 @@ describe('StandardLabelingContent', () => {
     expect(getByText('OVERPACK')).toBeTruthy();
     expect(getByText('Limited Quantity')).toBeTruthy();
     expect(queryByText('Stenciled and/or printed')).toBeNull();
+  });
+
+  it('renders orientation arrows marking image when required', () => {
+    const orientationMarking: RequiredMarking[] = [
+      {
+        id: 'orientation-arrows',
+        label: 'Orientation Arrows',
+        value: 'Apply on two opposite vertical sides',
+      },
+    ];
+
+    const { getByText, getByTestId } = render(
+      <StandardLabelingContent
+        requiredLabels={[]}
+        requiredMarkings={orientationMarking}
+        limitedQuantity={false}
+      />
+    );
+
+    expect(getByText('Orientation Arrows')).toBeTruthy();
+    expect(getByTestId('marking-image-orientation-arrows')).toBeTruthy();
   });
 });

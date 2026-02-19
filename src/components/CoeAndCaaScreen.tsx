@@ -89,14 +89,18 @@ const CoeAndCaaScreen = ({ navigation }: { navigation: any }) => {
       });
 
       if (scannedImages && scannedImages.length > 0) {
-        setCapturedImages(prev => [...prev, ...scannedImages]);
+        const newImages = [...capturedImages, ...scannedImages];
+        setCapturedImages(newImages);
 
-        if (scannedImages.length > 0) {
-          Alert.alert(
-            "Document Scanned",
-            "Document successfully scanned and cropped.",
-            [{ text: "OK" }]
-          );
+        Alert.alert(
+          "Document Scanned",
+          "Document successfully scanned and cropped.",
+          [{ text: "OK" }]
+        );
+
+        // Auto-save to store if name and agency are provided
+        if (documentName && agencyName) {
+          await autoSaveDocument(newImages);
         }
       }
     } catch (error) {
@@ -109,6 +113,93 @@ const CoeAndCaaScreen = ({ navigation }: { navigation: any }) => {
     } finally {
       setIsScanning(false);
       setIsCameraVisible(false);
+    }
+  };
+
+  const autoSaveDocument = async (images: string[]) => {
+    if (images.length === 0) return;
+
+    try {
+      const pagesHtml = await Promise.all(
+        images.map(async imgUri => {
+          const ext = imgUri.toLowerCase().endsWith(".png") ? "png" : "jpeg";
+          const base64 = await FileSystem.readAsStringAsync(imgUri, {
+            encoding: FileSystem.EncodingType.Base64,
+          });
+          return `
+            <div style="page-break-after:always;">
+              <img
+                src="data:image/${ext};base64,${base64}"
+                style="width:100%;height:auto;display:block;"
+              />
+            </div>`;
+        })
+      );
+
+      const htmlContent = `
+        <!DOCTYPE html>
+        <html>
+          <head><meta charset="utf-8" /></head>
+          <body style="margin:0;padding:0;">
+            ${pagesHtml.join("")}
+          </body>
+        </html>`;
+
+      const { uri: tmpPdf } = await Print.printToFileAsync({
+        html: htmlContent,
+      });
+
+      const fileName = `${documentType}_${Date.now()}.pdf`;
+      const newUri = FileSystem.documentDirectory + fileName;
+      await FileSystem.copyAsync({ from: tmpPdf, to: newUri });
+
+      const base64Pdf = await FileSystem.readAsStringAsync(newUri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      const id = Date.now().toString();
+      const prev = state.hazProPreparerContext.coeAndCaaDocuments ?? {
+        coeDocuments: [],
+        caaDocuments: [],
+      };
+
+      if (documentType === "COE") {
+        store.hazProPreparerContext.coeAndCaaDocuments = {
+          coeDocuments: [
+            ...prev.coeDocuments,
+            {
+              id,
+              documentType: "COE",
+              uri: newUri,
+              base64Data: base64Pdf,
+              name: documentName,
+              agency: agencyName,
+              dateAdded: new Date().toISOString(),
+            },
+          ],
+          caaDocuments: [...prev.caaDocuments],
+        };
+      } else {
+        store.hazProPreparerContext.coeAndCaaDocuments = {
+          coeDocuments: [...prev.coeDocuments],
+          caaDocuments: [
+            ...prev.caaDocuments,
+            {
+              id,
+              documentType: "CAA",
+              uri: newUri,
+              base64Data: base64Pdf,
+              name: documentName,
+              agency: agencyName,
+              dateAdded: new Date().toISOString(),
+            },
+          ],
+        };
+      }
+
+      setCapturedImages([]);
+    } catch (err) {
+      console.error("Auto-save document failed:", err);
     }
   };
 

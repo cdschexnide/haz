@@ -125,7 +125,7 @@ export function WorkflowChevron({
       alignSelf: "center",
       color: colors.black,
       fontSize: 34,
-      top: 12,
+      top: 18,
     },
   });
 
@@ -300,7 +300,7 @@ export function WorkflowChevron({
             {percentCompleteProp !== 0 && percentCompletePolygon}
             <Text
               x={width / 2}
-              y={67}
+              y={74}
               fontSize="12"
               textAnchor="middle"
               fontWeight="bold"
@@ -330,7 +330,7 @@ export function WorkflowChevron({
             </Text>
             <Text
               x={width / 2}
-              y={icon ? 65 : 28}
+              y={icon ? 72 : 28}
               fontSize="15"
               textAnchor="middle"
               fontWeight="bold"

@@ -1,8 +1,9 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useInspectionForm } from "@/contexts/InspectionFormProvider";
+import { useHazProActions } from "@/stores/useHazProStore";
 import type { SpecialAuthorizationType } from "@/utils/afmanPackagingParagraphs";
 import {
   ActionFooter,
@@ -32,15 +33,18 @@ const WaiverAttestationScreen = ({
 }: WaiverAttestationScreenProps) => {
   const {
     inspection,
-    finalizeInspection,
+    setSpecialAuthorizationData,
   } = useInspectionForm();
+  const actions = useHazProActions();
+
+  useEffect(() => {
+    actions.setCurrentChevron("sddg");
+  }, [actions]);
 
   const authorizationType = route?.params?.authorizationType || null;
   const key17Value = route?.params?.key17Value || "";
 
   const [isAttested, setIsAttested] = useState(false);
-  const [isCompleting, setIsCompleting] = useState(false);
-
   const documents = useMemo(() => {
     if (authorizationType === "COE") {
       return inspection.coeAndCaaDocuments?.coeDocuments || [];
@@ -59,7 +63,45 @@ const WaiverAttestationScreen = ({
     inspection.dotSpWaivers,
   ]);
 
-  const handleComplete = async () => {
+  const resolvedReference = useMemo(() => {
+    const fromKey17 = key17Value.trim();
+    if (fromKey17) return fromKey17;
+
+    const existing = (inspection.specialAuthorizationReference || "").trim();
+    if (existing) return existing;
+
+    if (authorizationType === "COE") {
+      return (
+        inspection.coeAndCaaDocuments?.coeDocuments?.[
+          (inspection.coeAndCaaDocuments?.coeDocuments?.length || 1) - 1
+        ]?.name || ""
+      ).trim();
+    }
+    if (authorizationType === "CAA") {
+      return (
+        inspection.coeAndCaaDocuments?.caaDocuments?.[
+          (inspection.coeAndCaaDocuments?.caaDocuments?.length || 1) - 1
+        ]?.name || ""
+      ).trim();
+    }
+    if (authorizationType === "DOT-SP") {
+      return (
+        inspection.dotSpWaivers?.[(inspection.dotSpWaivers?.length || 1) - 1]
+          ?.waiverNumber || ""
+      ).trim();
+    }
+
+    return "";
+  }, [
+    authorizationType,
+    key17Value,
+    inspection.specialAuthorizationReference,
+    inspection.coeAndCaaDocuments?.coeDocuments,
+    inspection.coeAndCaaDocuments?.caaDocuments,
+    inspection.dotSpWaivers,
+  ]);
+
+  const handleContinueToForm1015 = () => {
     if (!authorizationType) {
       Alert.alert("Error", "Authorization type is missing.");
       return;
@@ -81,43 +123,21 @@ const WaiverAttestationScreen = ({
       return;
     }
 
-    try {
-      setIsCompleting(true);
-      const result = await finalizeInspection({
-        specialAuthorizationType: authorizationType,
-        specialAuthorizationReference: key17Value,
-        specialAuthorizationAttested: true,
-        quantityType: "standard",
-        exceptedQuantityData: null,
-        limitedQuantityData: null,
-        packagePackagingType: null,
-      });
-      if (!result.success) {
-        Alert.alert(
-          "Unable to Complete Inspection",
-          result.error || "Failed to complete and save inspection."
-        );
-        return;
-      }
-
-      if (navigation?.reset) {
-        navigation.reset({
-          index: 0,
-          routes: [{ name: "InspectorHomeStack", params: { screen: "InspectorHome" } }],
-        });
-      } else {
-        navigation.navigate("InspectorHomeStack", {
-          screen: "InspectorHome",
-        });
-      }
-    } catch (_error) {
+    if (!resolvedReference) {
       Alert.alert(
-        "Unable to Complete Inspection",
-        "An unexpected error occurred while completing this inspection."
+        "Reference Required",
+        "No authorization reference was found. Return to upload/review and confirm Key 17 value."
       );
-    } finally {
-      setIsCompleting(false);
+      return;
     }
+
+    setSpecialAuthorizationData({
+      type: authorizationType,
+      referenceNumber: resolvedReference,
+      attested: true,
+    });
+
+    navigation.navigate("InspectorAMC1015Form");
   };
 
   return (
@@ -135,6 +155,7 @@ const WaiverAttestationScreen = ({
           fields={[
             { label: "Authorization", value: authorizationType || "—" },
             { label: "Key 17 Value", value: key17Value || "—" },
+            { label: "Reference", value: resolvedReference || "—" },
             {
               label: "Documents",
               value: `${documents.length} uploaded`,
@@ -194,15 +215,13 @@ const WaiverAttestationScreen = ({
             icon: "arrow-back",
           },
           {
-            label: "Complete Inspection",
-            onPress: handleComplete,
-            icon: "check",
+            label: "Continue to Form 1015",
+            onPress: handleContinueToForm1015,
+            icon: "arrow-forward",
             disabled:
               !isAttested ||
               !authorizationType ||
-              documents.length === 0 ||
-              isCompleting,
-            loading: isCompleting,
+              documents.length === 0,
           },
         ]}
       />

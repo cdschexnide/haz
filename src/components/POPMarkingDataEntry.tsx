@@ -4,12 +4,9 @@ import { useHazProStore } from "@/stores/useHazProStore";
 import colors from "@/theming/colors";
 import { PhysicalState } from "../../types";
 import { validatePackagingCodeV2 } from "@/utils/packagingWizardV2Helpers";
-import { Picker } from "@react-native-picker/picker";
 import React, { useCallback, useEffect, useState } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import {
-  Alert,
-  Dimensions,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -25,13 +22,8 @@ import { TextInput as PaperInput } from "react-native-paper";
 import LiquidPopMarking from "./LiquidPopMarking";
 import SolidPopMarking from "./SolidPopMarking";
 
-const { width } = Dimensions.get("window");
-const screenWidth = width;
-
 const PackingContainerDataEntry = ({ navigation }: { navigation: any }) => {
   const { state, store, saveCurrentShipment } = useHazProStore();
-  const [quantityExceedsLimit, setQuantityExceedsLimit] =
-    useState<boolean>(false);
   const [isOverpack, setIsOverpack] = useState<boolean>(false);
   const [hasSelectedCountry, setHasSelectedCountry] = useState<boolean>(false);
   const [packagingCodeError, setPackagingCodeError] = useState<string | null>(
@@ -40,17 +32,6 @@ const PackingContainerDataEntry = ({ navigation }: { navigation: any }) => {
   const [yearError, setYearError] = useState<string | null>(null);
   const physicalState =
     state.hazProPreparerContext.hazardousMaterial?.physicalState;
-  const packagingType = state.hazProPreparerContext.packaging?.packagingType;
-  const showQuantityInput = packagingType?.toLowerCase() === "single";
-  console.log("packagingType: ", packagingType);
-  const [unit, setUnit] = useState<"liters" | "gallons" | "kg" | "lbs">(
-    physicalState === PhysicalState.SOLID ? "kg" : "liters"
-  );
-  const [quantity, setQuantity] = useState<string>(
-    state.hazProPreparerContext.packaging?.totalNetMass?.kg !== 0
-      ? String(state.hazProPreparerContext.packaging?.totalNetMass?.kg)
-      : ""
-  );
   const [fields, setFields] = useState({
     B: state.hazProPreparerContext.packaging?.inputPOPMarking?.B || "",
     C: state.hazProPreparerContext.packaging?.inputPOPMarking?.C || "",
@@ -76,22 +57,12 @@ const PackingContainerDataEntry = ({ navigation }: { navigation: any }) => {
         store.hazProPreparerContext.overpack = false;
       }
 
-      // Reset quantity data
-      if (store.hazProPreparerContext.packaging.totalNetMass) {
-        store.hazProPreparerContext.packaging.totalNetMass.kg = 0;
-        store.hazProPreparerContext.packaging.totalNetMass.lbs = 0;
-      }
-      if (store.hazProPreparerContext.packaging.totalNetVolume) {
-        store.hazProPreparerContext.packaging.totalNetVolume.liters = 0;
-        store.hazProPreparerContext.packaging.totalNetVolume.gallons = 0;
-      }
-
       // Reset validation state
       store.hazProPreparerContext.packaging.popIsValid = false;
     }
 
     // Reset packaging method
-    store.hazProPreparerContext.packagingMethod = null;
+    store.hazProPreparerContext.packagingMethod = undefined;
   };
 
   // Handle Android back button - listen for navigation events
@@ -113,28 +84,6 @@ const PackingContainerDataEntry = ({ navigation }: { navigation: any }) => {
   );
 
   useEffect(() => {
-    if (!quantity || !fields.D || physicalState !== PhysicalState.SOLID) return;
-
-    const maxAllowed = parseFloat(fields.D);
-    const enteredQty = parseFloat(quantity);
-
-    if (isNaN(maxAllowed) || isNaN(enteredQty)) return;
-
-    if (enteredQty > maxAllowed) {
-      if (!quantityExceedsLimit) {
-        setQuantityExceedsLimit(true);
-        Alert.alert(
-          "Quantity Exceeds Limit",
-          `The entered quantity (${enteredQty}) exceeds the maximum gross mass (${maxAllowed} kg) specified in Field D.`,
-          [{ text: "OK" }]
-        );
-      }
-    } else {
-      setQuantityExceedsLimit(false);
-    }
-  }, [quantity, fields.D, physicalState]);
-
-  useEffect(() => {
     if (state.hazProPreparerContext.packaging?.inputPOPMarking?.G !== "") {
       setHasSelectedCountry(true);
     }
@@ -153,14 +102,9 @@ const PackingContainerDataEntry = ({ navigation }: { navigation: any }) => {
   }, [
     state.hazProPreparerContext.hazardousMaterial?.hazclassDiv,
     state.hazProPreparerContext.hazardousMaterial?.packingGroup,
-    state.hazProPreparerContext.lookupFunctionsOutput?.packagingParagraph,
+    state.hazProPreparerContext.hazardousMaterial?.packagingParagraph,
     fields.C,
   ]);
-
-  const literToGallon = (liters: number) => liters * 0.264172;
-  const gallonToLiter = (gallons: number) => gallons / 0.264172;
-  const kgToLbs = (kg: number) => kg * 2.20462;
-  const lbsToKg = (lbs: number) => lbs / 2.20462;
 
   const hazardClass4ParagraphsWithNoPackingGroup = ["A8.6.", "A8.7.", "A8.8."];
   const packagingParagraphValuesThatRequirePGIPackaging = ["A12.9.", "A12.11."];
@@ -217,6 +161,28 @@ const PackingContainerDataEntry = ({ navigation }: { navigation: any }) => {
 
   const completedSubsteps = state.hazProPreparerContext.completedSubsteps;
 
+  const normalizePackagingType = (type?: string | null): string =>
+    (type || "")
+      .toString()
+      .trim()
+      .toLowerCase()
+      .replace(/[\s_-]/g, "");
+
+  const isSinglePackagingType = (type?: string | null): boolean =>
+    normalizePackagingType(type) === "single";
+
+  const requiresInnerPackagingSelection = (type?: string | null): boolean => {
+    const normalized = normalizePackagingType(type);
+    return [
+      "combination",
+      "composite",
+      "compositeplastic",
+      "compositeglass",
+      "compositepackagingwithplasticinnerreceptacles",
+      "compositepackagingwithglassporcelainorstonewareinnerreceptacles",
+    ].includes(normalized);
+  };
+
   const updateField = (key: keyof typeof fields, value: string) => {
     setFields(prev => ({ ...prev, [key]: value }));
   };
@@ -255,9 +221,17 @@ const PackingContainerDataEntry = ({ navigation }: { navigation: any }) => {
       }
       if (result.packagingMethod) {
         store.hazProPreparerContext.packagingMethod = result.packagingMethod;
-        // If user came via scan, also set the packaging type based on validation result
-        if (entryMethod === 'scan' && store.hazProPreparerContext.packaging) {
-          store.hazProPreparerContext.packaging.packagingType = result.packagingMethod as any;
+        if (store.hazProPreparerContext.packaging) {
+          if (result.matchedPackagingOptionId) {
+            store.hazProPreparerContext.packaging.selectedPackagingOptionId =
+              result.matchedPackagingOptionId;
+          }
+
+          // Preserve scan behavior by normalizing type from validated POP code.
+          if (entryMethod === "scan") {
+            store.hazProPreparerContext.packaging.packagingType =
+              result.packagingMethod as any;
+          }
         }
       }
     }
@@ -607,123 +581,6 @@ const PackingContainerDataEntry = ({ navigation }: { navigation: any }) => {
             </View>
           </View>
         </View>
-
-        {showQuantityInput && (
-          <View style={styles.quantitySection}>
-            <Text style={styles.sectionLabel}>
-              Enter Quantity of Hazardous Material
-            </Text>
-            <View style={styles.quantityRowAligned}>
-              <View style={styles.quantityInputContainer}>
-                <TextInput
-                  style={[
-                    styles.input,
-                    quantityExceedsLimit && styles.inputError,
-                  ]}
-                  keyboardType="numeric"
-                  placeholder="Quantity"
-                  value={quantity}
-                  onChangeText={text => {
-                    const val = text.replace(/[^\d.]/g, "");
-                    setQuantity(val);
-                    const numVal = parseFloat(val);
-                    if (physicalState === PhysicalState.LIQUID) {
-                      if (unit === "liters") {
-                        if (
-                          store.hazProPreparerContext.packaging?.totalNetVolume
-                        ) {
-                          store.hazProPreparerContext.packaging.totalNetVolume.liters =
-                            numVal;
-                          store.hazProPreparerContext.packaging.totalNetVolume.gallons =
-                            literToGallon(numVal);
-                        }
-                      } else {
-                        if (
-                          store.hazProPreparerContext.packaging?.totalNetVolume
-                        ) {
-                          store.hazProPreparerContext.packaging.totalNetVolume.gallons =
-                            numVal;
-                          store.hazProPreparerContext.packaging.totalNetVolume.liters =
-                            gallonToLiter(numVal);
-                        }
-                      }
-                    } else if (physicalState === PhysicalState.SOLID) {
-                      if (unit === "kg") {
-                        if (
-                          store.hazProPreparerContext.packaging?.totalNetMass
-                        ) {
-                          store.hazProPreparerContext.packaging.totalNetMass.kg =
-                            numVal;
-                          store.hazProPreparerContext.packaging.totalNetMass.lbs =
-                            kgToLbs(numVal);
-                        }
-                      } else {
-                        if (
-                          store.hazProPreparerContext.packaging?.totalNetMass
-                        ) {
-                          store.hazProPreparerContext.packaging.totalNetMass.lbs =
-                            numVal;
-                          store.hazProPreparerContext.packaging.totalNetMass.kg =
-                            lbsToKg(numVal);
-                        }
-                      }
-                    }
-                  }}
-                />
-                <Text style={styles.explanation}>
-                  Enter the quantity of the material
-                </Text>
-                {quantityExceedsLimit && (
-                  <Text style={styles.warningText}>
-                    Quantity exceeds the maximum gross mass in Field D.
-                  </Text>
-                )}
-              </View>
-
-              <View style={styles.unitContainer}>
-                <View style={styles.pickerWrapper}>
-                  <Picker
-                    selectedValue={unit}
-                    onValueChange={selected => {
-                      setUnit(selected);
-                      setQuantity("");
-                    }}
-                    style={styles.picker}
-                    dropdownIconColor="#000"
-                    itemStyle={{ color: "#000" }}
-                  >
-                    {physicalState === PhysicalState.SOLID
-                      ? [
-                          <Picker.Item
-                            key="kg"
-                            label="Kilograms (kg)"
-                            value="kg"
-                          />,
-                          <Picker.Item
-                            key="lbs"
-                            label="Pounds (lbs)"
-                            value="lbs"
-                          />,
-                        ]
-                      : [
-                          <Picker.Item
-                            key="liters"
-                            label="Liters"
-                            value="liters"
-                          />,
-                          <Picker.Item
-                            key="gallons"
-                            label="Gallons"
-                            value="gallons"
-                          />,
-                        ]}
-                  </Picker>
-                </View>
-                <Text style={styles.explanation}>Selected unit of measure</Text>
-              </View>
-            </View>
-          </View>
-        )}
       </ScrollView>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
@@ -831,19 +688,25 @@ const PackingContainerDataEntry = ({ navigation }: { navigation: any }) => {
                 );
               }
 
-              // Use validationResult.packagingMethod for navigation decision when coming from scan
-              const effectivePackagingType = entryMethod === 'scan'
-                ? validationResult.packagingMethod
-                : state.hazProPreparerContext.packaging?.packagingType;
+              if (
+                store.hazProPreparerContext.packaging &&
+                validationResult.matchedPackagingOptionId
+              ) {
+                store.hazProPreparerContext.packaging.selectedPackagingOptionId =
+                  validationResult.matchedPackagingOptionId;
+              }
+
+              // Prefer validated method so all flows (scan/manual/walkthrough)
+              // use the same canonical packaging-type routing.
+              const effectivePackagingType =
+                validationResult.packagingMethod ||
+                state.hazProPreparerContext.packaging?.packagingType;
 
               console.log(
                 "effectivePackagingType: ",
                 effectivePackagingType
               );
-              if (
-                effectivePackagingType?.toLowerCase() ===
-                "single"
-              ) {
+              if (isSinglePackagingType(effectivePackagingType)) {
                 console.log(
                   "IF BLOCK -> effectivePackagingType === 'Single'"
                 );
@@ -855,16 +718,7 @@ const PackingContainerDataEntry = ({ navigation }: { navigation: any }) => {
                   "navigating ==> navigation.navigate('LabelingAndMarking')"
                 );
                 navigation.navigate("LabelingAndMarking");
-              } else if (
-                effectivePackagingType?.toLowerCase() ===
-                  "combination" ||
-                effectivePackagingType?.toLowerCase() ===
-                  "compositepackagingwithplasticinnerreceptacles" ||
-                effectivePackagingType?.toLowerCase() ===
-                  "compositepackagingwithglassporcelainorstonewareinnerreceptacles" ||
-                effectivePackagingType?.toLowerCase() ===
-                  "composite"
-              ) {
+              } else if (requiresInnerPackagingSelection(effectivePackagingType)) {
                 console.log(
                   "IF BLOCK -> effectivePackagingType === Combination/Composite/etc (anything other than Single)"
                 );
@@ -876,6 +730,12 @@ const PackingContainerDataEntry = ({ navigation }: { navigation: any }) => {
                   "navigating ==> navigation.navigate('InnerPackagingWizard')"
                 );
                 navigation.navigate("InnerPackagingWizard");
+              } else {
+                store.hazProPreparerContext.completedSubsteps = [
+                  ...completedSubsteps,
+                  "POPMarkingDataEntry",
+                ];
+                navigation.navigate("LabelingAndMarking");
               }
             }
           }}
@@ -971,12 +831,6 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 12,
   },
-  quantitySection: {
-    borderWidth: 1,
-    borderColor: "#dee2e6",
-    padding: 12,
-    marginBottom: 12,
-  },
   popRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -1040,40 +894,6 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     fontSize: 13,
     color: "#495057",
-  },
-  pickerWrapper: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    overflow: "hidden",
-    backgroundColor: "#fafafa",
-    height: 55,
-  },
-  picker: {
-    height: 55,
-    color: "#000",
-  },
-  sectionLabel: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 8,
-    color: "#212529",
-  },
-  warningText: {
-    color: "#dc3545",
-    fontSize: 13,
-    marginTop: 2,
-  },
-  quantityRowAligned: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-  },
-  quantityInputContainer: {
-    flex: 1,
-    marginRight: 8,
-  },
-  unitContainer: {
-    flex: 1,
-    marginLeft: 8,
   },
   buttonGroupContainer: {
     marginTop: 0,

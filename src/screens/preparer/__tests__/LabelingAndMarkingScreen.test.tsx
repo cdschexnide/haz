@@ -100,9 +100,9 @@ jest.mock('@/components/preparer', () => {
         React.createElement(Text, null, `Markings: ${requiredMarkings.length}`),
         limitedQuantity && React.createElement(Text, { testID: 'limited-qty-notice' }, 'Limited Quantity')
       ),
-    UnityPackagePreview: () =>
+    UnityPackagePreview: ({ unavailableMessage }: any) =>
       React.createElement(View, { testID: 'unity-preview' },
-        React.createElement(Text, null, 'Unity Preview')
+        React.createElement(Text, null, unavailableMessage || 'Unity Preview')
       ),
   };
 });
@@ -238,15 +238,36 @@ describe('LabelingAndMarkingScreen', () => {
       };
     });
 
-    it('renders vehicle labeling notice for UN3166', async () => {
-      const { getByTestId, queryByTestId } = render(
+    it('renders vehicle notice and shows unavailable 3D preview message for UN3166', async () => {
+      const { getByTestId, queryByTestId, getByText } = render(
         <LabelingAndMarkingScreen navigation={mockNavigation as any} />
       );
 
       await waitFor(() => {
         expect(getByTestId('vehicle-notice')).toBeTruthy();
-        expect(getByTestId('unity-preview')).toBeTruthy();
+        expect(queryByTestId('unity-preview')).toBeTruthy();
+        expect(getByText('3D package preview not available for this material.')).toBeTruthy();
         expect(queryByTestId('standard-content')).toBeNull();
+      });
+    });
+  });
+
+  describe('No-POP Specialty Materials', () => {
+    beforeEach(() => {
+      mockStateOverrides = {
+        hazardousMaterial: { unid: 'UN1845' },
+      };
+    });
+
+    it('shows unavailable 3D preview message for non-vehicle specialty no-POP materials', async () => {
+      const { getByTestId, queryByTestId, getByText } = render(
+        <LabelingAndMarkingScreen navigation={mockNavigation as any} />
+      );
+
+      await waitFor(() => {
+        expect(getByTestId('standard-content')).toBeTruthy();
+        expect(queryByTestId('unity-preview')).toBeTruthy();
+        expect(getByText('3D package preview not available for this material.')).toBeTruthy();
       });
     });
   });

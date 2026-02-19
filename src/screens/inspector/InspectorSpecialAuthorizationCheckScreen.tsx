@@ -1,8 +1,9 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Alert, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useInspectionForm } from "@/contexts/InspectionFormProvider";
+import { useHazProActions } from "@/stores/useHazProStore";
 import {
   ActionFooter,
   ScreenHeader,
@@ -22,6 +23,11 @@ const InspectorSpecialAuthorizationCheckScreen = ({
   route,
 }: InspectorSpecialAuthorizationCheckScreenProps) => {
   const { inspection, addFrustration, completeSDDGSubstep, setCurrentSDDGStep } = useInspectionForm();
+  const actions = useHazProActions();
+
+  useEffect(() => {
+    actions.setCurrentChevron("sddg");
+  }, [actions]);
 
   const packingInstruction = useMemo(
     () =>
@@ -33,6 +39,45 @@ const InspectorSpecialAuthorizationCheckScreen = ({
 
   const [selection, setSelection] = useState<"yes" | "no" | "">("");
 
+  const preloadedAuthorization = useMemo(() => {
+    const coeCount = inspection.coeAndCaaDocuments?.coeDocuments?.length || 0;
+    const caaCount = inspection.coeAndCaaDocuments?.caaDocuments?.length || 0;
+    const dotSpCount = inspection.dotSpWaivers?.length || 0;
+
+    const countByType: Record<"COE" | "CAA" | "DOT-SP", number> = {
+      COE: coeCount,
+      CAA: caaCount,
+      "DOT-SP": dotSpCount,
+    };
+
+    const currentType = inspection.specialAuthorizationType;
+    if (currentType && countByType[currentType] > 0) {
+      return { type: currentType, documentCount: countByType[currentType] };
+    }
+
+    const populated = (Object.entries(countByType) as Array<[
+      "COE" | "CAA" | "DOT-SP",
+      number
+    ]>).filter(([, count]) => count > 0);
+
+    if (populated.length === 1) {
+      const [type, documentCount] = populated[0];
+      return { type, documentCount };
+    }
+
+    if (packingInstruction.toUpperCase().includes("DOT-SP") && dotSpCount > 0) {
+      return { type: "DOT-SP" as const, documentCount: dotSpCount };
+    }
+
+    return null;
+  }, [
+    inspection.coeAndCaaDocuments?.coeDocuments,
+    inspection.coeAndCaaDocuments?.caaDocuments,
+    inspection.dotSpWaivers,
+    inspection.specialAuthorizationType,
+    packingInstruction,
+  ]);
+
   const handleContinue = () => {
     if (!selection) {
       Alert.alert(
@@ -43,6 +88,14 @@ const InspectorSpecialAuthorizationCheckScreen = ({
     }
 
     if (selection === "yes") {
+      if (preloadedAuthorization) {
+        navigation.navigate("WaiverAttestationScreen", {
+          authorizationType: preloadedAuthorization.type,
+          key17Value: packingInstruction.trim(),
+        });
+        return;
+      }
+
       navigation.navigate("WaiverUploadScreen", {
         key17Value: packingInstruction.trim(),
       });
@@ -87,6 +140,15 @@ const InspectorSpecialAuthorizationCheckScreen = ({
         </View>
 
         <Text style={styles.questionText}>What applies to this shipment?</Text>
+
+        {preloadedAuthorization ? (
+          <Text style={styles.preloadedHint}>
+            Found {preloadedAuthorization.documentCount} preloaded{" "}
+            {preloadedAuthorization.type} document
+            {preloadedAuthorization.documentCount === 1 ? "" : "s"} from the
+            matched Preparer shipment.
+          </Text>
+        ) : null}
 
         <SelectableCard
           title="Uses special authorization"
@@ -182,6 +244,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     color: colors.textPrimary,
+  },
+  preloadedHint: {
+    fontSize: 13,
+    color: colors.textSecondary,
+    marginTop: -spacing.sm,
   },
 });
 

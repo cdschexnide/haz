@@ -19,6 +19,7 @@ import DocumentScanner, {
   ResponseType,
 } from "react-native-document-scanner-plugin";
 import { useInspectionForm } from "@/contexts/InspectionFormProvider";
+import { useHazProActions } from "@/stores/useHazProStore";
 import type { SpecialAuthorizationType } from "@/utils/afmanPackagingParagraphs";
 import {
   ActionFooter,
@@ -52,6 +53,7 @@ const WaiverUploadScreen = ({ navigation, route }: WaiverUploadScreenProps) => {
     removeDotSpWaiver,
     pruneAuthorizationDocumentsByType,
   } = useInspectionForm();
+  const actions = useHazProActions();
 
   const key17Value = route?.params?.key17Value || "";
 
@@ -72,6 +74,10 @@ const WaiverUploadScreen = ({ navigation, route }: WaiverUploadScreenProps) => {
       setCameraPermission(false);
     }
   }, []);
+
+  useEffect(() => {
+    actions.setCurrentChevron("sddg");
+  }, [actions]);
 
   useEffect(() => {
     checkCameraPermission();

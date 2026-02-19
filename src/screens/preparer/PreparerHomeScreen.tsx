@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
+import { DevBenchmarkButton } from '@/components/dev/DevBenchmarkButton';
 import { SavedShipment } from '@/contexts/HazProPreparerProvider/reducer';
 import { RootStackParamList } from '@/contexts/NavigationRefProvider/NavigationRefContext';
 import { useNavigationRef } from '@/contexts/NavigationRefProvider/useNavigationRef';
@@ -367,6 +368,8 @@ export const PreparerHomeScreen: React.FC<PreparerHomeScreenProps> = ({
         visible={compatibilityModalVisible}
         onClose={() => setCompatibilityModalVisible(false)}
       />
+
+      <DevBenchmarkButton position="bottom-right" />
     </>
   );
 };

@@ -118,12 +118,9 @@ const PackagingScreen = ({ navigation }: { navigation: any }) => {
     // Set entry method to walkthrough
     store.hazProPreparerContext.packagingEntryMethod = 'walkthrough';
 
-    // Reset PackagingWizardV2 state for fresh start
-    store.hazProPreparerContext.packagingWizardStep = 0;
+    // Reset PackagingWizardV2 step for fresh start (step 1 is now the first screen)
+    store.hazProPreparerContext.packagingWizardStep = 1;
     if (store.hazProPreparerContext.packaging) {
-      store.hazProPreparerContext.packaging.packagingType = undefined;
-      store.hazProPreparerContext.packaging.selectedPackagingOptionId =
-        undefined;
       if (store.hazProPreparerContext.packaging.inputPOPMarking) {
         store.hazProPreparerContext.packaging.inputPOPMarking.B = null;
       }

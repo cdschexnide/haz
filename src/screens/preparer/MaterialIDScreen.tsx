@@ -93,6 +93,7 @@ const MaterialIDScreen = ({ navigation }: { navigation: any }) => {
 
   const handleSearchInputChange = (text: string) => {
     setSearchQuery(text);
+    setSelectedMaterial(null);
     if (text.length === 0) {
       setShowTable(false);
     } else if (text.length >= 4) {
@@ -555,7 +556,9 @@ const MaterialIDScreen = ({ navigation }: { navigation: any }) => {
 
             <View style={styles.tableContainer}>
               <FlatList
-                data={filteredMaterials}
+                data={selectedMaterial ? filteredMaterials.filter(
+                  (m) => m.unid === selectedMaterial.unid && m.properShippingName === selectedMaterial.properShippingName
+                ) : filteredMaterials}
                 keyExtractor={(item: HazardousMaterialItem) =>
                   `${item.unid}-${item.properShippingName}-${item.details}`
                 }
@@ -632,7 +635,7 @@ const MaterialIDScreen = ({ navigation }: { navigation: any }) => {
           {isClassOne && (
             <View style={styles.explosiveInputsRow}>
               <View style={styles.packingGroupContainer}>
-                <Text style={styles.inputLabel}>Packing Group</Text>
+                <Text style={styles.inputLabel}>Select Packing Group</Text>
                 <Picker
                   selectedValue={selectedPackingGroup}
                   onValueChange={handlePackingGroupSelection}
@@ -894,7 +897,7 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.sm,
     flexGrow: 0,
     flexShrink: 0,
-    marginBottom: spacing.xxl,
+    marginBottom: spacing.sm,
   },
   tableHeader: {
     flexDirection: "row",

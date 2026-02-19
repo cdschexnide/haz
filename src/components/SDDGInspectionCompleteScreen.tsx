@@ -11,12 +11,6 @@ import { useDatabase } from "@/contexts/DataProvider";
 import { InspectorShipment } from "@/types/sddg";
 import { useHazProActions } from "@/stores/useHazProStore";
 import { DevBenchmarkButton } from "./dev/DevBenchmarkButton";
-import { evaluateAttachment19Eligibility } from "@/utils/eligibility/attachment19Eligibility";
-import { getKey16Quantities } from "@/utils/eligibility/getKey16Quantities";
-import { getPackagingTypeFromKey16 } from "@/utils/getPackagingTypeFromKey16";
-import { hazardousMaterialsList } from "@/hazardousMaterials/hazardousMaterialsList";
-import { hasSpecialProvisionAlphaCode } from "@/utils/specialProvisions";
-import { getPostSddgStartRoute } from "@/utils/inspectorWorkflowRouting";
 import { ScreenHeader, ActionFooter, colors, spacing } from "./ui";
 
 interface SDDGInspectionCompleteScreenProps {
@@ -32,10 +26,6 @@ export default function SDDGInspectionCompleteScreen({
     setSDDGComplete,
     completeSDDGSubstep,
     completeSDDGAndMoveToPackage,
-    setQuantityType,
-    setExceptedQuantityData,
-    setLimitedQuantityData,
-    setPackagePackagingType,
   } = useInspectionForm();
 
   const database = useDatabase();
@@ -129,74 +119,8 @@ export default function SDDGInspectionCompleteScreen({
     setSDDGComplete(true);
     completeSDDGAndMoveToPackage();
 
-    const unIdNo = sddgData?.unIdNo || "";
-    const startRoute = getPostSddgStartRoute(inspection);
-
-    if (inspection.verificationCopy) {
-      const eligibility = evaluateAttachment19Eligibility({
-        sddgContent: inspection.verificationCopy,
-        quantities: getKey16Quantities(inspection.verificationCopy),
-      });
-      const packagingType = getPackagingTypeFromKey16(
-        inspection.verificationCopy.quantityAndPacking
-      );
-      const hazmatItem = hazardousMaterialsList.find(
-        item => item.unid === inspection.verificationCopy?.unIdNo
-      );
-      const hasA2Restriction =
-        hazmatItem &&
-        hasSpecialProvisionAlphaCode(hazmatItem.specialProvision, "A2");
-      const resolvedPackagingType =
-        hasA2Restriction && packagingType === "single" ? null : packagingType;
-      setQuantityType("standard");
-      setExceptedQuantityData(eligibility.exceptedQuantityData);
-      setLimitedQuantityData(eligibility.limitedQuantityData);
-      setPackagePackagingType(resolvedPackagingType);
-
-      const isEligible =
-        eligibility.exceptedQuantityData.eligible ||
-        eligibility.limitedQuantityData.eligible;
-      const attachment28Params = {
-        continueRoute: "InspectorSpecialProvisionsScreen",
-        continueParams: {
-          continueRoute: "MLDetectionScreen",
-          continueParams: { unIdNo },
-        },
-      };
-      const packagingParams = {
-        nextRoute: "InspectorAttachment28WizardScreen",
-        nextParams: attachment28Params,
-      };
-
-      if (startRoute.screen !== "InspectorAttachment28WizardScreen") {
-        navigation.navigate(startRoute.screen);
-        return;
-      }
-
-      if (isEligible) {
-        navigation.navigate("InspectorQuantityTypeSelectionScreen", packagingParams);
-      } else {
-        navigation.navigate("InspectorPackagingTypeSelectionScreen", packagingParams);
-      }
-      return;
-    }
-
-    console.log("📝 [SDDGInspectionComplete] Routing for UN#:", unIdNo);
-
-    if (startRoute.screen !== "InspectorAttachment28WizardScreen") {
-      navigation.navigate(startRoute.screen);
-      return;
-    }
-
-    navigation.navigate("InspectorPackagingTypeSelectionScreen", {
-      nextRoute: "InspectorAttachment28WizardScreen",
-      nextParams: {
-        continueRoute: "InspectorSpecialProvisionsScreen",
-        continueParams: {
-          continueRoute: "MLDetectionScreen",
-          continueParams: { unIdNo },
-        },
-      },
+    navigation.navigate("InspectorSddgOriginalCopiesCheckScreen", {
+      showSummaryOnFailure: true,
     });
   };
 

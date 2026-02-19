@@ -69,34 +69,13 @@ const MainLayout = ({
   };
 
   // DEFENSIVE: Wrap all state access in try-catch to prevent Valtio proxy errors
-  let activePersona,
-    titleHasTcnAndUnid,
-    titleHasTcnOnly,
-    tcnIsEmpty,
-    hasSubstepChevronRow;
+  let activePersona;
   let informativeStatementsAcknowledged,
     workflowModifiersAcknowledged,
     generalPackagingRequirementsAcknowledged;
 
   try {
     activePersona = safeGet(() => state.hazProPreparerContext?.activePersona);
-
-    titleHasTcnAndUnid =
-      state.hazProPreparerContext?.shipment?.tcn &&
-      state.hazProPreparerContext?.hazardousMaterial?.unid;
-    titleHasTcnOnly =
-      state.hazProPreparerContext?.shipment?.tcn &&
-      typeof state.hazProPreparerContext?.hazardousMaterial?.unid ===
-        "undefined";
-    tcnIsEmpty =
-      state.hazProPreparerContext?.shipment?.tcn &&
-      typeof state.hazProPreparerContext?.hazardousMaterial?.unid ===
-        "undefined";
-    hasSubstepChevronRow =
-      activePersona === "Inspector"
-        ? false
-        : state.hazProPreparerContext?.activeStep === 1 ||
-          state.hazProPreparerContext?.activeStep === 2;
 
     informativeStatementsAcknowledged =
       state.hazProPreparerContext?.modifiersAndRequiredAcknowledgements
@@ -116,10 +95,6 @@ const MainLayout = ({
     );
     // Use safe defaults
     activePersona = undefined;
-    titleHasTcnAndUnid = false;
-    titleHasTcnOnly = false;
-    tcnIsEmpty = false;
-    hasSubstepChevronRow = false;
     informativeStatementsAcknowledged = false;
     workflowModifiersAcknowledged = false;
     generalPackagingRequirementsAcknowledged = false;
@@ -130,50 +105,12 @@ const MainLayout = ({
         onMenuPress={() => navigation.openDrawer()}
         onSelectRole={() => {}}
       />
-      <View
-        style={
-          hasSubstepChevronRow
-            ? styles.headerWithSubstepRow
-            : styles.headerWithoutSubstepRow
-        }
-      >
-        <TouchableOpacity
-          style={
-            hasSubstepChevronRow
-              ? styles.backButtonWithSubstepRow
-              : styles.backButtonWithoutSubstepRow
-          }
-          onPress={() => navigation.goBack()}
-        >
-          <MaterialIcons name="arrow-back" size={28} color="black" />
-        </TouchableOpacity>
-        {titleHasTcnAndUnid && (
-          <Text
-            style={
-              hasSubstepChevronRow
-                ? styles.titleWithSubstepRow
-                : styles.titleWithoutSubstepRow2
-            }
-          >{`${state.hazProPreparerContext.shipment?.tcn}\n${state.hazProPreparerContext.hazardousMaterial?.properShippingName}\n${state.hazProPreparerContext.hazardousMaterial?.unid}`}</Text>
-        )}
-        {titleHasTcnOnly && (
-          <Text
-            style={
-              hasSubstepChevronRow
-                ? styles.titleWithSubstepRow
-                : styles.titleWithoutSubstepRow
-            }
-          >{`${state.hazProPreparerContext.shipment?.tcn}`}</Text>
-        )}
-        {tcnIsEmpty && (
-          <Text
-            style={
-              hasSubstepChevronRow
-                ? styles.titleWithSubstepRow
-                : styles.titleWithoutSubstepRow
-            }
-          ></Text>
-        )}
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>{[
+          state.hazProPreparerContext.shipment?.tcn,
+          state.hazProPreparerContext.hazardousMaterial?.properShippingName,
+          state.hazProPreparerContext.hazardousMaterial?.unid,
+        ].filter(Boolean).join('\n')}</Text>
         <View style={styles.chevronContainer}>
           <ChevronHeaderCellSuccess
             key={state.hazProPreparerContext.activeStep}
@@ -194,7 +131,7 @@ const MainLayout = ({
                   size={34}
                   color="white"
                 />
-                {generalPackagingRequirementsAcknowledged === true ? (
+                {/* {generalPackagingRequirementsAcknowledged === true ? (
                   <View style={styles.exponentBadgeAcknowledged}>
                     <Text style={styles.exponentBadgeText}>✓</Text>
                   </View>
@@ -202,7 +139,7 @@ const MainLayout = ({
                   <View style={styles.exponentBadgeWarning}>
                     <Text style={styles.exponentBadgeText2}>!</Text>
                   </View>
-                )}
+                )} */}
               </TouchableOpacity>
             </View>
 
@@ -216,7 +153,7 @@ const MainLayout = ({
                   color="white"
                 />
               </TouchableOpacity>
-              {Object.keys(
+              {/* {Object.keys(
                 state.hazProPreparerContext.modifiersAndRequiredAcknowledgements
                   ?.specialProvisionsInformativeStatements ?? {}
               ).length > 0 && (
@@ -237,7 +174,7 @@ const MainLayout = ({
                     }
                   </Text>
                 </View>
-              )}
+              )} */}
             </View>
 
             <View style={styles.iconWrapper}>
@@ -525,62 +462,24 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f5f5f5",
   },
-  headerWithoutSubstepRow: {
+  header: {
     flexDirection: "row",
-    alignItems: "flex-start",
+    alignItems: "center",
     justifyContent: "flex-start",
-    paddingVertical: 10,
     paddingHorizontal: 15,
+    paddingVertical: 8,
+    minHeight: 100,
     backgroundColor: "#fff",
     borderBottomWidth: 1,
     borderBottomColor: "#ddd",
-    height: 130,
-    color: "#000",
   },
-  headerWithSubstepRow: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    justifyContent: "flex-start",
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    backgroundColor: "#fff",
-    borderBottomWidth: 1,
-    borderBottomColor: "#ddd",
-    height: 130,
-    color: "#000",
-  },
-  titleWithSubstepRow: {
+  headerTitle: {
     width: "32%",
     fontSize: 20.5,
     marginRight: 10,
-    marginLeft: 40,
-    marginTop: 10,
+    marginLeft: 20,
     fontWeight: "bold",
-    color: "#000",
-  },
-  titleWithoutSubstepRow: {
-    width: "30%",
-    fontSize: 20.5,
-    marginRight: 10,
-    marginLeft: 40,
-    fontWeight: "bold",
-    color: "#000",
-  },
-  titleWithSubstepRow2: {
-    width: "30%",
-    fontSize: 20.5,
-    marginRight: 10,
-    marginLeft: 5,
-    fontWeight: "bold",
-    paddingTop: 30,
-    color: "#000",
-  },
-  titleWithoutSubstepRow2: {
-    width: "30%",
-    fontSize: 20.5,
-    marginRight: 10,
-    marginLeft: 10,
-    fontWeight: "bold",
+    textAlign: "left",
     color: "#000",
   },
   contentContainer: {
@@ -820,7 +719,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.blue,
     height: 3,
   },
-  chevronContainer: { height: 80, position: "absolute", left: 440 },
+  chevronContainer: { flex: 1, justifyContent: "center", marginVertical: -8 },
   backButtonWithSubstepRow: {
     paddingTop: 40,
   },

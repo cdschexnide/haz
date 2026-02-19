@@ -19,6 +19,7 @@ import {
 } from '@/utils/hazardDiamondImages';
 
 const cargoAircraftOnlyImage: ImageSourcePropType = require('../../../assets/hazmatPngs/cargoAircraftOnly.png');
+const orientationArrowsImage: ImageSourcePropType = require('../../../assets/hazmatPngs/orientationArrows.png');
 
 export interface StandardLabelingContentProps {
   requiredLabels: readonly RequiredLabel[];
@@ -55,6 +56,10 @@ const labelOnlyMarkingIds = new Set([
   'lithium-battery-marking',
   'lithium-battery-excepted-quantity',
 ]);
+
+const markingImageMap: Record<string, ImageSourcePropType> = {
+  'orientation-arrows': orientationArrowsImage,
+};
 
 const HazardLabelCard: React.FC<{ labelType: string; hazclassDiv: string }> = ({
   labelType,
@@ -111,6 +116,7 @@ const IconLabelCard: React.FC<{ label: RequiredLabel }> = ({ label }) => {
 
 const MarkingCard: React.FC<{ marking: RequiredMarking }> = ({ marking }) => {
   const isPOP = marking.renderType === 'pop';
+  const markingImage = markingImageMap[marking.id];
   const displayValue = isPOP
     ? assemblePOPString(marking.metadata)
     : marking.displayValue || marking.value;
@@ -120,6 +126,14 @@ const MarkingCard: React.FC<{ marking: RequiredMarking }> = ({ marking }) => {
 
   return (
     <View style={styles.card}>
+      {markingImage ? (
+        <Image
+          source={markingImage}
+          style={styles.markingImage}
+          resizeMode="contain"
+          testID={`marking-image-${marking.id}`}
+        />
+      ) : null}
       <View style={styles.markingContent}>
         <Text style={styles.markingLabel}>{marking.label}</Text>
         {displayValue ? (
@@ -262,6 +276,11 @@ const styles = StyleSheet.create({
   },
   markingContent: {
     flex: 1,
+  },
+  markingImage: {
+    width: 40,
+    height: 60,
+    marginRight: spacing.md,
   },
   markingLabel: {
     ...typography.caption,

@@ -37,6 +37,7 @@ export function evaluateMarkingRequirements(
     shipment,
     lookupFunctionsOutput,
     overpack,
+    packagingMethod,
   } = context;
 
   // Excepted Quantities (general) - ONLY require "E" marking per A19.2
@@ -204,8 +205,33 @@ export function evaluateMarkingRequirements(
     });
   }
 
-  // Note: Orientation Marking is intentionally omitted (commented out in original code)
-  // See lines 133-137 and 500-508 in LabelingAndMarking.tsx
+  // 14. Orientation Arrows - CONDITIONAL
+  // Required when liquid hazardous materials are shipped in:
+  // - combination packaging, OR
+  // - overpacks, OR
+  // - single packaging that is a box (UN code starts with "4")
+  const normalizedPackagingType = (
+    packaging?.packagingType ||
+    packagingMethod ||
+    ""
+  )
+    .toString()
+    .trim()
+    .toLowerCase();
+  const packagingCode = packaging?.inputPOPMarking?.B?.toString().trim().toUpperCase() || "";
+
+  const isLiquid = hazardousMaterial?.physicalState === PhysicalState.LIQUID;
+  const isCombinationPackaging = normalizedPackagingType === "combination";
+  const isSinglePackaging = normalizedPackagingType === "single";
+  const isSinglePackagingBox = isSinglePackaging && packagingCode.startsWith("4");
+
+  if (isLiquid && (isCombinationPackaging || overpack || isSinglePackagingBox)) {
+    markings.push({
+      id: "orientation-arrows",
+      label: "Orientation Arrows",
+      value: "Apply on two opposite vertical sides",
+    });
+  }
 
   return markings;
 }

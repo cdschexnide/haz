@@ -19,19 +19,15 @@ import {
   getAllRecommendedFrustrations,
 } from "../../components/Inspector/utils/sddgValidation";
 import { HazardousMaterialItem } from "../../hazardousMaterials/hazardousMaterialsList";
+import {
+  extractPackagingParagraphTokens,
+  getAfmanHandlingInstructions,
+  getMissingAfmanHandlingInstructions,
+} from "@/data/afmanHandlingInstructions";
 import { useDatabase } from "../../contexts/DataProvider";
 import { useHazProActions } from "../../stores/useHazProStore";
 import { DevBenchmarkButton } from "../../components/dev/DevBenchmarkButton";
 import { useRenderTracker, useContextRenderTracker } from "@/hooks/useRenderTracker";
-import { evaluateAttachment19Eligibility } from "@/utils/eligibility/attachment19Eligibility";
-import { getKey16Quantities } from "@/utils/eligibility/getKey16Quantities";
-import { getPackagingTypeFromKey16 } from "@/utils/getPackagingTypeFromKey16";
-import { hazardousMaterialsList } from "@/hazardousMaterials/hazardousMaterialsList";
-import { hasSpecialProvisionAlphaCode } from "@/utils/specialProvisions";
-import {
-  getPostSddgStartRoute,
-  getSpecialAuthorizationGateDecision,
-} from "@/utils/inspectorWorkflowRouting";
 import {
   ScreenHeader,
   ActionFooter,
@@ -75,11 +71,6 @@ const InteractiveSDDGComplianceScreenComponent: React.FC<
     completeSDDGAndMoveToPackage,
     updateVerificationField,
     startNewInspection,
-    setQuantityType,
-    setExceptedQuantityData,
-    setLimitedQuantityData,
-    setPackagePackagingType,
-    setSpecialAuthorizationData,
   } = inspectionFormContext;
 
   const database = useDatabase();
@@ -167,6 +158,7 @@ const InteractiveSDDGComplianceScreenComponent: React.FC<
     if (!verificationCopy) return;
 
     const unIdNo = verificationCopy.unIdNo;
+    const resolvedHazmat = hazMatData || findHazMatByUnid(unIdNo || "");
 
     // UN3508: Capacitor Wh rating check (no expected value - requires manual entry)
     if (unIdNo === "UN3508") {
@@ -174,17 +166,6 @@ const InteractiveSDDGComplianceScreenComponent: React.FC<
       if (!hasWhRating(quantityAndPacking)) {
         recommendations.set("quantityAndPacking", {
           message: "UN3508 capacitors require energy storage capacity in Watt-hours (Wh) to be specified. Missing Wh rating detected.",
-        });
-      }
-    }
-
-    // UN2807: Magnetized material handling instructions (no expected value - requires manual entry)
-    if (unIdNo === "UN2807") {
-      const additionalHandlingInfo =
-        verificationCopy.additionalHandlingInfo || "";
-      if (!hasUN2807HandlingInstructions(additionalHandlingInfo)) {
-        recommendations.set("additionalHandlingInfo", {
-          message: 'UN2807 magnetized materials require specific handling instructions: "Do not store magnetic materials suitable for military airlift closer than 4.6 m (15 feet) to compass sensing devices or other devices unduly affected by magnetic fields". Missing required handling instructions detected.',
         });
       }
     }
@@ -199,33 +180,32 @@ const InteractiveSDDGComplianceScreenComponent: React.FC<
       }
     }
 
-    // UN1941: Dibromodifluoromethane handling instructions (Key 19) (no expected value)
-    if (unIdNo === "UN1941") {
-      const additionalHandlingInfo =
-        verificationCopy.additionalHandlingInfo || "";
-      if (!hasDibromodifluoromethaneHandlingInstructions(additionalHandlingInfo)) {
-        recommendations.set("additionalHandlingInfo", {
-          message: "UN1941 Dibromodifluoromethane requires Key 19 handling instructions: avoid high temperatures; store in cool, ventilated area away from flame.",
-        });
-      }
-    }
-
-    // UN3077/UN3082: Otto Fuel II handling instructions (Key 19) (no expected value)
-    if (unIdNo === "UN3077" || unIdNo === "UN3082") {
-      const additionalHandlingInfo =
-        verificationCopy.additionalHandlingInfo || "";
-      if (!hasOttoFuelHandlingInstructions(additionalHandlingInfo)) {
-        recommendations.set("additionalHandlingInfo", {
-          message: "Environmentally hazardous substances (Otto Fuel II) require Key 19 handling instructions: avoid skin contact, ingestion, or inhalation of vapors.",
-        });
-      }
+    // AFMAN handling instructions (Key 19), based on packaging paragraph and UN-specific rules
+    const packagingParagraph = resolvedHazmat?.packagingParagraph || "";
+    const missingAfmanInstructions = getMissingAfmanHandlingInstructions({
+      packagingParagraph,
+      unid: unIdNo,
+      additionalHandlingInfo: verificationCopy.additionalHandlingInfo || "",
+    });
+    if (missingAfmanInstructions.length > 0) {
+      const paragraphRefs = extractPackagingParagraphTokens(packagingParagraph);
+      const requiredInstructions = getAfmanHandlingInstructions({
+        packagingParagraph,
+        unid: unIdNo,
+      });
+      const regulationText =
+        paragraphRefs.length > 0 ? ` (${paragraphRefs.join(", ")})` : "";
+      recommendations.set("additionalHandlingInfo", {
+        message: `Additional Handling Information (Key 19) is missing required AFMAN handling instruction(s)${regulationText}.`,
+        expectedValue: requiredInstructions.join("\n"),
+      });
     }
 
     // General hazmat validation - validates all fields against database
-    if (hazMatData && verificationCopy) {
+    if (resolvedHazmat && verificationCopy) {
       const generalRecommendations = getAllRecommendedFrustrations(
         verificationCopy,
-        hazMatData,
+        resolvedHazmat,
         {
           packagingType: inspection.packagePackagingType || null,
           quantityAndPacking: verificationCopy.quantityAndPacking || null,
@@ -249,7 +229,7 @@ const InteractiveSDDGComplianceScreenComponent: React.FC<
     }
 
     setRecommendedFrustrations(recommendations);
-  }, [inspection.verificationCopy, hazMatData]);
+  }, [inspection.verificationCopy, hazMatData, inspection.packagePackagingType]);
 
   // Helper: Check for Wh rating
   const hasWhRating = (text: string): boolean => {
@@ -262,20 +242,6 @@ const InteractiveSDDGComplianceScreenComponent: React.FC<
     return whPatterns.some(pattern => pattern.test(lowerText));
   };
 
-  // Helper: Check for UN2807 handling instructions
-  const hasUN2807HandlingInstructions = (text: string): boolean => {
-    const lowerText = text.toLowerCase();
-    const requiredKeywords = [
-      "4.6",
-      "15 feet",
-      "compass",
-      "magnetic",
-      "sensing",
-      "device",
-    ];
-    return requiredKeywords.every(keyword => lowerText.includes(keyword));
-  };
-
   // Helper: Check for approved dry ice packaging
   const hasApprovedDryIcePackaging = (text: string): boolean => {
     const lowerText = text.toLowerCase();
@@ -284,31 +250,6 @@ const InteractiveSDDGComplianceScreenComponent: React.FC<
       lowerText.includes("4g") ||
       lowerText.includes("polystyrene foam container")
     );
-  };
-
-  // Helper: Check for UN1941 Dibromodifluoromethane handling instructions
-  const hasDibromodifluoromethaneHandlingInstructions = (text: string): boolean => {
-    const lowerText = text.toLowerCase();
-    const requiredKeywords = [
-      "high temperature",
-      "cool",
-      "ventilated",
-      "away from flame",
-    ];
-    return requiredKeywords.every(keyword => lowerText.includes(keyword));
-  };
-
-  // Helper: Check for Otto Fuel II handling instructions
-  const hasOttoFuelHandlingInstructions = (text: string): boolean => {
-    const lowerText = text.toLowerCase();
-    const requiredKeywords = [
-      "otto fuel",
-      "skin contact",
-      "ingestion",
-      "inhalation",
-      "vapors",
-    ];
-    return requiredKeywords.every(keyword => lowerText.includes(keyword));
   };
 
   // Transform verificationCopy to form data structure
@@ -486,102 +427,8 @@ const InteractiveSDDGComplianceScreenComponent: React.FC<
       completeSDDGSubstep("InteractiveSDDGComplianceScreen");
       setSDDGComplete(true);
       completeSDDGAndMoveToPackage();
-
-      // Route directly into package inspection
-      const unIdNo = inspection?.verificationCopy?.unIdNo || "";
-      if (inspection.verificationCopy) {
-        const specialAuthorizationGate =
-          getSpecialAuthorizationGateDecision(inspection);
-
-        if (specialAuthorizationGate.shouldResetAuthorization) {
-          setSpecialAuthorizationData(null);
-        }
-
-        if (specialAuthorizationGate.action === "go_to_ml_detection") {
-          setQuantityType("standard");
-          setExceptedQuantityData(null);
-          setLimitedQuantityData(null);
-          setPackagePackagingType(null);
-          navigation.navigate("MLDetectionScreen", { unIdNo });
-          return;
-        }
-
-        if (
-          specialAuthorizationGate.action ===
-          "go_to_special_authorization_check"
-        ) {
-          navigation.navigate("InspectorSpecialAuthorizationCheckScreen", {
-            packingInstruction: specialAuthorizationGate.packingInstruction,
-          });
-          return;
-        }
-      }
-
-      const startRoute = getPostSddgStartRoute(inspection);
-
-      if (inspection.verificationCopy) {
-        const eligibility = evaluateAttachment19Eligibility({
-          sddgContent: inspection.verificationCopy,
-          quantities: getKey16Quantities(inspection.verificationCopy),
-        });
-        const packagingType = getPackagingTypeFromKey16(
-          inspection.verificationCopy.quantityAndPacking
-        );
-        const hazmatItem = hazardousMaterialsList.find(
-          item => item.unid === inspection.verificationCopy?.unIdNo
-        );
-        const hasA2Restriction =
-          hazmatItem &&
-          hasSpecialProvisionAlphaCode(hazmatItem.specialProvision, "A2");
-        const resolvedPackagingType =
-          hasA2Restriction && packagingType === "single" ? null : packagingType;
-        setQuantityType("standard");
-        setExceptedQuantityData(eligibility.exceptedQuantityData);
-        setLimitedQuantityData(eligibility.limitedQuantityData);
-        setPackagePackagingType(resolvedPackagingType);
-
-        const isEligible =
-          eligibility.exceptedQuantityData.eligible ||
-          eligibility.limitedQuantityData.eligible;
-        const attachment28Params = {
-          continueRoute: "InspectorSpecialProvisionsScreen",
-          continueParams: {
-            continueRoute: "MLDetectionScreen",
-            continueParams: { unIdNo },
-          },
-        };
-        const packagingParams = {
-          nextRoute: "InspectorAttachment28WizardScreen",
-          nextParams: attachment28Params,
-        };
-
-        if (startRoute.screen !== "InspectorAttachment28WizardScreen") {
-          navigation.navigate(startRoute.screen);
-          return;
-        }
-
-        if (isEligible) {
-          navigation.navigate("InspectorQuantityTypeSelectionScreen", packagingParams);
-        } else {
-          navigation.navigate("InspectorPackagingTypeSelectionScreen", packagingParams);
-        }
-        return;
-      }
-
-      if (startRoute.screen !== "InspectorAttachment28WizardScreen") {
-        navigation.navigate(startRoute.screen);
-        return;
-      }
-
-      navigation.navigate("InspectorPackagingTypeSelectionScreen", {
-        nextRoute: "InspectorAttachment28WizardScreen",
-        nextParams: {
-          continueRoute: "InspectorSpecialProvisionsScreen",
-          continueParams: {
-            continueRoute: "MLDetectionScreen",
-            continueParams: { unIdNo },
-          },
-        },
+      navigation.navigate("InspectorSddgOriginalCopiesCheckScreen", {
+        showSummaryOnFailure: true,
       });
     } else {
       // Has frustrations - go to summary

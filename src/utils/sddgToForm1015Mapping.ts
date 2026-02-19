@@ -2,6 +2,9 @@ import { FrustrationRecord, PackageFrustrationRecord } from "@//types/sddg";
 
 // Mapping from SDDG field keys to Form 1015 line item identifiers
 export const SDDG_TO_FORM1015_MAPPING: Record<string, string> = {
+  // SDDG original copies check -> 1. THREE ORIGINAL DOCUMENTS... (OR TWO FOR CHAPTER 3)
+  sddgOriginalDocumentCopies: "1",
+
   // SDDG SHIPPER (Key 1) -> 2. SHIPPER'S ADDRESS AND PHONE NUMBER
   shipper: "2",
 

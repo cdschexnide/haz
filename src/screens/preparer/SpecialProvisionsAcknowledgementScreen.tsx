@@ -36,14 +36,27 @@ export const SpecialProvisionsAcknowledgementScreen: React.FC<SpecialProvisionsA
   const { state, store } = useHazProStore();
   const { navigate } = useNavigationRef();
   const completedSubsteps = state.hazProPreparerContext.completedSubsteps;
-  const specialProvisionsMap = state.hazProPreparerContext.specialProvisionsMap || {};
+  const specialProvisionsMap =
+    state.hazProPreparerContext.specialProvisionsMap || {};
+  const specialProvisionCodes = useMemo(() => {
+    const rawSpecialProvisions =
+      state.hazProPreparerContext.hazardousMaterial?.specialProvision || '';
+    return rawSpecialProvisions
+      .split(',')
+      .map(code => code.trim())
+      .filter(Boolean);
+  }, [state.hazProPreparerContext.hazardousMaterial?.specialProvision]);
 
   const provisionsList = useMemo(() => {
-    return Object.entries(specialProvisionsMap).map(([code, description]) => ({
-      code,
-      description,
-    }));
-  }, [specialProvisionsMap]);
+    return specialProvisionCodes
+      .map(code => ({
+        code,
+        description:
+          (specialProvisionsMap as Record<string, string | undefined>)[code] ||
+          '',
+      }))
+      .filter(item => item.description.length > 0);
+  }, [specialProvisionCodes, specialProvisionsMap]);
 
   const navigateToNextScreen = () => {
     // Mark special provisions as acknowledged

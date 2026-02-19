@@ -1,0 +1,617 @@
+"""
+First-pass unified external GraphQL API for Preparer + Inspector personas.
+This contract is intentionally normalized around persisted domain objects, not UI state containers.
+"""
+scalar DateTime
+scalar JSON
+
+enum Persona {
+  PREPARER
+  INSPECTOR
+}
+
+enum PreparerShipmentStatus {
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum InspectionStatus {
+  IN_PROGRESS
+  COMPLETED
+  FRUSTRATED
+}
+
+enum InspectionPhaseStatus {
+  NOT_STARTED
+  VERIFIED
+  FRUSTRATED
+}
+
+enum UnifiedWorkflowStatus {
+  IN_PROGRESS
+  COMPLETED
+  FRUSTRATED
+}
+
+enum AuthorizationType {
+  NONE
+  COE
+  CAA
+  DOT_SP
+}
+
+enum AuthorizationDocumentType {
+  COE
+  CAA
+  DOT_SP
+}
+
+enum DocumentStorageKind {
+  FILE_URI
+  OBJECT_STORAGE
+}
+
+enum QuantityMode {
+  EXCEPTED
+  LIMITED
+  STANDARD
+  UNKNOWN
+}
+
+enum FrustrationPhase {
+  SDDG
+  PACKAGE
+}
+
+enum FrustrationCategory {
+  SDDG
+  PACKAGE
+  MARKING
+  LABEL
+  POP_MARKING
+  INNER_PACKAGING
+  SPECIAL_MATERIAL
+  OTHER
+}
+
+enum FrustrationResolutionStatus {
+  OPEN
+  RESOLVED
+  WAIVED
+}
+
+input PageInput {
+  limit: Int = 25
+  cursor: String
+}
+
+type PageInfo {
+  nextCursor: String
+  hasNextPage: Boolean!
+}
+
+input PreparerShipmentFilterInput {
+  status: [PreparerShipmentStatus!]
+  tcn: String
+  materialName: String
+  fromSavedAt: DateTime
+  toSavedAt: DateTime
+}
+
+input InspectionFilterInput {
+  status: [InspectionStatus!]
+  sddgStatus: [InspectionPhaseStatus!]
+  packageStatus: [InspectionPhaseStatus!]
+  inspectorName: String
+  tcn: String
+  unId: String
+  hasFrustrations: Boolean
+  fromInspectedAt: DateTime
+  toInspectedAt: DateTime
+}
+
+input ShipmentThreadFilterInput {
+  tcn: String
+  status: [UnifiedWorkflowStatus!]
+}
+
+type Query {
+  preparerShipments(
+    filters: PreparerShipmentFilterInput
+    page: PageInput
+  ): PreparerShipmentConnection!
+
+  preparerShipment(id: ID!): PreparerShipment
+
+  inspections(
+    filters: InspectionFilterInput
+    page: PageInput
+  ): InspectionConnection!
+
+  inspection(id: ID!): Inspection
+
+  shipmentThreads(
+    filters: ShipmentThreadFilterInput
+    page: PageInput
+  ): ShipmentThreadConnection!
+
+  shipmentThreadByTcn(tcn: String!): ShipmentThread
+}
+
+type Mutation {
+  upsertPreparerShipment(input: UpsertPreparerShipmentInput!): PreparerShipment!
+
+  completePreparerShipment(id: ID!, completedAt: DateTime): PreparerShipment!
+
+  deletePreparerShipment(id: ID!): Boolean!
+
+  createInspectionFromPreparerShipment(
+    input: CreateInspectionFromPreparerShipmentInput!
+  ): Inspection!
+
+  upsertInspection(input: UpsertInspectionInput!): Inspection!
+
+  finalizeInspection(input: FinalizeInspectionInput!): Inspection!
+
+  deleteInspection(id: ID!): Boolean!
+
+  upsertInspectionFrustration(input: UpsertInspectionFrustrationInput!): Inspection!
+
+  resolveInspectionFrustration(
+    input: ResolveInspectionFrustrationInput!
+  ): Inspection!
+
+  attachPreparerAuthorizationDocument(
+    input: AttachPreparerAuthorizationDocumentInput!
+  ): PreparerShipment!
+
+  attachInspectionAuthorizationDocument(
+    input: AttachInspectionAuthorizationDocumentInput!
+  ): Inspection!
+
+  deleteAuthorizationDocument(input: DeleteAuthorizationDocumentInput!): Boolean!
+}
+
+type PreparerShipmentConnection {
+  nodes: [PreparerShipmentSummary!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type InspectionConnection {
+  nodes: [InspectionSummary!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type ShipmentThreadConnection {
+  nodes: [ShipmentThread!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type ShipmentThread {
+  tcn: String!
+  latestStatus: UnifiedWorkflowStatus!
+  preparerShipment: PreparerShipmentSummary
+  inspections: [InspectionSummary!]!
+  lastUpdatedAt: DateTime
+}
+
+type PreparerShipmentSummary {
+  id: ID!
+  status: PreparerShipmentStatus!
+  savedAt: DateTime!
+  completedAt: DateTime
+  tcn: String
+  materialName: String
+  unId: String
+  properShippingName: String
+  specialAuthorizationType: AuthorizationType!
+}
+
+type PreparerShipment {
+  id: ID!
+  status: PreparerShipmentStatus!
+  savedAt: DateTime!
+  completedAt: DateTime
+  shipmentHeader: ShipmentHeader
+  shipper: Party
+  consignee: Party
+  preparer: Party
+  material: MaterialIdentity
+  quantity: QuantityProfile
+  packaging: PackagingProfile
+  specialAuthorization: SpecialAuthorization!
+  technicalName: String
+  additionalHandlingNotes: [String!]!
+  rawContext: JSON
+}
+
+type InspectionSummary {
+  id: ID!
+  status: InspectionStatus!
+  inspectedAt: DateTime!
+  completedAt: DateTime
+  tcn: String
+  unId: String
+  properShippingName: String
+  inspectorName: String
+  sddgStatus: InspectionPhaseStatus!
+  packageStatus: InspectionPhaseStatus!
+  totalFrustrations: Int!
+  sddgFrustrations: Int!
+  packageFrustrations: Int!
+  specialAuthorizationType: AuthorizationType!
+}
+
+type Inspection {
+  id: ID!
+  status: InspectionStatus!
+  inspectedAt: DateTime!
+  completedAt: DateTime
+  shipmentHeader: ShipmentHeader
+  inspector: Party
+  sddgStatus: InspectionPhaseStatus!
+  packageStatus: InspectionPhaseStatus!
+  extractedSddg: SddgContent
+  verifiedSddg: SddgContent
+  packageVerification: PackageVerification
+  specialAuthorization: SpecialAuthorization!
+  frustrations: [Frustration!]!
+  packageFrustrations: [Frustration!]!
+  reinspectionAttempts: [ReinspectionAttempt!]!
+  sourcePreparerShipmentId: ID
+  rawInspectionContext: JSON
+}
+
+type ShipmentHeader {
+  tcn: String
+  shipperReferenceNumber: String
+  poe: String
+  pod: String
+  unId: String
+  properShippingName: String
+}
+
+type MaterialIdentity {
+  unId: String
+  properShippingName: String
+  hazardClass: String
+  subsidiaryRisk: String
+  packingGroup: String
+}
+
+type QuantityProfile {
+  mode: QuantityMode!
+  quantityAndPacking: String
+  isOverpack: Boolean
+}
+
+type PackagingProfile {
+  packagingMethod: String
+  packingInstruction: String
+  popMarking: String
+  packageCount: Int
+}
+
+type Party {
+  name: String
+  title: String
+  organization: String
+  dodaac: String
+  address: Address
+  phone: Phone
+}
+
+type Address {
+  line1: String
+  line2: String
+  city: String
+  state: String
+  postalCode: String
+  country: String
+}
+
+type Phone {
+  number: String
+  dsnNumber: String
+}
+
+type SpecialAuthorization {
+  type: AuthorizationType!
+  referenceNumber: String
+  attested: Boolean!
+  packingDescription: String
+  quantityAndTypeOfPacking: String
+  documents: [AuthorizationDocument!]!
+}
+
+type AuthorizationDocument {
+  id: ID!
+  type: AuthorizationDocumentType!
+  name: String
+  agency: String
+  uploadedAt: DateTime
+  storage: DocumentStorageRef!
+  legacyBase64Data: String
+}
+
+type DocumentStorageRef {
+  kind: DocumentStorageKind!
+  uri: String
+  objectKey: String
+  contentType: String
+  sizeBytes: Int
+  checksum: String
+}
+
+type SddgContent {
+  shipper: String
+  consignee: String
+  airWaybillNumber: String
+  pagination: String
+  shippersReferenceNumber: String
+  inspectionActivity: String
+  aircraftType: String
+  airportOfDeparture: String
+  airportOfDestination: String
+  shipmentType: String
+  unIdNo: String
+  properShippingName: String
+  hazardClass: String
+  subsidiaryRisk: String
+  packingGroup: String
+  quantityAndPacking: String
+  packingInstruction: String
+  authorization: String
+  additionalHandlingInfo: String
+  nameOfSignatory: String
+  placeAndDate: String
+  signature: String
+}
+
+type PackageVerification {
+  mlAnalysisSummary: JSON
+  labelingContext: JSON
+  popMarkingContext: JSON
+  innerPackagingContext: JSON
+}
+
+type Frustration {
+  id: ID!
+  phase: FrustrationPhase!
+  category: FrustrationCategory!
+  key: String
+  itemId: String
+  title: String
+  details: String
+  frustrationDate: DateTime!
+  resolutionStatus: FrustrationResolutionStatus!
+  resolutionNotes: String
+  resolvedAt: DateTime
+  reinspectionHistory: [ReinspectionAttempt!]!
+}
+
+type ReinspectionAttempt {
+  date: DateTime!
+  result: String
+  inspector: String
+  notes: String
+}
+
+input UpsertPreparerShipmentInput {
+  id: ID
+  status: PreparerShipmentStatus = IN_PROGRESS
+  savedAt: DateTime
+  shipmentHeader: ShipmentHeaderInput
+  shipper: PartyInput
+  consignee: PartyInput
+  preparer: PartyInput
+  material: MaterialIdentityInput
+  quantity: QuantityProfileInput
+  packaging: PackagingProfileInput
+  specialAuthorization: SpecialAuthorizationInput
+  technicalName: String
+  additionalHandlingNotes: [String!]
+  rawContext: JSON
+}
+
+input CreateInspectionFromPreparerShipmentInput {
+  preparerShipmentId: ID!
+  inspector: PartyInput!
+  inspectedAt: DateTime
+}
+
+input UpsertInspectionInput {
+  id: ID
+  status: InspectionStatus = IN_PROGRESS
+  inspectedAt: DateTime
+  completedAt: DateTime
+  shipmentHeader: ShipmentHeaderInput
+  inspector: PartyInput
+  sddgStatus: InspectionPhaseStatus
+  packageStatus: InspectionPhaseStatus
+  extractedSddg: SddgContentInput
+  verifiedSddg: SddgContentInput
+  packageVerification: PackageVerificationInput
+  specialAuthorization: SpecialAuthorizationInput
+  frustrations: [FrustrationInput!]
+  packageFrustrations: [FrustrationInput!]
+  reinspectionAttempts: [ReinspectionAttemptInput!]
+  sourcePreparerShipmentId: ID
+  rawInspectionContext: JSON
+}
+
+input FinalizeInspectionInput {
+  id: ID!
+  status: InspectionStatus = COMPLETED
+  completedAt: DateTime
+  sddgStatus: InspectionPhaseStatus
+  packageStatus: InspectionPhaseStatus
+  completionOverrides: JSON
+}
+
+input UpsertInspectionFrustrationInput {
+  inspectionId: ID!
+  frustration: FrustrationInput!
+}
+
+input ResolveInspectionFrustrationInput {
+  inspectionId: ID!
+  frustrationId: ID!
+  resolutionStatus: FrustrationResolutionStatus!
+  resolutionNotes: String
+  resolvedAt: DateTime
+}
+
+input AttachPreparerAuthorizationDocumentInput {
+  shipmentId: ID!
+  document: AuthorizationDocumentReferenceInput!
+}
+
+input AttachInspectionAuthorizationDocumentInput {
+  inspectionId: ID!
+  document: AuthorizationDocumentReferenceInput!
+}
+
+input DeleteAuthorizationDocumentInput {
+  ownerPersona: Persona!
+  ownerId: ID!
+  documentId: ID!
+}
+
+input ShipmentHeaderInput {
+  tcn: String
+  shipperReferenceNumber: String
+  poe: String
+  pod: String
+  unId: String
+  properShippingName: String
+}
+
+input MaterialIdentityInput {
+  unId: String
+  properShippingName: String
+  hazardClass: String
+  subsidiaryRisk: String
+  packingGroup: String
+}
+
+input QuantityProfileInput {
+  mode: QuantityMode = UNKNOWN
+  quantityAndPacking: String
+  isOverpack: Boolean
+}
+
+input PackagingProfileInput {
+  packagingMethod: String
+  packingInstruction: String
+  popMarking: String
+  packageCount: Int
+}
+
+input PartyInput {
+  name: String
+  title: String
+  organization: String
+  dodaac: String
+  address: AddressInput
+  phone: PhoneInput
+}
+
+input AddressInput {
+  line1: String
+  line2: String
+  city: String
+  state: String
+  postalCode: String
+  country: String
+}
+
+input PhoneInput {
+  number: String
+  dsnNumber: String
+}
+
+input SpecialAuthorizationInput {
+  type: AuthorizationType = NONE
+  referenceNumber: String
+  attested: Boolean = false
+  packingDescription: String
+  quantityAndTypeOfPacking: String
+}
+
+input AuthorizationDocumentReferenceInput {
+  id: ID
+  type: AuthorizationDocumentType!
+  name: String
+  agency: String
+  uploadedAt: DateTime
+  storageKind: DocumentStorageKind = FILE_URI
+  uri: String
+  objectKey: String
+  contentType: String
+  sizeBytes: Int
+  checksum: String
+  legacyBase64Data: String
+}
+
+input SddgContentInput {
+  shipper: String
+  consignee: String
+  airWaybillNumber: String
+  pagination: String
+  shippersReferenceNumber: String
+  inspectionActivity: String
+  aircraftType: String
+  airportOfDeparture: String
+  airportOfDestination: String
+  shipmentType: String
+  unIdNo: String
+  properShippingName: String
+  hazardClass: String
+  subsidiaryRisk: String
+  packingGroup: String
+  quantityAndPacking: String
+  packingInstruction: String
+  authorization: String
+  additionalHandlingInfo: String
+  nameOfSignatory: String
+  placeAndDate: String
+  signature: String
+}
+
+input PackageVerificationInput {
+  mlAnalysisSummary: JSON
+  labelingContext: JSON
+  popMarkingContext: JSON
+  innerPackagingContext: JSON
+}
+
+input FrustrationInput {
+  id: ID
+  phase: FrustrationPhase!
+  category: FrustrationCategory = OTHER
+  key: String
+  itemId: String
+  title: String
+  details: String
+  frustrationDate: DateTime
+  resolutionStatus: FrustrationResolutionStatus = OPEN
+  resolutionNotes: String
+  resolvedAt: DateTime
+  reinspectionHistory: [ReinspectionAttemptInput!]
+}
+
+input ReinspectionAttemptInput {
+  date: DateTime!
+  result: String
+  inspector: String
+  notes: String
+}
+
+schema {
+  query: Query
+  mutation: Mutation
+}

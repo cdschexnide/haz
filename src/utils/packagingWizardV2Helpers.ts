@@ -357,6 +357,8 @@ export function mapPackagingTypeToMethod(type: string): string {
 export interface PackagingCodeValidationResult {
   isValid: boolean;
   packagingMethod?: string;
+  matchedPackagingOptionId?: string;
+  matchedPackagingOptionType?: string;
 }
 
 /**
@@ -455,6 +457,8 @@ export function validatePackagingCodeV2(
           return {
             isValid: true,
             packagingMethod: mapPackagingTypeToMethod(option.type),
+            matchedPackagingOptionId: option.id,
+            matchedPackagingOptionType: option.type,
           };
         }
       }

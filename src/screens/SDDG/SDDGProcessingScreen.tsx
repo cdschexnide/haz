@@ -13,7 +13,21 @@ import { useNavigationRef } from "@/contexts/NavigationRefProvider/useNavigation
 import { ExtractedSDDGContent } from "@/types/sddg";
 import { SDDGData } from "@/types/sddg-template";
 
+// TEMP DEMO OVERRIDE: force Key 17 (Packing Instruction) for upload/parse flow.
+const DEMO_PACKING_INSTRUCTION = "CAA200907007";
+const DEMO_PACKING_INSTRUCTION_UNID = "UN0247";
+
+const normalizeUnId = (value: string) =>
+  value
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, "");
+
 function mapToHazproFormat(sddgData: SDDGData): ExtractedSDDGContent {
+  const unIdNo = sddgData.un_number || "";
+  const shouldUseDemoPackingInstruction =
+    normalizeUnId(unIdNo) === DEMO_PACKING_INSTRUCTION_UNID;
+
   return {
     // Key 1: Shipper (direct mapping)
     shipper: sddgData.shipper || "",
@@ -54,7 +68,7 @@ function mapToHazproFormat(sddgData: SDDGData): ExtractedSDDGContent {
       : "",
 
     // Key 11: UN ID Number
-    unIdNo: sddgData.un_number || "",
+    unIdNo,
 
     // Key 12: Proper Shipping Name
     properShippingName: (sddgData.proper_shipping_name || "").toUpperCase(),
@@ -71,8 +85,10 @@ function mapToHazproFormat(sddgData: SDDGData): ExtractedSDDGContent {
     // Key 16: Quantity and Packing
     quantityAndPacking: sddgData.quantity_packing || "",
 
-    // Key 17: Packing Instruction (strip spaces - OCR artifacts like "A6 .5." → "A6.5.")
-    packingInstruction: (sddgData.packing_inst || "").replace(/\s+/g, ""),
+    // Key 17: Packing Instruction (TEMP DEMO OVERRIDE for UN0247 only)
+    packingInstruction: shouldUseDemoPackingInstruction
+      ? DEMO_PACKING_INSTRUCTION
+      : (sddgData.packing_inst || "").replace(/\s+/g, ""),
 
     // Key 18: Authorization
     authorization: sddgData.authorization || "",

@@ -47,6 +47,10 @@ import { hazardousMaterialsList } from "@/hazardousMaterials/hazardousMaterialsL
 import Svg, { Circle, Line } from "react-native-svg";
 import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
+import ShipmentDatabase, {
+  ShipmentMetadata,
+} from "../../services/shipment/ShipmentDatabase";
+import { loadPreparerShipmentForInspection } from "../../utils/loadPreparerShipmentForInspection";
 import {
   buildForm1015PdfData,
   generateForm1015Pdf,
@@ -82,7 +86,17 @@ function InspectorHomeScreenComponent({
   const { dispatch: inspectorDispatch } = inspectorContext;
   const { navigate, reset, navigationRef } = useNavigationRef();
   const database = useDatabase();
-  const { loadInspectionForEdit, startNewInspection } = useInspectionFormActions();
+  const {
+    loadInspectionForEdit,
+    startNewInspection,
+    setExtractedSDDGContent,
+    setSpecialAuthorizationData,
+    addCoeCaaDocument,
+    addDotSpWaiver,
+    completeSDDGSubstep,
+    setCurrentSDDGStep,
+    setCurrentSDDGScreen,
+  } = useInspectionFormActions();
 
   // === LOCAL STATE ===
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -113,6 +127,11 @@ function InspectorHomeScreenComponent({
   const [sddgImageUriCache, setSddgImageUriCache] = useState<
     Map<string, string | null>
   >(new Map());
+  const [preparerMatch, setPreparerMatch] = useState<ShipmentMetadata | null>(null);
+  const [preparerSearchState, setPreparerSearchState] = useState<
+    "idle" | "searching" | "found" | "not-found"
+  >("idle");
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const logWrappedStackDepth = () => {
     const rootState = navigationRef?.getRootState?.();
@@ -390,6 +409,66 @@ function InspectorHomeScreenComponent({
     }, [exitSelectionMode, selectionMode])
   );
 
+  // Debounced preparer shipment lookup when inspector table has no results
+  useEffect(() => {
+    // Reset when there are inspector results or search is empty
+    if (filteredInspections.length > 0 || !searchQuery.trim()) {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+        debounceTimerRef.current = null;
+      }
+      setPreparerSearchState("idle");
+      setPreparerMatch(null);
+      return;
+    }
+
+    // Stale response guard - prevents a slower prior request from overwriting newer results
+    let cancelled = false;
+
+    // Debounce the preparer lookup
+    setPreparerSearchState("searching");
+    debounceTimerRef.current = setTimeout(async () => {
+      try {
+        await ShipmentDatabase.initialize();
+        const matches = await ShipmentDatabase.searchShipments({
+          tcn: searchQuery.trim(),
+        });
+
+        // Don't write state if this effect was superseded
+        if (cancelled) return;
+
+        // Exact match only (case-insensitive), completed shipments only
+        const normalizedQuery = searchQuery.trim().toUpperCase();
+        const exactMatch = matches.find(
+          shipment =>
+            shipment.tcn?.trim().toUpperCase() === normalizedQuery &&
+            shipment.status === "completed"
+        );
+
+        if (exactMatch) {
+          setPreparerMatch(exactMatch);
+          setPreparerSearchState("found");
+        } else {
+          setPreparerMatch(null);
+          setPreparerSearchState("not-found");
+        }
+      } catch (error) {
+        if (cancelled) return;
+        console.error("Preparer shipment lookup failed:", error);
+        setPreparerMatch(null);
+        setPreparerSearchState("not-found");
+      }
+    }, 600);
+
+    return () => {
+      cancelled = true;
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+        debounceTimerRef.current = null;
+      }
+    };
+  }, [searchQuery, filteredInspections.length]);
+
   // Function to handle SDDG status click - load real inspection data
   const handleSDDGStatusClick = async (inspection: InspectorShipment) => {
     console.log("🔍🔍🔍 [InspectorHome] SDDG STATUS CLICK HANDLER CALLED");
@@ -493,10 +572,9 @@ function InspectorHomeScreenComponent({
             onPress: async () => {
               try {
                 await loadInspectionForEdit(inspection.id);
-                const unIdNo = inspection.unId || "";
                 navigate("InspectorWrappedStack", {
-                  screen: "MLDetectionScreen",
-                  params: { unIdNo },
+                  screen: "InspectorSddgOriginalCopiesCheckScreen",
+                  params: { showSummaryOnFailure: false },
                 } as any);
               } catch (error) {
                 Alert.alert("Error", "Failed to load inspection data. Please try again.");
@@ -523,6 +601,101 @@ function InspectorHomeScreenComponent({
 
     // Package verified -> Show detail view (existing logic handled above)
   };
+
+  // Start inspection from a preparer shipment found via search
+  const handleStartInspectionFromPreparer = useCallback(async () => {
+    if (!preparerMatch) return;
+
+    try {
+      const seed = await loadPreparerShipmentForInspection(preparerMatch.id);
+
+      startNewInspection();
+      await setExtractedSDDGContent(seed.extractedContent);
+
+      if (
+        seed.specialAuthorization.type &&
+        seed.specialAuthorization.attested
+      ) {
+        setSpecialAuthorizationData({
+          type: seed.specialAuthorization.type,
+          referenceNumber: seed.specialAuthorization.referenceNumber,
+          attested: true,
+        });
+
+        if (seed.specialAuthorization.type === "COE") {
+          seed.authorizationDocuments.coeDocuments.forEach(doc => {
+            addCoeCaaDocument({
+              id: doc.id,
+              documentType: "COE",
+              uri: doc.uri,
+              base64Data: doc.base64Data,
+              name: doc.name,
+              agency: doc.agency,
+              dateAdded: doc.dateAdded,
+            });
+          });
+        } else if (seed.specialAuthorization.type === "CAA") {
+          seed.authorizationDocuments.caaDocuments.forEach(doc => {
+            addCoeCaaDocument({
+              id: doc.id,
+              documentType: "CAA",
+              uri: doc.uri,
+              base64Data: doc.base64Data,
+              name: doc.name,
+              agency: doc.agency,
+              dateAdded: doc.dateAdded,
+            });
+          });
+        } else if (seed.specialAuthorization.type === "DOT-SP") {
+          seed.authorizationDocuments.dotSpWaivers.forEach(doc => {
+            addDotSpWaiver({
+              id: doc.id,
+              uri: doc.uri,
+              base64Data: doc.base64Data,
+              waiverNumber: doc.waiverNumber,
+              description: doc.description,
+              agency: doc.agency,
+              dateAdded: doc.dateAdded,
+            });
+          });
+        }
+      } else {
+        setSpecialAuthorizationData(null);
+      }
+
+      completeSDDGSubstep("SDDGUploadAndParse");
+      setCurrentSDDGStep("compliance");
+      setCurrentSDDGScreen("InteractiveSDDGComplianceScreen");
+
+      reset({
+        index: 0,
+        routes: [
+          {
+            name: "InspectorWrappedStack",
+            params: { screen: "InteractiveSDDGComplianceScreen" },
+          },
+        ],
+      });
+    } catch (error) {
+      console.error("Failed to start inspection from preparer shipment:", error);
+      Alert.alert(
+        "Error",
+        "Failed to load shipment data. Please try again.",
+        [{ text: "OK" }]
+      );
+    }
+  }, [
+    preparerMatch,
+    startNewInspection,
+    setExtractedSDDGContent,
+    setSpecialAuthorizationData,
+    addCoeCaaDocument,
+    addDotSpWaiver,
+    completeSDDGSubstep,
+    setCurrentSDDGStep,
+    setCurrentSDDGScreen,
+    reset,
+  ]);
 
   // Function to handle View Form 1015 click - load inspection and show modal
   const handleViewForm1015 = async (inspection: InspectorShipment) => {
@@ -829,7 +1002,7 @@ function InspectorHomeScreenComponent({
       );
     };
 
-  const ListHeaderContent = () => (
+  const listHeaderContent = (
     <>
       <View>
         {/* === TOP NAVIGATION BAR === */}
@@ -968,6 +1141,63 @@ function InspectorHomeScreenComponent({
     </>
   );
 
+  const listFooterContent = useMemo(() => {
+    // Only show when inspector table has no results and search is active
+    if (filteredInspections.length > 0 || !searchQuery.trim()) {
+      return null;
+    }
+
+    if (preparerSearchState === "idle") {
+      return null;
+    }
+
+    if (preparerSearchState === "searching") {
+      return (
+        <View style={styles.preparerSearchFooter}>
+          <ActivityIndicator size="small" color={colors.textSecondary} />
+          <Text style={styles.preparerSearchingText}>
+            Searching preparer records...
+          </Text>
+        </View>
+      );
+    }
+
+    if (preparerSearchState === "found" && preparerMatch) {
+      return (
+        <View style={styles.preparerFoundCard}>
+          <View style={styles.preparerFoundContent}>
+            <Text style={styles.preparerFoundLabel}>Found in Preparer Records</Text>
+            <Text style={styles.preparerFoundTCN}>{preparerMatch.tcn}</Text>
+          </View>
+          <TouchableOpacity
+            style={styles.preparerStartButton}
+            onPress={handleStartInspectionFromPreparer}
+          >
+            <Text style={styles.preparerStartButtonText}>Start Inspection</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+
+    if (preparerSearchState === "not-found") {
+      return (
+        <View style={styles.preparerSearchFooter}>
+          <Text style={styles.preparerNotFoundText}>
+            No shipment found for &apos;{searchQuery.trim()}&apos;
+          </Text>
+        </View>
+      );
+    }
+
+    return null;
+  }, [
+    filteredInspections.length,
+    searchQuery,
+    preparerSearchState,
+    preparerMatch,
+    handleStartInspectionFromPreparer,
+  ]);
+
   const class2Materials = hazardousMaterialsList.filter((material) => material.packagingParagraph.startsWith("A6") && material.packagingParagraph !== "FORBIDDEN");
   console.log("class2Materials: ", JSON.stringify(class2Materials, null, 2));
 
@@ -990,7 +1220,8 @@ function InspectorHomeScreenComponent({
             index,
           })}
           keyboardShouldPersistTaps="handled"
-          ListHeaderComponent={ListHeaderContent}
+          ListHeaderComponent={listHeaderContent}
+          ListFooterComponent={listFooterContent}
           contentContainerStyle={selectionMode ? styles.listWithSelectionFooter : undefined}
           renderItem={({ item }) => {
             const sddgImageUri = getSddgImageUri(item);
@@ -1550,6 +1781,59 @@ const styles = StyleSheet.create({
   },
   listWithSelectionFooter: {
     paddingBottom: 88,
+  },
+  preparerSearchFooter: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.md,
+    gap: spacing.sm,
+  },
+  preparerSearchingText: {
+    fontSize: 15,
+    color: colors.textSecondary,
+  },
+  preparerFoundCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginHorizontal: spacing.md,
+    marginTop: spacing.md,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+    backgroundColor: colors.infoLight,
+    borderRadius: borderRadius.sm,
+  },
+  preparerFoundContent: {
+    flex: 1,
+  },
+  preparerFoundLabel: {
+    fontSize: 13,
+    color: colors.textSecondary,
+    marginBottom: spacing.xs,
+  },
+  preparerFoundTCN: {
+    fontSize: 17,
+    fontWeight: "700",
+    color: colors.textPrimary,
+  },
+  preparerStartButton: {
+    backgroundColor: colors.primary,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    borderRadius: borderRadius.sm,
+    marginLeft: spacing.md,
+  },
+  preparerStartButtonText: {
+    color: colors.white,
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  preparerNotFoundText: {
+    fontSize: 15,
+    color: colors.textSecondary,
+    fontStyle: "italic",
   },
   toolButtonRow: {
     flexDirection: "row",

@@ -19,8 +19,20 @@ import {
 import { useHazProStore } from '@/stores/useHazProStore';
 import { useNavigationRef } from '@/contexts/NavigationRefProvider/useNavigationRef';
 import { getContainerDescriptionFromCode } from '@/utils/getContainerDescriptionFromPackagingCode';
+import { getSpecialtyRoute } from '@/utils/navigation/unidRouting';
 import { getDocumentNodes } from '../../../server/documentNodes';
 import renderDocumentNodes from '../../../server/renderDocumentNodes/renderDocumentNodes';
+
+// Specialty routes that bypass POP packaging entry should not render 3D POP preview.
+const NO_POP_PREVIEW_ROUTES = new Set([
+  'UN3166FuelEntryScreen',
+  'BatteryPoweredVehicle',
+  'EnginesInternalCombustion',
+  'DryIcePrepScreen',
+  'KitPreparationScreen',
+  'LifeSavingAppliances',
+  'LithiumBatteriesPrepScreen',
+]);
 
 export interface LabelingAndMarkingScreenProps {
   navigation: any;
@@ -45,6 +57,8 @@ export const LabelingAndMarkingScreen: React.FC<LabelingAndMarkingScreenProps> =
   const completedSubsteps = state.hazProPreparerContext.completedSubsteps;
   const hazMat = state.hazProPreparerContext.hazardousMaterial;
   const isVehicle = hazMat?.unid === 'UN3166';
+  const specialtyRoute = getSpecialtyRoute(hazMat?.unid ?? '');
+  const is3DPreviewUnavailable = !!specialtyRoute && NO_POP_PREVIEW_ROUTES.has(specialtyRoute);
   const packageCode = state.hazProPreparerContext.packaging?.inputPOPMarking?.B ?? '';
   const packageType = getContainerDescriptionFromCode(packageCode) ?? '';
   const isLimitedQuantity = false;
@@ -193,13 +207,20 @@ export const LabelingAndMarkingScreen: React.FC<LabelingAndMarkingScreenProps> =
               packageCode={packageCode}
               packageType={packageType}
               shipmentData={prepareShipmentData()}
+              unavailableMessage={
+                is3DPreviewUnavailable
+                  ? '3D package preview not available for this material.'
+                  : undefined
+              }
             />
-            <View style={styles.disclaimerRow}>
-              <MaterialIcons name="info-outline" size={20} color={colors.primary} />
-              <Text style={styles.disclaimerText}>
-                This 3D rendering is for reference only. Label and marking placement on actual packages may differ.
-              </Text>
-            </View>
+            {!is3DPreviewUnavailable && (
+              <View style={styles.disclaimerRow}>
+                <MaterialIcons name="info-outline" size={20} color={colors.primary} />
+                <Text style={styles.disclaimerText}>
+                  This 3D rendering is for reference only. Label and marking placement on actual packages may differ.
+                </Text>
+              </View>
+            )}
           </View>
         </View>
         <ActionFooter buttons={footerButtons} />
@@ -244,14 +265,21 @@ export const LabelingAndMarkingScreen: React.FC<LabelingAndMarkingScreenProps> =
             packageCode={packageCode}
             packageType={packageType}
             shipmentData={prepareShipmentData()}
+            unavailableMessage={
+              is3DPreviewUnavailable
+                ? '3D package preview not available for this material.'
+                : undefined
+            }
           />
-          <View style={styles.disclaimerRow}>
-            <MaterialIcons name="info-outline" size={20} color={colors.primary} />
-            <Text style={styles.disclaimerText}>
-              This 3D rendering is for reference only. Label and marking placement on actual packages may differ.
-            </Text>
+          {!is3DPreviewUnavailable && (
+            <View style={styles.disclaimerRow}>
+              <MaterialIcons name="info-outline" size={20} color={colors.primary} />
+              <Text style={styles.disclaimerText}>
+                This 3D rendering is for reference only. Label and marking placement on actual packages may differ.
+              </Text>
+            </View>
+          )}
           </View>
-        </View>
       </View>
 
       <ActionFooter buttons={footerButtons} />

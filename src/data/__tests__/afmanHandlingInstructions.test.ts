@@ -1,6 +1,7 @@
 import {
   extractPackagingParagraphTokens,
   getAfmanHandlingInstructions,
+  getMissingAfmanHandlingInstructions,
 } from '../afmanHandlingInstructions';
 
 describe('afmanHandlingInstructions', () => {
@@ -53,5 +54,38 @@ describe('afmanHandlingInstructions', () => {
       'A13.10.',
       'A10.8.',
     ]);
+  });
+
+  it('returns no missing instructions when required text is present', () => {
+    const missingInstructions = getMissingAfmanHandlingInstructions({
+      packagingParagraph: 'A13.11.',
+      unid: 'UN2807',
+      additionalHandlingInfo:
+        'Do not store magnetic materials suitable for military airlift closer than 4.6 m (15 feet) to compass sensing devices or other devices unduly affected by magnetic fields.',
+    });
+
+    expect(missingInstructions).toEqual([]);
+  });
+
+  it('returns missing instructions when required AFMAN text is absent', () => {
+    const missingInstructions = getMissingAfmanHandlingInstructions({
+      packagingParagraph: 'A13.11.',
+      unid: 'UN2807',
+      additionalHandlingInfo: 'Handle with care and keep away from heat.',
+    });
+
+    expect(missingInstructions).toEqual([
+      'Do not store magnetic materials suitable for military airlift closer than 4.6 m (15 feet) to compass sensing devices or other devices unduly affected by magnetic fields.',
+    ]);
+  });
+
+  it('does not require UN-specific instruction when UN does not match', () => {
+    const missingInstructions = getMissingAfmanHandlingInstructions({
+      packagingParagraph: 'A10.8.',
+      unid: 'UN3245',
+      additionalHandlingInfo: '',
+    });
+
+    expect(missingInstructions).toEqual([]);
   });
 });

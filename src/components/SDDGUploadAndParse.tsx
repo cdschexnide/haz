@@ -23,7 +23,7 @@ import InteractiveSDDGComplianceScreen from "../screens/inspector/InteractiveSDD
 import { useInspectionFormActions } from "@/contexts/InspectionFormProvider";
 import { ExtractedSDDGContent } from "@/types/sddg";
 import ShipmentDatabase from "@/services/shipment/ShipmentDatabase";
-import { mapPreparerShipmentToInspectionSeed } from "@/utils/preparerShipmentToInspection";
+import { loadPreparerShipmentForInspection } from "@/utils/loadPreparerShipmentForInspection";
 import { DevBenchmarkButton } from "./dev/DevBenchmarkButton";
 import { OLLAMA_BASE_URL } from "../config/ollama.config";
 import { getDevSettings } from "@/config/devSettings";
@@ -73,6 +73,16 @@ interface ExtractedContent {
 interface SDDGUploadAndParseProps {
   navigation: any;
 }
+
+// TEMP DEMO OVERRIDE: force Key 17 (Packing Instruction) after upload/parse.
+const DEMO_PACKING_INSTRUCTION = "CAA200907007";
+const DEMO_PACKING_INSTRUCTION_UNID = "UN0247";
+
+const normalizeUnId = (value: string) =>
+  value
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, "");
 
 function SDDGUploadAndParse({ navigation }: SDDGUploadAndParseProps) {
   const {
@@ -162,8 +172,23 @@ function SDDGUploadAndParse({ navigation }: SDDGUploadAndParseProps) {
         signature: "",
       };
 
+      const shouldUseDemoPackingInstruction =
+        normalizeUnId(extractedContentForStore.unIdNo || "") ===
+        DEMO_PACKING_INSTRUCTION_UNID;
+
+      // TEMP DEMO OVERRIDE: only force packing instruction for UN0247.
+      const extractedContentWithDemoPackingInstruction: ExtractedSDDGContent = {
+        ...extractedContentForStore,
+        packingInstruction: shouldUseDemoPackingInstruction
+          ? DEMO_PACKING_INSTRUCTION
+          : extractedContentForStore.packingInstruction,
+      };
+
       // Set extracted content - Context provider automatically preserves existing frustrations
-      setExtractedSDDGContent(extractedContentForStore, debugImageUri);
+      setExtractedSDDGContent(
+        extractedContentWithDemoPackingInstruction,
+        debugImageUri
+      );
       mockDataSetRef.current = true;
     }
 
@@ -2410,18 +2435,7 @@ function SDDGUploadAndParse({ navigation }: SDDGUploadAndParseProps) {
           return;
         }
 
-        const shipmentFile = await ShipmentDatabase.loadShipment(selectedShipment.id);
-        const preparerContext = shipmentFile?.hazProPreparerContext;
-
-        if (!preparerContext) {
-          Alert.alert(
-            "Data Error",
-            "Shipment was found but its data is unavailable. Please try another record."
-          );
-          return;
-        }
-
-        const seed = mapPreparerShipmentToInspectionSeed(preparerContext);
+        const seed = await loadPreparerShipmentForInspection(selectedShipment.id);
 
         // Start a fresh inspection session and seed SDDG + authorization data
         startNewInspection();

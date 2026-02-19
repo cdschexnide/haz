@@ -30,6 +30,15 @@
 
 ---
 
+## Companion Reference
+
+For a code-accurate inventory of Preparer/Inspector global contexts and persistence contracts (including legacy vs active storage paths), see:
+
+- `docs/architecture/persona-global-context-and-persistence.md`
+- `docs/architecture/unified-graphql-api-draft.md`
+
+---
+
 ## Executive Summary
 
 This application is a hazardous materials (hazmat) inspection tool for the US Air Force, built around AFMAN24-604 regulations. Inspectors use it to:

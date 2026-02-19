@@ -52,6 +52,10 @@ export type RootStackParamList = {
   InspectorSpecialAuthorizationCheckScreen: {
     packingInstruction?: string;
   };
+  InspectorSddgOriginalCopiesCheckScreen: {
+    showSummaryOnFailure?: boolean;
+    skipOriginalCopiesCheck?: boolean;
+  };
   WaiverUploadScreen: {
     key17Value?: string;
   };
