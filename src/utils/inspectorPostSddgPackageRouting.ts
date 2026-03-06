@@ -24,6 +24,7 @@ type InspectionLike = {
   specialAuthorizationAttested?: boolean;
   specialAuthorizationType?: "COE" | "CAA" | "DOT-SP" | null;
   specialAuthorizationReference?: string | null;
+  specialAuthorizationPreloadedFromPreparer?: boolean;
   coeAndCaaDocuments?: {
     coeDocuments?: Array<unknown>;
     caaDocuments?: Array<unknown>;
@@ -93,6 +94,19 @@ export const routeToPackageWorkflowStart = ({
     }
 
     if (specialAuthorizationGate.action === "go_to_special_authorization_check") {
+      const shouldBypassSpecialAuthorizationCheck =
+        inspection?.specialAuthorizationPreloadedFromPreparer === true &&
+        hasAuthorizationDocuments &&
+        !!inspection?.specialAuthorizationType;
+
+      if (shouldBypassSpecialAuthorizationCheck) {
+        navigation.navigate("InspectorPreloadedAuthorizationReviewScreen", {
+          authorizationType: inspection.specialAuthorizationType,
+          key17Value: specialAuthorizationGate.packingInstruction,
+        });
+        return;
+      }
+
       navigation.navigate("InspectorSpecialAuthorizationCheckScreen", {
         packingInstruction: specialAuthorizationGate.packingInstruction,
       });

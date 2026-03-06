@@ -16,11 +16,16 @@ import * as Sharing from "expo-sharing";
 import Pdf from "react-native-pdf";
 import { colors, spacing, borderRadius } from "../ui";
 import { InspectorShipment } from "../../types/sddg";
+import InspectorShippersDeclarationForm from "./InspectorShippersDeclarationForm";
 import {
   cleanupInspectorDocumentTempUris,
   composeInspectorSddgPdf,
   getInspectorAuthorizationAttachmentContext,
 } from "@/utils/inspectorSddgDocumentComposer";
+import {
+  getInspectorSddgFormDataFromInspection,
+  InspectorSddgDocumentSource,
+} from "@/utils/inspectorSddgDocumentSource";
 
 interface SDDGImageViewerProps {
   inspection: InspectorShipment;
@@ -34,7 +39,8 @@ export const SDDGImageViewer: React.FC<SDDGImageViewerProps> = ({
   inspection,
   onClose,
 }) => {
-  const [isImageAvailable, setIsImageAvailable] = useState<boolean | null>(null);
+  const [documentSource, setDocumentSource] =
+    useState<InspectorSddgDocumentSource | null>(null);
   const [isPreparingDocument, setIsPreparingDocument] = useState(false);
   const [mergedPdfUri, setMergedPdfUri] = useState<string | null>(null);
   const [prepareError, setPrepareError] = useState<string | null>(null);
@@ -49,6 +55,11 @@ export const SDDGImageViewer: React.FC<SDDGImageViewerProps> = ({
     () => getInspectorAuthorizationAttachmentContext(inspection),
     [inspection]
   );
+  const digitalFormData = useMemo(
+    () => getInspectorSddgFormDataFromInspection(inspection),
+    [inspection]
+  );
+  const hasDigitalDocument = digitalFormData !== null;
   const hasAttachments =
     authorizationContext.isAttested && authorizationContext.attachments.length > 0;
 
@@ -64,24 +75,32 @@ export const SDDGImageViewer: React.FC<SDDGImageViewerProps> = ({
     const prepareDocument = async () => {
       setPrepareError(null);
       setMergedPdfUri(null);
+      setDocumentSource(null);
       await cleanupTempUris();
 
-      if (!imageUri) {
-        setIsImageAvailable(false);
-        return;
-      }
-
       try {
-        const fileInfo = await FileSystem.getInfoAsync(imageUri);
-        if (!fileInfo.exists) {
-          if (mounted) setIsImageAvailable(false);
-          return;
+        let resolvedSource: InspectorSddgDocumentSource = "none";
+
+        if (imageUri) {
+          const fileInfo = await FileSystem.getInfoAsync(imageUri);
+          if (fileInfo.exists) {
+            resolvedSource = "image";
+          } else if (hasDigitalDocument) {
+            resolvedSource = "digital";
+            if (mounted) {
+              setPrepareError(
+                "Original SDDG image not found. Showing generated digital SDDG."
+              );
+            }
+          }
+        } else if (hasDigitalDocument) {
+          resolvedSource = "digital";
         }
 
         if (!mounted) return;
-        setIsImageAvailable(true);
+        setDocumentSource(resolvedSource);
 
-        if (!hasAttachments) {
+        if (resolvedSource !== "image" || !hasAttachments) {
           return;
         }
 
@@ -101,9 +120,15 @@ export const SDDGImageViewer: React.FC<SDDGImageViewerProps> = ({
       } catch (error) {
         console.error("Error preparing merged SDDG document:", error);
         if (mounted) {
-          setPrepareError(
-            "Unable to append authorization documents. Showing SDDG image only."
-          );
+          if (hasDigitalDocument) {
+            setDocumentSource("digital");
+            setPrepareError(
+              "Original SDDG image unavailable. Showing generated digital SDDG."
+            );
+          } else {
+            setDocumentSource("none");
+            setPrepareError("Unable to load SDDG document.");
+          }
         }
       } finally {
         if (mounted) {
@@ -118,11 +143,17 @@ export const SDDGImageViewer: React.FC<SDDGImageViewerProps> = ({
       mounted = false;
       cleanupTempUris();
     };
-  }, [cleanupTempUris, hasAttachments, imageUri, inspection]);
+  }, [
+    cleanupTempUris,
+    hasAttachments,
+    hasDigitalDocument,
+    imageUri,
+    inspection,
+  ]);
 
   const handleSharePdf = useCallback(async () => {
-    if (!imageUri) {
-      Alert.alert("Not Available", "SDDG image not available.");
+    if (!documentSource || documentSource === "none") {
+      Alert.alert("Not Available", "SDDG document not available.");
       return;
     }
 
@@ -160,11 +191,11 @@ export const SDDGImageViewer: React.FC<SDDGImageViewerProps> = ({
     } finally {
       setIsSharing(false);
     }
-  }, [imageUri, inspection, inspection.tcn, mergedPdfUri]);
+  }, [documentSource, inspection, inspection.tcn, mergedPdfUri]);
 
   const renderUnavailableState = () => (
     <View style={styles.unavailableContainer}>
-      <Text style={styles.unavailableTitle}>SDDG image not available</Text>
+      <Text style={styles.unavailableTitle}>SDDG document not available</Text>
       <TouchableOpacity style={styles.closeButton} onPress={onClose}>
         <Text style={styles.closeButtonText}>Close</Text>
       </TouchableOpacity>
@@ -181,7 +212,7 @@ export const SDDGImageViewer: React.FC<SDDGImageViewerProps> = ({
         <TouchableOpacity
           onPress={handleSharePdf}
           style={[styles.shareButton, isSharing && styles.shareButtonDisabled]}
-          disabled={isSharing || isImageAvailable !== true}
+          disabled={isSharing || !documentSource || documentSource === "none"}
         >
           {isSharing ? (
             <ActivityIndicator size="small" color={colors.white} />
@@ -191,16 +222,29 @@ export const SDDGImageViewer: React.FC<SDDGImageViewerProps> = ({
         </TouchableOpacity>
       </View>
 
-      {isImageAvailable === null && (
+      {documentSource === null && (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.primary} />
         </View>
       )}
 
-      {isImageAvailable === false && renderUnavailableState()}
+      {documentSource === "none" && renderUnavailableState()}
 
-      {isImageAvailable === true && (
+      {(documentSource === "image" || documentSource === "digital") && (
         <>
+          {documentSource === "digital" && (
+            <View style={styles.banner}>
+              <MaterialIcons
+                name="description"
+                size={16}
+                color={colors.textSecondary}
+              />
+              <Text style={styles.bannerText}>
+                Showing generated digital SDDG (no uploaded source image).
+              </Text>
+            </View>
+          )}
+
           {hasAttachments && (
             <View style={styles.banner}>
               <MaterialIcons
@@ -209,7 +253,9 @@ export const SDDGImageViewer: React.FC<SDDGImageViewerProps> = ({
                 color={colors.textSecondary}
               />
               <Text style={styles.bannerText}>
-                {mergedPdfUri
+                {documentSource === "digital"
+                  ? "Shared PDF will include attested authorization attachment(s)."
+                  : mergedPdfUri
                   ? "Showing SDDG with appended authorization document(s)."
                   : isPreparingDocument
                   ? "Preparing SDDG with appended authorization document(s)..."
@@ -245,6 +291,14 @@ export const SDDGImageViewer: React.FC<SDDGImageViewerProps> = ({
                 setMergedPdfUri(null);
               }}
             />
+          ) : documentSource === "digital" && digitalFormData ? (
+            <ScrollView
+              style={styles.digitalViewer}
+              contentContainerStyle={styles.digitalViewerContent}
+              showsVerticalScrollIndicator
+            >
+              <InspectorShippersDeclarationForm extractedData={digitalFormData} />
+            </ScrollView>
           ) : (
             imageUri && (
               <ScrollView
@@ -351,6 +405,14 @@ const styles = StyleSheet.create({
   viewerContent: {
     padding: spacing.md,
     alignItems: "center",
+  },
+  digitalViewer: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  digitalViewerContent: {
+    padding: spacing.md,
+    paddingBottom: spacing.xl,
   },
   image: {
     width: "100%",

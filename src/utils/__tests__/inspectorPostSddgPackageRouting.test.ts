@@ -48,6 +48,32 @@ test("preserves preloaded authorization docs before special-authorization check"
   );
 });
 
+test("bypasses special-authorization check for preparer-seeded preloaded auth shipments", () => {
+  const navigation = { navigate: jest.fn() };
+  const setSpecialAuthorizationData = jest.fn();
+
+  routeToPackageWorkflowStart(
+    createBaseOptions({
+      inspection: {
+        specialAuthorizationType: "DOT-SP",
+        specialAuthorizationPreloadedFromPreparer: true,
+        dotSpWaivers: [{ id: "doc-1" }],
+      },
+      navigation,
+      setSpecialAuthorizationData,
+    })
+  );
+
+  expect(setSpecialAuthorizationData).not.toHaveBeenCalledWith(null);
+  expect(navigation.navigate).toHaveBeenCalledWith(
+    "InspectorPreloadedAuthorizationReviewScreen",
+    {
+      authorizationType: "DOT-SP",
+      key17Value: "DOT-SP 12345",
+    }
+  );
+});
+
 test("clears stale authorization state when invalid key17 has no preloaded docs", () => {
   const navigation = { navigate: jest.fn() };
   const setSpecialAuthorizationData = jest.fn();
@@ -69,4 +95,3 @@ test("clears stale authorization state when invalid key17 has no preloaded docs"
     { packingInstruction: "DOT-SP 12345" }
   );
 });
-

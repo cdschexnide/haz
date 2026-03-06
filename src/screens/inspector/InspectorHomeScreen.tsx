@@ -61,6 +61,11 @@ import {
 } from "@/utils/inspectorSddgDocumentComposer";
 import { mergePdfDocuments } from "@/utils/sddgPdfGenerator";
 import {
+  hasRenderableInspectionSddgContent,
+  resolveInspectorSddgDocumentAvailability,
+  type InspectorSddgDocumentSource,
+} from "@/utils/inspectorSddgDocumentSource";
+import {
   colors,
   spacing,
   borderRadius,
@@ -124,8 +129,8 @@ function InspectorHomeScreenComponent({
     Map<string, Set<SelectedDocumentType>>
   >(new Map());
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
-  const [sddgImageUriCache, setSddgImageUriCache] = useState<
-    Map<string, string | null>
+  const [sddgDocumentSourceCache, setSddgDocumentSourceCache] = useState<
+    Map<string, InspectorSddgDocumentSource>
   >(new Map());
   const [preparerMatch, setPreparerMatch] = useState<ShipmentMetadata | null>(null);
   const [preparerSearchState, setPreparerSearchState] = useState<
@@ -187,12 +192,21 @@ function InspectorHomeScreenComponent({
     }
   };
 
-  const getSddgImageUri = useCallback(
-    (inspection: InspectorShipment): string | null =>
-      inspection.inspectionContext?.originalImageUri ||
-      sddgImageUriCache.get(inspection.id) ||
-      null,
-    [sddgImageUriCache]
+  const getSddgDocumentSource = useCallback(
+    (inspection: InspectorShipment): InspectorSddgDocumentSource => {
+      const cached = sddgDocumentSourceCache.get(inspection.id);
+      if (cached) {
+        return cached;
+      }
+      return resolveInspectorSddgDocumentAvailability(inspection).source;
+    },
+    [sddgDocumentSourceCache]
+  );
+
+  const hasViewableSddgDocument = useCallback(
+    (inspection: InspectorShipment): boolean =>
+      getSddgDocumentSource(inspection) !== "none",
+    [getSddgDocumentSource]
   );
 
   const exitSelectionMode = useCallback(() => {
@@ -203,14 +217,14 @@ function InspectorHomeScreenComponent({
   const handleLongPress = useCallback(
     (inspection: InspectorShipment) => {
       const docs = new Set<SelectedDocumentType>();
-      if (getSddgImageUri(inspection)) {
+      if (hasViewableSddgDocument(inspection)) {
         docs.add("sddg");
       }
       docs.add("1015");
       setSelectionMode(true);
       setSelectedDocuments(new Map([[inspection.id, docs]]));
     },
-    [getSddgImageUri]
+    [hasViewableSddgDocument]
   );
 
   const toggleDocumentSelection = useCallback(
@@ -291,17 +305,45 @@ function InspectorHomeScreenComponent({
 
     let cancelled = false;
 
-    const loadSddgImageUris = async () => {
+    const loadSddgDocumentAvailability = async () => {
       const results = await Promise.all(
         inspections.map(async inspection => {
           try {
             const fullInspection = await database.loadInspection(inspection.id);
+            if (!fullInspection) {
+              return {
+                inspectionId: inspection.id,
+                source: "none" as InspectorSddgDocumentSource,
+              };
+            }
+
+            const availability =
+              resolveInspectorSddgDocumentAvailability(fullInspection);
+
+            if (availability.source === "image") {
+              const imageUri = fullInspection.inspectionContext?.originalImageUri;
+              if (imageUri) {
+                const fileInfo = await FileSystem.getInfoAsync(imageUri);
+                if (!fileInfo.exists) {
+                  return {
+                    inspectionId: inspection.id,
+                    source: hasRenderableInspectionSddgContent(fullInspection)
+                      ? ("digital" as InspectorSddgDocumentSource)
+                      : ("none" as InspectorSddgDocumentSource),
+                  };
+                }
+              }
+            }
+
             return {
               inspectionId: inspection.id,
-              imageUri: fullInspection?.inspectionContext?.originalImageUri || null,
+              source: availability.source,
             };
           } catch {
-            return { inspectionId: inspection.id, imageUri: null };
+            return {
+              inspectionId: inspection.id,
+              source: "none" as InspectorSddgDocumentSource,
+            };
           }
         })
       );
@@ -310,16 +352,16 @@ function InspectorHomeScreenComponent({
         return;
       }
 
-      setSddgImageUriCache(prev => {
+      setSddgDocumentSourceCache(prev => {
         const next = new Map(prev);
-        results.forEach(({ inspectionId, imageUri }) => {
-          next.set(inspectionId, imageUri);
+        results.forEach(({ inspectionId, source }) => {
+          next.set(inspectionId, source);
         });
         return next;
       });
     };
 
-    loadSddgImageUris();
+    loadSddgDocumentAvailability();
 
     return () => {
       cancelled = true;
@@ -619,7 +661,9 @@ function InspectorHomeScreenComponent({
         setSpecialAuthorizationData({
           type: seed.specialAuthorization.type,
           referenceNumber: seed.specialAuthorization.referenceNumber,
-          attested: true,
+          // Preparer attestation does not satisfy inspector attestation.
+          attested: false,
+          source: "preparer",
         });
 
         if (seed.specialAuthorization.type === "COE") {
@@ -732,16 +776,34 @@ function InspectorHomeScreenComponent({
   const handleViewSDDG = async (inspection: InspectorShipment) => {
     try {
       const fullInspection = await database.loadInspection(inspection.id);
-      if (!fullInspection?.inspectionContext?.originalImageUri) {
-        Alert.alert("Not Available", "No SDDG image for this inspection.");
+      if (!fullInspection) {
+        Alert.alert("Error", "Inspection not found.");
         return;
       }
 
-      const fileInfo = await FileSystem.getInfoAsync(
-        fullInspection.inspectionContext.originalImageUri
-      );
-      if (!fileInfo.exists) {
-        Alert.alert("Not Available", "SDDG image not available.");
+      const availability = resolveInspectorSddgDocumentAvailability(fullInspection);
+      let resolvedSource: InspectorSddgDocumentSource = availability.source;
+
+      if (availability.source === "image") {
+        const imageUri = fullInspection.inspectionContext?.originalImageUri;
+        if (imageUri) {
+          const fileInfo = await FileSystem.getInfoAsync(imageUri);
+          if (!fileInfo.exists) {
+            resolvedSource = hasRenderableInspectionSddgContent(fullInspection)
+              ? "digital"
+              : "none";
+          }
+        }
+      }
+
+      setSddgDocumentSourceCache(prev => {
+        const next = new Map(prev);
+        next.set(inspection.id, resolvedSource);
+        return next;
+      });
+
+      if (resolvedSource === "none") {
+        Alert.alert("Not Available", "No SDDG document is available for this inspection.");
         return;
       }
 
@@ -1224,8 +1286,8 @@ function InspectorHomeScreenComponent({
           ListFooterComponent={listFooterContent}
           contentContainerStyle={selectionMode ? styles.listWithSelectionFooter : undefined}
           renderItem={({ item }) => {
-            const sddgImageUri = getSddgImageUri(item);
-            const hasSddgDoc = Boolean(sddgImageUri);
+            const sddgSource = getSddgDocumentSource(item);
+            const hasSddgDoc = sddgSource !== "none";
             const selectedForInspection = selectedDocuments.get(item.id);
             const sddgSelected = selectedForInspection?.has("sddg") || false;
             const formSelected = selectedForInspection?.has("1015") || false;

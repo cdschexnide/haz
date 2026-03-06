@@ -11,6 +11,7 @@ import InspectorInitialQuestioningScreen from "./InspectorInitialQuestioningScre
 import { InspectorExceptedOrLimitedQuantities } from "./InspectorExceptedOrLimitedQuantities";
 import InteractiveSDDGComplianceScreen from "./InteractiveSDDGComplianceScreen";
 import InspectorSpecialAuthorizationCheckScreen from "./InspectorSpecialAuthorizationCheckScreen";
+import InspectorPreloadedAuthorizationReviewScreen from "./InspectorPreloadedAuthorizationReviewScreen";
 import WaiverUploadScreen from "./WaiverUploadScreen";
 import WaiverAttestationScreen from "./WaiverAttestationScreen";
 import SDDGManualEntryScreen from "./SDDGManualEntryScreen";
@@ -154,6 +155,10 @@ const InspectorWrappedStack = ({ navigation }: { navigation: any }) => (
       <MainStack.Screen
         name="InspectorSpecialAuthorizationCheckScreen"
         component={InspectorSpecialAuthorizationCheckScreen}
+      />
+      <MainStack.Screen
+        name="InspectorPreloadedAuthorizationReviewScreen"
+        component={InspectorPreloadedAuthorizationReviewScreen}
       />
       <MainStack.Screen
         name="WaiverUploadScreen"

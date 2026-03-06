@@ -108,6 +108,7 @@ export const initialInspectionContext: SDDGInspectionContext = {
   specialAuthorizationType: null,
   specialAuthorizationReference: null,
   specialAuthorizationAttested: false,
+  specialAuthorizationPreloadedFromPreparer: false,
   coeAndCaaDocuments: {
     coeDocuments: [],
     caaDocuments: [],

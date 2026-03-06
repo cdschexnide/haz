@@ -160,6 +160,7 @@ interface InspectionFormContextValue {
       type: SpecialAuthorizationType;
       referenceNumber: string;
       attested: boolean;
+      source?: "preparer" | "inspector";
     } | null
   ) => void;
   addCoeCaaDocument: (document: {
@@ -304,6 +305,8 @@ export function InspectionFormProvider({
             loadedContext.specialAuthorizationReference || null,
           specialAuthorizationAttested:
             loadedContext.specialAuthorizationAttested || false,
+          specialAuthorizationPreloadedFromPreparer:
+            loadedContext.specialAuthorizationPreloadedFromPreparer || false,
           coeAndCaaDocuments: loadedContext.coeAndCaaDocuments || {
             coeDocuments: [],
             caaDocuments: [],
@@ -1517,6 +1520,7 @@ export function InspectionFormProvider({
         type: SpecialAuthorizationType;
         referenceNumber: string;
         attested: boolean;
+        source?: "preparer" | "inspector";
       } | null
     ) => {
       console.log(
@@ -1528,6 +1532,13 @@ export function InspectionFormProvider({
         specialAuthorizationType: data?.type || null,
         specialAuthorizationReference: data?.referenceNumber || null,
         specialAuthorizationAttested: data?.attested || false,
+        specialAuthorizationPreloadedFromPreparer: data
+          ? data.source === "preparer"
+            ? true
+            : data.source === "inspector"
+            ? false
+            : (prev.specialAuthorizationPreloadedFromPreparer ?? false)
+          : false,
         ...(data
           ? {}
           : {

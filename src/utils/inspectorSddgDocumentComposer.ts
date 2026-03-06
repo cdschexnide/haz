@@ -2,6 +2,7 @@ import * as FileSystem from "expo-file-system";
 import * as Print from "expo-print";
 import { InspectorShipment } from "@/types/sddg";
 import { mergeSDDGWithAttachments } from "@/utils/sddgPdfGenerator";
+import { getInspectionSddgContent } from "@/utils/inspectorSddgDocumentSource";
 
 type AttachmentLike = {
   uri?: string;
@@ -27,6 +28,15 @@ const escapeHtmlAttribute = (value: string): string =>
     .replace(/"/g, "&quot;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
+
+const escapeHtmlText = (value: string): string =>
+  value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+
+const withLineBreaks = (value: string): string =>
+  escapeHtmlText(value || "").replace(/\n/g, "<br />");
 
 export const getInspectorAuthorizationAttachmentContext = (
   inspection: InspectorShipment
@@ -120,6 +130,199 @@ const imageUriToPdf = async (imageUri: string): Promise<string> => {
   return printResult.uri;
 };
 
+const digitalSddgContentToPdf = async (
+  inspection: InspectorShipment
+): Promise<string> => {
+  const content = getInspectionSddgContent(inspection);
+  if (!content) {
+    throw new Error("SDDG content is missing.");
+  }
+
+  const html = `
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      @page { margin: 0.35in; }
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        color: #111827;
+      }
+      .title {
+        text-align: center;
+        font-weight: 700;
+        font-size: 16px;
+        margin-bottom: 12px;
+      }
+      .hint {
+        text-align: center;
+        color: #4b5563;
+        font-size: 11px;
+        margin-bottom: 14px;
+      }
+      .grid {
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      .row {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
+        border-bottom: 1px solid #e5e7eb;
+      }
+      .row:last-child { border-bottom: none; }
+      .cell {
+        display: table-cell;
+        vertical-align: top;
+        padding: 8px;
+        border-right: 1px solid #e5e7eb;
+      }
+      .cell:last-child { border-right: none; }
+      .label {
+        font-size: 10px;
+        color: #6b7280;
+        margin-bottom: 4px;
+        text-transform: uppercase;
+        letter-spacing: 0.2px;
+      }
+      .value {
+        font-size: 12px;
+        line-height: 1.45;
+        word-wrap: break-word;
+      }
+      .table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+      }
+      .table th, .table td {
+        border: 1px solid #d1d5db;
+        padding: 6px;
+        text-align: left;
+        font-size: 11px;
+        vertical-align: top;
+      }
+      .table th {
+        background: #f3f4f6;
+        font-weight: 700;
+      }
+      .declaration {
+        margin-top: 12px;
+        font-size: 11px;
+        line-height: 1.45;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        padding: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="title">SHIPPER'S DECLARATION FOR DANGEROUS GOODS</div>
+    <div class="hint">Digital SDDG generated from inspection data</div>
+
+    <div class="grid">
+      <div class="row">
+        <div class="cell">
+          <div class="label">Shipper</div>
+          <div class="value">${withLineBreaks(content.shipper || "")}</div>
+        </div>
+        <div class="cell">
+          <div class="label">Consignee</div>
+          <div class="value">${withLineBreaks(content.consignee || "")}</div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="cell">
+          <div class="label">Air Waybill No.</div>
+          <div class="value">${withLineBreaks(content.airWaybillNumber || "")}</div>
+        </div>
+        <div class="cell">
+          <div class="label">TCN</div>
+          <div class="value">${withLineBreaks(
+            content.shippersReferenceNumber || ""
+          )}</div>
+        </div>
+        <div class="cell">
+          <div class="label">Aircraft Type</div>
+          <div class="value">${withLineBreaks(content.aircraftType || "")}</div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="cell">
+          <div class="label">Airport of Departure</div>
+          <div class="value">${withLineBreaks(
+            content.airportOfDeparture || ""
+          )}</div>
+        </div>
+        <div class="cell">
+          <div class="label">Airport of Destination</div>
+          <div class="value">${withLineBreaks(
+            content.airportOfDestination || ""
+          )}</div>
+        </div>
+        <div class="cell">
+          <div class="label">Shipment Type</div>
+          <div class="value">${withLineBreaks(content.shipmentType || "")}</div>
+        </div>
+      </div>
+    </div>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>UN or ID No.</th>
+          <th>Proper Shipping Name</th>
+          <th>Class or Division</th>
+          <th>Packing Group</th>
+          <th>Quantity and Type of Packing</th>
+          <th>Packing Inst.</th>
+          <th>Authorization</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>${withLineBreaks(content.unIdNo || "")}</td>
+          <td>${withLineBreaks(content.properShippingName || "")}</td>
+          <td>${withLineBreaks(
+            [content.hazardClass, content.subsidiaryRisk]
+              .filter(Boolean)
+              .join(" ")
+          )}</td>
+          <td>${withLineBreaks(content.packingGroup || "—")}</td>
+          <td>${withLineBreaks(content.quantityAndPacking || "")}</td>
+          <td>${withLineBreaks(content.packingInstruction || "")}</td>
+          <td>${withLineBreaks(content.authorization || "")}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="declaration">
+      <div><strong>Additional Handling Information</strong></div>
+      <div>${withLineBreaks(content.additionalHandlingInfo || "")}</div>
+      <br />
+      <div><strong>Name/Title of Signatory</strong>: ${withLineBreaks(
+        content.nameOfSignatory || ""
+      )}</div>
+      <div><strong>Place and Date</strong>: ${withLineBreaks(
+        content.placeAndDate || ""
+      )}</div>
+    </div>
+  </body>
+</html>
+  `;
+
+  const printResult = await Print.printToFileAsync({
+    html,
+    base64: false,
+  });
+
+  return printResult.uri;
+};
+
 const writeAttachmentBase64ToPdf = async (
   base64Data: string,
   index: number
@@ -167,17 +370,20 @@ export const composeInspectorSddgPdf = async (
   const warnings: string[] = [];
   const tempUris: string[] = [];
   const imageUri = inspection.inspectionContext?.originalImageUri;
+  let sddgPdfUri: string;
 
-  if (!imageUri) {
-    throw new Error("SDDG image URI is missing.");
+  if (imageUri) {
+    const imageInfo = await FileSystem.getInfoAsync(imageUri);
+    if (imageInfo.exists) {
+      sddgPdfUri = await imageUriToPdf(imageUri);
+    } else {
+      warnings.push("Original SDDG image was missing; generated digital SDDG.");
+      sddgPdfUri = await digitalSddgContentToPdf(inspection);
+    }
+  } else {
+    sddgPdfUri = await digitalSddgContentToPdf(inspection);
   }
 
-  const imageInfo = await FileSystem.getInfoAsync(imageUri);
-  if (!imageInfo.exists) {
-    throw new Error("SDDG image file not found.");
-  }
-
-  const sddgPdfUri = await imageUriToPdf(imageUri);
   tempUris.push(sddgPdfUri);
 
   const { attachments, type, isAttested } =

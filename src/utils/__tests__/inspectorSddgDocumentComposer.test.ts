@@ -77,6 +77,47 @@ describe("inspectorSddgDocumentComposer", () => {
     expect(mergeSDDGWithAttachments).not.toHaveBeenCalled();
   });
 
+  it("builds a digital SDDG pdf when original image is missing", async () => {
+    const inspection = {
+      ...baseInspection,
+      inspectionContext: {
+        ...baseInspection.inspectionContext,
+        originalImageUri: null,
+        verificationCopy: {
+          shipper: "Shipper",
+          consignee: "Consignee",
+          airWaybillNumber: "",
+          pagination: "PAGE 1 OF 1",
+          shippersReferenceNumber: "TCN123",
+          inspectionActivity: "",
+          aircraftType: "Passenger and Cargo Aircraft",
+          airportOfDeparture: "AAA",
+          airportOfDestination: "BBB",
+          shipmentType: "Non-Radioactive",
+          unIdNo: "UN1234",
+          properShippingName: "TEST MATERIAL",
+          hazardClass: "3",
+          subsidiaryRisk: "",
+          packingGroup: "II",
+          quantityAndPacking: "1 box x 10 KG",
+          packingInstruction: "A1.1",
+          authorization: "AFMAN24-604",
+          additionalHandlingInfo: "",
+          nameOfSignatory: "John Doe",
+          placeAndDate: "Dover 2026-02-20",
+          signature: "",
+        },
+      },
+    };
+
+    const result = await composeInspectorSddgPdf(inspection as any);
+
+    expect(result.includesAuthAttachments).toBe(false);
+    expect(result.pdfUri).toBe("file:///mock/cache/sddg.pdf");
+    expect(mergeSDDGWithAttachments).not.toHaveBeenCalled();
+    expect(Print.printToFileAsync).toHaveBeenCalled();
+  });
+
   it("merges SDDG with COE attachments when attested", async () => {
     const inspection = {
       ...baseInspection,

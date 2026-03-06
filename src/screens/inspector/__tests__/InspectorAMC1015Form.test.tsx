@@ -14,11 +14,24 @@ jest.mock("@/contexts/InspectionFormProvider", () => ({
       resolvedFrustrations: [],
       resolvedPackageFrustrations: [],
       verificationCopy: null,
-      inspector: "I",
+      originalImageUri: null,
+      inspector: {
+        inspectorName: "Test Inspector",
+        inspectorRank: "SrA",
+        inspectorTitle: "JB MDL (KWRI)",
+      },
     },
     finalizeInspection: mockFinalizeInspection,
   }),
 }));
+
+jest.mock("@/utils/stampSddgImage", () => {
+  const React = require("react");
+  return {
+    STAMP_TIMEOUT_MS: 10000,
+    SddgStampOverlay: React.forwardRef(() => null),
+  };
+});
 
 jest.mock("@/stores/useHazProStore", () => ({
   useHazProActions: () => ({

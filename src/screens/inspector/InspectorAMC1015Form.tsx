@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -29,6 +29,11 @@ import { useHazProActions } from "../../stores/useHazProStore";
 import { DevBenchmarkButton } from "../../components/dev/DevBenchmarkButton";
 import { ActionFooter, colors, spacing, borderRadius } from "../../components/ui";
 import { hazardousMaterialsA13List } from "@/hazardousMaterials/hazardousMaterialsA13List";
+import {
+  SddgStampOverlay,
+  SddgStampOverlayHandle,
+  STAMP_TIMEOUT_MS,
+} from "@/utils/stampSddgImage";
 
 interface InspectorAMC1015FormProps {
   navigation?: any;
@@ -43,6 +48,7 @@ export const InspectorAMC1015Form = ({
   const { navigationRef } = useNavigationRef();
   const actions = useHazProActions();
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const stampRef = useRef<SddgStampOverlayHandle>(null);
 
   // Set the active chevron to "Complete" when this screen is mounted
   useEffect(() => {
@@ -57,7 +63,6 @@ export const InspectorAMC1015Form = ({
     inspection.resolvedPackageFrustrations || [];
   const verificationCopy = inspection.verificationCopy;
 
-  console.log('hazardousMaterialsA13List: ', JSON.stringify(hazardousMaterialsA13List, null, 2))
   // Helper to format inspector for display
   const formatInspector = (inspectorData: any): string => {
     if (typeof inspectorData === "string") {
@@ -1608,7 +1613,64 @@ export const InspectorAMC1015Form = ({
                 }
               );
 
-              const result = await finalizeInspection();
+              let stampOverrides: { originalImageUri: string } | undefined;
+              let oldImageUri: string | null = null;
+              if (inspection.originalImageUri && stampRef.current) {
+                try {
+                  const inspectorForStamp = {
+                    inspectorName: inspection.inspector.inspectorName || "Unknown Inspector",
+                    inspectorRank: inspection.inspector.inspectorRank || null,
+                    inspectorTitle: inspection.inspector.inspectorTitle || "",
+                  };
+                  let timeoutId: ReturnType<typeof setTimeout> | null = null;
+                  const stampPromise = stampRef.current.stamp(
+                    inspection.originalImageUri,
+                    inspectorForStamp,
+                    new Date()
+                  );
+                  const timeoutPromise = new Promise<null>(resolve => {
+                    timeoutId = setTimeout(() => {
+                      console.error(
+                        "[AMC1015] Stamp timed out after",
+                        STAMP_TIMEOUT_MS,
+                        "ms"
+                      );
+                      resolve(null);
+                    }, STAMP_TIMEOUT_MS);
+                  });
+                  const stampedUri = await Promise.race([
+                    stampPromise,
+                    timeoutPromise,
+                  ]);
+                  if (timeoutId) {
+                    clearTimeout(timeoutId);
+                  }
+                  if (stampedUri) {
+                    oldImageUri = inspection.originalImageUri;
+                    stampOverrides = { originalImageUri: stampedUri };
+                  } else {
+                    stampPromise
+                      .then(uri => {
+                        if (uri) {
+                          FileSystem.deleteAsync(uri, {
+                            idempotent: true,
+                          }).catch(() => {});
+                        }
+                      })
+                      .catch(() => {});
+                  }
+                } catch (err) {
+                  console.error("[AMC1015] Failed to stamp SDDG image:", err);
+                }
+              }
+
+              const result = await finalizeInspection(stampOverrides);
+
+              if (result?.success && oldImageUri) {
+                FileSystem.deleteAsync(oldImageUri, {
+                  idempotent: true,
+                }).catch(() => {});
+              }
 
               if (result?.success) {
                 console.log(
@@ -1620,7 +1682,7 @@ export const InspectorAMC1015Form = ({
                   const currentRoutes = currentState?.routes ?? [];
                   console.log(
                     "🧭 [AMC1015] MainStack routes:",
-                    currentRoutes.map(route => route.name)
+                    currentRoutes.map((route: { name: string }) => route.name)
                   );
                 }
 
@@ -1689,6 +1751,7 @@ export const InspectorAMC1015Form = ({
 
   return (
     <View style={styles.container}>
+      <SddgStampOverlay ref={stampRef} />
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}

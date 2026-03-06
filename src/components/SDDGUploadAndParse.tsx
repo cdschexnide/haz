@@ -74,15 +74,6 @@ interface SDDGUploadAndParseProps {
   navigation: any;
 }
 
-// TEMP DEMO OVERRIDE: force Key 17 (Packing Instruction) after upload/parse.
-const DEMO_PACKING_INSTRUCTION = "CAA200907007";
-const DEMO_PACKING_INSTRUCTION_UNID = "UN0247";
-
-const normalizeUnId = (value: string) =>
-  value
-    .trim()
-    .toUpperCase()
-    .replace(/[^A-Z0-9]/g, "");
 
 function SDDGUploadAndParse({ navigation }: SDDGUploadAndParseProps) {
   const {
@@ -172,21 +163,9 @@ function SDDGUploadAndParse({ navigation }: SDDGUploadAndParseProps) {
         signature: "",
       };
 
-      const shouldUseDemoPackingInstruction =
-        normalizeUnId(extractedContentForStore.unIdNo || "") ===
-        DEMO_PACKING_INSTRUCTION_UNID;
-
-      // TEMP DEMO OVERRIDE: only force packing instruction for UN0247.
-      const extractedContentWithDemoPackingInstruction: ExtractedSDDGContent = {
-        ...extractedContentForStore,
-        packingInstruction: shouldUseDemoPackingInstruction
-          ? DEMO_PACKING_INSTRUCTION
-          : extractedContentForStore.packingInstruction,
-      };
-
       // Set extracted content - Context provider automatically preserves existing frustrations
       setExtractedSDDGContent(
-        extractedContentWithDemoPackingInstruction,
+        extractedContentForStore,
         debugImageUri
       );
       mockDataSetRef.current = true;
@@ -2448,7 +2427,9 @@ function SDDGUploadAndParse({ navigation }: SDDGUploadAndParseProps) {
           setSpecialAuthorizationData({
             type: seed.specialAuthorization.type,
             referenceNumber: seed.specialAuthorization.referenceNumber,
-            attested: true,
+            // Preparer attestation does not satisfy inspector attestation.
+            attested: false,
+            source: "preparer",
           });
 
           if (seed.specialAuthorization.type === "COE") {

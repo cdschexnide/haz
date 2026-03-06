@@ -179,6 +179,7 @@ export interface SDDGInspectionContext {
   specialAuthorizationType?: SpecialAuthorizationType | null;
   specialAuthorizationReference?: string | null;
   specialAuthorizationAttested?: boolean;
+  specialAuthorizationPreloadedFromPreparer?: boolean;
   coeAndCaaDocuments?: InspectorCoeAndCaaDocuments;
   dotSpWaivers?: InspectorDotSpWaiver[];
   inspector: {

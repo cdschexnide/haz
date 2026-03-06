@@ -121,14 +121,19 @@ const SpecialAuthorizationAttestationScreen = ({
           onPress={() => setIsAttested(prev => !prev)}
           activeOpacity={0.8}
         >
-          <Ionicons
-            name={isAttested ? "checkmark-circle" : "ellipse-outline"}
-            size={26}
-            color={isAttested ? "#1a73e8" : "#8a8a8a"}
-          />
-          <Text style={styles.attestationText}>
-            I attest that this package adheres to the criteria/description in the uploaded {authorizationType || "authorization"} document.
-          </Text>
+          <View style={styles.attestationIconContainer}>
+            <Ionicons
+              name={isAttested ? "checkmark-circle" : "ellipse-outline"}
+              size={24}
+              color={isAttested ? "#1a73e8" : "#8a8a8a"}
+              style={styles.attestationIcon}
+            />
+          </View>
+          <View style={styles.attestationTextContainer}>
+            <Text style={styles.attestationText}>
+              I attest that this package adheres to the criteria/description in the uploaded {authorizationType || "authorization"} document.
+            </Text>
+          </View>
         </TouchableOpacity>
       </View>
 
@@ -212,18 +217,33 @@ const styles = StyleSheet.create({
   },
   attestationRow: {
     flexDirection: "row",
-    alignItems: "flex-start",
+    alignItems: "center",
     backgroundColor: "#ffffff",
     borderRadius: 10,
     borderWidth: 1,
     borderColor: "#dfe4eb",
     padding: 14,
   },
-  attestationText: {
+  attestationIconContainer: {
+    width: 24,
+    height: 24,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  attestationIcon: {
+    alignSelf: "center",
+  },
+  attestationTextContainer: {
     flex: 1,
-    marginLeft: 10,
+    minHeight: 24,
+    justifyContent: "center",
+    marginLeft: 12,
+  },
+  attestationText: {
     fontSize: 14,
-    lineHeight: 20,
+    lineHeight: 19,
+    textAlignVertical: "center",
+    includeFontPadding: false,
     color: "#2f3a47",
   },
   bottomButtonsContainer: {

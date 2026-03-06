@@ -89,7 +89,7 @@ const InspectorSpecialAuthorizationCheckScreen = ({
 
     if (selection === "yes") {
       if (preloadedAuthorization) {
-        navigation.navigate("WaiverAttestationScreen", {
+        navigation.navigate("InspectorPreloadedAuthorizationReviewScreen", {
           authorizationType: preloadedAuthorization.type,
           key17Value: packingInstruction.trim(),
         });
@@ -123,46 +123,46 @@ const InspectorSpecialAuthorizationCheckScreen = ({
       />
 
       <View style={styles.content}>
-        <View style={styles.flagCard}>
-          <View style={styles.flagCardHeader}>
-            <MaterialIcons name="warning" size={22} color={colors.warning} />
-            <Text style={styles.flagCardTitle}>Key 17 Flagged</Text>
-          </View>
-          <Text style={styles.flagCardDescription}>
-            The packing instruction doesn't match a known AFMAN 24-604 paragraph.
-          </Text>
-          <View style={styles.key17ValueBox}>
-            <Text style={styles.key17Label}>KEY 17 VALUE</Text>
-            <Text style={styles.key17Value}>
+        <View style={styles.flagBanner}>
+          <View style={styles.flagBannerRow}>
+            <MaterialIcons name="warning" size={18} color={colors.warning} />
+            <Text style={styles.flagBannerTitle}>Key 17 Flagged:</Text>
+            <Text style={styles.flagBannerValue} numberOfLines={1}>
               {packingInstruction || "Not provided"}
             </Text>
           </View>
+          <Text style={styles.flagBannerDescription}>
+            Not a known AFMAN 24-604 packaging paragraph
+          </Text>
         </View>
 
-        <Text style={styles.questionText}>What applies to this shipment?</Text>
+        <View style={styles.questionSection}>
+          <Text style={styles.questionText}>What applies to this shipment?</Text>
+          {preloadedAuthorization ? (
+            <Text style={styles.preloadedHint}>
+              Found {preloadedAuthorization.documentCount} preloaded{" "}
+              {preloadedAuthorization.type} document
+              {preloadedAuthorization.documentCount === 1 ? "" : "s"} from the
+              matched Preparer shipment.
+            </Text>
+          ) : null}
+        </View>
 
-        {preloadedAuthorization ? (
-          <Text style={styles.preloadedHint}>
-            Found {preloadedAuthorization.documentCount} preloaded{" "}
-            {preloadedAuthorization.type} document
-            {preloadedAuthorization.documentCount === 1 ? "" : "s"} from the
-            matched Preparer shipment.
-          </Text>
-        ) : null}
-
-        <SelectableCard
-          title="Uses special authorization"
-          subtitle="Shipment is operating under a COE, CAA, or DOT-SP"
-          selected={selection === "yes"}
-          onPress={() => setSelection("yes")}
-        />
-
-        <SelectableCard
-          title="Key 17 is incorrect"
-          subtitle="Should be a valid AFMAN packaging paragraph"
-          selected={selection === "no"}
-          onPress={() => setSelection("no")}
-        />
+        <View style={styles.optionsGroup}>
+          <SelectableCard
+            title="Uses special authorization"
+            subtitle="Operating under a COE, CAA, or DOT-SP"
+            selected={selection === "yes"}
+            onPress={() => setSelection("yes")}
+          />
+          <View style={styles.optionsDivider} />
+          <SelectableCard
+            title="Key 17 is incorrect"
+            subtitle="Should be a valid AFMAN packaging paragraph"
+            selected={selection === "no"}
+            onPress={() => setSelection("no")}
+          />
+        </View>
       </View>
 
       <ActionFooter
@@ -194,61 +194,57 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     padding: spacing.lg,
-    gap: spacing.lg,
+    gap: spacing.md,
   },
-  flagCard: {
+  flagBanner: {
     backgroundColor: colors.warningLight,
     borderWidth: 1,
     borderColor: colors.warning,
-    borderRadius: borderRadius.lg,
-    padding: spacing.lg,
-    gap: spacing.sm,
+    borderRadius: borderRadius.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
   },
-  flagCardHeader: {
+  flagBannerRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: spacing.sm,
+    gap: spacing.xs,
   },
-  flagCardTitle: {
-    fontSize: 17,
-    fontWeight: "700",
-    color: colors.textPrimary,
-  },
-  flagCardDescription: {
+  flagBannerTitle: {
     fontSize: 14,
-    color: colors.textSecondary,
-    lineHeight: 20,
-  },
-  key17ValueBox: {
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    marginTop: spacing.xs,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  key17Label: {
-    fontSize: 11,
-    fontWeight: "600",
-    color: colors.textSecondary,
-    textTransform: "uppercase",
-    letterSpacing: 0.4,
-    marginBottom: 4,
-  },
-  key17Value: {
-    fontSize: 18,
     fontWeight: "700",
     color: colors.textPrimary,
+  },
+  flagBannerValue: {
+    flex: 1,
+    fontSize: 14,
+    fontWeight: "700",
+    color: colors.warning,
+  },
+  flagBannerDescription: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    marginTop: 2,
+    marginLeft: 22,
+  },
+  questionSection: {
+    gap: spacing.xs,
   },
   questionText: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "600",
     color: colors.textPrimary,
   },
   preloadedHint: {
     fontSize: 13,
     color: colors.textSecondary,
-    marginTop: -spacing.sm,
+  },
+  optionsGroup: {
+    borderRadius: borderRadius.lg,
+    overflow: "hidden",
+  },
+  optionsDivider: {
+    height: 1,
+    backgroundColor: colors.border,
   },
 });
 
