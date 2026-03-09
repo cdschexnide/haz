@@ -38,7 +38,7 @@ const KNOWN_LABELS = [
   "DANGEROUS GOODS IDENTIFICATION",
   "TRANSPORTATION DETAILS",
   "TRANSPORT DETAILS",
-  "WARNING", "FAILURE TO COMPLY",
+  "WARNING", "FAILURE TO COMPLY", "LEGAL PENALTIES",
   "COMPLETED AND SIGNED", "DECLARATION MUST",
   "HANDED TO THE OPERATOR",
   "THIS IS WITHIN", "THIS SHIPMENT IS WITHIN", "LIMITATIONS PRESCRIBED",
@@ -161,10 +161,10 @@ const FIELD_SEARCH_CONFIGS: Record<string, Partial<SearchConfig>> = {
   signature: { searchRight: 400, searchBelow: 60, maxDistance: 500 },
 
   // Single-line fields below
-  airport_departure: { searchRight: 200, searchBelow: 120, maxDistance: 300 },
-  airport_destination: { searchRight: 200, searchBelow: 120, maxDistance: 300 },
+  airport_departure: { searchRight: 600, searchBelow: 120, maxDistance: 700 },
+  airport_destination: { searchRight: 600, searchBelow: 120, maxDistance: 700 },
   name_title_signatory: { searchRight: 500, searchBelow: 100, maxDistance: 600 },
-  place_date: { searchRight: 600, searchBelow: 100, maxDistance: 700 },
+  place_date: { searchRight: 600, searchBelow: 65, maxDistance: 700 },
 };
 
 /**
@@ -228,10 +228,26 @@ export function findValueBlocks(
       Math.abs(block.boundingBox.y - anchorBox.y) < 5
     ) {
       // Check if anchor text has extra content beyond the label (e.g., "Consignee SW3119")
-      const residual = block.text
-        .replace(/^(SHIPPER|CONSIGNEE|ADDITIONAL\s*HANDLING\s*INFORMATION)\s*/i, "")
-        .trim();
-      if (residual && residual !== block.text.trim()) {
+      // Use the anchor's own matched pattern to strip the label, not a hardcoded list
+      const matchedPattern = anchor.matchedPattern;
+      let residual = block.text;
+      if (matchedPattern) {
+        // Escape regex special characters in the matched pattern
+        const escaped = matchedPattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        residual = residual.replace(new RegExp(escaped, "i"), "").trim();
+      }
+      // Also try stripping common label prefixes that OCR may merge with value
+      if (residual === block.text.trim()) {
+        residual = block.text
+          .replace(/^SHIPPER['']?S?\s*REFERENCE\s*(NUMBER|NO\.?)?\s*/i, "")
+          .replace(/^CONSIGNEE\s*/i, "")
+          .replace(/^ADDITIONAL\s*HANDLING\s*INFORMATION\s*/i, "")
+          .replace(/^SHIPPER\s*/i, "")
+          .trim();
+      }
+      // Only use residual if it has actual alphanumeric content and isn't a known label
+      const hasAlphanumeric = /[a-zA-Z0-9]/.test(residual);
+      if (residual && residual !== block.text.trim() && hasAlphanumeric && !isKnownLabel(residual)) {
         candidates.push({ block: { ...block, text: residual }, distance: 0 });
       }
       continue;
@@ -406,10 +422,16 @@ export function computeAdaptiveTableRegions(
 
   if (columnAnchors.length === 0) return regions;
 
-  // Sort columns by x position
-  const sortedAnchors = [...columnAnchors].sort(
-    (a, b) => a.boundingBox.x - b.boundingBox.x
-  );
+  // Sort columns by x position, using original column order as tiebreaker
+  // for merged headers (same OCR block, same x position)
+  const anchorOrder = new Map(columnAnchors.map((a, i) => [a.fieldId, i]));
+  const sortedAnchors = [...columnAnchors].sort((a, b) => {
+    const xDiff = a.boundingBox.x - b.boundingBox.x;
+    if (Math.abs(xDiff) < 10) {
+      return (anchorOrder.get(a.fieldId) ?? 0) - (anchorOrder.get(b.fieldId) ?? 0);
+    }
+    return xDiff;
+  });
 
   // Find the lowest header bottom (start of data area)
   const headerBottom = Math.max(
@@ -428,17 +450,47 @@ export function computeAdaptiveTableRegions(
   console.log(`📊 Adaptive table: headerBottom=${Math.round(headerBottom)}, tableBottom=${Math.round(tableBottom)}, height=${Math.round(tableHeight)}`);
 
   // For each column, define region based on column boundaries
+  // Handles merged headers: when OCR merges adjacent column headers into one block,
+  // split the shared bounding box proportionally by pattern length
   for (let i = 0; i < sortedAnchors.length; i++) {
     const anchor = sortedAnchors[i];
+    const prevAnchor = i > 0 ? sortedAnchors[i - 1] : null;
     const nextAnchor = sortedAnchors[i + 1];
 
-    // Column starts at anchor x minus some padding
-    const columnLeft = anchor.boundingBox.x - 30;
+    let columnLeft: number;
+    let columnRight: number;
 
-    // Column ends at next anchor x or extends right
-    const columnRight = nextAnchor
-      ? nextAnchor.boundingBox.x - 10
-      : anchor.boundingBox.x + anchor.boundingBox.width + 200;
+    // Check if previous anchor shares the same OCR block (merged header)
+    const mergedWithPrev = prevAnchor &&
+      Math.abs(anchor.boundingBox.x - prevAnchor.boundingBox.x) < 10 &&
+      Math.abs(anchor.boundingBox.y - prevAnchor.boundingBox.y) < 10;
+
+    // Check if next anchor shares the same OCR block (merged header)
+    const mergedWithNext = nextAnchor &&
+      Math.abs(anchor.boundingBox.x - nextAnchor.boundingBox.x) < 10 &&
+      Math.abs(anchor.boundingBox.y - nextAnchor.boundingBox.y) < 10;
+
+    if (mergedWithPrev) {
+      // RIGHT part of a merged header — split proportionally
+      const prevLen = prevAnchor!.matchedPattern.length;
+      const totalLen = prevLen + 1 + anchor.matchedPattern.length;
+      const splitRatio = (prevLen + 0.5) / totalLen;
+      columnLeft = anchor.boundingBox.x + anchor.boundingBox.width * splitRatio;
+    } else {
+      columnLeft = anchor.boundingBox.x - 30;
+    }
+
+    if (mergedWithNext) {
+      // LEFT part of a merged header — split proportionally
+      const currLen = anchor.matchedPattern.length;
+      const totalLen = currLen + 1 + nextAnchor!.matchedPattern.length;
+      const splitRatio = (currLen + 0.5) / totalLen;
+      columnRight = anchor.boundingBox.x + anchor.boundingBox.width * splitRatio;
+    } else {
+      columnRight = nextAnchor
+        ? nextAnchor.boundingBox.x - 10
+        : anchor.boundingBox.x + anchor.boundingBox.width + 200;
+    }
 
     const columnWidth = Math.max(columnRight - columnLeft, 80);
 

@@ -106,11 +106,11 @@ const parseShipperInfo = (shipper: string) => {
 
   // Handle empty or invalid shipper data
   if (!shipper || shipper.trim() === '') {
-    console.log('🔍 [parseShipperInfo] Empty shipper, using defaults');
+    console.log('🔍 [parseShipperInfo] Empty shipper');
     return {
-      name: 'TRAFFIC MANAGEMENT FLIGHT',
-      street: '5236 CHASE ST',
-      city: 'WRIGHT PATTERSON AFB, OH 45433-5501',
+      name: '',
+      street: '',
+      city: '',
       phone: '',
       dsn: ''
     };
@@ -155,7 +155,7 @@ const parseShipperInfo = (shipper: string) => {
   const trimmed = addressText.trim();
   console.log('🔍 [parseShipperInfo] Single line format, trimmed:', JSON.stringify(trimmed));
   
-  // Try comma-separated format: "TRAFFIC MANAGEMENT FLIGHT, 5236 CHASE ST, WRIGHT PATTERSON AFB, OH 45433-5501"
+  // Try comma-separated format: "COMPANY NAME, 123 MAIN ST, CITY, STATE ZIP"
   const commaParts = trimmed.split(',');
   console.log('🔍 [parseShipperInfo] Comma parts:', commaParts);
   if (commaParts.length >= 3) {
@@ -171,7 +171,7 @@ const parseShipperInfo = (shipper: string) => {
     return result;
   }
   
-  // Try space-separated format: "TRAFFIC MANAGEMENT FLIGHT 5236 CHASE RD WRIGHT PATTERSON AFB, OH 45433-5501"
+  // Try space-separated format: "COMPANY NAME 123 MAIN ST CITY AFB, STATE ZIP"
   const words = trimmed.split(' ');
   console.log('🔍 [parseShipperInfo] Space-separated words:', words);
   if (words.length > 6) {
@@ -196,21 +196,13 @@ const parseShipperInfo = (shipper: string) => {
       console.log('🔍 [parseShipperInfo] Remaining words for address:', remainingWords);
       
       // Find where street address ends (look for base/city name pattern)
-      // Look for common base patterns like "WRIGHT PATTERSON AFB" or "AFB"
       let streetEndIndex = -1;
       for (let i = 0; i < remainingWords.length - 2; i++) {
         const word = remainingWords[i];
         const nextWord = remainingWords[i + 1];
-        const nextNextWord = remainingWords[i + 2];
-        
-        // Look for "WRIGHT PATTERSON AFB" pattern
-        if (word === 'WRIGHT' && nextWord === 'PATTERSON' && nextNextWord === 'AFB') {
-          console.log('🔍 [parseShipperInfo] Found WRIGHT PATTERSON AFB at index:', i);
-          streetEndIndex = i - 1; // Street ends before "WRIGHT"
-          break;
-        }
-        // Look for generic "XXX AFB" pattern
-        else if (nextWord === 'AFB' || word === 'AFB') {
+
+        // Look for generic "XXX AFB" pattern (air force base marks city boundary)
+        if (nextWord === 'AFB' || word === 'AFB') {
           console.log('🔍 [parseShipperInfo] Found AFB pattern at index:', i);
           streetEndIndex = i - 1; // Street ends before base name
           break;

@@ -534,9 +534,12 @@ export function applyPostProcessing(
         break;
 
       case "remove_tcn_prefix":
+        // Strip label text that may have leaked into the value
+        // Handle various apostrophe characters (ASCII ', Unicode ', `)
         result = result
-          .replace(/^TCN\s*:?\s*/i, "")
-          .replace(/^SHIPPER'?S?\s*REFERENCE\s*(NUMBER|NO\.?)?\s*:?\s*/i, "")
+          .replace(/^SHIPPER[''`]?S?\s*REFERENCE\s*(NUMBER|NO\.?)?\s*:?\s*/im, "")
+          .replace(/^[''`]?S?\s*REFERENCE\s*(NUMBER|NO\.?)?\s*:?\s*/im, "")
+          .replace(/^TCN\s*:?\s*/im, "")
           .trim();
         break;
 
@@ -573,17 +576,39 @@ export function applyPostProcessing(
         break;
 
       case "validate_packing_group":
-        // Packing groups are Roman numerals (I, II, III) or empty
-        // Filter out quantity data that may have been incorrectly captured
-        const pgMatch = result.match(/^(I{1,3}|IV|V|VI{0,3})$/i);
-        if (pgMatch) {
-          result = pgMatch[1].toUpperCase();
-        } else if (result.match(/\d+\.\d+|kg|lb|box|wooden|new/i)) {
-          // This looks like quantity data, not packing group
-          result = "";
-        } else {
-          result = result.trim();
+        // Packing groups are ONLY Roman numerals (I, II, III) or empty
+        // per IATA/DOT regulations. Reject anything else — it's column bleed.
+        const pgMatch = result.trim().match(/^(I{1,3}|IV|V|VI{0,3})$/i);
+        result = pgMatch ? pgMatch[1].toUpperCase() : "";
+        break;
+
+      case "extract_airport_code":
+        // Extract 3-letter IATA airport code from potentially noisy text
+        // Airport codes are 3 uppercase letters (e.g., WRI, JIB, SUU)
+        const airportMatch = result.match(/\b([A-Z]{3})\b/);
+        if (airportMatch) {
+          result = airportMatch[1];
         }
+        break;
+
+      case "clean_digital_signature":
+        // Remove digital signature artifacts that bleed into nearby fields
+        // Handles: "DARNELLJAM ty signed by", "Digitally signed by SMITH.JOHN", etc.
+        result = result
+          .split("\n")
+          .filter(line => {
+            const trimmed = line.trim();
+            // Filter lines containing digital signature phrases
+            if (/signed\s+by/i.test(trimmed)) return false;
+            if (/digitally\s+signed/i.test(trimmed)) return false;
+            // Filter garbled certificate data (long runs of digits/dots)
+            if (/^\d[\d.]+\d$/.test(trimmed)) return false;
+            // Filter lines that look like cert fields (Date: YYYYMM, CN=, OU=)
+            if (/^(Date|CN|OU|O|C)\s*[:=]/i.test(trimmed)) return false;
+            return true;
+          })
+          .join("\n")
+          .trim();
         break;
 
       case "clean_quantity":

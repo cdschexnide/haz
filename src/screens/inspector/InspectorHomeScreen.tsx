@@ -1308,7 +1308,7 @@ function InspectorHomeScreenComponent({
                 activeOpacity={1}
               >
                 <View style={styles.listItemRow}>
-                  <Text style={styles.columnText}>{item.tcn?.replace(/^'?SREFERENCENUMBERTCN:/i, "")}</Text>
+                  <Text style={styles.columnText}>{item.tcn}</Text>
                   <Text style={styles.columnText}>{item.unId}</Text>
                   <Text style={styles.columnText}>{item.properShippingName}</Text>
 

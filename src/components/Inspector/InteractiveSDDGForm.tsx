@@ -92,56 +92,6 @@ export interface ShipperInfo {
   dsn: string;
 }
 
-const parseTCN = (raw: string): string => {
-  if (!raw) return "";
-  const colonIndex = raw.indexOf(":");
-  if (colonIndex !== -1) {
-    return raw.substring(colonIndex + 1).trim();
-  }
-  return raw.trim();
-};
-
-const AIRPORT_NOISE_PATTERNS = [
-  /legal\s*penalties/i,
-  /materials?\/?/i,
-  /subject\s*to/i,
-  /law/i,
-  /haz\w*/i,
-  /baige/i,
-  /comply/i,
-  /breach/i,
-  /failure/i,
-  /regulations?/i,
-  /dangerous\s*goods/i,
-  /applicable/i,
-  /^TO$/i,
-];
-
-const cleanAirportValue = (raw: string): string => {
-  if (!raw) return "";
-  const lines = raw
-    .split("\n")
-    .map(line => line.trim())
-    .filter(line => line.length > 0);
-
-  const cleanLines: string[] = [];
-  for (const line of lines) {
-    const isNoise = AIRPORT_NOISE_PATTERNS.some(p => p.test(line));
-    if (!isNoise) {
-      cleanLines.push(line);
-    } else {
-      // Check if the line ends with a short airport code after noise text
-      const tokens = line.split(/\s+/);
-      const lastToken = tokens[tokens.length - 1];
-      if (lastToken && lastToken.length <= 5 && /^[A-Z]{2,5}$/i.test(lastToken)) {
-        cleanLines.push(lastToken.toUpperCase());
-      }
-    }
-  }
-
-  return cleanLines.join("\n").trim();
-};
-
 const parseEmergencyNumbers = (emergencyTelephoneNumber: string) => {
   const numbers = emergencyTelephoneNumber.split(" | ");
   return {
@@ -267,13 +217,10 @@ export const parseConsigneeInfo = (consignee: string): { addressLines: string[] 
     return { addressLines: ["No consignee data"] };
   }
 
-  const OCR_NOISE = ["OF THIS", "DEC"];
-
   const lines = consignee
     .split("\n")
     .map((line) => line.trim())
-    .filter((line) => line.length > 0)
-    .filter((line) => !OCR_NOISE.some((noise) => line.toUpperCase() === noise));
+    .filter((line) => line.length > 0);
 
   if (lines.length === 0) {
     return { addressLines: ["No consignee data"] };
@@ -392,7 +339,7 @@ const InteractiveSDDGForm: React.FC<InteractiveSDDGFormProps> = ({
             <TappableSDDGField
               fieldKey="shippersReferenceNumber"
               fieldLabel="TCN (Key 5)"
-              fieldValue={parseTCN(extractedData.shippersReferenceNumber)}
+              fieldValue={extractedData.shippersReferenceNumber}
               isFrustrated={frustratedFields.has("shippersReferenceNumber")}
               isRecommended={recommendedFrustrations.has(
                 "shippersReferenceNumber"
@@ -402,7 +349,7 @@ const InteractiveSDDGForm: React.FC<InteractiveSDDGFormProps> = ({
               <View>
                 <Text style={styles.text}>SHIPPER'S REFERENCE NUMBER</Text>
                 <Text style={styles.text4}>
-                  TCN: {parseTCN(extractedData.shippersReferenceNumber)}
+                  TCN: {extractedData.shippersReferenceNumber}
                 </Text>
               </View>
             </TappableSDDGField>
@@ -480,7 +427,7 @@ const InteractiveSDDGForm: React.FC<InteractiveSDDGFormProps> = ({
               <TappableSDDGField
                 fieldKey="airportOfDeparture"
                 fieldLabel="AIRPORT OF DEPARTURE (Key 8)"
-                fieldValue={cleanAirportValue(extractedData.airportOfDeparture)}
+                fieldValue={extractedData.airportOfDeparture}
                 isFrustrated={frustratedFields.has("airportOfDeparture")}
                 isRecommended={recommendedFrustrations.has(
                   "airportOfDeparture"
@@ -490,7 +437,7 @@ const InteractiveSDDGForm: React.FC<InteractiveSDDGFormProps> = ({
                 <View style={[styles.airportBox, styles.airportBoxEqual]}>
                   <Text style={styles.label}>Airport of Departure:</Text>
                   <Text style={styles.text}>
-                    {cleanAirportValue(extractedData.airportOfDeparture)}
+                    {extractedData.airportOfDeparture}
                   </Text>
                 </View>
               </TappableSDDGField>

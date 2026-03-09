@@ -95,10 +95,14 @@ const InspectorSDDGModalView: React.FC<InspectorSDDGModalViewProps> = ({
   };
 
   const parseShipperInfo = (shipper: string) => {
+    if (!shipper || shipper.trim() === '') {
+      return { name: '', street: '', city: '' };
+    }
+    const lines = shipper.split('\n').map(l => l.trim()).filter(l => l.length > 0);
     return {
-      name: 'TRAFFIC MANAGEMENT FLIGHT',
-      street: '5236 CHASE RD',
-      city: 'WRIGHT PATTERSON AFB, OH 45433-5501'
+      name: lines[0] || '',
+      street: lines[1] || '',
+      city: lines.slice(2).join(', ') || ''
     };
   };
 

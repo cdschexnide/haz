@@ -155,14 +155,14 @@ const InspectorShippersDeclarationScreen = ({
     const parts = shipper.trim().split(/[,\n]/);
 
     if (parts.length >= 3) {
-      // Format: "TRAFFIC MANAGEMENT FLIGHT, 5236 CHASE ST, WRIGHT PATTERSON AFB, OH 45433-5501"
+      // Format: "COMPANY NAME, 123 MAIN ST, CITY, STATE ZIP"
       return {
         name: parts[0].trim(),
         street: parts[1].trim(),
         city: parts.slice(2).join(", ").trim(),
       };
     } else if (parts.length === 2) {
-      // Format: "TRAFFIC MANAGEMENT FLIGHT 5236 CHASE ST, WRIGHT PATTERSON AFB, OH 45433-5501"
+      // Format: "COMPANY NAME 123 MAIN ST, CITY STATE ZIP"
       const firstPart = parts[0].trim();
       const lastPart = parts[1].trim();
 

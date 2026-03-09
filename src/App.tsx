@@ -4,6 +4,7 @@ import {
   NavigationContainerRefWithCurrent,
 } from "@react-navigation/native";
 import React, { useEffect, useRef, useState } from "react";
+import { View, Text, StyleSheet } from "react-native";
 import CustomDrawerContent from "./components/CustomDrawerContent";
 import MainLayoutNavigator from "./components/MainLayoutNavigator";
 import { HazProValtioProvider } from "./contexts/HazProPreparerProvider/HazProValtioProvider";
@@ -189,8 +190,56 @@ function InspectorDataSetter({ userData }: { userData: UserData | null }) {
   return null;
 }
 
+// Build expiration date: March 24, 2026 at end of day (UTC)
+const BUILD_EXPIRY = new Date("2026-03-08T00:00:00Z");
+
+function ExpiredScreen() {
+  return (
+    <View style={expiredStyles.container}>
+      <Text style={expiredStyles.icon}>⚠️</Text>
+      <Text style={expiredStyles.title}>Demo Period Expired</Text>
+      <Text style={expiredStyles.message}>
+        This demo build of HazPro has expired and is no longer available for
+        use. Please contact Technergetics for continued access.
+      </Text>
+    </View>
+  );
+}
+
+const expiredStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#1a1a2e",
+    padding: 40,
+  },
+  icon: {
+    fontSize: 64,
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#e94560",
+    marginBottom: 16,
+    textAlign: "center",
+  },
+  message: {
+    fontSize: 16,
+    color: "#a0a0b0",
+    textAlign: "center",
+    lineHeight: 24,
+  },
+});
+
 // Main app export with all providers
 export default function App() {
+  // Check build expiration
+  if (new Date() >= BUILD_EXPIRY) {
+    return <ExpiredScreen />;
+  }
+
   return (
     <AutocompleteDropdownContextProvider>
       <NavigationRefProvider>

@@ -130,44 +130,12 @@ function SDDGUploadAndParse({ navigation }: SDDGUploadAndParseProps) {
   }, [extractedContent]);
 
   // Handle setting extracted SDDG content when verification starts (FIX FOR INFINITE LOOP)
+  // NOTE: This path is only used by the legacy Ollama/Gemma flow.
+  // The primary anchor-based flow goes through SDDGProcessingScreen instead.
   useEffect(() => {
     if (showVerification && extractedContent && !mockDataSetRef.current) {
-      console.log("📝 [UPLOAD] Setting extracted SDDG content in useEffect");
-
-      // Prepare mock data for verification
-      const extractedContentForStore: ExtractedSDDGContent = {
-        shipper:
-          "TRAFFIC MANAGEMENT FLIGHT 5236 CHASE ST WRIGHT PATTERSON AFB, OH 45433-5501",
-        consignee: "FB5612 435 ABW LRS RAMSTEIN AB GERMANY",
-        airWaybillNumber: "",
-        pagination: "PAGE 1 OF 1 PAGES",
-        shippersReferenceNumber: "FB23000080609100XX",
-        inspectionActivity: "",
-        aircraftType: "PASSENGER AND CARGO AIRCRAFT",
-        airportOfDeparture: "DOV - Dover AFB, DE",
-        airportOfDestination: "RAMSTEIN AB, GERMANY",
-        shipmentType: "NON-RADIOACTIVE",
-        unIdNo: "UN3363",
-        properShippingName: "DANGEROUS GOODS IN APPARATUS",
-        hazardClass: "5",
-        subsidiaryRisk: "",
-        packingGroup: "P5",
-        quantityAndPacking:
-          "1 wooden box x Laboratory analyzer apparatus (15 kg)",
-        packingInstruction: "A13.13.",
-        authorization: "",
-        additionalHandlingInfo:
-          "Laboratory chemical analyzer containing Class 3 cleaning solvent (450mL) and Class 8 calibration buffer (300mL)",
-        nameOfSignatory: "Austin Stewart Warehouse Foreman",
-        placeAndDate: "WPAFB, OH 29 Feb 2008",
-        signature: "",
-      };
-
-      // Set extracted content - Context provider automatically preserves existing frustrations
-      setExtractedSDDGContent(
-        extractedContentForStore,
-        debugImageUri
-      );
+      console.log("📝 [UPLOAD] Setting extracted SDDG content in useEffect (legacy Ollama path)");
+      // TODO: Map extractedContent.sddgData to ExtractedSDDGContent if Ollama path is re-enabled
       mockDataSetRef.current = true;
     }
 

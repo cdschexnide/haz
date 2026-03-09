@@ -74,7 +74,8 @@ export const SDDG_ANCHORS: AnchorConfig[] = [
       "Airport of Departure (optional)"
     ],
     patternType: "label-top-value-bottom",
-    valueRegionRules: { direction: "below" }
+    valueRegionRules: { direction: "below" },
+    postProcessing: ["extract_airport_code"]
   },
   {
     fieldId: "airport_destination",
@@ -84,7 +85,8 @@ export const SDDG_ANCHORS: AnchorConfig[] = [
       "Airport of Destination (optional)"
     ],
     patternType: "label-top-value-bottom",
-    valueRegionRules: { direction: "below", fallback: "right" }
+    valueRegionRules: { direction: "below", fallback: "right" },
+    postProcessing: ["extract_airport_code"]
   },
   {
     fieldId: "aircraft_type",
@@ -263,7 +265,8 @@ export const SDDG_ANCHORS: AnchorConfig[] = [
       "PLACEAND DATE"
     ],
     patternType: "label-top-value-bottom",
-    valueRegionRules: { direction: "below" }
+    valueRegionRules: { direction: "below" },
+    postProcessing: ["clean_digital_signature"]
   },
   {
     fieldId: "signature",
