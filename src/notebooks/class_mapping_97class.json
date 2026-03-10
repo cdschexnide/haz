@@ -1,0 +1,487 @@
+{
+  "0": {
+    "id": 0,
+    "name": "biohazardLabelForBulkPackagesContainingRegulatedMedicalWaste",
+    "category": "hazmat"
+  },
+  "1": {
+    "id": 1,
+    "name": "cargoAircraftOnly",
+    "category": "hazmat"
+  },
+  "2": {
+    "id": 2,
+    "name": "empty",
+    "category": "hazmat"
+  },
+  "3": {
+    "id": 3,
+    "name": "exceptedQuantityMarking",
+    "category": "hazmat"
+  },
+  "4": {
+    "id": 4,
+    "name": "inhalationHazardMarking",
+    "category": "hazmat"
+  },
+  "5": {
+    "id": 5,
+    "name": "insideContainersComplyWithPrescriberdRegulations",
+    "category": "hazmat"
+  },
+  "6": {
+    "id": 6,
+    "name": "keepAwayFromHeat",
+    "category": "hazmat"
+  },
+  "7": {
+    "id": 7,
+    "name": "limitedQuantityMarking",
+    "category": "hazmat"
+  },
+  "8": {
+    "id": 8,
+    "name": "orientationArrows",
+    "category": "hazmat"
+  },
+  "9": {
+    "id": 9,
+    "name": "overpack",
+    "category": "hazmat"
+  },
+  "10": {
+    "id": 10,
+    "name": "thisEndUpWithOrientationArrows",
+    "category": "hazmat"
+  },
+  "11": {
+    "id": 11,
+    "name": "thisSideUpWithOrientationArrows",
+    "category": "hazmat"
+  },
+  "12": {
+    "id": 12,
+    "name": "thisWayUpWithOrientationArrows",
+    "category": "hazmat"
+  },
+  "13": {
+    "id": 13,
+    "name": "explosives1.1",
+    "category": "hazmat"
+  },
+  "14": {
+    "id": 14,
+    "name": "explosives1.1A",
+    "category": "hazmat"
+  },
+  "15": {
+    "id": 15,
+    "name": "explosives1.1B",
+    "category": "hazmat"
+  },
+  "16": {
+    "id": 16,
+    "name": "explosives1.1C",
+    "category": "hazmat"
+  },
+  "17": {
+    "id": 17,
+    "name": "explosives1.1D",
+    "category": "hazmat"
+  },
+  "18": {
+    "id": 18,
+    "name": "explosives1.1E",
+    "category": "hazmat"
+  },
+  "19": {
+    "id": 19,
+    "name": "explosives1.1F",
+    "category": "hazmat"
+  },
+  "20": {
+    "id": 20,
+    "name": "explosives1.1G",
+    "category": "hazmat"
+  },
+  "21": {
+    "id": 21,
+    "name": "explosives1.1J",
+    "category": "hazmat"
+  },
+  "22": {
+    "id": 22,
+    "name": "explosives1.1L",
+    "category": "hazmat"
+  },
+  "23": {
+    "id": 23,
+    "name": "explosives1.2",
+    "category": "hazmat"
+  },
+  "24": {
+    "id": 24,
+    "name": "explosives1.2B",
+    "category": "hazmat"
+  },
+  "25": {
+    "id": 25,
+    "name": "explosives1.2C",
+    "category": "hazmat"
+  },
+  "26": {
+    "id": 26,
+    "name": "explosives1.2D",
+    "category": "hazmat"
+  },
+  "27": {
+    "id": 27,
+    "name": "explosives1.2E",
+    "category": "hazmat"
+  },
+  "28": {
+    "id": 28,
+    "name": "explosives1.2F",
+    "category": "hazmat"
+  },
+  "29": {
+    "id": 29,
+    "name": "explosives1.2G",
+    "category": "hazmat"
+  },
+  "30": {
+    "id": 30,
+    "name": "explosives1.2H",
+    "category": "hazmat"
+  },
+  "31": {
+    "id": 31,
+    "name": "explosives1.2J",
+    "category": "hazmat"
+  },
+  "32": {
+    "id": 32,
+    "name": "explosives1.2L",
+    "category": "hazmat"
+  },
+  "33": {
+    "id": 33,
+    "name": "explosives1.3",
+    "category": "hazmat"
+  },
+  "34": {
+    "id": 34,
+    "name": "explosives1.3C",
+    "category": "hazmat"
+  },
+  "35": {
+    "id": 35,
+    "name": "explosives1.3G",
+    "category": "hazmat"
+  },
+  "36": {
+    "id": 36,
+    "name": "explosives1.3H",
+    "category": "hazmat"
+  },
+  "37": {
+    "id": 37,
+    "name": "explosives1.3J",
+    "category": "hazmat"
+  },
+  "38": {
+    "id": 38,
+    "name": "explosives1.3K",
+    "category": "hazmat"
+  },
+  "39": {
+    "id": 39,
+    "name": "explosives1.3L",
+    "category": "hazmat"
+  },
+  "40": {
+    "id": 40,
+    "name": "explosives1.4",
+    "category": "hazmat"
+  },
+  "41": {
+    "id": 41,
+    "name": "explosives1.4B",
+    "category": "hazmat"
+  },
+  "42": {
+    "id": 42,
+    "name": "explosives1.4C",
+    "category": "hazmat"
+  },
+  "43": {
+    "id": 43,
+    "name": "explosives1.4D",
+    "category": "hazmat"
+  },
+  "44": {
+    "id": 44,
+    "name": "explosives1.4E",
+    "category": "hazmat"
+  },
+  "45": {
+    "id": 45,
+    "name": "explosives1.4F",
+    "category": "hazmat"
+  },
+  "46": {
+    "id": 46,
+    "name": "explosives1.4G",
+    "category": "hazmat"
+  },
+  "47": {
+    "id": 47,
+    "name": "explosives1.4S",
+    "category": "hazmat"
+  },
+  "48": {
+    "id": 48,
+    "name": "explosives1.5",
+    "category": "hazmat"
+  },
+  "49": {
+    "id": 49,
+    "name": "explosives1.5D",
+    "category": "hazmat"
+  },
+  "50": {
+    "id": 50,
+    "name": "explosives1.5D_blastingAgents",
+    "category": "hazmat"
+  },
+  "51": {
+    "id": 51,
+    "name": "explosives1.6",
+    "category": "hazmat"
+  },
+  "52": {
+    "id": 52,
+    "name": "explosives1.6N",
+    "category": "hazmat"
+  },
+  "53": {
+    "id": 53,
+    "name": "explosives1",
+    "category": "hazmat"
+  },
+  "54": {
+    "id": 54,
+    "name": "UN1977",
+    "category": "hazmat"
+  },
+  "55": {
+    "id": 55,
+    "name": "fireExtinguisherManufacturedPriorToJan1976Label",
+    "category": "hazmat"
+  },
+  "56": {
+    "id": 56,
+    "name": "flammableGasHazmatClass2.1",
+    "category": "hazmat"
+  },
+  "57": {
+    "id": 57,
+    "name": "inhalationHazardHazmatClass2.3",
+    "category": "hazmat"
+  },
+  "58": {
+    "id": 58,
+    "name": "meetsDotRequirements",
+    "category": "hazmat"
+  },
+  "59": {
+    "id": 59,
+    "name": "nonFlammableGasHazmatClass2.2",
+    "category": "hazmat"
+  },
+  "60": {
+    "id": 60,
+    "name": "nonOdorized",
+    "category": "hazmat"
+  },
+  "61": {
+    "id": 61,
+    "name": "oxygenHazmatClass2.2",
+    "category": "hazmat"
+  },
+  "62": {
+    "id": 62,
+    "name": "poisonGasHazmatClass2.3",
+    "category": "hazmat"
+  },
+  "63": {
+    "id": 63,
+    "name": "toxicGasHazmatClass2.3",
+    "category": "hazmat"
+  },
+  "64": {
+    "id": 64,
+    "name": "combustibleHazmatClass3",
+    "category": "hazmat"
+  },
+  "65": {
+    "id": 65,
+    "name": "flammableHazmatClass3",
+    "category": "hazmat"
+  },
+  "66": {
+    "id": 66,
+    "name": "flammableLiquidHazmatClass3",
+    "category": "hazmat"
+  },
+  "67": {
+    "id": 67,
+    "name": "fuelOilHazmatClass3",
+    "category": "hazmat"
+  },
+  "68": {
+    "id": 68,
+    "name": "gasolineHazmatClass3",
+    "category": "hazmat"
+  },
+  "69": {
+    "id": 69,
+    "name": "dangerousWhenWetHazmatClass4.3",
+    "category": "hazmat"
+  },
+  "70": {
+    "id": 70,
+    "name": "flammableSolidHazmatClass4.1",
+    "category": "hazmat"
+  },
+  "71": {
+    "id": 71,
+    "name": "spontaneouslyCombustibleHazmatClass4.2",
+    "category": "hazmat"
+  },
+  "72": {
+    "id": 72,
+    "name": "oxidizerHazmatClass5.1",
+    "category": "hazmat"
+  },
+  "73": {
+    "id": 73,
+    "name": "oxidizingAgentHazmatClass5.1",
+    "category": "hazmat"
+  },
+  "74": {
+    "id": 74,
+    "name": "oxygenGeneratorChemicalWithUN3356",
+    "category": "hazmat"
+  },
+  "75": {
+    "id": 75,
+    "name": "biologicalSubstanceCategoryBWithUN3373",
+    "category": "hazmat"
+  },
+  "76": {
+    "id": 76,
+    "name": "harmfulStowAwayFromFoodStuffsHazmatClass6.1",
+    "category": "hazmat"
+  },
+  "77": {
+    "id": 77,
+    "name": "hazmatClass6PackingGroupIII",
+    "category": "hazmat"
+  },
+  "78": {
+    "id": 78,
+    "name": "infectiousSubstanceHazmatClass6.2",
+    "category": "hazmat"
+  },
+  "79": {
+    "id": 79,
+    "name": "inhalationHazardHazmatClass6.1",
+    "category": "hazmat"
+  },
+  "80": {
+    "id": 80,
+    "name": "poisonHazmatClass6.1",
+    "category": "hazmat"
+  },
+  "81": {
+    "id": 81,
+    "name": "toxicHazmatClass6",
+    "category": "hazmat"
+  },
+  "82": {
+    "id": 82,
+    "name": "corrosiveHazmatClass8",
+    "category": "hazmat"
+  },
+  "83": {
+    "id": 83,
+    "name": "chemicalKit",
+    "category": "hazmat"
+  },
+  "84": {
+    "id": 84,
+    "name": "environmentallyHazardousSubstancesSolidNOS",
+    "category": "hazmat"
+  },
+  "85": {
+    "id": 85,
+    "name": "exceptedLithiumBatteries",
+    "category": "hazmat"
+  },
+  "86": {
+    "id": 86,
+    "name": "firstAidKit",
+    "category": "hazmat"
+  },
+  "87": {
+    "id": 87,
+    "name": "lithiumMetalBatteriesForbiddenForPassengerAircraft",
+    "category": "hazmat"
+  },
+  "88": {
+    "id": 88,
+    "name": "magnetizedMaterials",
+    "category": "hazmat"
+  },
+  "89": {
+    "id": 89,
+    "name": "magnetizedMaterialsWithUN2807",
+    "category": "hazmat"
+  },
+  "90": {
+    "id": 90,
+    "name": "miscellaneousHazmatClass9",
+    "category": "hazmat"
+  },
+  "91": {
+    "id": 91,
+    "name": "variousDangerousSubstancesHazmatClass9",
+    "category": "hazmat"
+  },
+  "92": {
+    "id": 92,
+    "name": "UN3090_lithium_ion_batteries",
+    "category": "hazmat"
+  },
+  "93": {
+    "id": 93,
+    "name": "UN3481_lithium_ion_batteries",
+    "category": "hazmat"
+  },
+  "94": {
+    "id": 94,
+    "name": "marine_pollutants",
+    "category": "hazmat"
+  },
+  "95": {
+    "id": 95,
+    "name": "marine_pollutants_variant2",
+    "category": "hazmat"
+  },
+  "96": {
+    "id": 96,
+    "name": "environmentallyHazardousSubstanceSolidNOS_variant2",
+    "category": "hazmat"
+  }
+}

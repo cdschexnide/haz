@@ -39,3 +39,6 @@ llama.cpp/
 
 # Git worktrees
 .worktrees/
+
+# Unity
+unity/builds/android/unityLibrary/build/

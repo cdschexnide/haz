@@ -191,7 +191,7 @@ function InspectorDataSetter({ userData }: { userData: UserData | null }) {
 }
 
 // Build expiration date: March 24, 2026 at end of day (UTC)
-const BUILD_EXPIRY = new Date("2026-03-08T00:00:00Z");
+const BUILD_EXPIRY = new Date("2026-03-25T00:00:00Z");
 
 function ExpiredScreen() {
   return (
