@@ -74,6 +74,7 @@ export const HazProValtioProvider: React.FC<{ children: React.ReactNode }> = ({
           `Loaded ${shipmentCount} shipments successfully`,
           "info"
         );
+
       } catch (error) {
         console.error("Database initialization/migration failed:", error);
         await ErrorHandlingService.logError(

@@ -40,7 +40,7 @@ const DB_CONFIG = {
 class ShipmentDatabase {
   private static instance: ShipmentDatabase;
   private cache: Map<string, ShipmentFile> = new Map();
-  private readonly maxCacheSize = 10;
+  private readonly maxCacheSize = 50;
 
   private constructor() {}
 
@@ -177,12 +177,14 @@ class ShipmentDatabase {
   }
 
   public async deleteShipment(shipmentId: string): Promise<void> {
-    // 1. Remove from memory cache
-    // 2. Delete the individual JSON file
-    // 3. Remove from index.json
     try {
+      // Load shipment first to get document URIs for cleanup
+      const shipment = await this.loadShipment(shipmentId);
+
+      // Remove from memory cache
       this.cache.delete(shipmentId);
 
+      // Delete the shipment JSON file
       const shipmentPath =
         DB_CONFIG.documentsDir +
         DB_CONFIG.shipmentsDir +
@@ -193,7 +195,30 @@ class ShipmentDatabase {
         await FileSystem.deleteAsync(shipmentPath);
       }
 
+      // Remove from index
       await this.removeFromIndex(shipmentId);
+
+      // Clean up authorization document files
+      if (shipment?.hazProPreparerContext) {
+        const ctx = shipment.hazProPreparerContext;
+        const coeUris =
+          ctx.coeAndCaaDocuments?.coeDocuments?.map(doc => doc.uri).filter(Boolean) || [];
+        const caaUris =
+          ctx.coeAndCaaDocuments?.caaDocuments?.map(doc => doc.uri).filter(Boolean) || [];
+        const dotSpUris = ctx.dotSpWaivers?.map(doc => doc.uri).filter(Boolean) || [];
+
+        const allUris = [...coeUris, ...caaUris, ...dotSpUris].filter(
+          (uri): uri is string => typeof uri === "string" && uri.length > 0
+        );
+
+        await Promise.all(
+          allUris.map(uri =>
+            FileSystem.deleteAsync(uri, { idempotent: true }).catch(err => {
+              console.warn(`Failed to delete authorization document: ${uri}`, err);
+            })
+          )
+        );
+      }
     } catch (error) {
       throw this.createError(
         "DELETE_FAILED",

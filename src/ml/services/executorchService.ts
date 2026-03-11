@@ -12,7 +12,8 @@ let etLoadError: Error | null = null;
 let runtimeAvailability: boolean | null = null;
 
 // Model asset - bundled with the app
-const MODEL_ASSET = require("../../../assets/models/yolox_confidence_boost_epoch60.pte");
+// const MODEL_ASSET = require("../../../assets/models/yolox_confidence_boost_epoch60.pte");
+const MODEL_ASSET = require("../../../assets/models/yolox_msl_finetune_epoch60.pte");
 
 // Module instance
 let execuTorchModule: any | null = null;

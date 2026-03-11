@@ -52,7 +52,6 @@ import ExceptedQuantityPackagingGuidance from "./ExceptedQuantityPackagingGuidan
 import ExceptedQuantityMarkingPreview from "./ExceptedQuantityMarkingPreview";
 import ExceptedQuantityConfirmationScreen from "./ExceptedQuantityConfirmationScreen";
 import LimitedQuantityPackagingGuidance from "./LimitedQuantityPackagingGuidance";
-
 const PreparerStack = createStackNavigator();
 
 const PreparerHomeStack = () => (
@@ -64,8 +63,8 @@ const PreparerHomeStack = () => (
 const MainStack = createStackNavigator();
 
 const WrappedStack = ({ navigation }: { navigation: any }) => (
-  <MainLayout navigation={navigation}>
-    <MainStack.Navigator screenOptions={{ headerShown: false }}>
+    <MainLayout navigation={navigation}>
+      <MainStack.Navigator screenOptions={{ headerShown: false }}>
       <MainStack.Screen name="Disclaimer" component={DisclaimerScreen} />
       <MainStack.Screen
         name="ShipmentCreation"
@@ -225,8 +224,8 @@ const WrappedStack = ({ navigation }: { navigation: any }) => (
         name="SDDGUploadAndParse"
         component={SDDGUploadAndParse}
       />
-    </MainStack.Navigator>
-  </MainLayout>
+      </MainStack.Navigator>
+    </MainLayout>
 );
 
 const RootStack = createStackNavigator();

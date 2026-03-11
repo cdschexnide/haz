@@ -90,8 +90,8 @@ const InspectorHomeStack = () => (
 const MainStack = createStackNavigator();
 
 const InspectorWrappedStack = ({ navigation }: { navigation: any }) => (
-  <InspectorMainLayout navigation={navigation}>
-    <MainStack.Navigator screenOptions={{ headerShown: false }}>
+    <InspectorMainLayout navigation={navigation}>
+      <MainStack.Navigator screenOptions={{ headerShown: false }}>
       <MainStack.Screen
         name="InspectorDisclaimerScreen"
         component={InspectorDisclaimerScreen}
@@ -332,8 +332,8 @@ const InspectorWrappedStack = ({ navigation }: { navigation: any }) => (
         name="InspectorSddgOriginalCopiesCheckScreen"
         component={InspectorSddgOriginalCopiesCheckScreen}
       />
-    </MainStack.Navigator>
-  </InspectorMainLayout>
+      </MainStack.Navigator>
+    </InspectorMainLayout>
 );
 
 const RootStack = createStackNavigator();

@@ -3,13 +3,22 @@ import {
   NavigationContainer,
   NavigationContainerRefWithCurrent,
 } from "@react-navigation/native";
-import React, { useEffect, useRef, useState } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  BackHandler,
+  Alert,
+  Platform,
+  AppState,
+} from "react-native";
 import CustomDrawerContent from "./components/CustomDrawerContent";
 import MainLayoutNavigator from "./components/MainLayoutNavigator";
 import { HazProValtioProvider } from "./contexts/HazProPreparerProvider/HazProValtioProvider";
 import { NavigationRefProvider } from "./contexts/NavigationRefProvider/NavigationRefProvider";
 import { useSetNavigationRef } from "./contexts/NavigationRefProvider/useSetNavigationRef";
+import { useNavigationRef } from "./contexts/NavigationRefProvider/useNavigationRef";
 import { ShipmentsProvider } from "./contexts/ShipmentsProvider";
 import InspectorLayoutNavigator from "./screens/inspector/InspectorLayoutNavigator";
 import { HazProInspectorProvider } from "./contexts/HazProInspectorProvider/HazProInspectorProvider";
@@ -21,6 +30,7 @@ import LoginScreen from "./components/LoginScreen";
 import AcknowledgementScreen from "./components/AcknowledgementScreen";
 import { hazProActions } from "./stores/hazProActions";
 import { useInspectionForm } from "./contexts/InspectionFormProvider";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 
 const Drawer = createDrawerNavigator();
 
@@ -105,6 +115,9 @@ function AppWithLogin() {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [hasPassedAcknowledgement, setHasPassedAcknowledgement] =
     useState(false);
+  const { startNewInspection, setInspector } = useInspectionForm();
+  const { navigationRef } = useNavigationRef();
+  const appStateRef = useRef(AppState.currentState);
 
   const handleLogin = (role: "preparer" | "inspector", formData: UserData) => {
     setSelectedRole(role);
@@ -125,28 +138,88 @@ function AppWithLogin() {
     console.log(`${role} logged in:`, formData);
   };
 
-  const handleLogout = () => {
-    console.log("Logging out...");
+  const handleLogout = useCallback(() => {
+    console.log("Logging out — resetting all state...");
     setIsLoggedIn(false);
     setSelectedRole("preparer");
     setUserData(null);
     setHasPassedAcknowledgement(false);
 
-    // Clear preparer data from Valtio store
-    hazProActions.updatePreparer({
-      preparerName: null,
-      preparerRank: null,
-      preparerTitle: null,
-      certificationPlace: null,
-      certificationDate: null,
-      signature: null,
-    });
-  };
+    // Reset preparer working context (material, packaging, shipment, etc.)
+    hazProActions.resetContext();
+
+    // Reset inspector working context (SDDG, frustrations, etc.)
+    // Note: startNewInspection() and clearInspectionContext() preserve inspector identity by design
+    startNewInspection();
+    hazProActions.clearInspectionContext();
+    hazProActions.resetWorkflow();
+
+    // Explicitly clear inspector identity (preserved by the above calls)
+    setInspector({ inspectorName: "", inspectorRank: null, inspectorTitle: "" });
+    hazProActions.setInspector({ inspectorName: "", inspectorRank: null, inspectorTitle: "" });
+  }, [startNewInspection, setInspector]);
 
   const handleAcknowledge = () => {
     console.log("User acknowledged and passed through");
     setHasPassedAcknowledgement(true);
   };
+
+  // Navigation-aware Android back button handler
+  // Only intercepts at the navigation root — lets React Navigation handle in-stack pops
+  useEffect(() => {
+    if (Platform.OS !== "android") return;
+
+    const handler = BackHandler.addEventListener("hardwareBackPress", () => {
+      if (!isLoggedIn) {
+        // At login screen — let Android minimize (default behavior)
+        return false;
+      }
+
+      // If React Navigation can go back, let it handle the press
+      if (navigationRef?.canGoBack?.()) {
+        return false;
+      }
+
+      // At navigation root while logged in — show confirmation instead of minimizing
+      Alert.alert("Exit App?", "Any unsaved progress will be lost.", [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Exit",
+          style: "destructive",
+          onPress: () => BackHandler.exitApp(),
+        },
+      ]);
+      return true;
+    });
+
+    return () => handler.remove();
+  }, [isLoggedIn, navigationRef]);
+
+  // Handle app returning from background — refresh data and validate state
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", nextAppState => {
+      if (
+        appStateRef.current.match(/inactive|background/) &&
+        nextAppState === "active"
+      ) {
+        console.log("App returned to foreground");
+
+        // Refresh shipments index in case filesystem changed
+        hazProActions.refreshShipmentsIndex();
+
+        // Validate in-memory state consistency
+        // If we're at the login screen, ensure no stale working state lingers
+        if (!isLoggedIn) {
+          hazProActions.resetContext();
+          hazProActions.clearInspectionContext();
+          hazProActions.resetWorkflow();
+        }
+      }
+      appStateRef.current = nextAppState;
+    });
+
+    return () => subscription.remove();
+  }, [isLoggedIn]);
 
   // Show login screen if not logged in
   if (!isLoggedIn) {
@@ -167,7 +240,9 @@ function AppWithLogin() {
   // Show main app after login and acknowledgement - wrap with LogoutContext provider
   return (
     <LogoutContext.Provider value={{ logout: handleLogout }}>
-      <AppInner initialRole={selectedRole} userData={userData} />
+      <ErrorBoundary onReset={handleLogout}>
+        <AppInner initialRole={selectedRole} userData={userData} />
+      </ErrorBoundary>
     </LogoutContext.Provider>
   );
 }
