@@ -380,19 +380,22 @@ const MainLayout = ({
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Special Provisions</Text>
+              <Text style={styles.modalTitle}>Workflow Modifier Special Provisions</Text>
               <TouchableOpacity
                 onPress={() => setWorkflowModifiersModalVisible(false)}
               >
                 <MaterialCommunityIcons name="close" size={28} color="black" />
               </TouchableOpacity>
             </View>
-            {/* <ScrollView style={styles.modalBodyWorkflowModifiers}>
-              {state.hazProPreparerContext?.specialProvisionsMap &&
-              Object.keys(state.hazProPreparerContext.specialProvisionsMap)
-                .length > 0 ? (
+            <ScrollView style={styles.modalBodyWorkflowModifiers}>
+              {Object.entries(
+                state.hazProPreparerContext.modifiersAndRequiredAcknowledgements
+                  ?.specialProvisionsWorkflowModifiers ?? {}
+              ).length > 0 ? (
                 Object.entries(
-                  state.hazProPreparerContext.specialProvisionsMap
+                  state.hazProPreparerContext
+                    .modifiersAndRequiredAcknowledgements
+                    ?.specialProvisionsWorkflowModifiers ?? {}
                 ).map(([key, value]) => (
                   <View key={key} style={styles.workflowModifierItem}>
                     <Text style={styles.panelLabel}>{key}</Text>
@@ -401,10 +404,10 @@ const MainLayout = ({
                 ))
               ) : (
                 <Text style={styles.panelValue}>
-                  No special provisions found.
+                  No workflow modifier special provisions found.
                 </Text>
               )}
-            </ScrollView> */}
+            </ScrollView>
           </View>
         </View>
       </Modal>
