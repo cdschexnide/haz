@@ -118,4 +118,77 @@ describe("InspectionFormProvider finalize + reset", () => {
 
     expect(ctx?.inspectionId).toBe(null);
   });
+
+  it("persists inspectionId after saving a new inspection", async () => {
+    let ctx: ReturnType<typeof useInspectionForm> | null = null;
+    mockDatabase.saveInspection.mockResolvedValueOnce("saved-id");
+
+    render(
+      <InspectionFormProvider>
+        <TestHarness
+          onReady={value => {
+            ctx = value;
+          }}
+        />
+      </InspectionFormProvider>
+    );
+
+    await act(async () => {
+      await ctx?.setExtractedSDDGContent(
+        {
+          shipper: "X",
+          consignee: "Y",
+          shippersReferenceNumber: "TCN1",
+          unIdNo: "UN0000",
+          properShippingName: "TEST",
+        } as any
+      );
+    });
+
+    await act(async () => {
+      await ctx?.saveCurrentInspection();
+    });
+
+    expect(ctx?.inspectionId).toBe("saved-id");
+  });
+
+  it("updates a reinspection with an override ID before inspectionId state exists", async () => {
+    let ctx: ReturnType<typeof useInspectionForm> | null = null;
+
+    render(
+      <InspectionFormProvider>
+        <TestHarness
+          onReady={value => {
+            ctx = value;
+          }}
+        />
+      </InspectionFormProvider>
+    );
+
+    await act(async () => {
+      await ctx?.setExtractedSDDGContent(
+        {
+          shipper: "X",
+          consignee: "Y",
+          shippersReferenceNumber: "TCN1",
+          unIdNo: "UN0000",
+          properShippingName: "TEST",
+        } as any
+      );
+    });
+
+    await act(async () => {
+      const result = await ctx?.updateReinspectedInspection("override-id");
+      expect(result?.success).toBe(true);
+    });
+
+    expect(mockDatabase.updateInspection).toHaveBeenCalledWith(
+      "override-id",
+      expect.objectContaining({
+        status: "completed",
+        sddgStatus: "verified",
+        packageStatus: "verified",
+      })
+    );
+  });
 });

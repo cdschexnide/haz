@@ -53,7 +53,7 @@ interface InspectionFormContextValue {
   completeInspection: () => Promise<{ success: boolean; error?: string }>;
   finalizeInspection: (overrides?: Partial<SDDGInspectionContext>) => Promise<{ success: boolean; error?: string }>;
   cancelInspection: () => void;
-  updateReinspectedInspection: () => Promise<{
+  updateReinspectedInspection: (overrideId?: string) => Promise<{
     success: boolean;
     allResolved: boolean;
     // sddgStatus: 'verified' | 'frustrated';
@@ -465,6 +465,7 @@ export function InspectionFormProvider({
         }
 
         setHasUnsavedChanges(false);
+        setInspectionId(id);
 
         // Log total time breakdown
         const totalTime = performance.now() - statusStart;
@@ -557,20 +558,22 @@ export function InspectionFormProvider({
     startNewInspection();
   }, [startNewInspection]);
 
-  const updateReinspectedInspection = useCallback(async () => {
+  const updateReinspectedInspection = useCallback(async (overrideId?: string) => {
     const perfId = perfTracker.start("updateReinspectedInspection", {
-      inspectionId
+      inspectionId: overrideId || inspectionId
     });
 
     try {
-      if (!inspectionId) {
+      const effectiveId = overrideId || inspectionId;
+
+      if (!effectiveId) {
         perfTracker.end(perfId, 0);
         throw new Error("No inspection ID available for update");
       }
 
       console.log(
         "📝 [InspectionForm] Updating reinspected inspection:",
-        inspectionId
+        effectiveId
       );
       setIsProcessing(true);
 
@@ -597,7 +600,7 @@ export function InspectionFormProvider({
 
       // Update inspection in database
       const dbUpdateStart = performance.now();
-      await database.updateInspection(inspectionId, {
+      await database.updateInspection(effectiveId, {
         status,
         sddgStatus,
         packageStatus,

@@ -8,6 +8,8 @@ import {
   Alert,
   Dimensions,
   Image,
+  PermissionsAndroid,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -90,7 +92,6 @@ function SDDGUploadAndParse({ navigation }: SDDGUploadAndParseProps) {
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
 
   const [isScanning, setIsScanning] = useState(false);
-  const [showDocumentScanner, setShowDocumentScanner] = useState(false);
   const [showVerification, setShowVerification] = useState(false);
   const [showPdfConverter, setShowPdfConverter] = useState(false);
   const [showQRScanner, setShowQRScanner] = useState(false);
@@ -121,6 +122,73 @@ function SDDGUploadAndParse({ navigation }: SDDGUploadAndParseProps) {
     height: number;
   } | null>(null);
   const showDebugOverlay = true; // Set to false to hide overlay
+
+  const handleDocumentScan = async () => {
+    if (isScanning) {
+      return;
+    }
+
+    setError(null);
+    setProcessingProgress("Opening document scanner...");
+    setIsScanning(true);
+
+    try {
+      if (Platform.OS === "android") {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.CAMERA,
+          {
+            title: "Camera Permission",
+            message: "This app needs camera access to scan documents",
+            buttonNeutral: "Ask Me Later",
+            buttonNegative: "Cancel",
+            buttonPositive: "OK",
+          }
+        );
+
+        if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+          return;
+        }
+      }
+
+      const { scannedImages } = await DocumentScanner.scanDocument({
+        croppedImageQuality: 100,
+        maxNumDocuments: 1,
+        responseType: ResponseType.ImageFilePath,
+        letUserAdjustCrop: true,
+      });
+
+      if (!scannedImages || scannedImages.length === 0) {
+        return;
+      }
+
+      const scannedImageUri = scannedImages[0];
+      const devSettings = getDevSettings();
+
+      if (devSettings.sddgExtractionMethod === "anchor-based") {
+        navigation.navigate("SDDGProcessingScreen", {
+          imageUri: scannedImageUri,
+          isScanned: true,
+        });
+      } else {
+        navigation.navigate("SDDGRegionAdjustmentScreen", {
+          imageUri: scannedImageUri,
+          isScanned: true,
+        });
+      }
+    } catch (error: any) {
+      const message = String(error?.message || "").toLowerCase();
+      if (message.includes("cancel")) {
+        return;
+      }
+
+      console.error("🟦 [SDDG] Document scan error:", error);
+      setError("Failed to scan document. Please try again.");
+      Alert.alert("Scan Error", "Failed to scan document. Please try again.");
+    } finally {
+      setIsScanning(false);
+      setProcessingProgress("");
+    }
+  };
 
   useEffect(() => {
     console.log(
@@ -2595,38 +2663,12 @@ function SDDGUploadAndParse({ navigation }: SDDGUploadAndParseProps) {
           contentContainerStyle={styles.scrollContent}
         >
           <View style={styles.scanSection}>
-            {/* <TouchableOpacity
-              style={[
-                styles.scanButton,
-                isScanning && styles.scanButtonDisabled,
-              ]}
-              // onPress={handleDocumentScan}
-              disabled={isScanning}
-            >
-              <View style={styles.scanButtonContent}>
-                {isScanning ? (
-                  <ActivityIndicator size="small" color="#FFFFFF" />
-                ) : (
-                  <MaterialIcons
-                    name="document-scanner"
-                    size={32}
-                    color="#FFFFFF"
-                  />
-                )}
-                <Text style={styles.scanButtonText}>
-                  {isScanning ? "Processing..." : "Take Photo"}
-                </Text>
-              </View>
-            </TouchableOpacity> */}
-            {/* Template-Based OCR Button - High Accuracy */}
             <TouchableOpacity
               style={[
                 styles.importButton,
                 isScanning && styles.scanButtonDisabled,
               ]}
-              onPress={() => {
-                navigation.navigate("SDDGCameraScreen");
-              }}
+              onPress={handleDocumentScan}
               disabled={isScanning}
             >
               <View style={styles.scanButtonContent}>
@@ -2635,7 +2677,9 @@ function SDDGUploadAndParse({ navigation }: SDDGUploadAndParseProps) {
                   size={32}
                   color="#FFFFFF"
                 />
-                <Text style={styles.scanButtonText}>Take Photo</Text>
+                <Text style={styles.scanButtonText}>
+                  {isScanning ? "Processing..." : "Take Photo"}
+                </Text>
               </View>
             </TouchableOpacity>
             <TouchableOpacity

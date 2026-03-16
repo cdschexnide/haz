@@ -70,7 +70,6 @@ export type RootStackParamList = {
     screen: string;
   };
   // SDDG OCR Template Screens
-  SDDGCameraScreen: undefined;
   SDDGRegionAdjustmentScreen: {
     imageUri: string;
     isScanned?: boolean;

@@ -50,16 +50,13 @@ export default function SDDGComplianceValidation({
     completeSDDGSubstep,
     setSDDGComplete,
     completeInspection,
+    saveCurrentInspection,
     completeSDDGAndMoveToPackage,
     completeReinspection,
     updateReinspectedInspection,
     startNewInspection,
   } = useInspectionForm();
 
-  console.log(
-    "HERE!!! => ",
-    JSON.stringify(inspection?.verificationCopy, null, 2)
-  );
   const [currentStep, setCurrentStep] = useState(0);
   const [isEditMode, setIsEditMode] = useState(false);
   const [correctValue, setCorrectValue] = useState("");
@@ -403,46 +400,70 @@ export default function SDDGComplianceValidation({
         "🔄 [ComplianceValidation] Reinspection mode - updating inspection"
       );
 
+      const finishReinspection = async (overrideId?: string) => {
+        const result = await updateReinspectedInspection(overrideId);
+
+        if (!result.success) {
+          Alert.alert("Error", result.error || "Failed to save reinspection");
+          return;
+        }
+
+        completeReinspection();
+
+        if (result.allResolved) {
+          Alert.alert(
+            "Reinspection Complete",
+            "All SDDG frustrations have been resolved. This inspection is now verified.",
+            [
+              {
+                text: "OK",
+                onPress: () => {
+                  startNewInspection();
+                  navigation.navigate("InspectorHomeScreen");
+                },
+              },
+            ]
+          );
+        } else {
+          console.log(
+            "🔄 [ComplianceValidation] Some frustrations remain, showing summary"
+          );
+          navigation.navigate("SDDGFrustrationSummary");
+        }
+      };
+
       if (!inspectionId) {
-        Alert.alert("Error", "Unable to find inspection ID");
-        return;
-      }
-
-      // Update the reinspected inspection in database
-      const result = await updateReinspectedInspection();
-
-      if (!result.success) {
-        Alert.alert("Error", result.error || "Failed to save reinspection");
-        return;
-      }
-
-      // Complete the reinspection workflow state
-      completeReinspection();
-
-      if (result.allResolved) {
-        // All frustrations resolved - success!
         Alert.alert(
-          "Reinspection Complete",
-          "All SDDG frustrations have been resolved. This inspection is now verified.",
+          "Complete Reinspection",
+          "This inspection hasn't been saved yet. Do you want to save and complete the reinspection?",
           [
+            { text: "Cancel", style: "cancel" },
             {
-              text: "OK",
+              text: "Yes, Complete",
               onPress: () => {
-                // Clear inspection context
-                startNewInspection();
-                // Navigate back to home screen
-                navigation.navigate("InspectorHomeScreen");
+                void (async () => {
+                  try {
+                    const newId = await saveCurrentInspection();
+                    await finishReinspection(newId);
+                  } catch (error) {
+                    console.error(
+                      "🔄 [ComplianceValidation] Failed to create and update inspection:",
+                      error
+                    );
+                    Alert.alert(
+                      "Error",
+                      "Failed to save inspection. Please try again."
+                    );
+                  }
+                })();
               },
             },
           ]
         );
-      } else {
-        // Some frustrations remain - show summary
-        console.log(
-          "🔄 [ComplianceValidation] Some frustrations remain, showing summary"
-        );
-        navigation.navigate("SDDGFrustrationSummary");
+        return;
       }
+
+      await finishReinspection();
       return;
     }
 

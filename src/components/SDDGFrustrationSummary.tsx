@@ -40,6 +40,7 @@ export default function SDDGFrustrationSummary({
     completeSDDGSubstep,
     setSDDGComplete,
     completeInspection,
+    saveCurrentInspection,
     completeSDDGAndMoveToPackage,
     completeReinspection,
     updateReinspectedInspection,
@@ -130,27 +131,59 @@ export default function SDDGFrustrationSummary({
     const isReinspectionMode = workflow.reinspection.mode === "sddg";
 
     if (isReinspectionMode) {
-      // We're completing a reinspection - update the existing inspection
       console.log("🔄 [FrustrationSummary] Completing reinspection");
+      const finishReinspection = async (overrideId?: string) => {
+        setIsSaving(true);
+
+        try {
+          const result = await updateReinspectedInspection(overrideId);
+
+          if (!result.success) {
+            Alert.alert("Error", result.error || "Failed to save reinspection");
+            return;
+          }
+
+          completeReinspection();
+          startNewInspection();
+          navigation.navigate("InspectorHomeScreen");
+        } finally {
+          setIsSaving(false);
+        }
+      };
 
       if (!inspectionId) {
-        Alert.alert("Error", "Unable to find inspection ID");
+        Alert.alert(
+          "Complete Reinspection",
+          "This inspection hasn't been saved yet. Do you want to save and complete the reinspection?",
+          [
+            { text: "Cancel", style: "cancel" },
+            {
+              text: "Yes, Complete",
+              onPress: async () => {
+                setIsSaving(true);
+
+                try {
+                  const newId = await saveCurrentInspection();
+                  await finishReinspection(newId);
+                } catch (error) {
+                  console.error(
+                    "🔄 [FrustrationSummary] Failed to create and update inspection:",
+                    error
+                  );
+                  Alert.alert(
+                    "Error",
+                    "Failed to save inspection. Please try again."
+                  );
+                  setIsSaving(false);
+                }
+              },
+            },
+          ]
+        );
         return;
       }
 
-      const result = await updateReinspectedInspection();
-
-      if (!result.success) {
-        Alert.alert("Error", result.error || "Failed to save reinspection");
-        return;
-      }
-
-      // Complete reinspection workflow
-      completeReinspection();
-
-      // Clear inspection and navigate home
-      startNewInspection();
-      navigation.navigate("InspectorHomeScreen");
+      await finishReinspection();
     } else {
       // Original inspection flow - continue to package inspection
       completeSDDGSubstep("SDDGFrustrationSummary");

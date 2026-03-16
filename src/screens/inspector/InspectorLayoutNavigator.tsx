@@ -72,7 +72,6 @@ import SDDGComplianceValidation from "../../components/SDDGComplianceValidation"
 import SDDGInspectionCompleteScreen from "../../components/SDDGInspectionCompleteScreen";
 
 // SDDG screens in src/screens/SDDG/ (../SDDG/*)
-import SDDGCameraScreen from "../SDDG/SDDGCameraScreen";
 import SDDGProcessingScreen from "../SDDG/SDDGProcessingScreen";
 import SDDGRegionAdjustmentScreen from "../SDDG/SDDGRegionAdjustmentScreen";
 
@@ -348,15 +347,6 @@ const InspectorLayoutNavigator = () => {
       <RootStack.Screen
         name="InspectorWrappedStack"
         component={InspectorWrappedStack}
-      />
-      {/* Full-screen camera screens - outside of InspectorMainLayout */}
-      <RootStack.Screen
-        name="SDDGCameraScreen"
-        component={SDDGCameraScreen}
-        options={{
-          headerShown: false,
-          gestureEnabled: true,
-        }}
       />
       <RootStack.Screen
         name="SDDGRegionAdjustmentScreen"
