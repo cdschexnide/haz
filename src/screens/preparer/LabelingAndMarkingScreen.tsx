@@ -117,7 +117,7 @@ export const LabelingAndMarkingScreen: React.FC<LabelingAndMarkingScreenProps> =
       ...completedSubsteps,
       'LabelingAndMarking',
     ];
-    navigation.navigate('ShippersDeclarationScreen');
+    navigation.navigate('AdditionalHandlingInfoScreen');
   }, [completedSubsteps, navigation, store.hazProPreparerContext]);
 
   const prepareShipmentData = useCallback(() => {

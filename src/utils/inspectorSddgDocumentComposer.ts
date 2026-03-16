@@ -98,6 +98,8 @@ const imageUriToPdf = async (imageUri: string): Promise<string> => {
         width: 100%;
         height: 100%;
         background: #fff;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
       }
       .page {
         width: 100%;
@@ -375,7 +377,10 @@ export const composeInspectorSddgPdf = async (
   if (imageUri) {
     const imageInfo = await FileSystem.getInfoAsync(imageUri);
     if (imageInfo.exists) {
-      sddgPdfUri = await imageUriToPdf(imageUri);
+      // If the SDDG is already a PDF (e.g. stamped via expo-print), use it directly
+      sddgPdfUri = imageUri.toLowerCase().endsWith(".pdf")
+        ? imageUri
+        : await imageUriToPdf(imageUri);
     } else {
       warnings.push("Original SDDG image was missing; generated digital SDDG.");
       sddgPdfUri = await digitalSddgContentToPdf(inspection);

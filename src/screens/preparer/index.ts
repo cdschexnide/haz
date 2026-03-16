@@ -3,6 +3,8 @@
 // Preparer workflow screens
 export { default as AbsorbentCushioningRequirements } from './AbsorbentCushioningRequirements';
 
+export { default as AdditionalHandlingInfoScreen } from './AdditionalHandlingInfoScreen';
+
 export * from './CertifyFormScreen';
 export { default as CertifyFormScreen } from './CertifyFormScreen';
 

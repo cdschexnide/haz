@@ -1506,6 +1506,10 @@ export const initialHazProPreparerContext: HazProPreparerContext = {
   //   },
   //   phoneNumber: null
   // },
+  additionalHandlingInfo: {
+    accessorialHazmat: [],
+    notes: [],
+  },
   technicalName: "",
   activeStep: null,
   activeSubstep: null,

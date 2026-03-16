@@ -101,6 +101,12 @@ const MaterialIDScreen = ({ navigation }: { navigation: any }) => {
     } else {
       setShowTable(false);
     }
+
+    // Auto-dismiss keyboard when 4 numeric digits have been entered
+    const digitCount = (text.match(/\d/g) || []).length;
+    if (digitCount === 4) {
+      Keyboard.dismiss();
+    }
   };
 
   const filteredMaterials =
@@ -204,12 +210,12 @@ const MaterialIDScreen = ({ navigation }: { navigation: any }) => {
 
         if (modifiers && store.hazProPreparerContext.modifiersAndRequiredAcknowledgements) {
           store.hazProPreparerContext.modifiersAndRequiredAcknowledgements.documentNodeWorkflowModifiers =
-            modifiers.workflowModifiersDocumentNodes;
+            [...modifiers.workflowModifiersDocumentNodes];
 
           // A6.15 also has informative statements
           if (lookupKey === 'A6.15') {
             store.hazProPreparerContext.modifiersAndRequiredAcknowledgements.documentNodeInformativeStatements =
-              modifiers.informativeStatementsDocumentNodes;
+              [...modifiers.informativeStatementsDocumentNodes];
           }
         }
         break;
@@ -248,7 +254,7 @@ const MaterialIDScreen = ({ navigation }: { navigation: any }) => {
 
     if (store.hazProPreparerContext.modifiersAndRequiredAcknowledgements) {
       store.hazProPreparerContext.modifiersAndRequiredAcknowledgements.specialProvisionsInformativeStatements =
-        informativeSpecialProvisions;
+        JSON.parse(JSON.stringify(informativeSpecialProvisions));
     }
 
     // Store special provisions map on the global store
@@ -257,7 +263,7 @@ const MaterialIDScreen = ({ navigation }: { navigation: any }) => {
       specialProvisionsArray
     );
     store.hazProPreparerContext.specialProvisionsMap =
-      materialSpecialProvisionsMap;
+      JSON.parse(JSON.stringify(materialSpecialProvisionsMap));
 
     const workflowModifiersMap = filterMatchingKeys(
       allWorkflowModifiers,
@@ -265,7 +271,7 @@ const MaterialIDScreen = ({ navigation }: { navigation: any }) => {
     );
     if (store.hazProPreparerContext.modifiersAndRequiredAcknowledgements) {
       store.hazProPreparerContext.modifiersAndRequiredAcknowledgements.specialProvisionsWorkflowModifiers =
-        workflowModifiersMap;
+        JSON.parse(JSON.stringify(workflowModifiersMap));
     }
   };
 
@@ -330,8 +336,24 @@ const MaterialIDScreen = ({ navigation }: { navigation: any }) => {
       null;
   };
 
+  const ensureModifiersInitialized = () => {
+    if (!store.hazProPreparerContext.modifiersAndRequiredAcknowledgements) {
+      store.hazProPreparerContext.modifiersAndRequiredAcknowledgements = {
+        generalPackagingRequirementsAcknowledged: false,
+        informativeStatementsAcknowledged: false,
+        workflowModifiersAcknowledged: false,
+        specialProvisionsAcknowledged: false,
+        documentNodeInformativeStatements: [],
+        documentNodeWorkflowModifiers: [],
+        specialProvisionsInformativeStatements: {},
+        specialProvisionsWorkflowModifiers: {},
+      };
+    }
+  };
+
   const handleMaterialSelect = (material: HazardousMaterialItem) => {
     setSelectedMaterial(material);
+    ensureModifiersInitialized();
 
     // Deep clone the material object to avoid Valtio proxy issues with frozen/sealed objects
     store.hazProPreparerContext.hazardousMaterial = JSON.parse(JSON.stringify(material));
@@ -362,6 +384,7 @@ const MaterialIDScreen = ({ navigation }: { navigation: any }) => {
 
   const handlePackingGroupSelection = (selection: string) => {
     setSelectedPackingGroup(selection);
+    ensureModifiersInitialized();
     if (store.hazProPreparerContext.hazardousMaterial) {
       store.hazProPreparerContext.hazardousMaterial.packingGroup = selection;
     }

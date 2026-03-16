@@ -66,6 +66,7 @@ export const Form1015Viewer: React.FC<Form1015ViewerProps> = ({
     [context.resolvedPackageFrustrations]
   );
   const verificationCopy = context.verificationCopy || null;
+  const openedForInspection = context.packageOpeningInspection?.wasOpened ?? null;
 
   // Format inspector helper
   const formatInspector = useCallback((inspectorData: any): string => {
@@ -94,8 +95,11 @@ export const Form1015Viewer: React.FC<Form1015ViewerProps> = ({
   );
 
   // Determine validation status
-  const anyFailed = sddgFrustrations.length > 0 || packageFrustrations.length > 0;
-  const allPassed = sddgFrustrations.length === 0 && packageFrustrations.length === 0;
+  const hasCurrentFrustrations = sddgFrustrations.length > 0 || packageFrustrations.length > 0;
+  const hasResolvedFrustrations = resolvedSddgFrustrations.length > 0 || resolvedPackageFrustrations.length > 0;
+  // "DOES NOT COMPLY" stays checked if frustrations ever existed (current or resolved)
+  const anyFailed = hasCurrentFrustrations || hasResolvedFrustrations;
+  const allPassed = !anyFailed;
 
   // Get TCN
   const tcn = verificationCopy?.shippersReferenceNumber || inspection.tcn || "N/A";
@@ -105,8 +109,7 @@ export const Form1015Viewer: React.FC<Form1015ViewerProps> = ({
   const inspectedByDate = currentDate.toISOString().split("T")[0].replace(/-/g, "");
 
   // Check corrective actions
-  const hasResolvedFrustrations = resolvedSddgFrustrations.length > 0 || resolvedPackageFrustrations.length > 0;
-  const correctiveActionsChecked = hasResolvedFrustrations && allPassed;
+  const correctiveActionsChecked = hasResolvedFrustrations && !hasCurrentFrustrations;
 
   const { latestDate: reinspectionDate, latestInspector } = useMemo(() =>
     getLatestReinspectionInfo({
@@ -124,7 +127,7 @@ export const Form1015Viewer: React.FC<Form1015ViewerProps> = ({
     : "";
   const hasReinspectionAttempts = !!reinspectionDate;
   const reinspectedByName = hasReinspectionAttempts ? normalizedLatestInspector || inspector : "N/A";
-  const correctedByName = correctiveActionsChecked ? normalizedLatestInspector || inspector : "N/A";
+  const correctedByName = correctiveActionsChecked ? (context.correctedByName || "N/A") : "N/A";
   const inspectedByName = inspector || "N/A";
 
   // Format frustrations for comments - matching InspectorAMC1015Form exactly
@@ -832,9 +835,28 @@ export const Form1015Viewer: React.FC<Form1015ViewerProps> = ({
             <View style={styles.inspectionStatus}>
               <View style={styles.inspectionInlineRow}>
                 <Text style={styles.label2}>OPENED FOR INSPECTION:</Text>
-                <View style={styles.checkbox} />
+                <View
+                  style={[
+                    styles.checkbox,
+                    openedForInspection === true && styles.checkboxChecked,
+                  ]}
+                >
+                  {openedForInspection === true ? (
+                    <Text style={styles.checkboxMarkChecked}>✓</Text>
+                  ) : null}
+                </View>
                 <Text style={styles.labelSmall}>YES</Text>
-                <View style={[styles.checkbox, { marginLeft: 12 }]} />
+                <View
+                  style={[
+                    styles.checkbox,
+                    { marginLeft: 12 },
+                    openedForInspection === false && styles.checkboxChecked,
+                  ]}
+                >
+                  {openedForInspection === false ? (
+                    <Text style={styles.checkboxMarkChecked}>✓</Text>
+                  ) : null}
+                </View>
                 <Text style={styles.labelSmall}>NO</Text>
               </View>
             </View>
@@ -1053,6 +1075,16 @@ const styles = StyleSheet.create({
   checkboxMark: {
     fontSize: 14,
     fontWeight: "bold",
+  },
+  checkboxChecked: {
+    backgroundColor: "#007AFF",
+    borderColor: "#007AFF",
+  },
+  checkboxMarkChecked: {
+    fontSize: 12,
+    fontWeight: "bold",
+    color: "#FFFFFF",
+    lineHeight: 12,
   },
 
   // Instructions

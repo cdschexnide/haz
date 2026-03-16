@@ -79,6 +79,16 @@ export class InspectorShipmentDatabase {
           f.frustrationDate = new Date(f.frustrationDate);
         });
       }
+      if (inspection.inspectionContext.packageOpeningInspection?.openedAt) {
+        inspection.inspectionContext.packageOpeningInspection.openedAt = new Date(
+          inspection.inspectionContext.packageOpeningInspection.openedAt
+        );
+      }
+      if (inspection.inspectionContext.packageOpeningInspection?.closedAt) {
+        inspection.inspectionContext.packageOpeningInspection.closedAt = new Date(
+          inspection.inspectionContext.packageOpeningInspection.closedAt
+        );
+      }
 
       console.log("🔍 [InspectorDB] Inspection loaded successfully");
       return inspection;

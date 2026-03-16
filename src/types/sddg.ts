@@ -1,5 +1,6 @@
 import { Inspector, ExceptedQuantityData, LimitedQuantityData } from "../../types";
 import { InnerPackagingInspectionData } from "./innerPackaging";
+import type { PackageOpeningData } from "./packageOpening";
 import type { AggregatedAnalysis } from "@/ml/types/ocr";
 import type { SpecialAuthorizationType } from "@/utils/afmanPackagingParagraphs";
 
@@ -168,6 +169,7 @@ export interface SDDGInspectionContext {
   resolvedPackageFrustrations: PackageFrustrationRecord[]; // Package frustrations that passed reinspection
   magnetizedMaterialInspection: InspectorMagnetizedMaterialData | null; // UN2807 specific inspection
   innerPackagingInspection: InnerPackagingInspectionData | null; // Combination packaging inner inspection
+  packageOpeningInspection: PackageOpeningData | null; // Package opened-for-inspection workflow
   kitInspectionData?: KitInspectionData | null; // UN3316 kit contents for labeling
   packagePopMarking: PackagePopMarking | null; // POP marking data entry
   labelingContext?: LabelingContext | null;
@@ -187,6 +189,7 @@ export interface SDDGInspectionContext {
     inspectorRank: string | null;
     inspectorTitle: string;
   };
+  correctedByName: string | null;
   inspectionStartTime: Date | null;
   inspectionCompleteTime: Date | null;
 }

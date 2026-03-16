@@ -73,9 +73,10 @@ export const PackagingScreen: React.FC<PackagingScreenProps> = ({ navigation }) 
     } else {
       setPackagingFlags(false, true);
       store.hazProPreparerContext.packagingEntryMethod = 'manual';
-      navigation.navigate('ManualEntryPackagingTypeSelectionScreen');
+      initializePOPMarking();
+      navigation.navigate('POPMarkingDataEntry');
     }
-  }, [clearSpecialAuthorizationState, markStepComplete, setPackagingFlags, isClass2, navigation]);
+  }, [clearSpecialAuthorizationState, markStepComplete, setPackagingFlags, isClass2, initializePOPMarking, navigation]);
 
   const handleWalkthrough = useCallback(() => {
     clearSpecialAuthorizationState();

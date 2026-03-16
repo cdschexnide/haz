@@ -22,6 +22,7 @@ import {
 } from "@/types/sddg";
 import { ExceptedQuantityData, LimitedQuantityData, Inspector } from "../../../types";
 import { InnerPackagingInspectionData } from "@/types/innerPackaging";
+import type { PackageOpeningData } from "@/types/packageOpening";
 import * as FileSystem from "expo-file-system";
 import { useDatabase } from "../DataProvider";
 import {
@@ -126,6 +127,8 @@ interface InspectionFormContextValue {
     notes?: string
   ) => void;
   clearInnerPackagingInspection: () => void;
+  setPackageOpeningInspection: (data: PackageOpeningData | null) => void;
+  clearPackageOpeningInspection: () => void;
 
   // UN3316 kit inspection data
   setKitInspectionData: (data: KitInspectionData | null) => void;
@@ -1375,6 +1378,27 @@ export function InspectionFormProvider({
     setHasUnsavedChanges(true);
   }, []);
 
+  const setPackageOpeningInspection = useCallback(
+    (data: PackageOpeningData | null) => {
+      console.log("📝 [InspectionForm] Setting package opening inspection");
+      setInspection(prev => ({
+        ...prev,
+        packageOpeningInspection: data ? { ...data } : null,
+      }));
+      setHasUnsavedChanges(true);
+    },
+    []
+  );
+
+  const clearPackageOpeningInspection = useCallback(() => {
+    console.log("📝 [InspectionForm] Clearing package opening inspection");
+    setInspection(prev => ({
+      ...prev,
+      packageOpeningInspection: null,
+    }));
+    setHasUnsavedChanges(true);
+  }, []);
+
   const setKitInspectionData = useCallback((data: KitInspectionData | null) => {
     console.log("📝 [InspectionForm] Setting kit inspection data");
     setInspection(prev => ({
@@ -1827,6 +1851,8 @@ export function InspectionFormProvider({
       updateInnerPackagingField,
       updateInnerPackagingInspectionItem,
       clearInnerPackagingInspection,
+      setPackageOpeningInspection,
+      clearPackageOpeningInspection,
       setKitInspectionData,
       setLabelingContext,
       updateLabelingContextField,
@@ -1888,6 +1914,8 @@ export function InspectionFormProvider({
       updateInnerPackagingField,
       updateInnerPackagingInspectionItem,
       clearInnerPackagingInspection,
+      setPackageOpeningInspection,
+      clearPackageOpeningInspection,
       setKitInspectionData,
       setLabelingContext,
       updateLabelingContextField,
@@ -1986,6 +2014,8 @@ export function useInspectionFormActions() {
     updateInnerPackagingField: context.updateInnerPackagingField,
     updateInnerPackagingInspectionItem: context.updateInnerPackagingInspectionItem,
     clearInnerPackagingInspection: context.clearInnerPackagingInspection,
+    setPackageOpeningInspection: context.setPackageOpeningInspection,
+    clearPackageOpeningInspection: context.clearPackageOpeningInspection,
     setKitInspectionData: context.setKitInspectionData,
     setLabelingContext: context.setLabelingContext,
     updateLabelingContextField: context.updateLabelingContextField,

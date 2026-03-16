@@ -1,12 +1,13 @@
-jest.mock("react-native-view-shot", () => ({
-  captureRef: jest.fn(),
-}));
-
 jest.mock("expo-file-system", () => ({
   documentDirectory: "file:///tmp/",
   getInfoAsync: jest.fn(),
   makeDirectoryAsync: jest.fn(),
   moveAsync: jest.fn(),
+  readAsStringAsync: jest.fn(),
+}));
+
+jest.mock("expo-print", () => ({
+  printToFileAsync: jest.fn(),
 }));
 
 import {

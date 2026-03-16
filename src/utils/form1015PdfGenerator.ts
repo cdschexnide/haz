@@ -25,6 +25,7 @@ export interface Form1015PdfData {
   resolvedIds: Set<string>;
   failedItems: Array<{ formatted: string }>;
   quantityAndPacking: string;
+  openedForInspection: boolean | null;
 }
 
 const sanitizeFilenameSegment = (value: string): string =>
@@ -80,6 +81,7 @@ export const buildForm1015PdfData = (
     context.resolvedPackageFrustrations
   );
   const verificationCopy = context.verificationCopy || null;
+  const openedForInspection = context.packageOpeningInspection?.wasOpened ?? null;
 
   const { currentlyFrustrated: frustratedForm1015Ids, resolved: resolvedForm1015Ids } =
     mapFrustrationsToForm1015WithResolved(
@@ -90,9 +92,13 @@ export const buildForm1015PdfData = (
       verificationCopy
     );
 
-  const allPassed =
-    sddgFrustrations.length === 0 && packageFrustrations.length === 0;
-  const anyFailed = !allPassed;
+  const hasCurrentFrustrations =
+    sddgFrustrations.length > 0 || packageFrustrations.length > 0;
+  const hasResolvedFrustrations =
+    resolvedSddgFrustrations.length > 0 || resolvedPackageFrustrations.length > 0;
+  // "DOES NOT COMPLY" stays checked if frustrations ever existed (current or resolved)
+  const anyFailed = hasCurrentFrustrations || hasResolvedFrustrations;
+  const allPassed = !anyFailed;
   const tcn = verificationCopy?.shippersReferenceNumber || inspection.tcn || "N/A";
   const inspectedByDate = new Date()
     .toISOString()
@@ -101,9 +107,7 @@ export const buildForm1015PdfData = (
   const inspectedByName = formatInspector(inspection.inspector) || "N/A";
 
   // Reinspection info
-  const hasResolvedFrustrations =
-    resolvedSddgFrustrations.length > 0 || resolvedPackageFrustrations.length > 0;
-  const correctiveActionsChecked = hasResolvedFrustrations && allPassed;
+  const correctiveActionsChecked = hasResolvedFrustrations && !hasCurrentFrustrations;
 
   const { latestDate: reinspectionDate, latestInspector } =
     getLatestReinspectionInfo({
@@ -124,7 +128,7 @@ export const buildForm1015PdfData = (
     ? normalizedLatestInspector || inspectedByName
     : "N/A";
   const correctedByName = correctiveActionsChecked
-    ? normalizedLatestInspector || inspectedByName
+    ? (context.correctedByName || "N/A")
     : "N/A";
 
   // Build timeline entries
@@ -291,6 +295,7 @@ export const buildForm1015PdfData = (
     resolvedIds: resolvedForm1015Ids,
     failedItems: allEntries.map(entry => ({ formatted: entry.formatted })),
     quantityAndPacking: verificationCopy?.quantityAndPacking || "N/A",
+    openedForInspection,
   };
 };
 
@@ -537,8 +542,8 @@ export const generateForm1015SectionHtml = (data: Form1015PdfData): string => {
       <tr>
         <td style="padding:6px;border-right:1px solid #000;">
           <strong>OPENED FOR INSPECTION:</strong>
-          <span style="display:inline-block;width:16px;height:16px;border:1px solid #000;text-align:center;margin:0 4px;">&nbsp;</span> YES
-          <span style="display:inline-block;width:16px;height:16px;border:1px solid #000;text-align:center;margin:0 4px;">&nbsp;</span> NO
+          <span style="display:inline-block;width:16px;height:16px;border:1px solid #000;text-align:center;margin:0 4px;${data.openedForInspection === true ? "background:#007AFF;color:#fff;font-weight:bold;" : ""}">${data.openedForInspection === true ? "✓" : "&nbsp;"}</span> YES
+          <span style="display:inline-block;width:16px;height:16px;border:1px solid #000;text-align:center;margin:0 4px;${data.openedForInspection === false ? "background:#007AFF;color:#fff;font-weight:bold;" : ""}">${data.openedForInspection === false ? "✓" : "&nbsp;"}</span> NO
         </td>
         <td style="padding:0;">
           <table style="width:100%;border-collapse:collapse;">

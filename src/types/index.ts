@@ -54,6 +54,11 @@ export {
   type InnerPackagingInspectionData,
 } from "./innerPackaging";
 
+export {
+  type FiberboardClosureMethod,
+  type PackageOpeningData,
+} from "./packageOpening";
+
 // Dry Ice Inspection Types
 export {
   type AircraftType,

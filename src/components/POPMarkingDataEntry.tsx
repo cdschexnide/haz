@@ -110,6 +110,10 @@ const PackingContainerDataEntry = ({ navigation }: { navigation: any }) => {
   const packagingParagraphValuesThatRequirePGIPackaging = ["A12.9.", "A12.11."];
 
   const allowablePackingGroups = () => {
+    // Packing group I always restricts to X only, regardless of hazard class
+    if (state.hazProPreparerContext.hazardousMaterial?.packingGroup === "I") {
+      return ["X"];
+    }
     if (
       state.hazProPreparerContext.hazardousMaterial?.hazclassDiv.startsWith("1")
     ) {
@@ -563,13 +567,15 @@ const PackingContainerDataEntry = ({ navigation }: { navigation: any }) => {
                   style={styles.input}
                   placeholder="Field H"
                   value={fields.H}
+                  autoCapitalize="characters"
                   onChangeText={text => {
-                    updateField("H", text);
+                    const upper = text.toUpperCase();
+                    updateField("H", upper);
                     if (
                       store.hazProPreparerContext.packaging?.inputPOPMarking
                     ) {
                       store.hazProPreparerContext.packaging.inputPOPMarking.H =
-                        text;
+                        upper;
                     }
                   }}
                 />

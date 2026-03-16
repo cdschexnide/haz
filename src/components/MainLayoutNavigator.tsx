@@ -23,6 +23,7 @@ import GrandfatheredWizard from "./GrandfatheredWizard";
 import InformativeAndWorkflowModifiersAcknowledgementScreen from "./InformativeAndWorkflowModifiersAcknowledgementScreen";
 import InnerPackagingWizard from "./InnerPackagingWizard";
 import { KitPreparationScreen } from "@/screens/preparer";
+import { AdditionalHandlingInfoScreen } from "@/screens/preparer";
 import { LabelingAndMarkingScreen } from "@/screens/preparer";
 import { LifeSavingAppliancesScreen as LifeSavingAppliances } from "@/screens/preparer";
 import { LithiumBatteriesPrepScreen } from "@/screens/preparer";
@@ -145,6 +146,10 @@ const WrappedStack = ({ navigation }: { navigation: any }) => (
       <MainStack.Screen
         name="AccessorialHazardsScreen"
         component={AccessorialHazardsScreen}
+      />
+      <MainStack.Screen
+        name="AdditionalHandlingInfoScreen"
+        component={AdditionalHandlingInfoScreen}
       />
       <MainStack.Screen
         name="ShippersDeclarationScreen"

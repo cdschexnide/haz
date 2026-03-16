@@ -235,6 +235,18 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         })),
       }));
     }
+    if (context.packageOpeningInspection) {
+      if (context.packageOpeningInspection.openedAt) {
+        context.packageOpeningInspection.openedAt = new Date(
+          context.packageOpeningInspection.openedAt
+        );
+      }
+      if (context.packageOpeningInspection.closedAt) {
+        context.packageOpeningInspection.closedAt = new Date(
+          context.packageOpeningInspection.closedAt
+        );
+      }
+    }
 
     return {
       id: row.id,

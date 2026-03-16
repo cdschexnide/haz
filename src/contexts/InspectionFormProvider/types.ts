@@ -97,6 +97,7 @@ export const initialInspectionContext: SDDGInspectionContext = {
   resolvedPackageFrustrations: [],
   magnetizedMaterialInspection: null,
   innerPackagingInspection: null,
+  packageOpeningInspection: null,
   kitInspectionData: null,
   packagePopMarking: null,
   labelingContext: null,
@@ -114,6 +115,7 @@ export const initialInspectionContext: SDDGInspectionContext = {
     caaDocuments: [],
   },
   dotSpWaivers: [],
+  correctedByName: null,
   inspector: {
     inspectorName: "",
     inspectorRank: null,

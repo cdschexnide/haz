@@ -299,6 +299,18 @@ export const SDDGImageViewer: React.FC<SDDGImageViewerProps> = ({
             >
               <InspectorShippersDeclarationForm extractedData={digitalFormData} />
             </ScrollView>
+          ) : imageUri && imageUri.toLowerCase().endsWith(".pdf") ? (
+            <Pdf
+              source={{ uri: imageUri }}
+              style={styles.pdf}
+              enablePaging={false}
+              horizontal={false}
+              fitPolicy={0}
+              onError={error => {
+                console.error("Error rendering SDDG PDF:", error);
+                setPrepareError("Unable to render SDDG document.");
+              }}
+            />
           ) : (
             imageUri && (
               <ScrollView

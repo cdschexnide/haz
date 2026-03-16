@@ -55,6 +55,9 @@ import InspectorMarkingsLabelsValidationScreen from "./InspectorMarkingsLabelsVa
 import InspectorAttachment28WizardScreen from "./InspectorAttachment28WizardScreen";
 import InspectorSpecialProvisionsScreen from "./InspectorSpecialProvisionsScreen";
 import InspectorSddgOriginalCopiesCheckScreen from "./InspectorSddgOriginalCopiesCheckScreen";
+import InspectorPackageOpeningScreen from "./InspectorPackageOpeningScreen";
+import InspectorPackageOpeningProceduresScreen from "./InspectorPackageOpeningProceduresScreen";
+import InspectorPackageClosingProceduresScreen from "./InspectorPackageClosingProceduresScreen";
 
 // Inner packaging screens (./inner-packaging/*)
 import InnerPackagingConfirmation from "./inner-packaging/InnerPackagingConfirmation";
@@ -330,6 +333,18 @@ const InspectorWrappedStack = ({ navigation }: { navigation: any }) => (
       <MainStack.Screen
         name="InspectorSddgOriginalCopiesCheckScreen"
         component={InspectorSddgOriginalCopiesCheckScreen}
+      />
+      <MainStack.Screen
+        name="InspectorPackageOpeningScreen"
+        component={InspectorPackageOpeningScreen}
+      />
+      <MainStack.Screen
+        name="InspectorPackageOpeningProceduresScreen"
+        component={InspectorPackageOpeningProceduresScreen}
+      />
+      <MainStack.Screen
+        name="InspectorPackageClosingProceduresScreen"
+        component={InspectorPackageClosingProceduresScreen}
       />
       </MainStack.Navigator>
     </InspectorMainLayout>

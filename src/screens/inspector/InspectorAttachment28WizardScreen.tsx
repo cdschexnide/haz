@@ -119,19 +119,23 @@ export default function InspectorAttachment28WizardScreen({
   }, [criteria, currentStep, workflow.reinspection.mode, workflow.reinspection.targetFrustrations]);
 
   const navigateToNext = useCallback(() => {
-    if (workflow.reinspection.mode !== "package") {
-      if (route?.params?.continueRoute) {
-        navigation.navigate(route.params.continueRoute, route.params.continueParams);
-        return;
+    // Reinspection: skip package opening question, preserve existing data
+    if (workflow.reinspection.mode === "package") {
+      const hasPackageFrustrations = (inspection?.packageFrustrations?.length ?? 0) > 0;
+      if (hasPackageFrustrations) {
+        navigation.navigate("PackageFrustrationSummary");
+      } else {
+        navigation.navigate("PackageInspectionCompleteScreen");
       }
+      return;
     }
 
-    const hasPackageFrustrations = (inspection?.packageFrustrations?.length ?? 0) > 0;
-    if (hasPackageFrustrations) {
-      navigation.navigate("PackageFrustrationSummary");
-    } else {
-      navigation.navigate("PackageInspectionCompleteScreen");
-    }
+    // First-pass: route through package opening question
+    navigation.navigate("InspectorPackageOpeningScreen", {
+      continueRoute:
+        route?.params?.continueRoute || "InspectorSpecialProvisionsScreen",
+      continueParams: route?.params?.continueParams,
+    });
   }, [
     navigation,
     inspection?.packageFrustrations?.length,

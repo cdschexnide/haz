@@ -1260,9 +1260,6 @@ function InspectorHomeScreenComponent({
     handleStartInspectionFromPreparer,
   ]);
 
-  const class2Materials = hazardousMaterialsList.filter((material) => material.packagingParagraph.startsWith("A6") && material.packagingParagraph !== "FORBIDDEN");
-  console.log("class2Materials: ", JSON.stringify(class2Materials, null, 2));
-
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <KeyboardAvoidingView
@@ -1308,7 +1305,7 @@ function InspectorHomeScreenComponent({
                 activeOpacity={1}
               >
                 <View style={styles.listItemRow}>
-                  <Text style={styles.columnText}>{item.tcn}</Text>
+                  <Text style={styles.columnText}>{item.tcn?.replace(/^'?SREFERENCENUMBERTCN:/i, "")}</Text>
                   <Text style={styles.columnText}>{item.unId}</Text>
                   <Text style={styles.columnText}>{item.properShippingName}</Text>
 

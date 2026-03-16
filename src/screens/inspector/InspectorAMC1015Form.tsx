@@ -9,6 +9,8 @@ import {
   ActivityIndicator,
   Platform,
   KeyboardAvoidingView,
+  Modal,
+  TextInput,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import * as FileSystem from "expo-file-system";
@@ -49,6 +51,8 @@ export const InspectorAMC1015Form = ({
   const actions = useHazProActions();
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const stampRef = useRef<SddgStampOverlayHandle>(null);
+  const [showCorrectedByModal, setShowCorrectedByModal] = useState(false);
+  const [correctedByInput, setCorrectedByInput] = useState("");
 
   // Set the active chevron to "Complete" when this screen is mounted
   useEffect(() => {
@@ -62,6 +66,7 @@ export const InspectorAMC1015Form = ({
   const resolvedPackageFrustrations =
     inspection.resolvedPackageFrustrations || [];
   const verificationCopy = inspection.verificationCopy;
+  const openedForInspection = inspection.packageOpeningInspection?.wasOpened ?? null;
 
   // Helper to format inspector for display
   const formatInspector = (inspectorData: any): string => {
@@ -90,10 +95,14 @@ export const InspectorAMC1015Form = ({
   );
 
   // Determine validation status
-  const anyFailed =
+  const hasCurrentFrustrations =
     sddgFrustrations.length > 0 || packageFrustrations.length > 0;
-  const allPassed =
-    sddgFrustrations.length === 0 && packageFrustrations.length === 0;
+  const hasResolvedFrustrations =
+    resolvedSddgFrustrations.length > 0 || resolvedPackageFrustrations.length > 0;
+  // "DOES NOT COMPLY" stays checked if frustrations ever existed (current or resolved)
+  const anyFailed = hasCurrentFrustrations || hasResolvedFrustrations;
+  // "COMPLIES" only checked if there were never any frustrations at all
+  const allPassed = !anyFailed;
 
   // Get TCN from SDDG data
   const tcn = verificationCopy?.shippersReferenceNumber || "N/A";
@@ -109,9 +118,7 @@ export const InspectorAMC1015Form = ({
   // correctiveActionsChecked is true when:
   // 1. There were frustrations that have been resolved (resolved frustrations exist)
   // 2. AND all frustrations have been resolved (no current frustrations remain)
-  const hasResolvedFrustrations =
-    resolvedSddgFrustrations.length > 0 || resolvedPackageFrustrations.length > 0;
-  const correctiveActionsChecked = hasResolvedFrustrations && allPassed;
+  const correctiveActionsChecked = hasResolvedFrustrations && !hasCurrentFrustrations;
 
   const { latestDate: reinspectionDate, latestInspector } =
     getLatestReinspectionInfo({
@@ -133,7 +140,7 @@ export const InspectorAMC1015Form = ({
     ? normalizedLatestInspector || inspector
     : "N/A";
   const correctedByName = correctiveActionsChecked
-    ? normalizedLatestInspector || inspector
+    ? inspection.correctedByName || "Tap to enter name"
     : "N/A";
   const inspectedByName = inspector || "N/A";
 
@@ -660,7 +667,7 @@ export const InspectorAMC1015Form = ({
             <div class="flex-30">
               <div class="label">CORRECTED BY (NAME)</div>
               <div class="value">${
-                correctedByName
+                correctiveActionsChecked ? (inspection.correctedByName || "N/A") : "N/A"
               }</div>
             </div>
           </div>
@@ -1816,12 +1823,19 @@ export const InspectorAMC1015Form = ({
                 {correctiveActionsChecked ? reinspectedByDate : "N/A"}
               </Text>
             </View>
-            <View style={styles.flex30}>
+            <TouchableOpacity
+              style={styles.flex30}
+              disabled={!correctiveActionsChecked}
+              onPress={() => {
+                setCorrectedByInput(inspection.correctedByName || "");
+                setShowCorrectedByModal(true);
+              }}
+            >
               <Text style={styles.label}>CORRECTED BY (NAME)</Text>
-              <Text style={styles.value}>
+              <Text style={[styles.value, correctiveActionsChecked && !inspection.correctedByName && styles.placeholderValue]}>
                 {correctedByName}
               </Text>
-            </View>
+            </TouchableOpacity>
           </View>
           <View style={styles.row2}>
             <View style={styles.flex20}>
@@ -2831,9 +2845,28 @@ export const InspectorAMC1015Form = ({
             <View style={styles.inspectionStatus}>
               <View style={styles.inspectionInlineRow}>
                 <Text style={styles.label2}>OPENED FOR INSPECTION:</Text>
-                <View style={styles.checkbox} />
+                <View
+                  style={[
+                    styles.checkbox,
+                    openedForInspection === true && styles.checkboxChecked,
+                  ]}
+                >
+                  {openedForInspection === true ? (
+                    <Text style={styles.checkboxMarkChecked}>✓</Text>
+                  ) : null}
+                </View>
                 <Text style={styles.labelSmall}>YES</Text>
-                <View style={[styles.checkbox, { marginLeft: 12 }]} />
+                <View
+                  style={[
+                    styles.checkbox,
+                    { marginLeft: 12 },
+                    openedForInspection === false && styles.checkboxChecked,
+                  ]}
+                >
+                  {openedForInspection === false ? (
+                    <Text style={styles.checkboxMarkChecked}>✓</Text>
+                  ) : null}
+                </View>
                 <Text style={styles.labelSmall}>NO</Text>
               </View>
             </View>
@@ -2888,6 +2921,48 @@ export const InspectorAMC1015Form = ({
           },
         ]}
       />
+
+      {/* Corrected By Name Modal */}
+      <Modal
+        visible={showCorrectedByModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowCorrectedByModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+          >
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>CORRECTED BY (NAME)</Text>
+              <TextInput
+                style={styles.modalInput}
+                value={correctedByInput}
+                onChangeText={setCorrectedByInput}
+                placeholder="Enter name"
+                autoFocus
+              />
+              <View style={styles.modalButtons}>
+                <TouchableOpacity
+                  style={styles.modalCancelButton}
+                  onPress={() => setShowCorrectedByModal(false)}
+                >
+                  <Text style={styles.modalCancelText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.modalSaveButton}
+                  onPress={() => {
+                    inspection.correctedByName = correctedByInput.trim() || null;
+                    setShowCorrectedByModal(false);
+                  }}
+                >
+                  <Text style={styles.modalSaveText}>Save</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </KeyboardAvoidingView>
+        </View>
+      </Modal>
 
       {/* Dev Benchmark Button - only visible in __DEV__ and not in modal */}
       {!isModal && <DevBenchmarkButton position="bottom-right" />}
@@ -3255,6 +3330,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  checkboxChecked: {
+    backgroundColor: "#007AFF",
+    borderColor: "#007AFF",
+  },
+  checkboxMarkChecked: {
+    fontSize: 12,
+    fontWeight: "bold",
+    color: "#FFFFFF",
+    lineHeight: 12,
+  },
 
   label: {
     fontSize: 14,
@@ -3416,5 +3501,59 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     justifyContent: "center",
     alignItems: "center",
+  },
+  placeholderValue: {
+    color: colors.primary,
+    fontStyle: "italic",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    backgroundColor: colors.white,
+    borderRadius: borderRadius.md,
+    padding: spacing.xl,
+    width: 350,
+  },
+  modalTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: spacing.md,
+    color: colors.textPrimary,
+  },
+  modalInput: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: borderRadius.sm,
+    padding: spacing.md,
+    fontSize: 16,
+    marginBottom: spacing.lg,
+  },
+  modalButtons: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+  },
+  modalCancelButton: {
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    marginRight: spacing.md,
+  },
+  modalCancelText: {
+    fontSize: 16,
+    color: colors.textSecondary,
+  },
+  modalSaveButton: {
+    backgroundColor: colors.primary,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    borderRadius: borderRadius.sm,
+  },
+  modalSaveText: {
+    fontSize: 16,
+    color: colors.white,
+    fontWeight: "600",
   },
 });

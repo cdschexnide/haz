@@ -137,6 +137,7 @@ export const createMockInspectionForm = (overrides: Record<string, any> = {}) =>
     packageStatus: 'NOT_STARTED',
     frustrations: [],
     packageFrustrations: [],
+    packageOpeningInspection: null,
     ...overrides.inspection,
   },
   workflow: {
@@ -152,6 +153,8 @@ export const createMockInspectionForm = (overrides: Record<string, any> = {}) =>
   saveCurrentInspection: jest.fn().mockResolvedValue(undefined),
   completeInspection: jest.fn(),
   finalizeInspection: jest.fn(),
+  setPackageOpeningInspection: jest.fn(),
+  clearPackageOpeningInspection: jest.fn(),
   ...overrides,
 });
 
