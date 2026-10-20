@@ -41,6 +41,9 @@ export { default as SpecialProvisionsAcknowledgementScreen } from './SpecialProv
 export * from './QuantityEntryScreen';
 export { default as QuantityEntryScreen } from './QuantityEntryScreen';
 
+export * from './LithiumBatteryQuantityScreen';
+export { default as LithiumBatteryQuantityScreen } from './LithiumBatteryQuantityScreen';
+
 export * from './MaterialIDScreen';
 export { default as MaterialIDScreen } from './MaterialIDScreen';
 

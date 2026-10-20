@@ -114,7 +114,7 @@ async function stampImageViaPrint(
       }
       .stamp {
         position: absolute;
-        top: 28%;
+        top: 20%;
         left: 62%;
         width: 30%;
         font-family: Arial, sans-serif;

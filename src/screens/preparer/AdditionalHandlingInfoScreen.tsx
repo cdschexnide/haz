@@ -1,7 +1,7 @@
 // src/screens/preparer/AdditionalHandlingInfoScreen.tsx
 
 import React, { useState, useCallback } from 'react';
-import { View, ScrollView, Text, TextInput, StyleSheet } from 'react-native';
+import { View, ScrollView, Text, TextInput, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import {
   ActionFooter,
   colors,
@@ -66,8 +66,15 @@ const AdditionalHandlingInfoScreen = ({ navigation }: { navigation: any }) => {
   ];
 
   return (
-    <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        keyboardDismissMode="on-drag"
+        keyboardShouldPersistTaps="handled"
+      >
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Additional Handling Information</Text>
           <Text style={styles.headerSubtitle}>
@@ -85,7 +92,7 @@ const AdditionalHandlingInfoScreen = ({ navigation }: { navigation: any }) => {
         />
       </ScrollView>
       <ActionFooter buttons={footerButtons} />
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 

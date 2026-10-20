@@ -829,7 +829,13 @@ const MaterialIDScreen = ({ navigation }: { navigation: any }) => {
                 return;
               }
               store.hazProPreparerContext.completedSubsteps = ["MaterialID"];
-              navigation.navigate("QuantityEntryScreen");
+              const selectedUnid =
+                store.hazProPreparerContext.hazardousMaterial?.unid?.toUpperCase();
+              if (selectedUnid === "UN3480" || selectedUnid === "UN3090") {
+                navigation.navigate("LithiumBatteryQuantityScreen");
+              } else {
+                navigation.navigate("QuantityEntryScreen");
+              }
             }}
           >
             <Text style={styles.buttonText}>Save & Continue</Text>

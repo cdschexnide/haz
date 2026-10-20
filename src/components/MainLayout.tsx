@@ -39,6 +39,30 @@ const MainLayout = ({
   ] = useState<boolean>(false);
   const [isWorkflowModifiersModalVisible, setWorkflowModifiersModalVisible] =
     useState<boolean>(false);
+
+  // Extract special provisions data as plain objects to avoid Valtio proxy
+  // ownKeys invariant violations when Object.entries() is called on snapshot proxies
+  const spWorkflowModifiers = useMemo(() => {
+    try {
+      const raw = state.hazProPreparerContext.modifiersAndRequiredAcknowledgements
+        ?.specialProvisionsWorkflowModifiers;
+      if (!raw || typeof raw !== 'object') return {} as Record<string, string>;
+      return JSON.parse(JSON.stringify(raw)) as Record<string, string>;
+    } catch {
+      return {} as Record<string, string>;
+    }
+  }, [state.hazProPreparerContext.modifiersAndRequiredAcknowledgements?.specialProvisionsWorkflowModifiers]);
+
+  const spInformativeStatements = useMemo(() => {
+    try {
+      const raw = state.hazProPreparerContext.modifiersAndRequiredAcknowledgements
+        ?.specialProvisionsInformativeStatements;
+      if (!raw || typeof raw !== 'object') return {} as Record<string, string>;
+      return JSON.parse(JSON.stringify(raw)) as Record<string, string>;
+    } catch {
+      return {} as Record<string, string>;
+    }
+  }, [state.hazProPreparerContext.modifiersAndRequiredAcknowledgements?.specialProvisionsInformativeStatements]);
   const [activeTab, setActiveTab] = useState<
     "MaterialDetails" | "ShipmentDetails"
   >("MaterialDetails");
@@ -388,15 +412,8 @@ const MainLayout = ({
               </TouchableOpacity>
             </View>
             <ScrollView style={styles.modalBodyWorkflowModifiers}>
-              {Object.entries(
-                state.hazProPreparerContext.modifiersAndRequiredAcknowledgements
-                  ?.specialProvisionsWorkflowModifiers ?? {}
-              ).length > 0 ? (
-                Object.entries(
-                  state.hazProPreparerContext
-                    .modifiersAndRequiredAcknowledgements
-                    ?.specialProvisionsWorkflowModifiers ?? {}
-                ).map(([key, value]) => (
+              {Object.entries(spWorkflowModifiers).length > 0 ? (
+                Object.entries(spWorkflowModifiers).map(([key, value]) => (
                   <View key={key} style={styles.workflowModifierItem}>
                     <Text style={styles.panelLabel}>{key}</Text>
                     <Text style={styles.panelValue}>{value}</Text>
@@ -431,15 +448,8 @@ const MainLayout = ({
               </TouchableOpacity>
             </View>
             <ScrollView style={styles.modalBodyWorkflowModifiers}>
-              {Object.entries(
-                state.hazProPreparerContext.modifiersAndRequiredAcknowledgements
-                  ?.specialProvisionsInformativeStatements ?? {}
-              ).length > 0 ? (
-                Object.entries(
-                  state.hazProPreparerContext
-                    .modifiersAndRequiredAcknowledgements
-                    ?.specialProvisionsInformativeStatements ?? {}
-                ).map(([key, value]) => (
+              {Object.entries(spInformativeStatements).length > 0 ? (
+                Object.entries(spInformativeStatements).map(([key, value]) => (
                   <View key={key} style={styles.workflowModifierItem}>
                     <Text style={styles.panelLabel}>{key}</Text>
                     <Text style={styles.panelValue}>{value}</Text>

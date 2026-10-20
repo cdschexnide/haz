@@ -705,6 +705,18 @@ const ShippersDeclarationForm = ({
               </Text>
             ))}
 
+            {state.hazProPreparerContext.additionalHandlingInfo?.notes?.map(
+              (noteText: string, index: number) =>
+                noteText.trim() ? (
+                  <Text
+                    key={`additional-note-${index}`}
+                    style={styles.infoLine}
+                  >
+                    {noteText}
+                  </Text>
+                ) : null
+            )}
+
             <View style={styles.emergencyLineContainer}>
               <Text style={styles.emergencyLabel}>
                 EMERGENCY TELEPHONE NUMBER:{" "}

@@ -120,6 +120,14 @@ const useSDDGFormData = () => {
       html += `<p class="info-line">${instruction}</p>`;
     });
 
+    // Add user-entered additional handling notes
+    const notes = ctx.additionalHandlingInfo?.notes ?? [];
+    notes.forEach(noteText => {
+      if (noteText.trim()) {
+        html += `<p class="info-line">${noteText.trim()}</p>`;
+      }
+    });
+
     return html;
   }, [ctx]);
 

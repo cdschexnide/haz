@@ -90,6 +90,69 @@ const LithiumBatteriesPrepScreen = ({ navigation }: { navigation: any }) => {
   const [isDefectiveOrDamaged, setIsDefectiveOrDamaged] = useState(SafetyRequirementStatus.NOT_SELECTED);
   const [specialInstructions, setSpecialInstructions] = useState('');
   const [meetsExceptedQuantity, setMeetsExceptedQuantity] = useState(false);
+  const existingBatteryData = state.hazProPreparerContext.lithiumBatteryData as any;
+
+  useEffect(() => {
+    if (!existingBatteryData?.packagingMethod) return;
+
+    setSelectedPackagingMethod(existingBatteryData.packagingMethod);
+
+    if (existingBatteryData.outerPackagingType) {
+      setSelectedOuterPackaging(existingBatteryData.outerPackagingType);
+    }
+    if (existingBatteryData.innerPackagingDescription) {
+      setInnerPackagingDescription(existingBatteryData.innerPackagingDescription);
+    }
+    if (existingBatteryData.quantityOfBatteries) {
+      setQuantityOfBatteries(String(existingBatteryData.quantityOfBatteries));
+    }
+    if (existingBatteryData.totalWeight?.value) {
+      setTotalWeight(String(existingBatteryData.totalWeight.value));
+      setWeightUnit(existingBatteryData.totalWeight.unit === 'lb' ? 'lbs' : 'kg');
+    }
+    if (existingBatteryData.wattHourRating) {
+      setWattHourRating(String(existingBatteryData.wattHourRating));
+    }
+    if (existingBatteryData.lithiumContentInGrams) {
+      setLithiumContentInGrams(String(existingBatteryData.lithiumContentInGrams));
+    }
+    if (typeof existingBatteryData.meetsUN38Requirements === 'boolean') {
+      setMeetsUN38Requirements(
+        existingBatteryData.meetsUN38Requirements
+          ? SafetyRequirementStatus.YES
+          : SafetyRequirementStatus.NO
+      );
+    }
+    if (typeof existingBatteryData.isDefectiveOrDamaged === 'boolean') {
+      setIsDefectiveOrDamaged(
+        existingBatteryData.isDefectiveOrDamaged
+          ? SafetyRequirementStatus.YES
+          : SafetyRequirementStatus.NO
+      );
+    }
+    if (existingBatteryData.safetyFeatures) {
+      setHasShortCircuitProtection(
+        existingBatteryData.safetyFeatures.shortCircuitProtection
+          ? SafetyRequirementStatus.YES
+          : SafetyRequirementStatus.NO
+      );
+      setHasSafetyVent(
+        existingBatteryData.safetyFeatures.safetyVent
+          ? SafetyRequirementStatus.YES
+          : SafetyRequirementStatus.NO
+      );
+      setHasReverseCurrentProtection(
+        existingBatteryData.safetyFeatures.reverseCurrentProtection
+          ? SafetyRequirementStatus.YES
+          : SafetyRequirementStatus.NO
+      );
+    }
+    if (existingBatteryData.specialInstructions) {
+      setSpecialInstructions(existingBatteryData.specialInstructions);
+    }
+
+    setStep(1);
+  }, []);
 
   const material = {
     unid,
@@ -194,7 +257,12 @@ const LithiumBatteriesPrepScreen = ({ navigation }: { navigation: any }) => {
 
   const handleContinue = () => {
     if (step < 3) {
-      setStep(step + 1);
+      const nextStep = step + 1;
+      if (nextStep === 2 && existingBatteryData?.packagingMethod) {
+        setStep(3);
+      } else {
+        setStep(nextStep);
+      }
     } else {
       saveLithiumBatteryData();
       const completedSubsteps = state.hazProPreparerContext.completedSubsteps || [];

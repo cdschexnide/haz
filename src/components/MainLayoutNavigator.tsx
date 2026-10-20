@@ -48,6 +48,7 @@ import PackagingWizardV2 from "./PackagingWizardV2";
 import POPScannerScreen from "./POPScannerScreen";
 import POPScanResultsScreen from "./POPScanResultsScreen";
 // Excepted and Limited Quantities screens
+import { LithiumBatteryQuantityScreen } from "@/screens/preparer";
 import { QuantityEntryScreen } from "@/screens/preparer";
 import ExceptedQuantityPackagingGuidance from "./ExceptedQuantityPackagingGuidance";
 import ExceptedQuantityMarkingPreview from "./ExceptedQuantityMarkingPreview";
@@ -76,6 +77,10 @@ const WrappedStack = ({ navigation }: { navigation: any }) => (
       <MainStack.Screen
         name="QuantityEntryScreen"
         component={QuantityEntryScreen}
+      />
+      <MainStack.Screen
+        name="LithiumBatteryQuantityScreen"
+        component={LithiumBatteryQuantityScreen}
       />
       <MainStack.Screen
         name="ExceptedQuantityPackagingGuidance"
